@@ -414,5 +414,3 @@ For support, questions, or feedback:
 **Built with ❤️ using Next.js, React, and Tailwind CSS**
 
 _Last updated: November 2025_
-#   q u i a h g r o u p _ - 2 5 0 _ w e b - s a f a r i  
- 
