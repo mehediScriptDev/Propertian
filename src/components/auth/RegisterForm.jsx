@@ -7,11 +7,13 @@ import FormInput from './FormInput';
 import SocialButton from './SocialButton';
 import Divider from './Divider';
 import QHomesLogo from './QHomesLogo';
+import { useTranslation } from '@/i18n';
 // Keep texts in English here; language switcher will be integrated later
 
 const RegisterForm = () => {
     const pathname = usePathname();
-    const locale = pathname.split('/')[1] || 'en';
+     const locale = pathname.split('/')[1] || 'en';
+      const { t } = useTranslation(locale);
 
     const [formData, setFormData] = useState({
         fullName: '',
@@ -37,19 +39,19 @@ const RegisterForm = () => {
             <div className="flex flex-col items-center gap-2 pb-4">
                 <QHomesLogo className="h-12 w-auto" />
                 <h1 className="text-charcoal-800 dark:text-background-light text-2xl sm:text-3xl font-bold tracking-tight">
-                    Create an account
+                    {t('auth.register.title')}
                 </h1>
                 <p className="text-charcoal-500 dark:text-charcoal-300 text-center text-sm">
-                    Create your free Q Homes account.
+                    {t('auth.register.subtitle')}
                 </p>
             </div>
 
             <form onSubmit={handleSubmit} className="flex w-full flex-col items-stretch gap-4" noValidate>
                 <FormInput
-                    label={'Full name'}
+                    label={t('auth.register.fullName')}
                     type="text"
                     name="fullName"
-                    placeholder={'Jane Doe'}
+                    placeholder={t('auth.register.fullNamePlaceholder')}
                     icon="person"
                     value={formData.fullName}
                     onChange={handleChange}
@@ -58,10 +60,10 @@ const RegisterForm = () => {
                 />
 
                 <FormInput
-                    label={'Email'}
+                    label={t('auth.register.email')}
                     type="email"
                     name="email"
-                    placeholder={'you@example.com'}
+                    placeholder={t('auth.register.emailPlaceholder')}
                     icon="email"
                     value={formData.email}
                     onChange={handleChange}
@@ -70,10 +72,10 @@ const RegisterForm = () => {
                 />
 
                 <FormInput
-                    label={'Password'}
+                    label={t('auth.register.password')}
                     type="password"
                     name="password"
-                    placeholder={'Your Password'}
+                    placeholder={t('auth.register.passwordPlaceholder')}
                     icon="lock"
                     value={formData.password}
                     onChange={handleChange}
@@ -82,10 +84,10 @@ const RegisterForm = () => {
                 />
 
                 <FormInput
-                    label={'Confirm password'}
+                    label={t('auth.register.confirmPassword')}
                     type="password"
                     name="confirmPassword"
-                    placeholder={'Confirm Password'}
+                    placeholder={t('auth.register.confirmPasswordPlaceholder')}
                     icon="lock"
                     value={formData.confirmPassword}
                     onChange={handleChange}
@@ -130,29 +132,29 @@ const RegisterForm = () => {
                     disabled={isLoading}
                     className="flex w-full items-center justify-center rounded-lg bg-primary h-12 px-6 text-base font-bold text-charcoal-800 transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background-light dark:focus:ring-offset-background-dark mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Create account
+                    {t('auth.register.createAccount')}
                 </button>
 
 
             </form>
 
-            <Divider text={'Or'} />
+            <Divider text={t('auth.register.orDivider')} />
 
             <div className="flex w-full flex-col gap-3">
                 <SocialButton provider="google" onClick={() => { }} disabled={isLoading}>
-                    Continue with Google
+                  {  t('auth.register.continueWithGoogle')}
                 </SocialButton>
 
                 <SocialButton provider="facebook" onClick={() => { }} disabled={isLoading}>
-                    Continue with Facebook
+                    {  t('auth.register.continueWithFacebook')}
                 </SocialButton>
             </div>
 
             <div className="pt-4 text-center">
                 <p className="text-charcoal-500 dark:text-charcoal-300 text-sm font-normal">
-                    Already have an account?{' '}
+                    {t('auth.register.haveAccount')}{' '}
                     <Link href={`/${locale}/login`} className="font-bold text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded">
-                        Sign in
+                        {t('auth.register.loginNow')}
                     </Link>
                 </p>
             </div>
@@ -160,7 +162,7 @@ const RegisterForm = () => {
             <div className="pt-2 text-center">
                 <Link href={`/${locale}`} className="text-charcoal-500 dark:text-charcoal-300 text-sm font-normal hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded inline-flex items-center gap-1">
                     <span className="material-symbols-outlined text-base">arrow_back</span>
-                    Back to home
+                    {t('auth.register.backToHome')}
                 </Link>
             </div>
         </div>
