@@ -440,7 +440,7 @@ export default function RentPage() {
                 <div className='mt-10 text-center'>
                   <button
                     onClick={handleLoadMore}
-                    className='bg-[#D4AF37] hover:bg-[#B8941F] text-white font-semibold text-base py-3 px-10 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 shadow-md'
+                    className='bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold text-base py-3 px-10 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 shadow-md'
                     aria-label='Load more properties'
                   >
                     {t('rent.listings.loadMore')}
