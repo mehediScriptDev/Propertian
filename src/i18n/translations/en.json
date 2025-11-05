@@ -393,5 +393,78 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "copyright": "© 2024 Q HOMES. All rights reserved."
+  },
+  "rent": {
+    "meta": {
+      "title": "Rent Property in Côte d'Ivoire | Q Homes",
+      "description": "Discover verified, high-quality rental homes in Côte d'Ivoire. Short-term and long-term rentals available with flexible payment options."
+    },
+    "hero": {
+      "title": "Find Your Ideal Rental — Short or Long Term.",
+      "subtitle": "Discover verified, high-quality homes for your stay in Côte d'Ivoire."
+    },
+    "filters": {
+      "title": "Filter Results",
+      "cityLabel": "City",
+      "bedroomsLabel": "Bedrooms",
+      "durationLabel": "Duration",
+      "priceRangeLabel": "Price Range (XOF)",
+      "verifiedOnly": "Verified Only",
+      "search": "Search",
+      "applyFilters": "Apply Filters",
+      "closeFilters": "Close",
+      "cities": {
+        "abidjan": "Abidjan",
+        "assinie": "Assinie-Mafia",
+        "yamoussoukro": "Yamoussoukro"
+      },
+      "bedrooms": {
+        "any": "Any",
+        "one": "1",
+        "two": "2",
+        "threePlus": "3+"
+      },
+      "duration": {
+        "any": "Any",
+        "shortTerm": "Short-Term",
+        "longTerm": "Long-Term"
+      }
+    },
+    "listings": {
+      "title": "Featured Rental Properties",
+      "sortBy": "Sort by:",
+      "sortOptions": {
+        "newest": "Newest Listings",
+        "priceLow": "Price (Low to High)",
+        "priceHigh": "Price (High to Low)",
+        "bedrooms": "Most Bedrooms",
+        "furnished": "Furnished",
+        "unfurnished": "Unfurnished"
+      },
+      "loadMore": "Load More",
+      "noResults": "No properties found matching your criteria"
+    },
+    "propertyCard": {
+      "verified": "Verified",
+      "shortTerm": "Short-Term",
+      "longTerm": "Long-Term",
+      "furnished": "Furnished",
+      "unfurnished": "Unfurnished",
+      "perMonth": "/ month",
+      "approx": "~",
+      "usd": "USD",
+      "viewDetails": "View Details",
+      "bookViewing": "Book Viewing",
+      "whatsapp": "WhatsApp"
+    },
+    "cta": {
+      "partnerTitle": "Partner With Q Homes",
+      "partnerSubtitle": "Reach a premium audience of verified tenants and buyers. List your property with us for unparalleled service and exposure.",
+      "partnerButton": "Become a Partner",
+      "finalTitle": "Your Perfect Home & Concierge Service Awaits.",
+      "finalSubtitle": "From finding your dream rental to settling in seamlessly, our team is here to help every step of the way.",
+      "exploreButton": "Explore Rentals",
+      "conciergeButton": "Learn About Concierge"
+    }
   }
 }

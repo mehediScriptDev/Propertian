@@ -1,8 +1,378 @@
+'use client';
+
+import { useState, useMemo, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/i18n';
+import RentHero from '@/components/rent/RentHero';
+import RentalFilters from '@/components/rent/RentalFilters';
+import RentalPropertyCard from '@/components/rent/RentalPropertyCard';
+import { PartnerCTA, FinalCTA } from '@/components/rent/RentCTA';
+
+/**
+ * RentPage Component
+ * Main rental properties listing page with filters and search
+ * Implements client-side filtering and sorting for optimal performance
+ * SEO-optimized with proper semantic HTML and ARIA labels
+ */
+
+// Mock rental properties data (in production, fetch from API)
+const MOCK_PROPERTIES = [
+  {
+    id: 1,
+    image:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuDSV_mXKw_VVOBCsRqP6JuFtM-tFEw5_dgVNeZOPD_fbD7HKWrsJasL9C0-Se93rYXNjNFBtRTNmTS3au64zMsDinmBEO0AGO4zITkBOvA0-grtq41wCo9_UAtSz2HtRHHDTDG1ZxmN4E9vxhr1wi9_jI2QCZUqQAY56jCbZoS9ZFal6P77u5Lh6ZcPlgO4HFsENDevHFLPTsBOA3WwAJjtU82LvTDUm5PYOBB-e5Cda0UPUpRiDfIi10TCzjwiSCIqwPRvr26Y5EA',
+    imageAlt: 'Modern apartment exterior with balcony',
+    location: 'Abidjan, Cocody',
+    title: 'Modern Apartment in Cocody',
+    priceXOF: 1500000,
+    priceUSD: 2500,
+    isVerified: true,
+    duration: 'short-term',
+    isFurnished: true,
+    bedrooms: 2,
+    bathrooms: 2,
+    city: 'abidjan',
+  },
+  {
+    id: 2,
+    image:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAxfLyTLwQhMPFhfmTIwgGw0mgClhtLnLjKjJ8K5d3xcf-DfLIA1BcxgRBMhYILatY9AW8j3BYgHN09EOMshMZTW4B8iqMTOYm1eZkJtMIsS8MHQl0AZhU-FMr6KR1iymlfnGtc32binXcXJa7ONVC6lfOR2kv2AyNW335mdqzHPrSUE1m3zi8iaws5VxyywLpjSfydFhxTqYjGh6jkKq7lJLLQY0Wo-Xy8afbaD7o0jgJf39hdZCLUSGDAmDqrsZcJjlBZFrmME7Q',
+    imageAlt: 'Luxury seaside villa with swimming pool',
+    location: 'Assinie-Mafia',
+    title: 'Seaside Villa in Assinie',
+    priceXOF: 3000000,
+    priceUSD: 5000,
+    isVerified: true,
+    duration: 'long-term',
+    isFurnished: true,
+    bedrooms: 4,
+    bathrooms: 3,
+    city: 'assinie',
+  },
+  {
+    id: 3,
+    image:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAsaxBScuFqS7z1QQY--r-HDUrNwJ12_OeNQGRHoIChXy8mcFy2t-l9nBX-edtmYBz14QfMi04f6ifkcvJvGdXD37GYrANRHp4fy5v0TConYi95At36Z32hnava3pJp11sfKWUL3ibCW6l4deIqdpJh_jVLWp6vKWgtrsx9MhtTqpLbGPiIHpHct_pRyWtsOObMnzX71Hkh5e9XsktPg5ygsEARhiMRhOIpsaQUNJHhO2thOM4URis69ipdzRRKZsSHEi5qC2YXM9Y',
+    imageAlt: 'Chic loft apartment with high ceilings',
+    location: 'Abidjan, Plateau',
+    title: 'Chic Loft in Plateau',
+    priceXOF: 2000000,
+    priceUSD: 3300,
+    isVerified: false,
+    duration: 'long-term',
+    isFurnished: false,
+    bedrooms: 3,
+    bathrooms: 2,
+    city: 'abidjan',
+  },
+  {
+    id: 4,
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
+    imageAlt: 'Elegant apartment with modern finishes',
+    location: 'Yamoussoukro',
+    title: 'Elegant Residence in Yamoussoukro',
+    priceXOF: 1200000,
+    priceUSD: 2000,
+    isVerified: true,
+    duration: 'short-term',
+    isFurnished: true,
+    bedrooms: 3,
+    bathrooms: 2,
+    city: 'yamoussoukro',
+  },
+  {
+    id: 5,
+    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800',
+    imageAlt: 'Spacious family home with garden',
+    location: 'Abidjan, Marcory',
+    title: 'Family Home in Marcory',
+    priceXOF: 1800000,
+    priceUSD: 3000,
+    isVerified: true,
+    duration: 'long-term',
+    isFurnished: false,
+    bedrooms: 4,
+    bathrooms: 3,
+    city: 'abidjan',
+  },
+  {
+    id: 6,
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
+    imageAlt: 'Contemporary studio apartment',
+    location: 'Abidjan, Zone 4',
+    title: 'Contemporary Studio in Zone 4',
+    priceXOF: 800000,
+    priceUSD: 1300,
+    isVerified: false,
+    duration: 'short-term',
+    isFurnished: true,
+    bedrooms: 1,
+    bathrooms: 1,
+    city: 'abidjan',
+  },
+];
+
 export default function RentPage() {
+  const { locale } = useLanguage();
+  const { t } = useTranslation(locale);
+  const [filters, setFilters] = useState({
+    city: 'abidjan',
+    bedrooms: 'any',
+    duration: 'any',
+    priceRange: 50,
+    verifiedOnly: true,
+  });
+  const [sortBy, setSortBy] = useState('newest');
+  const [displayCount, setDisplayCount] = useState(6);
+
+  // Inject structured data for SEO
+  useEffect(() => {
+    const structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name:
+        locale === 'en'
+          ? "Rent Property in Côte d'Ivoire"
+          : "Louer une Propriété en Côte d'Ivoire",
+      description:
+        locale === 'en'
+          ? "Find verified rental properties in Côte d'Ivoire"
+          : "Trouvez des propriétés de location vérifiées en Côte d'Ivoire",
+      url: `https://qhomes.ci/${locale}/rent`,
+      inLanguage: locale === 'en' ? 'en-US' : 'fr-FR',
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(structuredData);
+    script.id = 'rent-page-structured-data';
+
+    // Remove existing script if present
+    const existing = document.getElementById('rent-page-structured-data');
+    if (existing) {
+      existing.remove();
+    }
+
+    document.head.appendChild(script);
+
+    return () => {
+      const scriptToRemove = document.getElementById(
+        'rent-page-structured-data'
+      );
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
+    };
+  }, [locale]);
+
+  // Filter and sort properties based on current filters
+  const filteredAndSortedProperties = useMemo(() => {
+    let filtered = [...MOCK_PROPERTIES];
+
+    // Apply city filter
+    if (filters.city !== 'all') {
+      filtered = filtered.filter((property) => property.city === filters.city);
+    }
+
+    // Apply bedrooms filter
+    if (filters.bedrooms !== 'any') {
+      if (filters.bedrooms === '3+') {
+        filtered = filtered.filter((property) => property.bedrooms >= 3);
+      } else {
+        filtered = filtered.filter(
+          (property) => property.bedrooms === parseInt(filters.bedrooms)
+        );
+      }
+    }
+
+    // Apply duration filter
+    if (filters.duration !== 'any') {
+      filtered = filtered.filter(
+        (property) => property.duration === filters.duration
+      );
+    }
+
+    // Apply verified filter
+    if (filters.verifiedOnly) {
+      filtered = filtered.filter((property) => property.isVerified);
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'priceLow':
+        filtered.sort((a, b) => a.priceXOF - b.priceXOF);
+        break;
+      case 'priceHigh':
+        filtered.sort((a, b) => b.priceXOF - a.priceXOF);
+        break;
+      case 'bedrooms':
+        filtered.sort((a, b) => b.bedrooms - a.bedrooms);
+        break;
+      case 'furnished':
+        filtered = filtered.filter((property) => property.isFurnished);
+        break;
+      case 'unfurnished':
+        filtered = filtered.filter((property) => !property.isFurnished);
+        break;
+      default:
+        // 'newest' - keep original order
+        break;
+    }
+
+    return filtered;
+  }, [filters, sortBy]);
+
+  // Handle filter changes
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+    setDisplayCount(6); // Reset display count when filters change
+  };
+
+  // Handle sort change
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
+  };
+
+  // Load more properties
+  const handleLoadMore = () => {
+    setDisplayCount((prev) => prev + 6);
+  };
+
+  // Get properties to display
+  const displayedProperties = filteredAndSortedProperties.slice(
+    0,
+    displayCount
+  );
+  const hasMore = displayCount < filteredAndSortedProperties.length;
+
   return (
-    <div>
-      <h1>Rent Properties</h1>
-      {/* HTML content will be added here */}
-    </div>
+    <main className='w-full'>
+      {/* Hero Section */}
+      <section className='w-full px-4 sm:px-6 lg:px-8 py-10'>
+        <div className='mx-auto max-w-7xl'>
+          <RentHero />
+        </div>
+      </section>
+
+      {/* Filters Section */}
+      <section
+        className='w-full px-4 sm:px-6 lg:px-8 pb-10'
+        aria-label='Property filters'
+      >
+        <div className='mx-auto max-w-7xl'>
+          <RentalFilters
+            onFilterChange={handleFilterChange}
+            initialFilters={filters}
+          />
+        </div>
+      </section>
+
+      {/* Listings Section */}
+      <section
+        className='w-full px-4 sm:px-6 lg:px-8 pb-10'
+        aria-label='Rental property listings'
+      >
+        <div className='mx-auto max-w-7xl'>
+          {/* Header with Sort */}
+          <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6'>
+            <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
+              {t('rent.listings.title')}
+            </h2>
+            <div className='flex items-center gap-2'>
+              <label
+                htmlFor='sort-by'
+                className='text-sm font-medium text-gray-700 dark:text-gray-300'
+              >
+                {t('rent.listings.sortBy')}
+              </label>
+              <select
+                id='sort-by'
+                value={sortBy}
+                onChange={handleSortChange}
+                className='rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-card-dark shadow-sm focus:border-primary focus:ring-primary text-sm'
+                aria-label='Sort properties'
+              >
+                <option value='newest'>
+                  {t('rent.listings.sortOptions.newest')}
+                </option>
+                <option value='priceLow'>
+                  {t('rent.listings.sortOptions.priceLow')}
+                </option>
+                <option value='priceHigh'>
+                  {t('rent.listings.sortOptions.priceHigh')}
+                </option>
+                <option value='bedrooms'>
+                  {t('rent.listings.sortOptions.bedrooms')}
+                </option>
+                <option value='furnished'>
+                  {t('rent.listings.sortOptions.furnished')}
+                </option>
+                <option value='unfurnished'>
+                  {t('rent.listings.sortOptions.unfurnished')}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          {/* Property Grid */}
+          {displayedProperties.length > 0 ? (
+            <>
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+                {displayedProperties.map((property) => (
+                  <RentalPropertyCard key={property.id} property={property} />
+                ))}
+              </div>
+
+              {/* Load More Button */}
+              {hasMore && (
+                <div className='mt-10 text-center'>
+                  <button
+                    onClick={handleLoadMore}
+                    className='bg-primary text-background-dark font-bold text-sm py-3 px-8 rounded-lg hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+                    aria-label='Load more properties'
+                  >
+                    {t('rent.listings.loadMore')}
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className='text-center py-16'>
+              <svg
+                className='mx-auto h-16 w-16 text-gray-400'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
+                aria-hidden='true'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
+                />
+              </svg>
+              <h3 className='mt-4 text-lg font-medium text-gray-900 dark:text-white'>
+                {t('rent.listings.noResults')}
+              </h3>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Partner CTA Section */}
+      <section className='w-full px-4 sm:px-6 lg:px-8 pb-10'>
+        <div className='mx-auto max-w-7xl'>
+          <PartnerCTA />
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className='w-full px-4 sm:px-6 lg:px-8 pb-10'>
+        <div className='mx-auto max-w-7xl'>
+          <FinalCTA />
+        </div>
+      </section>
+    </main>
   );
 }

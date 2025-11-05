@@ -393,5 +393,78 @@
     "privacy": "Confidentialité",
     "terms": "Conditions",
     "copyright": "© 2024 Q HOMES. Tous droits réservés."
+  },
+  "rent": {
+    "meta": {
+      "title": "Louer une Propriété en Côte d'Ivoire | Q Homes",
+      "description": "Découvrez des maisons de location vérifiées et de haute qualité en Côte d'Ivoire. Locations à court et long terme disponibles avec des options de paiement flexibles."
+    },
+    "hero": {
+      "title": "Trouvez Votre Location Idéale — Court ou Long Terme.",
+      "subtitle": "Découvrez des maisons vérifiées et de haute qualité pour votre séjour en Côte d'Ivoire."
+    },
+    "filters": {
+      "title": "Filtrer les Résultats",
+      "cityLabel": "Ville",
+      "bedroomsLabel": "Chambres",
+      "durationLabel": "Durée",
+      "priceRangeLabel": "Gamme de Prix (XOF)",
+      "verifiedOnly": "Vérifié Uniquement",
+      "search": "Rechercher",
+      "applyFilters": "Appliquer les Filtres",
+      "closeFilters": "Fermer",
+      "cities": {
+        "abidjan": "Abidjan",
+        "assinie": "Assinie-Mafia",
+        "yamoussoukro": "Yamoussoukro"
+      },
+      "bedrooms": {
+        "any": "Tous",
+        "one": "1",
+        "two": "2",
+        "threePlus": "3+"
+      },
+      "duration": {
+        "any": "Tous",
+        "shortTerm": "Court Terme",
+        "longTerm": "Long Terme"
+      }
+    },
+    "listings": {
+      "title": "Propriétés en Location Vedette",
+      "sortBy": "Trier par:",
+      "sortOptions": {
+        "newest": "Annonces les Plus Récentes",
+        "priceLow": "Prix (Bas à Élevé)",
+        "priceHigh": "Prix (Élevé à Bas)",
+        "bedrooms": "Plus de Chambres",
+        "furnished": "Meublé",
+        "unfurnished": "Non Meublé"
+      },
+      "loadMore": "Charger Plus",
+      "noResults": "Aucune propriété trouvée correspondant à vos critères"
+    },
+    "propertyCard": {
+      "verified": "Vérifié",
+      "shortTerm": "Court Terme",
+      "longTerm": "Long Terme",
+      "furnished": "Meublé",
+      "unfurnished": "Non Meublé",
+      "perMonth": "/ mois",
+      "approx": "~",
+      "usd": "USD",
+      "viewDetails": "Voir les Détails",
+      "bookViewing": "Réserver une Visite",
+      "whatsapp": "WhatsApp"
+    },
+    "cta": {
+      "partnerTitle": "Partenariat Avec Q Homes",
+      "partnerSubtitle": "Atteignez un public premium de locataires et d'acheteurs vérifiés. Listez votre propriété avec nous pour un service et une exposition inégalés.",
+      "partnerButton": "Devenir Partenaire",
+      "finalTitle": "Votre Maison Parfaite & Service de Conciergerie Vous Attend.",
+      "finalSubtitle": "De la recherche de votre location de rêve à l'installation en douceur, notre équipe est là pour vous aider à chaque étape.",
+      "exploreButton": "Explorer les Locations",
+      "conciergeButton": "En Savoir Plus sur le Concierge"
+    }
   }
 }
