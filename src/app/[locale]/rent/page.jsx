@@ -278,39 +278,56 @@ export default function RentPage() {
             <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
               {t('rent.listings.title')}
             </h2>
-            <div className='flex items-center gap-2'>
+            <div className='flex items-center gap-3'>
               <label
                 htmlFor='sort-by'
-                className='text-sm font-medium text-gray-700 dark:text-gray-300'
+                className='text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap'
               >
                 {t('rent.listings.sortBy')}
               </label>
-              <select
-                id='sort-by'
-                value={sortBy}
-                onChange={handleSortChange}
-                className='rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-card-dark shadow-sm focus:border-primary focus:ring-primary text-sm'
-                aria-label='Sort properties'
-              >
-                <option value='newest'>
-                  {t('rent.listings.sortOptions.newest')}
-                </option>
-                <option value='priceLow'>
-                  {t('rent.listings.sortOptions.priceLow')}
-                </option>
-                <option value='priceHigh'>
-                  {t('rent.listings.sortOptions.priceHigh')}
-                </option>
-                <option value='bedrooms'>
-                  {t('rent.listings.sortOptions.bedrooms')}
-                </option>
-                <option value='furnished'>
-                  {t('rent.listings.sortOptions.furnished')}
-                </option>
-                <option value='unfurnished'>
-                  {t('rent.listings.sortOptions.unfurnished')}
-                </option>
-              </select>
+              <div className='relative'>
+                <select
+                  id='sort-by'
+                  value={sortBy}
+                  onChange={handleSortChange}
+                  className='appearance-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-card-dark shadow-sm focus:border-primary focus:ring-2 focus:ring-primary text-sm pl-4 pr-10 py-2 cursor-pointer min-w-[180px]'
+                  aria-label='Sort properties'
+                >
+                  <option value='newest'>
+                    {t('rent.listings.sortOptions.newest')}
+                  </option>
+                  <option value='priceLow'>
+                    {t('rent.listings.sortOptions.priceLow')}
+                  </option>
+                  <option value='priceHigh'>
+                    {t('rent.listings.sortOptions.priceHigh')}
+                  </option>
+                  <option value='bedrooms'>
+                    {t('rent.listings.sortOptions.bedrooms')}
+                  </option>
+                  <option value='furnished'>
+                    {t('rent.listings.sortOptions.furnished')}
+                  </option>
+                  <option value='unfurnished'>
+                    {t('rent.listings.sortOptions.unfurnished')}
+                  </option>
+                </select>
+                <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none'>
+                  <svg
+                    className='w-4 h-4 text-gray-600 dark:text-gray-400'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M19 9l-7 7-7-7'
+                    />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -328,7 +345,7 @@ export default function RentPage() {
                 <div className='mt-10 text-center'>
                   <button
                     onClick={handleLoadMore}
-                    className='bg-primary text-background-dark font-bold text-sm py-3 px-8 rounded-lg hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+                    className='bg-[#D4AF37] hover:bg-[#B8941F] text-white font-semibold text-base py-3 px-10 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 shadow-md'
                     aria-label='Load more properties'
                   >
                     {t('rent.listings.loadMore')}

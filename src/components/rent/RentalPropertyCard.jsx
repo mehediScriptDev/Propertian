@@ -68,7 +68,7 @@ export default function RentalPropertyCard({ property }) {
         <div className='absolute top-3 left-3 flex items-center gap-2 flex-wrap'>
           {isVerified && (
             <span
-              className='flex items-center gap-1 bg-primary/90 text-background-dark text-xs font-bold px-2 py-1 rounded-full shadow-md'
+              className='flex items-center gap-1 bg-[#D4AF37] text-white text-xs font-bold px-2.5 py-1.5 rounded-full shadow-md'
               aria-label='Verified property'
             >
               <svg
@@ -87,7 +87,7 @@ export default function RentalPropertyCard({ property }) {
             </span>
           )}
           <span
-            className='flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded-full shadow-md'
+            className='flex items-center gap-1 bg-gray-700/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md'
             aria-label={`${duration} rental`}
           >
             <svg
@@ -113,7 +113,7 @@ export default function RentalPropertyCard({ property }) {
         {/* Badge - Top Right */}
         <div className='absolute top-3 right-3'>
           <span
-            className='flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded-full shadow-md'
+            className='flex items-center gap-1 bg-gray-700/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md'
             aria-label={isFurnished ? 'Furnished' : 'Unfurnished'}
           >
             <svg
@@ -187,10 +187,10 @@ export default function RentalPropertyCard({ property }) {
 
         {/* Price */}
         <div className='mt-3'>
-          <p className='text-primary text-xl font-bold'>
+          <p className='text-[#D4AF37] text-2xl font-bold'>
             {formatPrice(priceXOF)} XOF{' '}
             <span className='text-gray-500 dark:text-gray-400 text-sm font-normal'>
-              {t('rent.propertyCard.perMonth')}
+              / {t('rent.propertyCard.perMonth')}
             </span>
           </p>
           <p className='text-gray-500 dark:text-gray-400 text-sm font-normal'>
@@ -203,21 +203,21 @@ export default function RentalPropertyCard({ property }) {
         <div className='mt-4 pt-4 border-t border-gray-100 dark:border-border-dark grid grid-cols-3 gap-2'>
           <Link
             href={`/rent/${id}`}
-            className='text-sm font-semibold p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+            className='text-sm font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
             aria-label={`View details for ${title}`}
           >
             {t('rent.propertyCard.viewDetails')}
           </Link>
           <Link
             href={`/book-visit?property=${id}`}
-            className='text-sm font-semibold p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+            className='text-sm font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
             aria-label={`Book viewing for ${title}`}
           >
             {t('rent.propertyCard.bookViewing')}
           </Link>
           <button
             onClick={handleWhatsAppClick}
-            className='text-sm font-semibold p-2 rounded-lg text-green-600 hover:bg-green-50 dark:hover:bg-green-900/50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
+            className='text-sm font-semibold p-2 rounded-lg text-[#25D366] hover:bg-[#25D366]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2'
             aria-label={`Contact via WhatsApp about ${title}`}
           >
             {t('rent.propertyCard.whatsapp')}
