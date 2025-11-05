@@ -99,6 +99,26 @@
         "registrationFailed": "Échec de l'inscription",
         "socialLoginFailed": "Échec de la connexion avec {provider}. Veuillez réessayer."
       }
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié ?",
+      "subtitle": "Entrez votre e-mail pour réinitialiser votre mot de passe.",
+      "email": "E-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "submitButton": "Soumettre",
+      "submitting": "Soumission...",
+      "backToLogin": "Retour à la connexion",
+      "backToHome": "Retour à l'accueil",
+      "checkEmail": "Vérifiez votre e-mail",
+      "checkEmailInstructions": "Nous avons envoyé des instructions de réinitialisation du mot de passe à {email}. Veuillez vérifier votre boîte de réception et votre dossier spam.",
+      "returnToLogin": "Retourner à la connexion",
+      "didNotReceiveEmail": "Vous n'avez pas reçu l'e-mail?",
+      "resend": "Renvoyer",
+      "errors": {
+        "emailRequired": "L'e-mail est requis",
+        "emailInvalid": "Veuillez entrer une adresse e-mail valide",
+        "resetFailed": "Échec de l'envoi du lien de réinitialisation. Veuillez réessayer."
+      }
     }
   },
   "searchBar": {
