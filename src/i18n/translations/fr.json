@@ -518,5 +518,68 @@
       "subtitle": "Présentez votre projet à un public sélectionné d'acheteurs locaux et internationaux. Associez-vous à Q Homes pour gagner en visibilité et en confiance sans précédent.",
       "button": "Listez Votre Projet"
     }
+  },
+  "about": {
+    "meta": {
+      "title": "À Propos - Connecter les Rêves à la Réalité | Q Homes",
+      "description": "Découvrez la mission de Q Homes de révolutionner l'immobilier en Côte d'Ivoire. Approuvé par la diaspora et les communautés locales pour des propriétés vérifiées et des transactions transparentes."
+    },
+    "hero": {
+      "title": "Notre Histoire: Connecter les Rêves à la Réalité en Côte d'Ivoire",
+      "subtitle": "Relier la diaspora et les communautés locales avec des opportunités immobilières de confiance au cœur de l'Afrique de l'Ouest."
+    },
+    "mission": {
+      "title": "Notre Mission et Vision",
+      "description": "Q Homes s'engage à révolutionner l'expérience immobilière en Côte d'Ivoire. Notre mission est de fournir une plateforme transparente, sécurisée et fluide qui connecte la diaspora ivoirienne mondiale et les investisseurs étrangers avec des propriétés vérifiées et de haute qualité. Nous envisageons un avenir où chacun peut investir en toute confiance dans la maison ou la propriété de ses rêves, soutenu par la confiance et l'excellence."
+    },
+    "whyChoose": {
+      "title": "Pourquoi Choisir Q Homes",
+      "subtitle": "Votre partenaire de confiance dans l'immobilier ivoirien, offrant un service et une sécurité inégalés.",
+      "features": {
+        "verifiedListings": {
+          "title": "Annonces Vérifiées",
+          "description": "Chaque propriété est soigneusement vérifiée pour garantir la qualité, la sécurité et la conformité légale."
+        },
+        "escrowProtection": {
+          "title": "Protection Séquestre",
+          "description": "Sécurisez votre investissement avec notre service de séquestre de confiance, garantissant la sécurité de vos fonds."
+        },
+        "conciergeService": {
+          "title": "Service de Conciergerie",
+          "description": "De la visite à la clôture, notre équipe dévouée fournit un soutien personnalisé à chaque étape."
+        },
+        "multilingualSupport": {
+          "title": "Support Multilingue",
+          "description": "Notre équipe diversifiée parle plusieurs langues pour assister notre clientèle mondiale de manière transparente."
+        }
+      }
+    },
+    "team": {
+      "title": "Rencontrez l'Équipe",
+      "subtitle": "Les professionnels dévoués qui réalisent vos rêves de propriété.",
+      "members": {
+        "jeanClaude": {
+          "name": "Jean-Claude Koffi",
+          "role": "Fondateur et PDG",
+          "bio": "Avec plus de 15 ans d'expérience dans l'immobilier international, la vision de Jean-Claude est de construire le pont immobilier le plus fiable vers la Côte d'Ivoire."
+        },
+        "aissata": {
+          "name": "Aïssata Diop",
+          "role": "Directrice des Ventes",
+          "bio": "Aïssata combine une connaissance approfondie du marché local avec une passion pour aider les clients à trouver leur maison parfaite ou leur propriété d'investissement."
+        },
+        "moussa": {
+          "name": "Moussa Traoré",
+          "role": "Directeur Technologique",
+          "bio": "Moussa dirige notre innovation technologique, garantissant une plateforme transparente, sécurisée et conviviale pour tous nos clients."
+        }
+      }
+    },
+    "cta": {
+      "title": "Prêt à Trouver Votre Maison Ivoirienne?",
+      "subtitle": "Laissez-nous vous guider à travers notre sélection organisée de propriétés vérifiées ou explorez les opportunités de partenariat avec nous.",
+      "primaryButton": "Parcourir les Maisons Vérifiées",
+      "secondaryButton": "Devenir Partenaire"
+    }
   }
 }

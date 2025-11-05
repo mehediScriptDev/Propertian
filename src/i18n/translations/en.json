@@ -518,5 +518,68 @@
       "subtitle": "Showcase your project to a curated audience of local and international buyers. Partner with Q Homes to gain unparalleled visibility and trust.",
       "button": "List Your Project"
     }
+  },
+  "about": {
+    "meta": {
+      "title": "About Us - Connecting Dreams to Reality | Q Homes",
+      "description": "Learn about Q Homes' mission to revolutionize real estate in Côte d'Ivoire. Trusted by the diaspora and local communities for verified properties and seamless transactions."
+    },
+    "hero": {
+      "title": "Our Story: Connecting Dreams to Reality in Côte d'Ivoire",
+      "subtitle": "Bridging the diaspora and local communities with trusted real estate opportunities in the heart of West Africa."
+    },
+    "mission": {
+      "title": "Our Mission & Vision",
+      "description": "Q Homes is dedicated to revolutionizing the real estate experience in Côte d'Ivoire. Our mission is to provide a transparent, secure, and seamless platform that connects the global Ivorian diaspora and foreign investors with verified, high-quality properties. We envision a future where everyone can confidently invest in their dream home or property, backed by trust and excellence."
+    },
+    "whyChoose": {
+      "title": "Why Choose Q Homes",
+      "subtitle": "Your trusted partner in Ivorian real estate, providing unparalleled service and security.",
+      "features": {
+        "verifiedListings": {
+          "title": "Verified Listings",
+          "description": "Every property is thoroughly vetted to ensure quality, safety, and legal compliance."
+        },
+        "escrowProtection": {
+          "title": "Escrow Protection",
+          "description": "Secure your investment with our trusted escrow service, ensuring your funds are safe."
+        },
+        "conciergeService": {
+          "title": "Concierge Service",
+          "description": "From viewing to closing, our dedicated team provides personalized support at every step."
+        },
+        "multilingualSupport": {
+          "title": "Multilingual Support",
+          "description": "Our diverse team speaks multiple languages to assist our global clientele seamlessly."
+        }
+      }
+    },
+    "team": {
+      "title": "Meet the Team",
+      "subtitle": "The dedicated professionals making your property dreams a reality.",
+      "members": {
+        "jeanClaude": {
+          "name": "Jean-Claude Koffi",
+          "role": "Founder & CEO",
+          "bio": "With over 15 years in international real estate, Jean-Claude's vision is to build the most trusted property bridge to Côte d'Ivoire."
+        },
+        "aissata": {
+          "name": "Aïssata Diop",
+          "role": "Head of Sales",
+          "bio": "Aïssata combines deep local market knowledge with a passion for helping clients find their perfect home or investment property."
+        },
+        "moussa": {
+          "name": "Moussa Traoré",
+          "role": "Chief Technology Officer",
+          "bio": "Moussa leads our tech innovation, ensuring a seamless, secure, and user-friendly platform for all our clients."
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Find Your Ivorian Home?",
+      "subtitle": "Let us guide you through our curated selection of verified properties or explore partnership opportunities with us.",
+      "primaryButton": "Browse Verified Homes",
+      "secondaryButton": "Partner With Us"
+    }
   }
 }
