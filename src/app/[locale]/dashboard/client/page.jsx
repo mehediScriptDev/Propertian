@@ -7,6 +7,7 @@ export const metadata = {
   description: 'View and manage your profile',
 };
 export default function ClientDashboardPage() {
+  
   return (
     <div className="space-y-6  px-8 py-2">
       {/* Page header */}
