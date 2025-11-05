@@ -338,32 +338,28 @@ export default function RentPage() {
 
   return (
     <main className='w-full'>
-      {/* Hero Section */}
-      <section className='w-full px-4 sm:px-6 lg:px-8 py-10'>
-        <div className='mx-auto max-w-7xl'>
+      <div className='mx-auto max-w-7xl'>
+        {/* Hero Section */}
+        <section className='w-full px-4 sm:px-6 lg:px-8 py-10'>
           <RentHero />
-        </div>
-      </section>
+        </section>
 
-      {/* Filters Section */}
-      <section
-        className='w-full px-4 sm:px-6 lg:px-8 pb-10'
-        aria-label='Property filters'
-      >
-        <div className='mx-auto max-w-7xl'>
+        {/* Filters Section */}
+        <section
+          className='w-full px-4 sm:px-6 lg:px-8 pb-10'
+          aria-label='Property filters'
+        >
           <RentalFilters
             onFilterChange={handleFilterChange}
             initialFilters={filters}
           />
-        </div>
-      </section>
+        </section>
 
-      {/* Listings Section */}
-      <section
-        className='w-full px-4 sm:px-6 lg:px-8 pb-10'
-        aria-label='Rental property listings'
-      >
-        <div className='mx-auto max-w-7xl'>
+        {/* Listings Section */}
+        <section
+          className='w-full px-4 sm:px-6 lg:px-8 pb-10'
+          aria-label='Rental property listings'
+        >
           {/* Header with Sort */}
           <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6'>
             <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>
@@ -469,22 +465,18 @@ export default function RentPage() {
               </h3>
             </div>
           )}
-        </div>
-      </section>
+        </section>
 
-      {/* Partner CTA Section */}
-      <section className='w-full px-4 sm:px-6 lg:px-8 pb-10'>
-        <div className='mx-auto max-w-7xl'>
+        {/* Partner CTA Section */}
+        <section className='w-full px-4 sm:px-6 lg:px-8 pb-10'>
           <PartnerCTA />
-        </div>
-      </section>
+        </section>
 
-      {/* Final CTA Section */}
-      <section className='w-full px-4 sm:px-6 lg:px-8 pb-10'>
-        <div className='mx-auto max-w-7xl'>
+        {/* Final CTA Section */}
+        <section className='w-full px-4 sm:px-6 lg:px-8 pb-10'>
           <FinalCTA />
-        </div>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }
