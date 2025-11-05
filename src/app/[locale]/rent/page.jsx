@@ -110,6 +110,96 @@ const MOCK_PROPERTIES = [
     bathrooms: 1,
     city: 'abidjan',
   },
+  {
+    id: 7,
+    image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800',
+    imageAlt: 'Luxury penthouse with city views',
+    location: 'Abidjan, Cocody',
+    title: 'Luxury Penthouse in Cocody',
+    priceXOF: 4500000,
+    priceUSD: 7500,
+    isVerified: true,
+    duration: 'long-term',
+    isFurnished: true,
+    bedrooms: 5,
+    bathrooms: 4,
+    city: 'abidjan',
+  },
+  {
+    id: 8,
+    image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800',
+    imageAlt: 'Cozy apartment near beach',
+    location: 'Assinie-Mafia',
+    title: 'Beachfront Apartment in Assinie',
+    priceXOF: 2500000,
+    priceUSD: 4200,
+    isVerified: true,
+    duration: 'short-term',
+    isFurnished: true,
+    bedrooms: 3,
+    bathrooms: 2,
+    city: 'assinie',
+  },
+  {
+    id: 9,
+    image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800',
+    imageAlt: 'Modern villa with garden',
+    location: 'Yamoussoukro',
+    title: 'Garden Villa in Yamoussoukro',
+    priceXOF: 1600000,
+    priceUSD: 2700,
+    isVerified: true,
+    duration: 'long-term',
+    isFurnished: false,
+    bedrooms: 4,
+    bathrooms: 3,
+    city: 'yamoussoukro',
+  },
+  {
+    id: 10,
+    image: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800',
+    imageAlt: 'Spacious townhouse',
+    location: 'Abidjan, Marcory',
+    title: 'Modern Townhouse in Marcory',
+    priceXOF: 2200000,
+    priceUSD: 3700,
+    isVerified: true,
+    duration: 'long-term',
+    isFurnished: true,
+    bedrooms: 4,
+    bathrooms: 3,
+    city: 'abidjan',
+  },
+  {
+    id: 11,
+    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800',
+    imageAlt: 'Charming bungalow',
+    location: 'Abidjan, Riviera',
+    title: 'Charming Bungalow in Riviera',
+    priceXOF: 1400000,
+    priceUSD: 2300,
+    isVerified: false,
+    duration: 'short-term',
+    isFurnished: true,
+    bedrooms: 2,
+    bathrooms: 2,
+    city: 'abidjan',
+  },
+  {
+    id: 12,
+    image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800',
+    imageAlt: 'Executive apartment',
+    location: 'Abidjan, Plateau',
+    title: 'Executive Suite in Plateau',
+    priceXOF: 3500000,
+    priceUSD: 5800,
+    isVerified: true,
+    duration: 'long-term',
+    isFurnished: true,
+    bedrooms: 3,
+    bathrooms: 3,
+    city: 'abidjan',
+  },
 ];
 
 export default function RentPage() {
@@ -123,7 +213,8 @@ export default function RentPage() {
     verifiedOnly: true,
   });
   const [sortBy, setSortBy] = useState('newest');
-  const [displayCount, setDisplayCount] = useState(6);
+  const [displayCount, setDisplayCount] = useState(3);
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
 
   // Inject structured data for SEO
   useEffect(() => {
@@ -225,7 +316,7 @@ export default function RentPage() {
   // Handle filter changes
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
-    setDisplayCount(6); // Reset display count when filters change
+    setDisplayCount(3); // Reset display count when filters change
   };
 
   // Handle sort change
@@ -233,9 +324,9 @@ export default function RentPage() {
     setSortBy(e.target.value);
   };
 
-  // Load more properties
+  // Load more properties - show all remaining
   const handleLoadMore = () => {
-    setDisplayCount((prev) => prev + 6);
+    setDisplayCount(filteredAndSortedProperties.length);
   };
 
   // Get properties to display
@@ -290,6 +381,8 @@ export default function RentPage() {
                   id='sort-by'
                   value={sortBy}
                   onChange={handleSortChange}
+                  onFocus={() => setSortDropdownOpen(true)}
+                  onBlur={() => setSortDropdownOpen(false)}
                   className='appearance-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-card-dark shadow-sm focus:border-primary focus:ring-2 focus:ring-primary text-sm pl-4 pr-10 py-2 cursor-pointer min-w-[180px]'
                   aria-label='Sort properties'
                 >
@@ -314,7 +407,9 @@ export default function RentPage() {
                 </select>
                 <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none'>
                   <svg
-                    className='w-4 h-4 text-gray-600 dark:text-gray-400'
+                    className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
+                      sortDropdownOpen ? 'rotate-180' : ''
+                    }`}
                     fill='none'
                     stroke='currentColor'
                     viewBox='0 0 24 24'
