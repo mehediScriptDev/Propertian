@@ -22,12 +22,13 @@ export default function CookieMainContent({ cookie }) {
 
   return (
     <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
-      <div className="mx-auto max-w-7xl px-6 py-10 lg:flex lg:gap-10">
+      <div className="mx-auto max-w-7xl px-6 py-10">
         <Head>
           <title>{policy_title} | QHomes</title>
         </Head>
 
-        <main className="flex flex-col gap-8 md:gap-12 p-4 md:p-10">
+        {/* <main className="flex flex-col gap-8 md:gap-12 px-6 md:p-10"> */}
+        <main className="flex flex-col space-y-12 px-4 text-lg leading-relaxed">
           <div className="flex flex-wrap justify-between gap-3">
             <div className="flex min-w-72 flex-col gap-3">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-3">
