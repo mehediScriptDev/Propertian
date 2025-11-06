@@ -252,14 +252,24 @@ export default function AdminDashboardPage({ params }) {
         data={engagementData}
       />
 
-      {/* Properties Table */}
-      <PropertiesTable
-        title={t('dashboard.admin.propertiesTable.title')}
-        addButtonText={t('dashboard.admin.propertiesTable.addProperty')}
-        properties={propertiesData}
-        translations={propertiesTableTranslations}
-        locale={locale}
-      />
+      {/* Properties Table with Pagination */}
+      <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
+        <PropertiesTable
+          title={t('dashboard.admin.propertiesTable.title')}
+          addButtonText={t('dashboard.admin.propertiesTable.addProperty')}
+          properties={paginatedProperties}
+          translations={propertiesTableTranslations}
+          locale={locale}
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={propertiesData.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={handlePageChange}
+          translations={paginationTranslations}
+        />
+      </div>
     </div>
   );
 }
