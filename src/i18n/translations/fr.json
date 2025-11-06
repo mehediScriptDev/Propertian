@@ -182,7 +182,7 @@
       "welcome": "Bienvenue sur le Tableau de Bord Admin Q Homes",
       "subtitle": "Gérez votre plateforme et surveillez les performances",
       "usersLink": "Gestion des Utilisateurs",
-      "blogEditor": "Éditeur de Blog",
+      "blogEditorLink": "Éditeur de Blog",
       "mediaLibrary": "Bibliothèque Média",
       "auditLogs": "Journaux d'Audit",
       "seoManagement": "Gestion SEO",
@@ -284,6 +284,54 @@
           "suspend": "Suspendre",
           "activate": "Activer",
           "delete": "Supprimer"
+        }
+      },
+      "blogEditor": {
+        "title": "Créer un Nouvel Article",
+        "editTitle": "Modifier l'Article",
+        "preview": "Aperçu",
+        "publish": "Publier",
+        "saveDraft": "Enregistrer le Brouillon",
+        "cancel": "Annuler",
+        "postTitle": "Titre de l'Article",
+        "postTitlePlaceholder": "Entrez le titre de l'article ici",
+        "articleContent": "Contenu de l'Article",
+        "editorPlaceholder": "Un éditeur WYSIWYG puissant pour le contenu principal de l'article, prenant en charge les titres, paragraphes, listes, gras/italique, liens et médias intégrés.",
+        "seoMetadata": "Métadonnées SEO",
+        "metaTitle": "Titre Meta",
+        "metaTitlePlaceholder": "Entrez le titre meta",
+        "metaDescription": "Description Meta",
+        "metaDescriptionPlaceholder": "Entrez la description meta",
+        "urlSlug": "Slug URL",
+        "urlSlugPlaceholder": "slug-auto-généré",
+        "regenerate": "Régénérer",
+        "publishSidebar": {
+          "publish": "Publier",
+          "status": "Statut",
+          "statusDraft": "Brouillon",
+          "statusPublished": "Publié",
+          "statusScheduled": "Programmé",
+          "author": "Auteur",
+          "publicationDate": "Date de Publication",
+          "publicationDateAuto": "(Auto)"
+        },
+        "organization": {
+          "title": "Organisation",
+          "categories": "Catégories",
+          "selectCategory": "Sélectionner une catégorie",
+          "realEstateNews": "Actualités Immobilières",
+          "buyingGuide": "Guide d'Achat",
+          "sellingTips": "Conseils de Vente",
+          "marketTrends": "Tendances du Marché",
+          "tags": "Tags",
+          "tagsPlaceholder": "Ajouter des tags (séparés par des virgules)"
+        },
+        "featuredImage": {
+          "title": "Image à la Une",
+          "uploadText": "Cliquez pour télécharger ou glissez-déposez",
+          "supportedFormats": "SVG, PNG, JPG (Max. 800x400px)",
+          "altText": "Texte Alt",
+          "altTextPlaceholder": "Décrivez l'image"
         }
       }
     },

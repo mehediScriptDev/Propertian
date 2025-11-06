@@ -47,7 +47,7 @@ const navigationConfig = {
       icon: Users,
     },
     {
-      key: 'dashboard.admin.blogEditor',
+      key: 'dashboard.admin.blogEditorLink',
       href: '/dashboard/admin/blog-editor',
       icon: FileText,
     },

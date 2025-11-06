@@ -182,7 +182,7 @@
       "welcome": "Welcome to Q Homes Admin Dashboard",
       "subtitle": "Manage your platform and monitor performance",
       "usersLink": "User Management",
-      "blogEditor": "Blog Editor",
+      "blogEditorLink": "Blog Editor",
       "mediaLibrary": "Media Library",
       "auditLogs": "Audit Logs",
       "seoManagement": "SEO Management",
@@ -284,6 +284,54 @@
           "suspend": "Suspend",
           "activate": "Activate",
           "delete": "Delete"
+        }
+      },
+      "blogEditor": {
+        "title": "Create New Blog Post",
+        "editTitle": "Edit Blog Post",
+        "preview": "Preview",
+        "publish": "Publish",
+        "saveDraft": "Save Draft",
+        "cancel": "Cancel",
+        "postTitle": "Post Title",
+        "postTitlePlaceholder": "Enter post title here",
+        "articleContent": "Article Content",
+        "editorPlaceholder": "A powerful WYSIWYG editor for the main article content, supporting headings, paragraphs, lists, bold/italic, links, and embedded media.",
+        "seoMetadata": "SEO Metadata",
+        "metaTitle": "Meta Title",
+        "metaTitlePlaceholder": "Enter meta title",
+        "metaDescription": "Meta Description",
+        "metaDescriptionPlaceholder": "Enter meta description",
+        "urlSlug": "URL Slug",
+        "urlSlugPlaceholder": "auto-generated-slug",
+        "regenerate": "Regenerate",
+        "publishSidebar": {
+          "publish": "Publish",
+          "status": "Status",
+          "statusDraft": "Draft",
+          "statusPublished": "Published",
+          "statusScheduled": "Scheduled",
+          "author": "Author",
+          "publicationDate": "Publication Date",
+          "publicationDateAuto": "(Auto)"
+        },
+        "organization": {
+          "title": "Organization",
+          "categories": "Categories",
+          "selectCategory": "Select category",
+          "realEstateNews": "Real Estate News",
+          "buyingGuide": "Buying Guide",
+          "sellingTips": "Selling Tips",
+          "marketTrends": "Market Trends",
+          "tags": "Tags",
+          "tagsPlaceholder": "Add tags (comma-separated)"
+        },
+        "featuredImage": {
+          "title": "Featured Image",
+          "uploadText": "Click to upload or drag & drop",
+          "supportedFormats": "SVG, PNG, JPG (Max. 800x400px)",
+          "altText": "Alt Text",
+          "altTextPlaceholder": "Describe the image"
         }
       }
     },
