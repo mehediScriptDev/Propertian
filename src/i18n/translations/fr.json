@@ -181,7 +181,7 @@
       "overview": "Tableau de Bord Admin",
       "welcome": "Bienvenue sur le Tableau de Bord Admin Q Homes",
       "subtitle": "Gérez votre plateforme et surveillez les performances",
-      "users": "Gestion des Utilisateurs",
+      "usersLink": "Gestion des Utilisateurs",
       "blogEditor": "Éditeur de Blog",
       "mediaLibrary": "Bibliothèque Média",
       "auditLogs": "Journaux d'Audit",
@@ -237,6 +237,54 @@
       "trends": {
         "positive": "+",
         "negative": "-"
+      },
+      "users": {
+        "title": "Gestion des Comptes Utilisateurs",
+        "searchPlaceholder": "Rechercher par ID, Nom ou Email...",
+        "addUser": "Ajouter Utilisateur",
+        "filters": {
+          "status": "Statut",
+          "statusAll": "Tous",
+          "role": "Rôle",
+          "roleAll": "Tous",
+          "lastActivity": "Dernière Activité"
+        },
+        "table": {
+          "userId": "ID Utilisateur",
+          "name": "Nom",
+          "email": "Email",
+          "role": "Rôle",
+          "registrationDate": "Date d'Inscription",
+          "status": "Statut",
+          "actions": "Actions"
+        },
+        "roles": {
+          "buyer": "Acheteur",
+          "developer": "Développeur",
+          "concierge": "Concierge",
+          "admin": "Administrateur",
+          "partner": "Partenaire",
+          "agent": "Agent"
+        },
+        "statuses": {
+          "active": "Actif",
+          "inactive": "Inactif",
+          "suspended": "Suspendu",
+          "pending": "En Attente"
+        },
+        "pagination": {
+          "showing": "Affichage",
+          "of": "de",
+          "previous": "Précédent",
+          "next": "Suivant"
+        },
+        "actions": {
+          "view": "Voir Détails",
+          "edit": "Modifier",
+          "suspend": "Suspendre",
+          "activate": "Activer",
+          "delete": "Supprimer"
+        }
       }
     },
     "client": {

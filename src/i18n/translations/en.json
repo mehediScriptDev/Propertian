@@ -181,7 +181,7 @@
       "overview": "Admin Dashboard",
       "welcome": "Welcome to Q Homes Admin Dashboard",
       "subtitle": "Manage your platform and monitor performance",
-      "users": "User Management",
+      "usersLink": "User Management",
       "blogEditor": "Blog Editor",
       "mediaLibrary": "Media Library",
       "auditLogs": "Audit Logs",
@@ -237,6 +237,54 @@
       "trends": {
         "positive": "+",
         "negative": "-"
+      },
+      "users": {
+        "title": "User Account Management",
+        "searchPlaceholder": "Search by User ID, Name, or Email...",
+        "addUser": "Add New User",
+        "filters": {
+          "status": "Status",
+          "statusAll": "All",
+          "role": "Role",
+          "roleAll": "All",
+          "lastActivity": "Last Activity"
+        },
+        "table": {
+          "userId": "User ID",
+          "name": "Name",
+          "email": "Email",
+          "role": "Role",
+          "registrationDate": "Registration Date",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "roles": {
+          "buyer": "Buyer",
+          "developer": "Developer",
+          "concierge": "Concierge",
+          "admin": "Admin",
+          "partner": "Partner",
+          "agent": "Agent"
+        },
+        "statuses": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "suspended": "Suspended",
+          "pending": "Pending"
+        },
+        "pagination": {
+          "showing": "Showing",
+          "of": "of",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "actions": {
+          "view": "View Details",
+          "edit": "Edit",
+          "suspend": "Suspend",
+          "activate": "Activate",
+          "delete": "Delete"
+        }
       }
     },
     "client": {

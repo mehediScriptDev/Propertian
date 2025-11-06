@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/i18n';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
@@ -85,6 +86,32 @@ export default function AdminDashboardPage() {
   // Mock engagement data for the chart
   const engagementData = [45, 62, 58, 72, 55, 48, 68, 75, 42, 58, 78, 85];
 
+  // Get properties table translations object
+  const propertiesTableTranslations = useMemo(() => {
+    return {
+      table: {
+        propertyTitle: t('dashboard.admin.propertiesTable.table.propertyTitle'),
+        type: t('dashboard.admin.propertiesTable.table.type'),
+        status: t('dashboard.admin.propertiesTable.table.status'),
+        agent: t('dashboard.admin.propertiesTable.table.agent'),
+        dateAdded: t('dashboard.admin.propertiesTable.table.dateAdded'),
+        actions: t('dashboard.admin.propertiesTable.table.actions'),
+      },
+      types: {
+        buy: t('dashboard.admin.propertiesTable.types.buy'),
+        rent: t('dashboard.admin.propertiesTable.types.rent'),
+      },
+      statuses: {
+        approved: t('dashboard.admin.propertiesTable.statuses.approved'),
+        pending: t('dashboard.admin.propertiesTable.statuses.pending'),
+        rejected: t('dashboard.admin.propertiesTable.statuses.rejected'),
+      },
+      actions: {
+        edit: t('dashboard.admin.propertiesTable.actions.edit'),
+      },
+    };
+  }, [t]);
+
   return (
     <div className='space-y-6'>
       {/* Stats Grid */}
@@ -120,7 +147,7 @@ export default function AdminDashboardPage() {
         title={t('dashboard.admin.propertiesTable.title')}
         addButtonText={t('dashboard.admin.propertiesTable.addProperty')}
         properties={propertiesData}
-        translations={t('dashboard.admin.propertiesTable')}
+        translations={propertiesTableTranslations}
         locale={locale}
       />
     </div>

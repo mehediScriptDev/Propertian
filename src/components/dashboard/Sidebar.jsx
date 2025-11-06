@@ -42,7 +42,7 @@ const navigationConfig = {
       icon: LayoutDashboard,
     },
     {
-      key: 'dashboard.admin.users',
+      key: 'dashboard.admin.usersLink',
       href: '/dashboard/admin/users',
       icon: Users,
     },
