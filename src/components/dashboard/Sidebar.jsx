@@ -51,21 +51,21 @@ const navigationConfig = {
       href: '/dashboard/admin/blog-editor',
       icon: FileText,
     },
-    {
-      key: 'dashboard.admin.mediaLibrary',
-      href: '/dashboard/admin/media-library',
-      icon: Image,
-    },
+    // {
+    //   key: 'dashboard.admin.mediaLibrary',
+    //   href: '/dashboard/admin/media-library',
+    //   icon: Image,
+    // },
     {
       key: 'dashboard.admin.auditLogs',
       href: '/dashboard/admin/audit-logs',
       icon: ScrollText,
     },
-    {
-      key: 'dashboard.admin.seoManagement',
-      href: '/dashboard/admin/seo-management',
-      icon: Search,
-    },
+    // {
+    //   key: 'dashboard.admin.seoManagement',
+    //   href: '/dashboard/admin/seo-management',
+    //   icon: Search,
+    // },
     {
       key: 'dashboard.admin.properties',
       href: '/dashboard/admin/properties',
