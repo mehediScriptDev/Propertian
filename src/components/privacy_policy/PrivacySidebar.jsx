@@ -14,7 +14,7 @@ const PrivacySidebar = () => {
   ];
 
   return (
-    <aside className="w-full lg:w-1/4 lg:sticky lg:top-10 self-start">
+    <aside className="w-full lg:w-1/4 sticky top-24 h-screen">
       <nav className="flex flex-col gap-1 p-4 bg-white dark:bg-background-dark rounded-lg border border-gray-200 dark:border-gray-700">
         <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2 mb-2">
           On this page

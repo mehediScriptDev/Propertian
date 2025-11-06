@@ -5,7 +5,7 @@ export default function LegalCenterComponents({ legalDocuments }) {
   const lastUpdated = "October 26, 2023";
 
   return (
-    <main className="lg:h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
+    <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 ">
       <div className="mx-auto max-w-7xl px-6 py-10 lg:flex lg:gap-10">
         <Head>
           <title>Legal Center - Q Homes | Terms, Privacy, and Policies</title>
@@ -15,16 +15,11 @@ export default function LegalCenterComponents({ legalDocuments }) {
           />
         </Head>
 
-        {/* 🎨 Updated: Main background and text colors applied here */}
         <main className="flex-grow bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
-          <div className="container mx-auto px-4 py-12 md:px-6 md:py-20 lg:py-24">
-            <div className="mx-auto max-w-4xl">
-              {/* PageHeading Component - Heading and paragraph colors inherit from <main> or use specific classes */}
+          <div className="container mx-auto">
+            <div className="">
               <header className="mb-8 text-center">
-                <h1
-                  // Assuming primary-deep-navy and primary are defined in your Tailwind config
-                  className="text-primary-deep-navy dark:text-primary text-4xl font-black leading-tight tracking-tighter md:text-5xl lg:text-6xl"
-                >
+                <h1 className="text-primary-deep-navy dark:text-primary text-4xl font-black leading-tight tracking-tighter md:text-5xl lg:text-6xl">
                   Legal Center
                 </h1>
                 <p className="mx-auto mt-4 max-w-2xl text-base text-subtle-light dark:text-subtle-dark md:text-lg">
@@ -36,24 +31,18 @@ export default function LegalCenterComponents({ legalDocuments }) {
 
               <hr className="mb-8 border-t border-subtle-light/20 dark:border-subtle-dark/20" />
 
-              {/* MetaText Component */}
               <p className="text-center text-sm font-normal text-subtle-light dark:text-subtle-dark pb-8 pt-2">
                 Last Updated: **{lastUpdated}**
               </p>
 
-              {/* List of Documents */}
               <div className="space-y-4">
                 {legalDocuments.map((doc) => (
                   <a
                     key={doc.title}
                     href={doc.href}
-                    // 🎨 Updated: Enhanced contrast for list item background (slightly lighter/darker than the main body)
-                    // Using 'bg-white' and 'dark:bg-gray-700' for better user-friendliness/contrast in both modes.
-                    // Retained hover effects for UX.
                     className="group flex items-center gap-4 rounded-lg bg-white dark:bg-gray-700 p-4 min-h-[72px] justify-between border border-transparent transition-all hover:border-primary/50 hover:shadow-lg dark:hover:bg-gray-600"
                   >
                     <div className="flex items-center gap-4 md:gap-5">
-                      {/* Icon Container */}
                       <div className="flex items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20 shrink-0 size-12 text-primary">
                         <span className="material-symbols-outlined text-2xl">
                           {doc.iconName}
@@ -70,7 +59,6 @@ export default function LegalCenterComponents({ legalDocuments }) {
                       </div>
                     </div>
 
-                    {/* Forward Arrow */}
                     <div className="shrink-0 text-primary opacity-0 transition-opacity group-hover:opacity-100">
                       <span className="material-symbols-outlined">
                         arrow_forward_ios
