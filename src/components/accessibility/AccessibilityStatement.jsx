@@ -45,13 +45,10 @@ export default function AccessibilityStatement({ accessibility }) {
         </header>
 
         {/* Table of Contents */}
-        <nav
-          aria-labelledby="toc-heading"
-          className="p-4 mb-12 border rounded-lg"
-        >
+        <nav aria-labelledby="toc-heading" className="p-4 mb-12">
           <h2
             id="toc-heading"
-            className="text-lg lg:text-xl font-bold tracking-tight leading-tight font-display px-4 pb-4 pt-4 border-b"
+            className="text-lg lg:text-xl font-bold tracking-tight leading-tight font-display px-4 pb-4 pt-4 border-b-2"
           >
             On this page
           </h2>
@@ -81,7 +78,7 @@ export default function AccessibilityStatement({ accessibility }) {
               </h2>
 
               {/* HR now shows for all sections including last */}
-              <hr className="my-2 border-gray-200 border dark:border-gray-700" />
+              <hr className="my-2 border-amber-200 border dark:border-gray-700" />
 
               {section.content && (
                 <p className="font-normal text-sm sm:text-base text-charcoal/90 dark:text-soft-grey/90">
