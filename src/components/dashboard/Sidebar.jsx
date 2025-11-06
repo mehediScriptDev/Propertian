@@ -57,7 +57,7 @@ const navigationConfig = {
     //   icon: Image,
     // },
     {
-      key: 'dashboard.admin.auditLogs',
+      key: 'dashboard.admin.auditLogsLink',
       href: '/dashboard/admin/audit-logs',
       icon: ScrollText,
     },

@@ -184,7 +184,7 @@
       "usersLink": "Gestion des Utilisateurs",
       "blogEditorLink": "Éditeur de Blog",
       "mediaLibrary": "Bibliothèque Média",
-      "auditLogs": "Journaux d'Audit",
+      "auditLogsLink": "Journaux d'Audit",
       "seoManagement": "Gestion SEO",
       "properties": "Gestion des Propriétés",
       "partners": "Gestion des Partenaires",
@@ -332,6 +332,46 @@
           "supportedFormats": "SVG, PNG, JPG (Max. 800x400px)",
           "altText": "Texte Alt",
           "altTextPlaceholder": "Décrivez l'image"
+        }
+      },
+      "auditLogs": {
+        "title": "Journaux d'Audit",
+        "exportCsv": "Exporter CSV",
+        "searchPlaceholder": "Rechercher par utilisateur, action, IP...",
+        "dateRange": "Plage de Dates",
+        "userActor": "Utilisateur / Acteur",
+        "actionType": "Type d'Action",
+        "allDates": "Toutes les Dates",
+        "allUsers": "Tous les Utilisateurs",
+        "allActions": "Toutes les Actions",
+        "last7Days": "7 Derniers Jours",
+        "last30Days": "30 Derniers Jours",
+        "last90Days": "90 Derniers Jours",
+        "customRange": "Plage Personnalisée",
+        "table": {
+          "dateTime": "DATE & HEURE",
+          "userActor": "UTILISATEUR / ACTEUR",
+          "actionPerformed": "ACTION EFFECTUÉE",
+          "itemAffected": "ÉLÉMENT AFFECTÉ",
+          "ipAddress": "ADRESSE IP"
+        },
+        "actions": {
+          "propertyApproved": "Propriété Approuvée",
+          "userSuspended": "Utilisateur Suspendu",
+          "settingsChanged": "Paramètres Modifiés",
+          "passwordReset": "Réinitialisation du Mot de Passe",
+          "propertyRejected": "Propriété Rejetée",
+          "userCreated": "Utilisateur Créé",
+          "loginSuccess": "Connexion Réussie",
+          "loginFailed": "Échec de Connexion",
+          "dataExported": "Données Exportées",
+          "permissionChanged": "Permission Modifiée"
+        },
+        "pagination": {
+          "showing": "Affichage de",
+          "to": "à",
+          "of": "sur",
+          "results": "résultats"
         }
       }
     },

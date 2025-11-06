@@ -184,7 +184,7 @@
       "usersLink": "User Management",
       "blogEditorLink": "Blog Editor",
       "mediaLibrary": "Media Library",
-      "auditLogs": "Audit Logs",
+      "auditLogsLink": "Audit Logs",
       "seoManagement": "SEO Management",
       "properties": "Properties Management",
       "partners": "Partner Management",
@@ -332,6 +332,46 @@
           "supportedFormats": "SVG, PNG, JPG (Max. 800x400px)",
           "altText": "Alt Text",
           "altTextPlaceholder": "Describe the image"
+        }
+      },
+      "auditLogs": {
+        "title": "Audit Logs",
+        "exportCsv": "Export CSV",
+        "searchPlaceholder": "Search logs by user, action, IP...",
+        "dateRange": "Date Range",
+        "userActor": "User / Actor",
+        "actionType": "Action Type",
+        "allDates": "All Dates",
+        "allUsers": "All Users",
+        "allActions": "All Actions",
+        "last7Days": "Last 7 Days",
+        "last30Days": "Last 30 Days",
+        "last90Days": "Last 90 Days",
+        "customRange": "Custom Range",
+        "table": {
+          "dateTime": "DATE & TIME",
+          "userActor": "USER / ACTOR",
+          "actionPerformed": "ACTION PERFORMED",
+          "itemAffected": "ITEM AFFECTED",
+          "ipAddress": "IP ADDRESS"
+        },
+        "actions": {
+          "propertyApproved": "Property Approved",
+          "userSuspended": "User Suspended",
+          "settingsChanged": "Settings Changed",
+          "passwordReset": "Password Reset",
+          "propertyRejected": "Property Rejected",
+          "userCreated": "User Created",
+          "loginSuccess": "Login Success",
+          "loginFailed": "Login Failed",
+          "dataExported": "Data Exported",
+          "permissionChanged": "Permission Changed"
+        },
+        "pagination": {
+          "showing": "Showing",
+          "to": "to",
+          "of": "of",
+          "results": "results"
         }
       }
     },
