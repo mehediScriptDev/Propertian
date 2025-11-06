@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import Hero from './components/Hero';
 import MethodCard from './components/MethodCard';
 import QRSection from './components/QRSection';
@@ -20,6 +21,9 @@ export default function SetupClient({ method = 'authenticator' }) {
     // sms flow state
     const [sent, setSent] = useState(false);
     const [sending, setSending] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
+    const locale = pathname?.split('/')[1] || 'en';
 
     const handleChange = (e) => {
         const v = e.target.value.replace(/\D/g, '');
@@ -32,21 +36,14 @@ export default function SetupClient({ method = 'authenticator' }) {
 
     const handleVerify = (e) => {
         e.preventDefault();
-        if (code.length !== 6) {
+        // For the dummy confirmation page, accept any numeric input (at least 1 digit)
+        if (!code || code.length < 1) {
             setStatus('error');
-            setMessage('Enter the 6-digit code from your app.');
+            setMessage('Enter the verification code.');
             return;
         }
-        setStatus('verifying');
-        setTimeout(() => {
-            if (code === '123456') {
-                setStatus('success');
-                setMessage('Two-Factor Authentication is now active (demo).');
-            } else {
-                setStatus('error');
-                setMessage('Invalid code. Try 123456 for demo.');
-            }
-        }, 700);
+        // navigate to activated confirmation page
+        router.push(`/${locale}/auth/2fa/activated`);
     };
 
     const handleCopy = async () => {
