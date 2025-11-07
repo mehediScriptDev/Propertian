@@ -188,13 +188,13 @@ export default function Footer({ locale }) {
             </div> */}
             <div className="flex gap-6">
               <Link
-                href={`/${locale}/terms-conditions`}
+                href={`/${locale}/privacy-policy`}
                 className="text-sm text-white/70 hover:text-white transition-colors"
               >
                 {t("Privacy Policy")}
               </Link>
               <Link
-                href={`/${locale}/privacy-policy`}
+                href={`/${locale}/terms-conditions`}
                 className="text-sm text-white/70 hover:text-white transition-colors"
               >
                 {t("Terms of Service")}

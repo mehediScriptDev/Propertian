@@ -70,12 +70,24 @@ const privacy = [
   },
 ];
 
+const items = [
+  { id: "info-collect", label: "Information We Collect" },
+  { id: "info-use", label: "How We Use Your Information" },
+  { id: "info-share", label: "How We Share Your Information" },
+  { id: "privacy-rights", label: "Your Privacy Rights" },
+  { id: "cookies", label: "Cookies & Tracking" },
+  { id: "data-security", label: "Data Security" },
+  { id: "third-party", label: "Third-Party Links" },
+  { id: "changes", label: "Changes to Our Policy" },
+  { id: "contact", label: "Contact Us" },
+];
+
 export default function PrivacyPolicyPage() {
   return (
     <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
       <div className="mx-auto max-w-7xl px-6 py-10 lg:flex lg:gap-10">
-        <PrivacySidebar />
-        <MainContent privacy={privacy} />
+        <PrivacySidebar items={items} />
+        <MainContent items={items} privacy={privacy} />
       </div>
     </main>
   );

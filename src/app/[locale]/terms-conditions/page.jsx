@@ -42,33 +42,43 @@ const terms = [
   },
   {
     id: 6,
+    title: "6. Governing Law & Jurisdiction",
+    description:
+      "These Terms will be governed by and interpreted in accordance with the laws of Côte d’Ivoire, and you submit to the non-exclusive jurisdiction of the state and federal courts located in Côte d’Ivoire for the resolution of any disputes.",
+    short_Description: "",
+  },
+  {
+    id: 7,
     title: "7. Changes to Terms",
     description:
       "Q Homes is permitted to revise these Terms at any time as it sees fit, and by using this Website you are expected to review these Terms on a regular basis. We will notify you of any changes by posting the new Terms and Conditions on this page.",
     short_Description: "",
   },
   {
-    id: 7,
+    id: 8,
     title: "8. Contact Information",
     description:
       "If you have any queries regarding any of our terms, please contact us. You can reach us via our Contact Page.",
     short_Description: "",
   },
-  {
-    id: 8,
-    title: "Contact Us",
-    description:
-      "If you have any questions or concerns about this Privacy Policy, please contact us at privacy@qhomes.com.",
-    short_Description: "",
-  },
+];
+
+const items = [
+  { id: "introduction", label: "1. Introduction" },
+  { id: "user-obligations", label: "2. User Obligations & Conduct" },
+  { id: "intellectual-property", label: "3. Intellectual Property Rights" },
+  { id: "disclaimer", label: "4. Disclaimer" },
+  { id: "limitation-liability", label: "5. Limitation of Liability" },
+  { id: "changes-terms", label: "7. Changes to Terms" },
+  { id: "contact-information", label: "8. Contact Information" },
 ];
 
 export default function TermsCondition() {
   return (
     <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
       <div className="mx-auto max-w-7xl px-6 py-10 lg:flex lg:gap-10">
-        <TermsSidebar />
-        <MainContent terms={terms} />
+        <TermsSidebar items={items} />
+        <MainContent items={items} terms={terms} />
       </div>
     </main>
   );

@@ -1,29 +1,17 @@
 import React from "react";
 
-const PrivacySidebar = () => {
-  const items = [
-    { id: "info-collect", label: "Information We Collect" },
-    { id: "info-use", label: "How We Use Your Information" },
-    { id: "info-share", label: "How We Share Your Information" },
-    { id: "privacy-rights", label: "Your Privacy Rights" },
-    { id: "cookies", label: "Cookies & Tracking" },
-    { id: "data-security", label: "Data Security" },
-    { id: "third-party", label: "Third-Party Links" },
-    { id: "changes", label: "Changes to Our Policy" },
-    { id: "contact", label: "Contact Us" },
-  ];
-
+const PrivacySidebar = ({ items }) => {
   return (
-    <aside className="w-full lg:w-1/4 sticky top-24 h-screen">
+    <aside className="w-full lg:w-1/4 lg:sticky lg:top-10 self-start">
       <nav className="flex flex-col gap-1 p-4 bg-white dark:bg-background-dark rounded-lg border border-gray-200 dark:border-gray-700">
-        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2 mb-2">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 px-3 pb-2 border-b border-gray-200 dark:border-gray-700 mb-2">
           On this page
-        </h2>
+        </h3>
         {items.map(({ id, label }) => (
           <a
             key={id}
             href={`#${id}`}
-            className="text-sm text-charcoal/90 dark:text-soft-grey/90 hover:bg-primary/10 hover:text-primary font-medium px-3 py-2 rounded-md"
+            className="text-sm text-gray-600 dark:text-gray-400 hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary dark:hover:text-primary font-medium px-3 py-2 rounded-md transition-colors duration-150"
           >
             {label}
           </a>

@@ -29,8 +29,6 @@ export default function LegalCenterComponents({ legalDocuments }) {
                 </p>
               </header>
 
-              <hr className="mb-8 border-t border-subtle-light/20 dark:border-subtle-dark/20" />
-
               <p className="text-center text-sm font-normal text-subtle-light dark:text-subtle-dark pb-8 pt-2">
                 Last Updated: **{lastUpdated}**
               </p>

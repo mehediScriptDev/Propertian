@@ -1,14 +1,4 @@
-const TermsSidebar = () => {
-  const items = [
-    { id: "introduction", label: "1. Introduction" },
-    { id: "user-obligations", label: "2. User Obligations & Conduct" },
-    { id: "intellectual-property", label: "3. Intellectual Property Rights" },
-    { id: "disclaimer", label: "4. Disclaimer" },
-    { id: "limitation-liability", label: "5. Limitation of Liability" },
-    { id: "changes-terms", label: "7. Changes to Terms" },
-    { id: "contact-information", label: "8. Contact Information" },
-  ];
-
+const TermsSidebar = ({ items }) => {
   return (
     <aside className="w-full lg:w-1/4 sticky top-24 h-screen">
       <nav className="flex flex-col gap-1 p-4 bg-white dark:bg-background-dark rounded-lg border border-gray-200 dark:border-gray-700">
@@ -16,12 +6,13 @@ const TermsSidebar = () => {
           Table of Contents
         </h2>
         {items.map(({ id, label }) => (
-          <span
+          <a
             key={id}
-            className="text-sm text-charcoal/90 dark:text-soft-grey/90 font-medium px-3 py-2 rounded-md"
+            href={`#${id}`}
+            className="text-sm text-charcoal/90 dark:text-soft-grey/90 hover:bg-primary/10 hover:text-primary font-medium px-3 py-2 rounded-md"
           >
             {label}
-          </span>
+          </a>
         ))}
       </nav>
     </aside>
