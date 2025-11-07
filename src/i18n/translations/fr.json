@@ -258,7 +258,16 @@
       "lastName": "Nom",
       "phone": "Téléphone",
       "email": "E-mail",
-
+      "updateDetails": "Enregistrer les modifications",
+      "changePassword": "Mettre à jour le mot de passe",
+      "mySavedSearches": "Mes Recherches Enregistrées",
+      "saveChanges": "Enregistrer les modifications",
+      "resetToDefault": "Réinitialiser par défaut",
+      "totalAppointments": "Total des Rendez-vous",
+      "newAppointment": "Nouveau Rendez-vous",
+      "yourNotifications": "Vos Notifications",
+      "notificationSubtitle": "Voici vos dernières alertes et mises à jour de propriétés.",
+      "markallRead": "Tout marquer comme lu",
       "personalDetails": {
         "title": "Détails personnels",
         "saving": "Enregistrement...",

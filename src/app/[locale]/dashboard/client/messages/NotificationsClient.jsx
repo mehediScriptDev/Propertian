@@ -2,9 +2,13 @@
 
 "use client";
 
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/i18n';
 import React, { useState } from 'react';
 
 export default function PropertyNotifications() {
+  const { locale } = useLanguage();
+    const { t } = useTranslation(locale)
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -55,17 +59,17 @@ export default function PropertyNotifications() {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-8 md:mb-10">
           <div>
             <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2">
-              Your Notifications ({unreadCount})
+             {t('dashboard.client.yourNotifications')} ({unreadCount})
             </h1>
             <p className="text-sm md:text-base text-gray-600">
-              Here are your latest property alerts and updates.
+              {t('dashboard.client.notificationSubtitle')}
             </p>
           </div>
           <button
             onClick={markAllAsRead}
             className="bg-gray-900 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold hover:bg-gray-800 transition text-sm md:text-base whitespace-nowrap"
           >
-            Mark all as read
+            {t('dashboard.client.markallRead')}
           </button>
         </div>
 

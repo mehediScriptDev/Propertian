@@ -15,13 +15,13 @@ export default function VerificationForm({
     return (
         <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-1">Enter Verification Code</h3>
-            <p className="text-sm text-gray-500 mb-5">
+            <p className="text-base text-gray-500 mb-5">
                 A 6-digit code was sent to your number. Please enter it below.
             </p>
 
             <form onSubmit={handleVerifyAndActivate} className="space-y-6">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-base font-medium text-gray-700 mb-2">
                         Verification Code
                     </label>
                     <div className="flex justify-between gap-2">

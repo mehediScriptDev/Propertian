@@ -74,10 +74,10 @@ export default function SmsSetupClient() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center  px-4 py-10">
-            <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-800 mb-1">Enhance Your Account Security</h2>
-                <p className="text-sm text-gray-500 mb-6">Set up Two-Factor Authentication (2FA) to add an extra layer of protection.</p>
+        <div className="min-h-screen flex items-center justify-center  px-2 md:px-4  py-10">
+            <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100">
+                <h2 className="text-xl md:text-3xl font-bold text-gray-800 mb-1">Enhance Your Account Security</h2>
+                <p className="text-base md:text-lg text-gray-700 mb-6">Set up Two-Factor Authentication (2FA) to add an extra layer of protection.</p>
 
                 {!codeSent ? (
                     <PhoneForm

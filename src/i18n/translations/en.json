@@ -261,6 +261,14 @@
       "phone": "Phone",
       "updateDetails": "save changes",
       "changePassword": "Update Password",
+      "mySavedSearches": "My Saved Searches",
+      "saveChanges": "Save Changes",
+      "resetToDefault": "Reset to Default",
+      "totalAppointments": "Total Appointments",
+      "newAppointment": "New Appointment",
+      "yourNotifications": "Your Notifications",
+      "notificationSubtitle": "Here are your latest property alerts and updates.",
+      "markallRead": "Mark all as read",
 
       "personalDetails": {
         "title": "Personal Details",

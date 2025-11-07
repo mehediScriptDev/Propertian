@@ -2,8 +2,12 @@
 
 import { useState } from 'react';
 import { Eye, Edit2, Trash2 } from 'lucide-react';
+import { useTranslation } from '@/i18n';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function NotificationSettings() {
+   const { locale } = useLanguage();
+    const { t } = useTranslation(locale);
   const [settings, setSettings] = useState({
     frequency: 'instant',
     channels: {
@@ -18,7 +22,7 @@ export default function NotificationSettings() {
       id: 1,
       title: '3-bedroom Villa in Cocody',
       location: 'Cocody',
-      type: 'Villa',
+      type: 'Villa', 
       budget: 'XOF 50M-75M',
       enabled: true,
     },
@@ -72,7 +76,7 @@ export default function NotificationSettings() {
 
         {/* My Saved Searches */}
         <div>
-          <h2 className="text-4xl font-bold text-slate-900 mb-8">My Saved Searches</h2>
+          <h2 className="text-4xl font-bold text-slate-900 mb-8">{t('dashboard.client.mySavedSearches')}</h2>
 
           <div className="space-y-3">
             {searches.map((search) => (
@@ -151,10 +155,10 @@ export default function NotificationSettings() {
         {/* Action Buttons */}
         <div className="flex justify-end gap-4 mt-8">
           <button className="px-6 py-2 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50">
-            Reset to Default
+            {t('dashboard.client.resetToDefault')}
           </button>
           <button className="px-6 py-2 bg-primary  text-white font-semibold rounded-lg hover:bg-yellow-600">
-            Save Changes
+           {t('dashboard.client.saveChanges')}
           </button>
         </div>
       </div>

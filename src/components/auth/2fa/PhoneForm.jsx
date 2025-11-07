@@ -15,7 +15,7 @@ export default function PhoneForm({
             <div>
                 <label
                     htmlFor="countryCode"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-base font-medium text-gray-700 mb-1"
                 >
                     Country Code
                 </label>
@@ -31,7 +31,7 @@ export default function PhoneForm({
             <div>
                 <label
                     htmlFor="phoneNumber"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-base font-medium text-gray-700 mb-1"
                 >
                     Phone Number
                 </label>
