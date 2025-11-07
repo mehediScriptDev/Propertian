@@ -1,5 +1,5 @@
 "use client";
-import YourCookie from "@/components/cookie_preferences/YourCookie";
+import CookieConsentModal from "@/components/cookie_preferences/CookieConsentModal";
 import React from "react";
 
 const cookieCategories = [
@@ -34,7 +34,7 @@ const cookieCategories = [
 export default function CookiePreferences() {
   return (
     <>
-      <YourCookie cookieCategories={cookieCategories} />
+      <CookieConsentModal cookieCategories={cookieCategories} />
     </>
   );
 }
