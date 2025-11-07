@@ -34,7 +34,11 @@ const cookieCategories = [
 export default function CookiePreferences() {
   return (
     <>
-      <CookieConsentModal cookieCategories={cookieCategories} />
+      <main className="min-h-screen  bg-black/10 backdrop-blur-sm  text-gray-800 dark:text-gray-200">
+        <div className="mx-auto max-w-7xl px-6 py-10">
+          <CookieConsentModal cookieCategories={cookieCategories} />
+        </div>
+      </main>
     </>
   );
 }
