@@ -18,8 +18,14 @@ export default function TwoFactorClient() {
     const locale = pathname?.split('/')[1] || 'en';
 
     const selectMethod = (method) => {
-        // For demo, navigate to a full setup page that shows QR and activation steps
-        router.push(`/${locale}/auth/2fa/setup?method=${method}`);
+        setSelected(method);
+        if (method === "authenticator") {
+            // For authenticator, navigate to setup page
+            router.push(`/${locale}/auth/2fa/setup?method=${method}`);
+        } else if (method === "sms") {
+            // For SMS, navigate to SMS setup page
+            router.push(`/${locale}/auth/2fa/sms-setup`);
+        }
     };
 
     const handleChange = (e) => {
@@ -174,8 +180,8 @@ export default function TwoFactorClient() {
                                         type="submit"
                                         disabled={status === "verifying"}
                                         className={`inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold text-white ${status === "verifying"
-                                                ? "bg-gray-400 cursor-wait"
-                                                : "bg-amber-600 hover:bg-amber-700"
+                                            ? "bg-gray-400 cursor-wait"
+                                            : "bg-amber-600 hover:bg-amber-700"
                                             } w-full sm:w-auto`}
                                     >
                                         {status === "verifying" ? "Verifying…" : "Verify"}
