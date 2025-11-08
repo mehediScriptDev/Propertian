@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -57,24 +58,21 @@ export default function Header({ locale }) {
 
   return (
     <header className='sticky top-0 z-50 border-b border-solid border-primary/20 bg-background-light/95 backdrop-blur-md dark:bg-background-dark/95 shadow-sm'>
-      <div className='mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8'>
+      <div className='mx-auto flex max-w-7xl items-center justify-between sm:px-6 lg:px-8'>
         {/* Logo */}
         <Link
           href={`/${locale}`}
-          className='flex items-center gap-2 sm:gap-3 shrink-0'
+          className='flex items-center shrink-0'
           onClick={() => setMobileMenuOpen(false)}
         >
-          <div className='size-7 sm:size-8 text-primary shrink-0'>
-            <svg fill='none' viewBox='0 0 48 48' aria-hidden='true'>
-              <path
-                d='M44 11.27C44 14.01 39.84 16.4 33.69 17.64C39.84 18.88 44 21.26 44 24C44 26.74 39.84 29.12 33.69 30.36C39.84 31.6 44 33.99 44 36.73C44 40.74 35.05 44 24 44C12.95 44 4 40.74 4 36.73C4 33.99 8.16 31.6 14.31 30.36C8.16 29.12 4 26.74 4 24C4 21.26 8.16 18.88 14.31 17.64C8.16 16.4 4 14.01 4 11.27C4 7.26 12.95 4 24 4C35.05 4 44 7.26 44 11.27Z'
-                fill='currentColor'
-              />
-            </svg>
-          </div>
-          <h2 className='text-lg sm:text-xl font-bold tracking-tight text-charcoal dark:text-white whitespace-nowrap'>
-            Q Global Living
-          </h2>
+          <Image
+            src='/logo.png'
+            alt='Q Global Living'
+            width={85}
+            height={40}
+            className='h-4 w-auto object-contain'
+            priority
+          />
         </Link>
 
         {/* Desktop Navigation */}
