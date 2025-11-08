@@ -58,20 +58,25 @@ function Header({ locale }) {
         ariaLabel: 'New developments',
       },
       {
-        href: `/${locale}/about`,
-        label: t('nav.about'),
-        ariaLabel: 'About us',
+        href: `/${locale}/concierge`,
+        label: t('nav.concierge'),
+        ariaLabel: 'Concierge services',
       },
-      {
-        href: `/${locale}/contact`,
-        label: t('nav.contact'),
-        ariaLabel: 'Contact us',
-      },
-      {
-        href: `/${locale}/blog`,
-        label: t('nav.blog'),
-        ariaLabel: 'Blog articles',
-      },
+      // {
+      //   href: `/${locale}/about`,
+      //   label: t('nav.about'),
+      //   ariaLabel: 'About us',
+      // },
+      // {
+      //   href: `/${locale}/contact`,
+      //   label: t('nav.contact'),
+      //   ariaLabel: 'Contact us',
+      // },
+      // {
+      //   href: `/${locale}/blog`,
+      //   label: t('nav.blog'),
+      //   ariaLabel: 'Blog articles',
+      // },
     ],
     [locale, t]
   );
