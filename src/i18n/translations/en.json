@@ -580,9 +580,32 @@
       },
       "eventManagement": {
         "title": "Event Management",
-        "subtitle": "Manage property viewing events",
+        "subtitle": "Create and manage property viewing events and webinars",
         "createEvent": "Create Event",
-        "upcomingEvents": "Upcoming Events"
+        "upcomingEvents": "Upcoming Events",
+        "searchPlaceholder": "Search events...",
+        "filters": {
+          "all": "All Events",
+          "upcoming": "Upcoming",
+          "ongoing": "Ongoing",
+          "completed": "Completed",
+          "draft": "Draft",
+          "cancelled": "Cancelled"
+        },
+        "status": {
+          "upcoming": "Upcoming",
+          "ongoing": "Ongoing",
+          "completed": "Completed",
+          "draft": "Draft",
+          "cancelled": "Cancelled"
+        },
+        "registered": "registered",
+        "moreOptions": "More options",
+        "editEvent": "Edit event",
+        "deleteEvent": "Delete event",
+        "noEvents": "No events found",
+        "noEventsDescription": "Get started by creating your first event",
+        "createFirstEvent": "Create First Event"
       },
       "clientProfile": {
         "title": "My Profile",

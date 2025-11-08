@@ -580,9 +580,32 @@
       },
       "eventManagement": {
         "title": "Gestion des Événements",
-        "subtitle": "Gérer les événements de visite de propriété",
+        "subtitle": "Créer et gérer les événements de visite de propriété et webinaires",
         "createEvent": "Créer Événement",
-        "upcomingEvents": "Événements à Venir"
+        "upcomingEvents": "Événements à Venir",
+        "searchPlaceholder": "Rechercher des événements...",
+        "filters": {
+          "all": "Tous les Événements",
+          "upcoming": "À Venir",
+          "ongoing": "En Cours",
+          "completed": "Terminé",
+          "draft": "Brouillon",
+          "cancelled": "Annulé"
+        },
+        "status": {
+          "upcoming": "À Venir",
+          "ongoing": "En Cours",
+          "completed": "Terminé",
+          "draft": "Brouillon",
+          "cancelled": "Annulé"
+        },
+        "registered": "inscrits",
+        "moreOptions": "Plus d'options",
+        "editEvent": "Modifier l'événement",
+        "deleteEvent": "Supprimer l'événement",
+        "noEvents": "Aucun événement trouvé",
+        "noEventsDescription": "Commencez par créer votre premier événement",
+        "createFirstEvent": "Créer Premier Événement"
       },
       "clientProfile": {
         "title": "Mon Profil",
