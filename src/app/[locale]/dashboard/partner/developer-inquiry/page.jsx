@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
 import {
   MessageSquare,
@@ -22,6 +23,11 @@ import {
   Archive,
 } from 'lucide-react';
 
+// Lazy load Pagination component
+const Pagination = dynamic(() => import('@/components/dashboard/Pagination'), {
+  ssr: false,
+});
+
 /**
  * Developer Inquiry Page
  * Production-grade component for managing developer inquiries and messages
@@ -31,9 +37,11 @@ export default function DeveloperInquiryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedInquiry, setSelectedInquiry] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  // Mock data - In production, this would come from API
-  const inquiries = [
+  // Mock data - Memoized to prevent recreation on every render
+  const inquiries = useMemo(() => [
     {
       id: 1,
       name: 'Jean Baptiste',
@@ -104,7 +112,105 @@ export default function DeveloperInquiryPage() {
       priority: 'medium',
       location: 'Paris, France',
     },
-  ];
+    {
+      id: 6,
+      name: 'Fatou Camara',
+      email: 'fatou.camara@email.com',
+      phone: '+225 03 04 05 06 07',
+      project: 'Skyline Towers',
+      subject: 'Bulk Purchase Inquiry',
+      message:
+        'We are interested in purchasing multiple units for corporate housing. Can we discuss volume discounts?',
+      date: '2024-11-05',
+      status: 'new',
+      priority: 'high',
+      location: 'Cocody, Abidjan',
+    },
+    {
+      id: 7,
+      name: 'Ahmed Sesay',
+      email: 'ahmed.sesay@email.com',
+      phone: '+225 04 05 06 07 08',
+      project: 'Palm Gardens',
+      subject: 'Amenities Question',
+      message:
+        'What amenities are included in the Palm Gardens development? Is there a gym and swimming pool?',
+      date: '2024-11-04',
+      status: 'resolved',
+      priority: 'low',
+      location: 'Bingerville',
+    },
+    {
+      id: 8,
+      name: 'Aicha Sanogo',
+      email: 'aicha.sanogo@email.com',
+      phone: '+225 05 06 07 08 09',
+      project: 'Coastal View Residences',
+      subject: 'Maintenance Fees',
+      message:
+        'Could you provide information about the monthly maintenance fees for Coastal View Residences?',
+      date: '2024-11-03',
+      status: 'pending',
+      priority: 'medium',
+      location: 'Grand-Bassam',
+    },
+    {
+      id: 9,
+      name: 'Mamadou Toure',
+      email: 'mamadou.toure@email.com',
+      phone: '+225 06 07 08 09 10',
+      project: 'Urban Living Complex',
+      subject: 'Completion Date',
+      message:
+        'When is the expected completion date for the Urban Living Complex? I need to plan my relocation.',
+      date: '2024-11-02',
+      status: 'resolved',
+      priority: 'medium',
+      location: 'Treichville, Abidjan',
+    },
+    {
+      id: 10,
+      name: 'Aminata Bamba',
+      email: 'aminata.bamba@email.com',
+      phone: '+225 07 08 09 10 11',
+      project: 'Green Valley Estates',
+      subject: 'Parking Availability',
+      message:
+        'How many parking spaces are allocated per unit in Green Valley Estates? I have two vehicles.',
+      date: '2024-11-01',
+      status: 'new',
+      priority: 'low',
+      location: 'Anyama',
+    },
+    {
+      id: 11,
+      name: 'Youssouf Dao',
+      email: 'youssouf.dao@email.com',
+      phone: '+225 08 09 10 11 12',
+      project: 'Executive Suites',
+      subject: 'Customization Options',
+      message:
+        'Are there any customization options available for interior finishes in the Executive Suites?',
+      date: '2024-10-31',
+      status: 'pending',
+      priority: 'high',
+      location: 'Plateau, Abidjan',
+    },
+    {
+      id: 12,
+      name: 'Salimata Kone',
+      email: 'salimata.kone@email.com',
+      phone: '+225 09 10 11 12 13',
+      project: 'Modern Villas Estate',
+      subject: 'Security Features',
+      message:
+        'What security features are included in the Modern Villas Estate? Is there 24/7 security?',
+      date: '2024-10-30',
+      status: 'closed',
+      priority: 'medium',
+      location: 'Plateau, Abidjan',
+    },
+  ], []);
 
   const stats = [
     {
@@ -204,17 +310,37 @@ export default function DeveloperInquiryPage() {
     );
   };
 
-  const filteredInquiries = inquiries.filter((inquiry) => {
-    const matchesSearch =
-      searchQuery === '' ||
-      inquiry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      inquiry.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      inquiry.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      inquiry.project.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter =
-      filterStatus === 'all' || inquiry.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+  // Filter inquiries based on search and status
+  const filteredInquiries = useMemo(() => {
+    return inquiries.filter((inquiry) => {
+      const matchesSearch =
+        searchQuery === '' ||
+        inquiry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        inquiry.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        inquiry.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        inquiry.project.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesFilter =
+        filterStatus === 'all' || inquiry.status === filterStatus;
+      return matchesSearch && matchesFilter;
+    });
+  }, [inquiries, searchQuery, filterStatus]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredInquiries.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentInquiries = filteredInquiries.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  const handleSearchChange = (value) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = (value) => {
+    setFilterStatus(value);
+    setCurrentPage(1);
+  };
 
   return (
     <div className='space-y-6'>
@@ -270,7 +396,7 @@ export default function DeveloperInquiryPage() {
                   type='text'
                   placeholder='Search inquiries...'
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className='w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm transition-colors focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]'
                   aria-label='Search inquiries'
                 />
@@ -284,7 +410,7 @@ export default function DeveloperInquiryPage() {
                 />
                 <select
                   value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
+                  onChange={(e) => handleFilterChange(e.target.value)}
                   className='w-full appearance-none rounded-lg border border-gray-300 py-2 pl-10 pr-10 text-sm transition-colors focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325] sm:w-auto'
                   aria-label='Filter by status'
                 >
@@ -328,7 +454,7 @@ export default function DeveloperInquiryPage() {
               </tr>
             </thead>
             <tbody className='divide-y divide-gray-200 bg-white'>
-              {filteredInquiries.map((inquiry) => (
+              {currentInquiries.map((inquiry) => (
                 <tr
                   key={inquiry.id}
                   className='transition-colors hover:bg-gray-50 cursor-pointer'
@@ -416,7 +542,7 @@ export default function DeveloperInquiryPage() {
 
         {/* Mobile Cards */}
         <div className='divide-y divide-gray-200 lg:hidden'>
-          {filteredInquiries.map((inquiry) => (
+          {currentInquiries.map((inquiry) => (
             <div
               key={inquiry.id}
               className='p-4 transition-colors hover:bg-gray-50 cursor-pointer'
@@ -493,7 +619,7 @@ export default function DeveloperInquiryPage() {
         </div>
 
         {/* Empty State */}
-        {filteredInquiries.length === 0 && (
+        {currentInquiries.length === 0 && (
           <div className='px-6 py-12 text-center'>
             <MessageSquare className='mx-auto h-12 w-12 text-gray-300' />
             <h3 className='mt-3 text-sm font-medium text-gray-900'>
@@ -505,6 +631,25 @@ export default function DeveloperInquiryPage() {
                 : 'No inquiries have been received yet'}
             </p>
           </div>
+        )}
+
+        {/* Pagination */}
+        {filteredInquiries.length > itemsPerPage && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredInquiries.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            translations={{
+              showing: 'Showing',
+              to: 'to',
+              of: 'of',
+              results: 'inquiries',
+              previous: 'Previous',
+              next: 'Next',
+            }}
+          />
         )}
       </div>
 
