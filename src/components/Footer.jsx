@@ -14,31 +14,38 @@ export default function Footer({ locale }) {
     ],
     legal: [
       {
-        href: `/${locale}/cookie-policy`,
-        label: t("Cookie Policy"),
-        key: "cookie",
-      },
-      {
-        href: `/${locale}/cookie-preferences`,
-        label: t("Cookie Preferences"),
-        key: "preferences",
-      },
-      {
-        href: `/${locale}/cookie-consent`,
-        label: t("Cookie Consent"),
-        key: "consent",
-      },
-      {
-        href: `/${locale}/accessibility`,
-        label: t("Accessibility"),
-        key: "accessibility",
-      },
-      {
-        href: `/${locale}/legal-center`,
-        label: t("Legal Center"),
-        key: "legal",
+        href: `/${locale}/concierge-service`,
+        label: t("Concierge Service"),
+        key: "concierge",
       },
     ],
+    // legal: [
+    //   {
+    //     href: `/${locale}/cookie-policy`,
+    //     label: t("Cookie Policy"),
+    //     key: "cookie",
+    //   },
+    //   {
+    //     href: `/${locale}/cookie-preferences`,
+    //     label: t("Cookie Preferences"),
+    //     key: "preferences",
+    //   },
+    //   {
+    //     href: `/${locale}/cookie-consent`,
+    //     label: t("Cookie Consent"),
+    //     key: "consent",
+    //   },
+    //   {
+    //     href: `/${locale}/accessibility`,
+    //     label: t("Accessibility"),
+    //     key: "accessibility",
+    //   },
+    //   {
+    //     href: `/${locale}/legal-center`,
+    //     label: t("Legal Center"),
+    //     key: "legal",
+    //   },
+    // ],
     // legal: [
     //   {
     //     href: `/${locale}/privacy-policy`,
