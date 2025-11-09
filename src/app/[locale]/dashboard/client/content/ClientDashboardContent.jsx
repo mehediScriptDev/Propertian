@@ -25,7 +25,7 @@ export default function ClientDashboardContent() {
                         <p className="mt-3 text-slate-500 text-lg max-w-2xl">{t("dashboard.client.subtitle")}</p>
                     </div>
 
-                    <div className="ml-4">
+                    {/* <div className="ml-4">
                         <button
                             type="button"
                             onClick={goTo2FA}
@@ -34,7 +34,7 @@ export default function ClientDashboardContent() {
                         >
                             Manage 2FA
                         </button>
-                    </div>
+                    </div> */}
                 </div>
             </header>
 
