@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "@/i18n";
 import ImageGallery from "@/components/property/ImageGallery";
@@ -10,42 +10,57 @@ import PropertyFeatures from "@/components/property/PropertyFeatures"; // (If us
 import ContactActions from "@/components/property/ContactActions";
 import PropertyTabs from "@/components/property/PropertyTabs";
 import RentalOverview from "@/components/property/RentalOverview";
+import { getRentPropertyById } from "@/lib/rentProperties";
 
 // Rent Details Page
 // Mirrors the Buy details UI but uses rental-focused mock data & translation keys
-export default function RentDetailsPage({ params }) {
-  // Extract locale & id from the route
-  const pathname = usePathname();
-  const locale = pathname.split("/")[1] || "en"; // or params.locale if Layout passes
-  const { id } = params || {}; // dynamic rental property id
+export default function RentDetailsPage() {
+  // Extract locale & id from the route using useParams hook
+  const params = useParams();
+  const locale = params?.locale || "en";
+  const id = params?.id;
   const { t } = useTranslation(locale);
 
-  // Rental mock property (replace with API data later)
+  // Get the selected property from shared dataset
+  const base = getRentPropertyById(id);
+
+  // If not found, render a simple fallback
+  if (!base) {
+    return (
+      <main className="min-h-screen bg-gray-50 dark:bg-neutral-900">
+        <div className="max-w-3xl mx-auto px-4 py-16 text-center text-gray-700 dark:text-gray-300">
+          <h1 className="text-2xl font-semibold mb-2">{t('rent.listings.noResults')}</h1>
+          <Link href={`/${locale}/rent`} className="text-primary underline">{t('common.back')}</Link>
+        </div>
+      </main>
+    );
+  }
+
+  // Build the details object using the selected card's data
   const mockProperty = {
-    id: id || "rent-001",
-    title: t("rent.property.title"),
-    location: t("rent.property.location"),
-    priceXOF: 1500000,
-    priceUSD: 2500,
-  developer: t("rent.property.manager"),
-    status: t("rent.property.status"),
+    id: base.id,
+    title: base.title,
+    location: base.location,
+    priceXOF: base.priceXOF,
+    priceUSD: base.priceUSD,
+    developer: t("rent.property.manager"),
+    status: base.isVerified ? t("rent.property.status") : undefined,
     images: [
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop",
+      base.image,
+      // add a couple of safe fallbacks for the gallery
       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop",
     ],
     features: {
-      bedrooms: 3,
-      bathrooms: 2,
+      bedrooms: base.bedrooms,
+      bathrooms: base.bathrooms,
       area: 180,
       garages: 1,
     },
     description: t("rent.property.description"),
     highlights: [
       t("rent.property.highlights.security"),
-      t("rent.property.highlights.furnished"),
+      base.isFurnished ? t("rent.property.highlights.furnished") : t("rent.property.highlights.parking"),
       t("rent.property.highlights.internet"),
       t("rent.property.highlights.parking"),
     ],
@@ -64,8 +79,8 @@ export default function RentDetailsPage({ params }) {
     locationDescription: t("rent.property.locationDesc"),
     managerDescription: t("rent.property.managerDesc", "Professionally managed for comfort and reliability."),
     rental: {
-      duration: t("rent.property.rental.duration", "Short-term / Long-term"),
-      furnishing: t("rent.property.rental.furnishing", "Fully Furnished"),
+      duration: base.duration === 'short-term' ? t("rent.property.rental.duration", "Short-term") : t("rent.property.rental.duration", "Long-term"),
+      furnishing: base.isFurnished ? t("rent.property.rental.furnishing", "Fully Furnished") : t("rent.propertyCard.unfurnished"),
       deposit: t("rent.property.rental.deposit", "2 Months Deposit"),
     },
   };

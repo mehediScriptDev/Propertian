@@ -202,14 +202,14 @@ export default function RentalPropertyCard({ property }) {
         {/* Action Buttons */}
         <div className='mt-4 pt-4 border-t border-gray-100 dark:border-border-dark grid grid-cols-3 gap-2'>
           <Link
-            href={`/rent/${id}`}
+            href={`/${locale}/rent/${id}`}
             className='text-sm font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
             aria-label={`View details for ${title}`}
           >
             {t('rent.propertyCard.viewDetails')}
           </Link>
           <Link
-            href={`/book-visit?property=${id}`}
+            href={`/${locale}/book-visit?property=${id}`}
             className='text-sm font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
             aria-label={`Book viewing for ${title}`}
           >
