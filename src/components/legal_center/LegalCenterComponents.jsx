@@ -5,7 +5,7 @@ export default function LegalCenterComponents({ legalDocuments }) {
   const lastUpdated = "October 26, 2023";
 
   return (
-    <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 ">
+    <main className="lg:h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 ">
       <div className="mx-auto max-w-7xl px-6 py-10 lg:flex lg:gap-10">
         <Head>
           <title>Legal Center - Q Homes | Terms, Privacy, and Policies</title>
