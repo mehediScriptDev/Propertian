@@ -25,6 +25,8 @@ import {
   X,
   Menu,
   Globe,
+  Briefcase,
+  HelpCircle,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -139,6 +141,16 @@ const navigationConfig = {
       key: 'dashboard.partner.inquiries',
       href: '/dashboard/partner/inquiries',
       icon: Mail,
+    },
+    {
+      key: 'dashboard.partner.developerPortal',
+      href: '/dashboard/partner/developer-portal',
+      icon: Briefcase,
+    },
+    {
+      key: 'dashboard.partner.developerInquiry',
+      href: '/dashboard/partner/developer-inquiry',
+      icon: HelpCircle,
     },
     {
       key: 'dashboard.partner.profile',
