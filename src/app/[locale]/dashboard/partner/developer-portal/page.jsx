@@ -298,17 +298,6 @@ export default function DeveloperPortalPage() {
         </div>
       </Suspense>
 
-      {/* Quick Actions - Simplified */}
-      <div className='rounded-lg bg-white p-6 shadow-sm border border-gray-200'>
-        <h2 className='mb-4 text-lg font-semibold text-gray-900'>
-          Quick Actions
-        </h2>
-        <button className='inline-flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-6 py-3 hover:border-[#E6B325] hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-[#E6B325]'>
-          <Download className='h-5 w-5 text-[#E6B325]' aria-hidden='true' />
-          <span className='text-sm font-medium text-gray-900'>Export Data</span>
-        </button>
-      </div>
-
       {/* Projects Table */}
       <div className='rounded-lg bg-white shadow-sm border border-gray-200'>
         <div className='border-b border-gray-200 p-6'>
@@ -349,6 +338,18 @@ export default function DeveloperPortalPage() {
                   <option value='completed'>Completed</option>
                 </select>
               </div>
+
+              {/* Export Data Button */}
+              <button
+                className='inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition-colors hover:border-[#E6B325] hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-[#E6B325]'
+                aria-label='Export data'
+              >
+                <Download
+                  className='h-4 w-4 text-[#E6B325]'
+                  aria-hidden='true'
+                />
+                <span>Export Data</span>
+              </button>
             </div>
           </div>
         </div>
