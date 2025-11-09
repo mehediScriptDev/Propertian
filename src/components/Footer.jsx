@@ -14,6 +14,11 @@ export default function Footer({ locale }) {
     ],
     legal: [
       {
+        href: `/${locale}/partner-directory`,
+        label: t("Partner Directory"),
+        key: "partner",
+      },
+      {
         href: `/${locale}/concierge-service`,
         label: t("Concierge Service"),
         key: "concierge",
