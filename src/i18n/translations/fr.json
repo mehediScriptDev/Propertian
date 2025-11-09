@@ -84,30 +84,49 @@
   "buy": {
     "title": "Acheter une Propriété en Côte d'Ivoire",
     "subtitle": "Trouvez la propriété de vos rêves parmi nos annonces sélectionnées",
-    "filters": "Filtres",
-    "sortBy": "Trier Par",
-    "priceMinLabel": "Prix Min",
-    "priceMaxLabel": "Prix Max",
-    "bedroomsLabel": "Chambres",
-    "bathroomsLabel": "Salles de Bain",
-    "propertyTypeLabel": "Type de Propriété",
-    "locationLabel": "Emplacement",
-    "applyFilters": "Appliquer les Filtres",
-    "clearFilters": "Effacer les Filtres",
-    "resultsFound": "propriétés trouvées",
-    "noResults": "Aucune propriété trouvée correspondant à vos critères",
-    "sortByNewest": "Plus Récent",
-    "sortByPriceAsc": "Prix: Bas à Élevé",
-    "sortByPriceDesc": "Prix: Élevé à Bas",
-    "viewDetails": "Voir les Détails",
-    "contactAgent": "Contacter l'Agent",
-    "saveProperty": "Enregistrer la Propriété",
+    "hero": {
+      "title": "Trouvez la Maison de Vos Rêves en Côte d'Ivoire",
+      "subtitle": "Découvrez des propriétés vérifiées et de haute qualité à vendre à Abidjan et au-delà."
+    },
+    "filters": {
+      "title": "Filtrer les Résultats",
+      "cityLabel": "Ville",
+      "bedroomsLabel": "Chambres",
+      "propertyTypeLabel": "Type",
+      "verifiedOnly": "Vérifié Seulement",
+      "any": "Tous"
+    },
     "propertyTypes": {
-      "apartment": "Appartement",
-      "house": "Maison",
       "villa": "Villa",
+      "house": "Maison",
+      "apartment": "Appartement",
       "land": "Terrain",
       "commercial": "Commercial"
+    },
+    "results": {
+      "title": "Propriétés Disponibles",
+      "sortBy": "Trier par",
+      "featured": "En Vedette",
+      "priceLowToHigh": "Prix: Bas à Élevé",
+      "priceHighToLow": "Prix: Élevé à Bas",
+      "newest": "Plus Récent",
+  "loadMore": "Charger Plus",
+      "noResults": "Aucune Propriété Trouvée",
+      "noResultsMessage": "Essayez d'ajuster vos filtres pour voir plus de propriétés"
+    },
+    "propertyCard": {
+      "verified": "Vérifié",
+      "perProperty": "",
+      "approx": "~",
+      "usd": "USD",
+      "viewDetails": "Voir les Détails",
+      "bookViewing": "Réserver une Visite",
+      "whatsapp": "WhatsApp"
+    },
+    "cta": {
+      "title": "Vous ne trouvez pas ce que vous cherchez?",
+      "description": "Notre équipe peut vous aider à trouver la propriété parfaite. Contactez-nous pour une assistance personnalisée.",
+      "button": "Contactez-Nous"
     },
     "property": {
       "title": "Villa Moderne de 4 Chambres avec Piscine",
