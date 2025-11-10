@@ -3,6 +3,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
+import { Plus } from "lucide-react";
 
 // Lazy load heavier child components to split bundles
 const AppointmentsHeader = React.lazy(() => import('../../../../../components/dashboard/client/AppointmentsHeader'));
@@ -58,20 +59,26 @@ export default function ClientAppointments() {
 
     return (
         <div className="min-h-screen bg-gray-50 space-y-6">
-            <div className="flex items-start justify-between gap-4">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{t('dashboard.client.appointments') || 'All Appointments'}</h1>
+            <div className='bg-linear-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-4 sm:p-6 md:p-8 shadow-lg'>
+                <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
+                    <h1 className='text-xl sm:text-2xl md:text-3xl font-bold text-white'>
+                        {t('dashboard.client.appointments') || 'All Appointments'}
+                    </h1>
+                    <div className='flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto'>
 
-                {/* New button - inline SVG plus to avoid pulling icon library */}
-                <div className="shrink-0">
-                    <button onClick={() => setShowNewModal(true)} className="bg-primary text-white px-4 py-2 md:px-6 md:py-2 rounded-lg flex items-center gap-2 transition text-sm md:text-base">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        {t('dashboard.client.newAppointment') || '+ New Appointment'}
-                    </button>
+                        <button
+
+                            type='button'
+                            className='flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 bg-[#d4af37] hover:bg-[#c19b2a] text-[#1e3a5f] rounded-lg flex items-center justify-center gap-2 text-sm sm:text-base font-semibold transition-all duration-200 shadow-lg hover:shadow-xl'
+                        >
+                            <Plus size={16} className='sm:w-[18px] sm:h-[18px]' />
+                            <span className='whitespace-nowrap'>
+                                {t('dashboard.client.newAppointment') || '+ New Appointment'}
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
-
             <div className="bg-white rounded-lg shadow p-6">
                 <Suspense fallback={<div className="py-6">Loading header…</div>}>
                     <AppointmentsHeader count={appointments.length} query={query} onQueryChange={(q) => setQuery(q)} />

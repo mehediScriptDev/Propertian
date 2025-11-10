@@ -84,15 +84,13 @@ export default function SavedProperties() {
     <div className="min-h-screen bg-gray-50 space-y-6">
       <div>
         {/* Header */}
-        <h1 className="text-3xl md:text-4xl  font-bold text-slate-900 mb-4 ">
-          {t('dashboard.pages.savedProperties.title')}
-        </h1>
-        <p className="text-lg  font-medium text-gray-500 mb-4 ">
-          {t('dashboard.pages.savedProperties.subtitle')}
-        </p>
-
+        
+        <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-6 shadow-lg">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">{t('dashboard.pages.savedProperties.title')}</h1>
+          <p className="text-sm sm:text-base text-white/80">{t('dashboard.pages.savedProperties.subtitle')}</p>
+        </div>
         {/* Toolbar (search, status select, add) - matches provided image */}
-        <div className="bg-white rounded-lg p-4 mb-6 shadow-sm">
+        <div className="bg-white rounded-lg px-4 py-6 mb-6 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="flex-1 max-w-xl">
               <div className="relative">
@@ -104,7 +102,7 @@ export default function SavedProperties() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={'Search properties...'}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 pl-10 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 pl-10 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>

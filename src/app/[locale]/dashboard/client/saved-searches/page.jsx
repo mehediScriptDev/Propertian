@@ -182,14 +182,14 @@ export default function NotificationSettings() {
 
   return (
     <main
-      className="min-h-screen bg-gray-50 py-10 px-5 md:px-10 lg:px-20"
+      className="min-h-screen bg-gray-50 space-y-6"
       role="main"
     >
-      <header className="mb-8 text-center">
-        <h1 className="text-4xl font-extrabold text-slate-900 mb-2">
+      <header className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-6 shadow-lg ">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
           Saved Searches and Settings
         </h1>
-        <p className="text-gray-600 text-sm max-w-2xl mx-auto">
+        <p className="text-sm sm:text-base text-white/80 ">
           Manage your saved property alerts, enable or disable notifications, and
           keep your preferences organized efficiently.
         </p>
@@ -197,7 +197,7 @@ export default function NotificationSettings() {
 
       <section aria-label="My Saved Searches" className="space-y-5">
         <h2 className="text-2xl font-bold text-slate-800 mb-4">
-          My Saved Searches
+          Your Saved Searches
         </h2>
 
         {searches.length > 0 ? (
