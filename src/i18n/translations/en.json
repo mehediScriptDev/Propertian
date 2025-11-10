@@ -558,7 +558,7 @@
       }
     },
     "client": {
-      "title": "Client Dashboard",
+      "title": "User Dashboard",
       "subtitle": "View and edit your personal details, contact information, and password.",
       "profile": "Profile Details",
       "favorites": "Saved Properties",
