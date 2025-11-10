@@ -116,15 +116,15 @@ const navigationConfig = {
       icon: Calendar,
     },
     {
-      key: "dashboard.client.messages",
-      href: "/dashboard/client/messages",
+      key: 'dashboard.client.tickets',
+      href: '/dashboard/client/tickets',
       icon: MessageSquare,
-    },
-    {
-      key: "dashboard.client.settings",
-      href: "/dashboard/client/settings",
-      icon: Settings,
-    },
+    }
+    // {
+    //   key: 'dashboard.client.settings',
+    //   href: '/dashboard/client/settings',
+    //   icon: Settings,
+    // },
   ],
   partner: [
     {
