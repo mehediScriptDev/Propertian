@@ -247,10 +247,12 @@ export default function Sidebar({ role = 'admin' }) {
       <div className='flex h-20 items-center gap-3 border-b border-gray-700/50 px-6'>
         <div className='flex h-10 w-10 items-center justify-center rounded-full bg-[#E6B325]'>
           <Home className='h-6 w-6 text-[#0F1B2E]' />
+          <Link href={'/'}>
+          <Image src='/logo.png' alt='Logo' className='w-10 h-10' />
+          </Link>
         </div>
         <div className='flex-1 min-w-0'>
-          <h1 className='text-lg font-semibold text-white'>Q Global Living</h1>
-          <p className='text-xs text-gray-400 capitalize'>
+          <p className='text-base font-semibold text-gray-400 capitalize'>
             {t(`dashboard.${role}.title`)}
           </p>
         </div>
