@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
 
     Clock,
@@ -97,7 +97,7 @@ export default function UserTicketDashboard() {
         );
     };
 
-    const handleAddTicket = () => {
+    const handleAddTicket = useCallback(() => {
         if (newTicket.subject && newTicket.description && newTicket.property_id) {
             // If editing, update existing ticket
             if (editingTicketId) {
@@ -140,18 +140,18 @@ export default function UserTicketDashboard() {
             });
             setShowForm(false);
         }
-    };
+    }, [newTicket, editingTicketId, tickets]);
 
-    const handleDelete = (id) => {
+    const handleDelete = useCallback((id) => {
         setTickets((prev) => prev.filter((t) => t.id !== id));
-        if (selectedTicket && selectedTicket.id === id) setSelectedTicket(null);
-    };
+        setSelectedTicket((prev) => (prev && prev.id === id ? null : prev));
+    }, []);
 
-    const handleView = (ticket) => {
+    const handleView = useCallback((ticket) => {
         setSelectedTicket(ticket);
-    };
+    }, []);
 
-    const handleEdit = (ticket) => {
+    const handleEdit = useCallback((ticket) => {
         // populate the form with ticket data and open modal for editing
         setEditingTicketId(ticket.id);
         setNewTicket({
@@ -162,35 +162,40 @@ export default function UserTicketDashboard() {
             priority: ticket.priority || "medium",
         });
         setShowForm(true);
-    };
+    }, []);
 
-    const filteredTickets = tickets.filter((ticket) => {
+    const filteredTickets = useMemo(() => tickets.filter((ticket) => {
+        const q = searchTerm.trim().toLowerCase();
         const matchesSearch =
-            ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ticket.property_name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter =
-            filterStatus === "all" || ticket.status === filterStatus;
+            !q ||
+            ticket.subject.toLowerCase().includes(q) ||
+            ticket.description.toLowerCase().includes(q) ||
+            ticket.property_name.toLowerCase().includes(q);
+        const matchesFilter = filterStatus === "all" || ticket.status === filterStatus;
         return matchesSearch && matchesFilter;
-    });
+    }), [tickets, searchTerm, filterStatus]);
 
     // --- Pagination logic ---
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    useEffect(() => {
-        // Reset to first page when filters/search change
+    const handleSearchChange = useCallback((value) => {
+        setSearchTerm(value);
         setCurrentPage(1);
-    }, [searchTerm, filterStatus]);
+    }, []);
+
+    const handleFilterChange = useCallback((value) => {
+        setFilterStatus(value);
+        setCurrentPage(1);
+    }, []);
 
     const totalItems = filteredTickets.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
-    useEffect(() => {
-        if (currentPage > totalPages) setCurrentPage(totalPages);
-    }, [currentPage, totalPages]);
+    // Derive an effective page that clamps to totalPages without causing extra state updates
+    const effectiveCurrentPage = Math.max(1, Math.min(currentPage, totalPages));
 
-    const paginatedTickets = filteredTickets.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const paginatedTickets = useMemo(() => filteredTickets.slice((effectiveCurrentPage - 1) * itemsPerPage, effectiveCurrentPage * itemsPerPage), [filteredTickets, effectiveCurrentPage, itemsPerPage]);
 
     const stats = {
         open: tickets.filter((t) => t.status === "open").length,
@@ -200,50 +205,53 @@ export default function UserTicketDashboard() {
     };
 
     return (
-        <div className="">
-            <div className="space-y-4 md:space-y-6">
-                {/* Header */}
-                <Header />
+        <>
+            <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white px-3 py-2 rounded shadow">Skip to content</a>
+            <main id="main-content">
+                <div className="space-y-4 md:space-y-6">
+                    {/* Header */}
+                    <Header />
 
-                {/* Stats */}
-                <StatsSection stats={stats} />
-
-
-                {/* Search + Filter */}
-                <SearchFilter
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    filterStatus={filterStatus}
-                    setFilterStatus={setFilterStatus}
-                    onNew={() => {
-                        setEditingTicketId(null);
-                        setNewTicket({ property_id: "", property_name: "", subject: "", description: "", priority: "medium" });
-                        setShowForm(true);
-                    }}
-                />
+                    {/* Stats */}
+                    <StatsSection stats={stats} />
 
 
-                {/* Tickets Table (includes pagination bar) */}
-                <TicketsTable
-                    tickets={paginatedTickets}
-                    onRowClick={(t) => setSelectedTicket(t)}
-                    onView={handleView}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    getStatusIcon={getStatusIcon}
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalItems={totalItems}
-                    itemsPerPage={itemsPerPage}
-                    onPageChange={(p) => setCurrentPage(p)}
-                    translations={{ showing: "Showing", to: "to", of: "of", results: "results", previous: "Previous", next: "Next" }}
-                />
+                    {/* Search + Filter */}
+                    <SearchFilter
+                        searchTerm={searchTerm}
+                        setSearchTerm={handleSearchChange}
+                        filterStatus={filterStatus}
+                        setFilterStatus={handleFilterChange}
+                        onNew={() => {
+                            setEditingTicketId(null);
+                            setNewTicket({ property_id: "", property_name: "", subject: "", description: "", priority: "medium" });
+                            setShowForm(true);
+                        }}
+                    />
 
-            </div>
 
-            {/* 🟦 Create Ticket Modal */}
-            <CreateTicketModal show={showForm} onClose={() => { setShowForm(false); setEditingTicketId(null); }} newTicket={newTicket} setNewTicket={setNewTicket} onSubmit={handleAddTicket} editing={Boolean(editingTicketId)} />
-        </div>
+                    {/* Tickets Table (includes pagination bar) */}
+                    <TicketsTable
+                        tickets={paginatedTickets}
+                        onRowClick={(t) => setSelectedTicket(t)}
+                        onView={handleView}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        getStatusIcon={getStatusIcon}
+                        currentPage={effectiveCurrentPage}
+                        totalPages={totalPages}
+                        totalItems={totalItems}
+                        itemsPerPage={itemsPerPage}
+                        onPageChange={(p) => setCurrentPage(p)}
+                        translations={{ showing: "Showing", to: "to", of: "of", results: "results", previous: "Previous", next: "Next" }}
+                    />
+
+                </div>
+
+                {/* 🟦 Create Ticket Modal */}
+                <CreateTicketModal show={showForm} onClose={() => { setShowForm(false); setEditingTicketId(null); }} newTicket={newTicket} setNewTicket={setNewTicket} onSubmit={handleAddTicket} editing={Boolean(editingTicketId)} />
+            </main>
+        </>
     );
 }
 

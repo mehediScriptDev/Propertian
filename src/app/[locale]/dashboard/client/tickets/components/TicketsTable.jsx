@@ -74,7 +74,7 @@ import { MessageSquare } from "lucide-react";
 import ActionButtons from "./ActionButtons";
 import Pagination from "@/components/dashboard/Pagination";
 
-export default function TicketsTable({
+function TicketsTable({
     tickets,
     onRowClick,
     onView,
@@ -94,27 +94,16 @@ export default function TicketsTable({
             {tickets.length > 0 ? (
                 <div className="overflow-x-auto">
                     {/* ✅ Desktop Table */}
-                    <table className="min-w-full border-collapse hidden md:table">
+                    <table className="min-w-full border-collapse hidden md:table" role="table" aria-label="Tickets table">
+                        <caption className="sr-only">List of support tickets</caption>
                         <thead className="bg-gray-100 border-b border-gray-200">
                             <tr>
-                                <th className="px-4 py-3 text-left text-base font-semibold text-gray-700">
-                                    ID
-                                </th>
-                                <th className="px-4 py-3 text-left text-base font-semibold text-gray-700">
-                                    Subject
-                                </th>
-                                <th className="px-4 py-3 text-left text-base font-semibold text-gray-700">
-                                    Property
-                                </th>
-                                <th className="px-4 py-3 text-left text-base font-semibold text-gray-700">
-                                    Replies
-                                </th>
-                                <th className="px-4 py-3 text-left text-base font-semibold text-gray-700">
-                                    Created At
-                                </th>
-                                <th className="px-4 py-3 text-left text-base font-semibold text-gray-700">
-                                    Action
-                                </th>
+                                <th scope="col" className="px-4 py-3 text-left text-base font-semibold text-gray-700">ID</th>
+                                <th scope="col" className="px-4 py-3 text-left text-base font-semibold text-gray-700">Subject</th>
+                                <th scope="col" className="px-4 py-3 text-left text-base font-semibold text-gray-700">Property</th>
+                                <th scope="col" className="px-4 py-3 text-left text-base font-semibold text-gray-700">Replies</th>
+                                <th scope="col" className="px-4 py-3 text-left text-base font-semibold text-gray-700">Created At</th>
+                                <th scope="col" className="px-4 py-3 text-left text-base font-semibold text-gray-700">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -122,6 +111,8 @@ export default function TicketsTable({
                                 <tr
                                     key={ticket.id}
                                     onClick={() => onRowClick && onRowClick(ticket)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRowClick && onRowClick(ticket); } }}
+                                    tabIndex={0}
                                     className="hover:bg-gray-50 cursor-pointer transition border-b border-gray-100"
                                 >
                                     <td className="px-4 py-3 text-sm text-gray-700 font-medium">
@@ -169,6 +160,9 @@ export default function TicketsTable({
                             <div
                                 key={ticket.id}
                                 onClick={() => onRowClick && onRowClick(ticket)}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRowClick && onRowClick(ticket); } }}
+                                role="button"
+                                tabIndex={0}
                                 className="p-4 bg-white rounded-xl shadow-sm hover:shadow-md cursor-pointer transition"
                             >
                                 <div className="flex justify-between items-start mb-2">
@@ -231,3 +225,5 @@ export default function TicketsTable({
         </div>
     );
 }
+
+export default React.memo(TicketsTable);

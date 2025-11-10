@@ -12,6 +12,7 @@ export default function SearchFilter({ searchTerm, setSearchTerm, filterStatus, 
                     placeholder="Search tickets..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    aria-label="Search tickets"
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
             </div>
@@ -19,6 +20,7 @@ export default function SearchFilter({ searchTerm, setSearchTerm, filterStatus, 
                 <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
+                    aria-label="Filter tickets by status"
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
                     <option value="all">All Status</option>
@@ -27,8 +29,10 @@ export default function SearchFilter({ searchTerm, setSearchTerm, filterStatus, 
                     <option value="resolved">Resolved</option>
                 </select>
                 <button
+                    type="button"
                     onClick={onNew}
                     className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg  font-medium"
+                    aria-label="Create new ticket"
                 >
                     <Plus className="w-5 h-5" />
                     New Ticket

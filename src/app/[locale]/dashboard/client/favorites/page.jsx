@@ -122,7 +122,7 @@ export default function SavedProperties() {
 
               <button
                 type="button"
-                className="bg-amber-500 text-white px-4 py-2 rounded shadow text-sm"
+                className="bg-primary text-white px-4 py-2 rounded shadow text-sm"
               // TODO: wire add property action
               >
                 {'Add Property'}

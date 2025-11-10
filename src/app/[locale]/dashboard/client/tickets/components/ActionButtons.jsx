@@ -10,6 +10,7 @@ export default function ActionButtons({ onView, onEdit, onDelete }) {
                     e.stopPropagation();
                     onView && onView();
                 }}
+                type="button"
                 className="rounded p-1.5 hover:bg-gray-100 transition-colors"
                 aria-label="View"
             >
@@ -21,6 +22,7 @@ export default function ActionButtons({ onView, onEdit, onDelete }) {
                     e.stopPropagation();
                     onEdit && onEdit();
                 }}
+                type="button"
                 className="rounded p-1.5 hover:bg-gray-100 transition-colors"
                 aria-label="Edit"
             >
@@ -32,6 +34,7 @@ export default function ActionButtons({ onView, onEdit, onDelete }) {
                     e.stopPropagation();
                     onDelete && onDelete();
                 }}
+                type="button"
                 className="rounded p-1.5 hover:bg-gray-100 transition-colors"
                 aria-label="Delete"
             >
