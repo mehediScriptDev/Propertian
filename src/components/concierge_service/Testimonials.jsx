@@ -94,7 +94,7 @@ export default function TestimonialsSection() {
   }, []);
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8  dark:bg-charcoal/20">
+    <section className="py-8 md:py-12 lg:pb-16 px-4 sm:px-6 lg:px-8   dark:bg-charcoal/20">
       <div className="mx-auto max-w-7xl ">
         {/* Header */}
         <div className="text-center mb-10 sm:mb-12 lg:mb-16 ">
