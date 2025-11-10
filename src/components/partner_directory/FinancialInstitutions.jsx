@@ -38,7 +38,7 @@ export default function FinancialInstitutions({ filteredPartners }) {
 
   return (
     <section className="mb-10">
-      <div className="border-b-2 border-accent mb-6 pb-2">
+      <div className="border-b-2 border-accent mb-6 pb-3 md:pb-4">
         <h2 className="font-display text-primary dark:text-text-dark text-3xl font-bold leading-tight tracking-tight px-4">
           Financial Institutions
         </h2>

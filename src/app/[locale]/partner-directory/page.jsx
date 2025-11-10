@@ -63,7 +63,7 @@ export default function PartnerDirectoryPage() {
 
   return (
     <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
-      <div className="mx-auto max-w-7xl px-6 py-6">
+      <div className="mx-auto max-w-7xl px-4 py-4">
         <PageHeading />
         <SearchAndFilters
           partners={allPartnersData}
