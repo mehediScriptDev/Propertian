@@ -1,6 +1,6 @@
 export default function PartnerCTA() {
   return (
-    <section className="my-16">
+    <section className="my-2 md:my-4">
       <div className="bg-[#001f3f] dark:bg-[#001f3f]/80 text-white rounded-xl shadow-lg flex flex-col md:flex-row items-center justify-between p-8 md:p-12 gap-8">
         <div className="text-center md:text-left">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-2">

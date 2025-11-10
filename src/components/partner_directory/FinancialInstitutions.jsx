@@ -3,33 +3,41 @@ import { FaHome, FaPlaceOfWorship } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 
-const partners = [
-  {
-    name: "FinBank CI",
-    description:
-      "Your trusted partner for mortgage solutions and real estate financing in Côte d’Ivoire. Tailored loans for every home buyer.",
-    logo: <CiBank className="w-6 h-6"/>,
-    website: "#",
-  },
-  {
-    name: "Prestige Mortgages",
-    description:
-      "Specializing in premium mortgage services for luxury properties. We provide expert financial guidance for your high-value investments.",
-    logo: <FaHome className="w-6 h-6"/>,
-    website: "#",
-  },
-  {
-    name: "Abidjan Credit Union",
-    description:
-      "Community-focused banking offering competitive home loans and financial planning services for families and individuals.",
-    logo: <FaPlaceOfWorship className="w-6 h-6"/>,
-    website: "#",
-  },
-];
+// const partners = [
+//   {
+//     name: "FinBank CI",
+//     description:
+//       "Your trusted partner for mortgage solutions and real estate financing in Côte d’Ivoire. Tailored loans for every home buyer.",
+//     logo: <CiBank className="w-6 h-6 "/>,
+//     website: "#",
+//   },
+//   {
+//     name: "Prestige Mortgages",
+//     description:
+//       "Specializing in premium mortgage services for luxury properties. We provide expert financial guidance for your high-value investments.",
+//     logo: <FaHome className="w-6 h-6"/>,
+//     website: "#",
+//   },
+//   {
+//     name: "Abidjan Credit Union",
+//     description:
+//       "Community-focused banking offering competitive home loans and financial planning services for families and individuals.",
+//     logo: <FaPlaceOfWorship className="w-6 h-6"/>,
+//     website: "#",
+//   },
+// ];
 
-export default function FinancialInstitutions() {
+export default function FinancialInstitutions({ filteredPartners }) {
+  // Use filtered partners if provided, otherwise use default partners
+  const partnersToDisplay = filteredPartners !== undefined ? filteredPartners : partners;
+
+  // Hide section if no partners to display
+  if (partnersToDisplay.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="mb-16">
+    <section className="mb-10">
       <div className="border-b-2 border-accent mb-6 pb-2">
         <h2 className="font-display text-primary dark:text-text-dark text-3xl font-bold leading-tight tracking-tight px-4">
           Financial Institutions
@@ -37,10 +45,10 @@ export default function FinancialInstitutions() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {partners.map((partner) => (
+        {partnersToDisplay.map((partner) => (
           <div
             key={partner.name}
-            className="bg-white dark:bg-primary/30 rounded-xl shadow-md overflow-hidden flex flex-col p-6 border border-primary/10 dark:border-accent/10"
+            className="bg-white dark:bg-primary/30 rounded-xl  overflow-hidden flex flex-col p-6 border border-primary/10 dark:border-accent/10"
           >
             <div className="flex items-center gap-4 mb-4">
               {partner.logo}
