@@ -33,7 +33,7 @@ export default function DashboardHeader({ title }) {
           </div>
           {/* Mobile: Show only role initial */}
           <div className='sm:hidden flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-700 uppercase'>
-            {user?.role?.charAt(0) || 'U'}
+            {user? <ProfileDropDown/> : 'U'}
           </div>
         </div>
       </div>
