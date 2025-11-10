@@ -193,7 +193,7 @@ const SignInForm = () => {
         </button>
       </form>
 
-      <Divider text={t('auth.login.orDivider')} />
+      {/* <Divider text={t('auth.login.orDivider')} />
 
       <div className='flex w-full flex-col gap-3'>
         <SocialButton
@@ -211,7 +211,7 @@ const SignInForm = () => {
         >
           {t('auth.login.continueWithFacebook')}
         </SocialButton>
-      </div>
+      </div> */}
 
       {/* Quick Login Demo Section */}
       <div className='w-full mt-4'>

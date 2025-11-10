@@ -138,7 +138,7 @@ const RegisterForm = () => {
 
             </form>
 
-            <Divider text={t('auth.register.orDivider')} />
+            {/* <Divider text={t('auth.register.orDivider')} />
 
             <div className="flex w-full flex-col gap-3">
                 <SocialButton provider="google" onClick={() => { }} disabled={isLoading}>
@@ -148,7 +148,7 @@ const RegisterForm = () => {
                 <SocialButton provider="facebook" onClick={() => { }} disabled={isLoading}>
                     {  t('auth.register.continueWithFacebook')}
                 </SocialButton>
-            </div>
+            </div> */}
 
             <div className="pt-4 text-center">
                 <p className="text-charcoal-500 dark:text-charcoal-300 text-sm font-normal">
