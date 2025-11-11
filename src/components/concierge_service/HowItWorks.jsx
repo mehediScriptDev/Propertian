@@ -1,31 +1,34 @@
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslation } from "@/i18n";
 import React from "react";
 
-const steps = [
-  {
-    number: 1,
-    title: "Initial Consultation",
-    description:
-      "Share your needs and expectations with us in a free, no-obligation meeting.",
-  },
-  {
-    number: 2,
-    title: "Customized Plan",
-    description:
-      "We design a personalized relocation strategy that covers all your requirements.",
-  },
-  {
-    number: 3,
-    title: "Seamless Execution",
-    description:
-      "Relax as our team handles every detail, providing you with regular updates.",
-  },
-];
-
 export default function HowItWorks() {
+  const { locale } = useLanguage();
+  const { t } = useTranslation(locale);
+  const steps = [
+    {
+      number: 1,
+      title: t("HowItWorks.Initial.title"),
+      description:
+        t("HowItWorks.Initial.description"),
+    },
+    {
+      number: 2,
+      title: t("HowItWorks.Customized.title"),
+      description:
+        t("HowItWorks.Customized.description"),
+    },
+    {
+      number: 3,
+      title: t("HowItWorks.Seamless.title"),
+      description:
+        t("HowItWorks.Seamless.description"),
+    },
+  ];
   return (
     <section className="flex flex-col gap-2 md:gap-10 px-4 pt-10">
       <h2 className="text-2xl md:text-3xl font-bold font-heading text-center">
-        A Simple Path to Your New Home
+        {t("HowItWorks.title")}
       </h2>
 
       <div className="relative grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-4 ">

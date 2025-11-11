@@ -1394,5 +1394,20 @@
         }
       }
     }
+  },
+  "HowItWorks": {
+    "title": "Un parcours simple vers votre nouveau chez-vous",
+    "Initial": {
+      "title": "Consultation initiale",
+      "description": "Partagez vos besoins et vos attentes lors d’une rencontre gratuite et sans engagement."
+    },
+    "Customized": {
+      "title": "Plan personnalisé",
+      "description": "Nous concevons une stratégie de relocalisation sur mesure qui répond à toutes vos exigences."
+    },
+    "Seamless": {
+      "title": "Exécution fluide",
+      "description": "Détendez-vous pendant que notre équipe s’occupe de chaque détail et vous tient informé à chaque étape."
+    }
   }
 }

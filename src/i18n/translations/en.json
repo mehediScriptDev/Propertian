@@ -1395,5 +1395,20 @@
         }
       }
     }
+  },
+  "HowItWorks": {
+    "title": "A Simple Path to Your New Home",
+    "Initial": {
+      "title": "Initial Consultation",
+      "description": "Share your needs and expectations with us in a free, no-obligation meeting."
+    },
+    "Customized": {
+      "title": "Customized Plan",
+      "description": "We design a personalized relocation strategy that covers all your requirements."
+    },
+    "Seamless": {
+      "title": "Seamless Execution",
+      "description": "Relax as our team handles every detail, providing you with regular updates."
+    }
   }
 }
