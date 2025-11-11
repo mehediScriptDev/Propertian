@@ -70,7 +70,8 @@
         "loginFailed": "Login failed",
         "socialLoginFailed": "Failed to sign in with {provider}. Please try again."
       }
-    }, "register": {
+    },
+    "register": {
       "title": "Create an Account",
       "subtitle": "Sign up to start your journey with Q Homes.",
       "fullName": "Full Name",
@@ -93,7 +94,7 @@
       "check1": "I agree to the Terms &amp; Conditions",
       "check2": " have read the Privacy Policy",
       "createAccount": "Create Account",
- 
+
       "errors": {
         "fullNameRequired": "Full name is required",
         "emailRequired": "Email is required",
@@ -125,7 +126,6 @@
         "resetFailed": "Failed to send reset link. Please try again."
       }
     }
- 
   },
   "searchBar": {
     "buy": "Buy",
@@ -180,7 +180,7 @@
         "priceHigh": "Price (High to Low)",
         "bedrooms": "Most Bedrooms"
       },
-  "loadMore": "Load More",
+      "loadMore": "Load More",
       "noResults": "No Properties Found",
       "noResultsMessage": "Try adjusting your filters to see more properties"
     },
@@ -614,7 +614,7 @@
       "yourNotifications": "Your Notifications",
       "notificationSubtitle": "Here are your latest property alerts and updates.",
       "markallRead": "Mark all as read",
-      "tickets":" Support Tickets",
+      "tickets": " Support Tickets",
 
       "personalDetails": {
         "title": "Personal Details",
@@ -1392,8 +1392,91 @@
       "secondaryButton": "Browse FAQs"
     }
   },
-  "faq":{
-    "title":"Frequently Asked Questions",
-    "subtitle":"Find answers to common questions about Q Homes and our services."
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions about Q Homes and our services."
+  },
+  "PartnerDirectory": {
+    "Title": "Our Trusted Partners : Your Network for a Seamless Move",
+    "Subtitle": "Explore our curated network of vetted professionals, from legal advisors to moving specialists, ensuring every step of your real estate journey in Côte d’Ivoire is seamless and secure.",
+    "searchAndFilters": {
+      "searchPlaceholder": "Search by partner name...",
+      "filters": {
+        "All": "All",
+        "Legal": "Legal",
+        "Financial": "Financial"
+      }
+    },
+    "Financial": {
+      "title": "Financial Institutions",
+      "visit": "Visit Website"
+    },
+    "Legal": {
+      "title": "Legal Advisors",
+      "contact": "Contact Partner"
+    },
+    "partnerCTA": {
+      "title": "Become a Q Homes Partner",
+      "subtitle": "Join our exclusive network of trusted professionals and connect with a dedicated audience of home buyers and sellers.",
+      "button": "Join Our Network"
+    }
+  },
+  "ConciergeService": {
+    "title": "Your Seamless Move to Côte d’Ivoire Starts Here.",
+    "subtitle": "From visa assistance to settling in, our dedicated concierge team handles every detail, so you can feel at home from day one.",
+    "contactButton": "Book a Free Consultation",
+    "ComprehensiveSection": {
+      "title": "Our Comprehensive Concierge Services",
+      "card": {
+        "relocationPlanning": {
+          "title": "Relocation Planning",
+          "description": "Complete visa and logistics support for a smooth transition."
+        },
+        "virtual": {
+          "title": "Virtual & On-Ground Viewings",
+          "description": "Explore potential homes from anywhere with our expert guidance."
+        },
+        "moving": {
+          "title": "Moving & Setup Assistance",
+          "description": "We handle the heavy lifting, from packing to final setup."
+        },
+        "utilities": {
+          "title": "Utilities & Furnishing",
+          "description": "Get your home ready with essential services and furniture coordination."
+        },
+        "corporate": {
+          "title": "Corporate Packages",
+          "description": "Tailored relocation solutions for your employees and business needs."
+        },
+        "Local": {
+          "title": "Local Integration Support",
+          "description": "Find the best schools, healthcare, and local amenities with our help."
+        }
+      }
+    },
+    "HowItWorks": {
+      "title": "A Simple Path to Your New Home",
+      "Initial": {
+        "title": "Initial Consultation",
+        "description": "Share your needs and expectations with us in a free, no-obligation meeting."
+      },
+      "Customized": {
+        "title": "Customized Plan",
+        "description": "We design a personalized relocation strategy that covers all your requirements."
+      },
+      "Seamless": {
+        "title": "Seamless Execution",
+        "description": "Relax as our team handles every detail, providing you with regular updates."
+      }
+    },
+    "Testimonials": {
+      "title": "Trusted by Buyers and Sellers Worldwide",
+      "subtitle": "Hear from clients who found their dream property with Q HOMES."
+    },
+    "finalCta": {
+      "title": "Ready to Make Your Move Effortless?",
+      "description": "Let our experts handle the details so you can focus on the excitement of your new beginning in Côte d’Ivoire.",
+      "button": "Request a Quote"
+    }
   }
 }
