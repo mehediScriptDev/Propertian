@@ -1360,5 +1360,10 @@
       "subtitle": "Rejoignez notre réseau exclusif de professionnels de confiance et connectez-vous avec un public ciblé d'acheteurs et de vendeurs de maisons.",
       "button": "Rejoindre Notre Réseau"
     }
+  },
+  "ConciergeService": {
+    "title": "Votre déménagement sans accroc vers la Côte d'Ivoire commence ici.",
+    "subtitle": "De l'assistance pour l'obtention de votre visa à votre installation, notre équipe de concierges dédiée s'occupe de tout dans les moindres détails, pour que vous vous sentiez comme chez vous dès le premier jour.",
+    "contactButton": "Réservez une consultation gratuite"
   }
 }
