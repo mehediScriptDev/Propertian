@@ -94,14 +94,14 @@ export default function TestimonialsSection() {
   }, []);
 
   return (
-    <section className="py-8 md:py-12 lg:pb-16 px-4 sm:px-6 lg:px-8   dark:bg-charcoal/20">
+    <section className="pt-2 md:pt-6 md:pb-3 dark:bg-charcoal/20">
       <div className="mx-auto max-w-7xl ">
         {/* Header */}
-        <div className="text-center mb-10 sm:mb-12 lg:mb-16 ">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-charcoal dark:text-white">
+        <div className="text-center lg:mb-10 ">
+          <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white">
             Trusted by Buyers and Sellers Worldwide
           </h2>
-          <p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base text-charcoal/70 dark:text-soft-grey/70">
+          <p className="mx-auto my-3 w-xs md:w-xl text-sm sm:text-base text-black dark:text-soft-grey/70">
             Hear from clients who found their dream property with Q HOMES.
           </p>
         </div>
@@ -142,7 +142,7 @@ export default function TestimonialsSection() {
                 className="flex w-[85%] sm:w-[70%] md:w-[45%] lg:w-[calc(33.333%-1rem)] shrink-0 snap-start flex-col justify-between rounded-2xl border border-primary/20 dark:border-accent/20 bg-background-light dark:bg-charcoal p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
                 {/* Quote */}
-                <blockquote className="text-sm sm:text-base leading-relaxed text-charcoal dark:text-soft-grey ">
+                <blockquote className="text-sm sm:text-base leading-relaxed text-black dark:text-soft-grey ">
                   <span className="text-4xl text-primary dark:text-accent opacity-40 leading-none">
                     &ldquo;
                   </span>
@@ -167,7 +167,7 @@ export default function TestimonialsSection() {
                     <p className="font-bold text-base text-charcoal dark:text-white truncate">
                       {item.name}
                     </p>
-                    <p className="text-sm text-charcoal/60 dark:text-soft-grey/60 truncate">
+                    <p className="text-sm text-black dark:text-soft-grey/60 truncate">
                       {item.title}
                     </p>
                   </div>

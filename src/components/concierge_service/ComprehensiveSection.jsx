@@ -37,16 +37,16 @@ const services = [
 
 export default function ComprehensiveSection() {
   return (
-    <section className="flex flex-col gap-6 md:my-4 lg:my-8">
-      <h2 className="text-3xl font-bold font-heading text-center my-4">
+    <section className="flex flex-col gap-6 ">
+      <h2 className="text-2xl md:text-3xl font-bold font-heading text-center">
         Our Comprehensive Concierge Services
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 md:pt-4">
         {services.map((service, index) => (
           <div
             key={index}
-            className="flex flex-1 flex-col gap-4 rounded-xl border border-subtle-light dark:border-subtle-dark bg-transparent p-6 items-start text-left hover:bg-accent/5 transition-colors"
+            className="flex flex-1 flex-col gap-2 md:gap-4 rounded-xl border border-subtle-light dark:border-subtle-dark bg-transparent p-6 items-start text-left hover:bg-accent/5 transition-colors"
           >
             <div className="text-accent">
               <span
