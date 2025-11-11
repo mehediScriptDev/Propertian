@@ -20,7 +20,7 @@ export default function SearchBar({ locale = 'en' }) {
 
   return (
     <section className='relative z-10 -mt-20 sm:-mt-16 px-4 sm:px-6'>
-      <div className='mx-auto max-w-6xl rounded-2xl bg-[#F5F3EF] dark:bg-charcoal/95 p-4 sm:p-6 shadow-2xl'>
+      <div className='mx-auto max-w-6xl rounded-2xl bg-[#F5F3EF] dark:bg-charcoal/95 p-4 sm:p-6 shadow-xm'>
         {/* Mobile: Stack filters vertically */}
         <div className='block lg:hidden space-y-3'>
           {/* Primary filters always visible */}
@@ -126,7 +126,7 @@ export default function SearchBar({ locale = 'en' }) {
           )}
 
           {/* Search button - full width on mobile */}
-          <button className='flex w-full h-12 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-base font-semibold text-white shadow-md transition-all hover:bg-primary/90 hover:shadow-lg active:scale-95'>
+          <button className='flex w-full h-12 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm lg:text-base font-semibold text-white shadow-md transition-all hover:bg-primary/90 hover:shadow-lg active:scale-95'>
             <Search className='h-5 w-5' />
             <span>{t('searchBar.search')}</span>
           </button>
