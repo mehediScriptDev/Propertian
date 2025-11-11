@@ -1,7 +1,8 @@
 "use client";
-import MainContent from "@/components/privacy_policy/MainContent";
-import PrivacySidebar from "@/components/privacy_policy/PrivacySidebar";
+import PolicySideBar from "@/components/dashboard/admin/common/PolicySideBar";
+
 import React from "react";
+import MainContent from "./components/MainContent";
 
 const privacy = [
   {
@@ -87,7 +88,7 @@ export default function PrivacyPolicyPage() {
   return (
     <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
       <div className="mx-auto max-w-7xl px-5 py-10 lg:flex lg:gap-10">
-        <PrivacySidebar items={items} />
+        <PolicySideBar items={items} />
         <MainContent items={items} privacy={privacy} />
       </div>
     </main>

@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react'
 
-const PrivacySidebar = ({ items }) => {
-  return (
+const PolicySideBar = ({ items }) => {
+   return (
     <aside className="w-full lg:w-1/4 lg:sticky lg:top-24 self-start">
       <nav className="flex flex-col gap-1 p-4 bg-white/50 dark:bg-background-dark rounded-lg border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 px-3 pb-2 border-b border-gray-200 dark:border-gray-700 mb-2">
@@ -19,6 +19,6 @@ const PrivacySidebar = ({ items }) => {
       </nav>
     </aside>
   );
-};
+}
 
-export default PrivacySidebar;
+export default PolicySideBar
