@@ -53,7 +53,7 @@ const MainContent = ({ privacy, items }) => {
 
                 {item.email && (
                   <a
-                    className="font-semibold text-[#d4af37] dark:text-yellow-200 hover:underline ml-2"
+                    className="font-semibold text-[#d4af37] dark:text-yellow-200 text-lg hover:underline ml-2"
                     href={`mailto:${item.email.replace(/\.$/, "")}`}
                   >
                     {item.email}
