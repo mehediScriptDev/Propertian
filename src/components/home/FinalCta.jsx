@@ -16,7 +16,7 @@ export default function FinalCta({ locale }) {
   };
 
   return (
-    <section className='border-t border-primary/20 py-8 lg:py-10  px-4 sm:px-6'>
+    <section className='border-t border-primary/20 py-8 pb-10 lg:pb-12  px-4 sm:px-6'>
       <div className='mx-auto max-w-4xl text-center'>
         <h2 className='text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-charcoal dark:text-white'>
           {t('finalCta.title')}

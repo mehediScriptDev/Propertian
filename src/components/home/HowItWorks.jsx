@@ -33,7 +33,7 @@ export default function HowItWorks({ locale }) {
   ];
 
   return (
-    <section className='bg-soft-grey/50 dark:bg-charcoal/30 py-6 pb-7 lg:py-10 px-4 sm:px-6 lg:px-8'>
+    <section className='bg-soft-grey/50 dark:bg-charcoal/30 py-6 pb-10 lg:pt-10 px-4 sm:px-6 lg:px-8'>
       <div className='mx-auto max-w-6xl'>
         {/* Header */}
         <div className='text-center mb-6 lg:mb-10'>

@@ -23,12 +23,24 @@ import {
 import Link from "next/link";
 import { getResidentialPropertyById } from "@/lib/residentialProperties";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/i18n";
 
 const PropertyDetailPage = () => {
   const params = useParams();
   const { locale } = useLanguage();
   const propertyId = params?.id;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Get translations
+  const translations = getTranslation(locale);
+  const t = (key) => {
+    const keys = key.split(".");
+    let value = translations;
+    for (const k of keys) {
+      value = value?.[k];
+    }
+    return value || key;
+  };
 
   // Fetch property data based on ID
   const propertyData = getResidentialPropertyById(propertyId);
@@ -39,16 +51,16 @@ const PropertyDetailPage = () => {
       <div className="min-h-screen flex items-center justify-center bg-[#fffff7] dark:bg-gray-900">
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4 dark:text-white">
-            Property Not Found
+            {t("residentialDetails.notFound.title")}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            The property you&apos;re looking for doesn&apos;t exist.
+            {t("residentialDetails.notFound.description")}
           </p>
           <Link
             href={`/${locale}/properties/residential`}
             className="text-[#C5A572] hover:text-[#C5A572]/80 font-medium"
           >
-            ← Back to Residential Properties
+            {t("residentialDetails.notFound.backLink")}
           </Link>
         </div>
       </div>
@@ -90,37 +102,37 @@ const PropertyDetailPage = () => {
                 href="#overview"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] transition whitespace-nowrap"
               >
-                Overview
+                {t("residentialDetails.navigation.overview")}
               </a>
               <a
                 href="#units"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] transition whitespace-nowrap"
               >
-                Unit Plans & Pricing
+                {t("residentialDetails.navigation.units")}
               </a>
               <a
                 href="#amenities"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] transition whitespace-nowrap"
               >
-                Amenities
+                {t("residentialDetails.navigation.amenities")}
               </a>
               <a
                 href="#location"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] transition whitespace-nowrap"
               >
-                Location
+                {t("residentialDetails.navigation.location")}
               </a>
               <a
                 href="#developer"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] transition whitespace-nowrap"
               >
-                Developer
+                {t("residentialDetails.navigation.developer")}
               </a>
               <a
                 href="#payment"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] transition whitespace-nowrap"
               >
-                Payment Plans
+                {t("residentialDetails.navigation.payment")}
               </a>
             </div>
 
@@ -143,11 +155,11 @@ const PropertyDetailPage = () => {
             <div className="flex gap-2 sm:gap-3 ml-auto lg:ml-0">
               <button className="hidden sm:flex px-3 sm:px-4 py-2 bg-soft-grey dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition items-center gap-2 text-sm">
                 <Download className="w-4 h-4" />
-                <span className="hidden md:inline">Download Brochure</span>
-                <span className="md:hidden">Brochure</span>
+                <span className="hidden md:inline">{t("residentialDetails.buttons.downloadBrochure")}</span>
+                <span className="md:hidden">{t("residentialDetails.buttons.brochure")}</span>
               </button>
               <button className="px-4 sm:px-6 py-2 bg-[#0A2540] text-white rounded-lg hover:bg-[#0A2540]/90 transition text-sm font-medium">
-                Inquire
+                {t("residentialDetails.buttons.inquire")}
               </button>
             </div>
           </nav>
@@ -161,46 +173,46 @@ const PropertyDetailPage = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] hover:bg-[#f6efcb] dark:hover:bg-gray-700 rounded-lg transition"
                 >
-                  Overview
+                  {t("residentialDetails.navigation.overview")}
                 </a>
                 <a
                   href="#units"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] hover:bg-[#f6efcb] dark:hover:bg-gray-700 rounded-lg transition"
                 >
-                  Unit Plans & Pricing
+                  {t("residentialDetails.navigation.units")}
                 </a>
                 <a
                   href="#amenities"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] hover:bg-[#f6efcb] dark:hover:bg-gray-700 rounded-lg transition"
                 >
-                  Amenities
+                  {t("residentialDetails.navigation.amenities")}
                 </a>
                 <a
                   href="#location"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] hover:bg-[#f6efcb] dark:hover:bg-gray-700 rounded-lg transition"
                 >
-                  Location
+                  {t("residentialDetails.navigation.location")}
                 </a>
                 <a
                   href="#developer"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] hover:bg-[#f6efcb] dark:hover:bg-gray-700 rounded-lg transition"
                 >
-                  Developer
+                  {t("residentialDetails.navigation.developer")}
                 </a>
                 <a
                   href="#payment"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#C5A572] hover:bg-[#f6efcb] dark:hover:bg-gray-700 rounded-lg transition"
                 >
-                  Payment Plans
+                  {t("residentialDetails.navigation.payment")}
                 </a>
                 <button className="sm:hidden mx-4 mt-2 px-4 py-2 bg-soft-grey dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition flex items-center justify-center gap-2 text-sm">
                   <Download className="w-4 h-4" />
-                  Download Brochure
+                  {t("residentialDetails.buttons.downloadBrochure")}
                 </button>
               </div>
             </div>
@@ -216,11 +228,11 @@ const PropertyDetailPage = () => {
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <Link href="/" className="hover:text-[#C5A572]">
-                Home
+                {t("residentialDetails.breadcrumb.home")}
               </Link>
               <span>/</span>
               <Link href="/new-developments" className="hover:text-[#C5A572]">
-                New Developments
+                {t("residentialDetails.breadcrumb.newDevelopments")}
               </Link>
               <span>/</span>
               <span className="text-gray-900 dark:text-white">
@@ -234,16 +246,16 @@ const PropertyDetailPage = () => {
                 {propertyData.name}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                by {propertyData.developer}
+                {t("residentialDetails.badges.by")} {propertyData.developer}
               </p>
               <div className="flex gap-3">
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FEF3C7] text-[#92400E] rounded-full text-sm font-medium">
                   <CheckCircle className="w-4 h-4" />
-                  Verified by {propertyData.verifiedBy}
+                  {t("residentialDetails.badges.verifiedBy")} {propertyData.verifiedBy}
                 </span>
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FEF3C7] text-[#92400E] rounded-full text-sm font-medium">
                   <Building className="w-4 h-4" />
-                  Escrow Eligible
+                  {t("residentialDetails.badges.escrowEligible")}
                 </span>
               </div>
             </div>
@@ -258,7 +270,7 @@ const PropertyDetailPage = () => {
             {/* Unit Plans & Pricing */}
             <div id="units">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
-                Unit Plans & Pricing
+                {t("residentialDetails.sections.unitPlans")}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {propertyData.units.map((unit, index) => (
@@ -287,7 +299,7 @@ const PropertyDetailPage = () => {
                         {unit.price}
                       </p>
                       <button className="w-full py-2.5 bg-[#0A2540] text-white rounded-lg hover:bg-[#0A2540]/90 transition">
-                        View Plan
+                        {t("residentialDetails.buttons.viewPlan")}
                       </button>
                     </div>
                   </div>
@@ -298,7 +310,7 @@ const PropertyDetailPage = () => {
             {/* Amenities */}
             <div id="amenities">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
-                Amenities
+                {t("residentialDetails.sections.amenities")}
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {propertyData.amenities.map((amenity, index) => {
@@ -320,12 +332,12 @@ const PropertyDetailPage = () => {
             {/* Location */}
             <div id="location">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
-                Location & Connectivity
+                {t("residentialDetails.sections.locationConnectivity")}
               </h3>
               <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden relative">
                 <Image
                   src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80"
-                  alt="Location Map"
+                  alt={t("residentialDetails.locationMap")}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 75vw, 800px"
                   className="object-cover"
@@ -337,7 +349,7 @@ const PropertyDetailPage = () => {
             {/* Developer Profile */}
             <div id="developer">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
-                Developer Profile
+                {t("residentialDetails.sections.developerProfile")}
               </h3>
               <div className="bg-white/50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-start gap-4">
@@ -349,11 +361,7 @@ const PropertyDetailPage = () => {
                       {propertyData.developer}
                     </h4>
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                      With over 15 years of experience in crafting premium
-                      residential properties, Q Homes Development is synonymous
-                      with quality, innovation, and trust. Our portfolio
-                      showcases a commitment to architectural excellence and
-                      creating communities that stand the test of time.
+                      {t("residentialDetails.developer.defaultDescription")}
                     </p>
                   </div>
                 </div>
@@ -363,12 +371,10 @@ const PropertyDetailPage = () => {
             {/* Payment Plans */}
             <div id="payment">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
-                Payment Plans
+                {t("residentialDetails.sections.paymentPlans")}
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                We offer flexible payment plans to suit your financial needs.
-                Our team is available to discuss financing options and guide you
-                through the process.
+                {t("residentialDetails.payment.description")}
               </p>
               <div className="space-y-4">
                 {propertyData.paymentPlan.map((plan) => (
@@ -396,12 +402,12 @@ const PropertyDetailPage = () => {
               {/* Development Overview */}
               <div className="bg-white/50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                  Development Overview
+                  {t("residentialDetails.sidebar.developmentOverview")}
                 </h3>
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">
-                      Unit Types
+                      {t("residentialDetails.sidebar.unitTypes")}
                     </span>
                     <span className="font-medium text-gray-900 dark:text-white text-right">
                       {propertyData.overview.unitTypes}
@@ -409,7 +415,7 @@ const PropertyDetailPage = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">
-                      Starting Price
+                      {t("residentialDetails.sidebar.startingPrice")}
                     </span>
                     <span className="font-medium text-gray-900 dark:text-white">
                       {propertyData.overview.startingPrice}
@@ -417,7 +423,7 @@ const PropertyDetailPage = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">
-                      Est. Completion
+                      {t("residentialDetails.sidebar.estCompletion")}
                     </span>
                     <span className="font-medium text-gray-900 dark:text-white">
                       {propertyData.overview.completion}
@@ -429,7 +435,7 @@ const PropertyDetailPage = () => {
               {/* Investment Highlights */}
               <div className="bg-white/50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                  Investment Highlights
+                  {t("residentialDetails.sidebar.investmentHighlights")}
                 </h3>
                 <div className="space-y-4">
                   {propertyData.investmentHighlights.map((highlight, index) => {
@@ -451,14 +457,14 @@ const PropertyDetailPage = () => {
               {/* CTA Buttons */}
               <div className="space-y-3">
                 <button className="w-full py-3 bg-[#0A2540] text-white rounded-lg hover:bg-[#0A2540]/90 transition font-medium">
-                  Inquire About This Development
+                  {t("residentialDetails.buttons.inquireAbout")}
                 </button>
                 <button className="w-full py-3 bg-white/50 border border-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition font-medium">
-                  Book a Site Visit
+                  {t("residentialDetails.buttons.bookSiteVisit")}
                 </button>
                 <button className="w-full py-3 bg-[#25D366]/10 text-[#25D366] rounded-lg hover:bg-[#25D366]/20 transition font-medium flex items-center justify-center gap-2">
                   <Phone className="w-4 h-4" />
-                  Chat on WhatsApp
+                  {t("residentialDetails.buttons.whatsapp")}
                 </button>
               </div>
             </div>
