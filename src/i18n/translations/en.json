@@ -1339,6 +1339,14 @@
   },
   "PartnerDirectory": {
     "Title": "Our Trusted Partners : Your Network for a Seamless Move",
-    "Subtitle": "Explore our curated network of vetted professionals, from legal advisors to moving specialists, ensuring every step of your real estate journey in Côte d’Ivoire is seamless and secure."
+    "Subtitle": "Explore our curated network of vetted professionals, from legal advisors to moving specialists, ensuring every step of your real estate journey in Côte d’Ivoire is seamless and secure.",
+    "searchAndFilters": {
+      "searchPlaceholder": "Search by partner name...",
+      "filters": {
+        "All": "All",
+        "Legal": "Legal",
+        "Financial": "Financial"
+      }
+    }
   }
 }

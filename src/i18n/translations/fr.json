@@ -1338,6 +1338,14 @@
   },
   "PartnerDirectory": {
     "Title": "Nos Partenaires de Confiance : Votre Réseau pour un Déménagement Sans Accroc",
-    "Subtitle": "Explorez notre réseau de professionnels vérifiés, des conseillers juridiques aux spécialistes du déménagement, garantissant que chaque étape de votre parcours immobilier en Côte d'Ivoire soit fluide et sécurisée."
+    "Subtitle": "Explorez notre réseau de professionnels vérifiés, des conseillers juridiques aux spécialistes du déménagement, garantissant que chaque étape de votre parcours immobilier en Côte d'Ivoire soit fluide et sécurisée.",
+    "searchAndFilters": {
+      "searchPlaceholder": "Rechercher par nom de partenaire...",
+      "filters": {
+        "All": "Toute",
+        "Legal": "Légale",
+        "Financial": "Financière"
+      }
+    }
   }
 }
