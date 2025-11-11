@@ -66,7 +66,7 @@ export default function ArticleHeader({ articleData }) {
 
               {/* Optional Blockquote */}
               {section.blockquote && (
-                <blockquote className="border-l-4 border-accent bg-gray-100 dark:bg-subtle-dark/50 p-4 rounded-r-lg my-6">
+                <blockquote className="border-l-4 border-accent bg-white/50 dark:bg-subtle-dark/50 p-4 rounded-r-lg my-6">
                   <p className="italic text-gray-700 dark:text-gray-300">
                     {section.blockquote}
                   </p>
@@ -105,7 +105,7 @@ export default function ArticleHeader({ articleData }) {
         </div>
 
         {/* Social Share */}
-        <div className="py-8 mt-10 border-t border-b border-subtle-light dark:border-subtle-dark">
+        <div className="py-4 mt-10 border-t border-b border-subtle-light dark:border-subtle-dark">
           <h4 className="text-center text-lg font-bold mb-4 font-display">
             Share This Article
           </h4>

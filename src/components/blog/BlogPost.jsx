@@ -80,7 +80,7 @@ export default function BlogPost({ relatedArticles, articleData, locale, serverD
 
   return (
     <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
-      <div className="mx-auto max-w-7xl px-6 py-10">
+      <div className="mx-auto max-w-7xl px-6 pb-10 pt-9">
         <ArticleHeader articleData={resolved.articleData} />
         <RelatedArticles relatedArticles={resolved.relatedArticles || relatedArticles} locale={locale} />
       </div>

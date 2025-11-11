@@ -50,7 +50,7 @@ export default function BlogCard({ initialData, searchQuery }) {
               href={`/${locale}/blog/product/${blog.id}?id=${blog.id}`}
               className="mt-4 inline-block text-accent hover:underline"
             >
-              Read More
+              Read More 
             </Link>
           </div>
         </div>
