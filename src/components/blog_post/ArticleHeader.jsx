@@ -31,7 +31,7 @@ export default function ArticleHeader({ articleData }) {
       </div>
 
       {/* Hero Image */}
-      <div className="relative w-full h-64 md:h-96 rounded-xl overflow-hidden mb-8">
+      <div className="relative w-full h-64 md:h-96 rounded-xl overflow-hidden mb-4">
         <Image
           src={articleData.heroImage}
           alt={articleData.title}
@@ -44,19 +44,19 @@ export default function ArticleHeader({ articleData }) {
 
       {/* Article Header */}
       <article className="max-w-7xl mx-auto w-full">
-        <h1 className="text-text-light dark:text-text-dark font-display tracking-tight text-2xl md:text-4xl  font-bold leading-tight text-left pb-3">
+        <h1 className="text-text-light dark:text-text-dark font-display tracking-tight text-2xl md:text-4xl  font-bold  pb-2">
           {articleData.title}
         </h1>
-        <h2 className="text-gray-600 dark:text-gray-300 text-lg md:text-xl font-body leading-relaxed text-left pb-4">
+        <h2 className="text-gray-600 dark:text-gray-300 text-lg md:text-xl font-body leading-relaxed text-left pb-2">
           {articleData.subtitle}
         </h2>
-        <p className="text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal pb-8 pt-1 border-b border-subtle-light dark:border-subtle-dark">
+        <p className="text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal pb-4 border-b ">
           By {articleData.author} | Published on {articleData.publishedDate} |{" "}
           {articleData.readTime}
         </p>
 
         {/* Article Sections mapped dynamically */}
-        <div className="prose prose-lg dark:prose-invert max-w-none font-body text-text-light dark:text-text-dark pt-8 space-y-6">
+        <div className="prose prose-lg dark:prose-invert max-w-none font-body text-text-light dark:text-text-dark pt-2 space-y-3">
           {articleData.sections.map((section, idx) => (
             <section key={idx}>
               <h3 className="font-display font-bold text-2xl !mt-2 !mb-2">

@@ -7,34 +7,34 @@ const legalDocuments = [
     description:
       "Outlines the rules and guidelines for using our services and platform.",
     iconName: "description",
-    href: "/legal/terms",
+    href: "/terms-conditions",
   },
   {
     title: "Privacy Policy",
     description: "Details how we collect, use, and protect your personal data.",
     iconName: "shield_lock",
-    href: "/legal/privacy",
+    href: "/privacy-policy",
   },
   {
     title: "Cookie Policy",
     description:
       "Explains how we use cookies to enhance your browsing experience.",
     iconName: "cookie",
-    href: "/legal/cookies",
+    href: "/cookie-policy",
   },
   {
-    title: "Accessibility Statement",
+    title: "Partner Directory",
     description:
       "Our commitment to ensuring our platform is usable by everyone.",
     iconName: "accessibility_new",
-    href: "/legal/accessibility",
+    href: "/partner-directory",
   },
   {
-    title: "Legal Disclaimer",
+    title: "Concierge Service",
     description:
       "Important information about limitations of liability and platform use.",
     iconName: "gavel",
-    href: "/legal/disclaimer",
+    href: "/concierge-service",
   },
 ];
 

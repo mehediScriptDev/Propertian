@@ -9,7 +9,7 @@ export default function RelatedArticles({ relatedArticles, locale }) {
   const base = locale ? `/${locale}` : "";
 
   return (
-    <div className="w-full mt-16">
+    <div className="w-full mt-8">
       <h3 className="text-3xl font-bold font-display text-center mb-8">
         You Might Also Like
       </h3>

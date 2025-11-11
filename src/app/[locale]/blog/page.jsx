@@ -12,10 +12,10 @@ export default function BlogPage() {
 
   return (
     <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
-      <div className="mx-auto max-w-7xl px-4 md:px-10 py-10">
-        <div className="flex flex-col gap-6 md:gap-8 md:mb-8 sm:mb-7 mb-6">
+      <div className="mx-auto max-w-7xl px-4 md:px-10 py-6">
+        <div className="flex flex-col gap-6  mb-6">
           {/**search section text  */}
-          <h1 className="text-text-light dark:text-text-dark text-2xl lg:text-3xl font-bold font-display tracking-tight min-w-72">
+          <h1 className="  text-2xl lg:text-3xl font-bold min-w-72">
             {"Search Results for"}{searchQuery ? `: ${searchQuery}` : ':'}
           </h1>
           <div className="max-w-2xl h-13 mb-2">
