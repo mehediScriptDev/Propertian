@@ -1336,5 +1336,9 @@
       "primaryButton": "Planifier un Appel",
       "secondaryButton": "Parcourir les FAQ"
     }
+  },
+  "faq":{
+    "title": "Foire aux questions",
+  "subtitle": "Trouvez des réponses aux questions courantes sur Q Homes et nos services."
   }
 }

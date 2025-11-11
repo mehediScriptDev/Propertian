@@ -1336,5 +1336,9 @@
       "primaryButton": "Schedule a Call",
       "secondaryButton": "Browse FAQs"
     }
+  },
+  "faq":{
+    "title":"Frequently Asked Questions",
+    "subtitle":"Find answers to common questions about Q Homes and our services."
   }
 }
