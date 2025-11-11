@@ -1,6 +1,6 @@
 "use client";
-import MainContent from "@/components/terms_conditions/MainContent";
-import TermsSidebar from "@/components/terms_conditions/TermsSidebar";
+import PolicySideBar from "@/components/dashboard/admin/common/PolicySideBar";
+import MainContent from "@/app/[locale]/terms-conditions/components/MainContent";
 import React from "react";
 
 const terms = [
@@ -78,7 +78,7 @@ export default function TermsCondition() {
   return (
     <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
       <div className="mx-auto max-w-7xl px-6 py-10 lg:flex lg:gap-10">
-        <TermsSidebar items={items} />
+        <PolicySideBar items={items} />
         <MainContent items={items} terms={terms} />
       </div>
     </main>

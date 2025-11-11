@@ -1,4 +1,5 @@
 import CookieMainContent from "@/components/cookie_policy/CookieMainContent";
+import PolicySideBar from "@/components/dashboard/admin/common/PolicySideBar";
 
 const cookie = {
   policy_title: "Cookie Policy",
@@ -75,9 +76,24 @@ const cookie = {
 };
 
 export default function CookiePolicy() {
+  // Build sidebar items from the table of contents using the same slug logic
+  const createAnchorId = (title) =>
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
+  const items = (cookie.table_of_contents || []).map((label) => ({
+    id: createAnchorId(label),
+    label,
+  }));
+
   return (
-    <>
-      <CookieMainContent cookie={cookie} />
-    </>
+    <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
+      <div className="mx-auto max-w-7xl px-5 py-10 lg:flex lg:gap-6">
+        <PolicySideBar items={items} />
+        <CookieMainContent cookie={cookie} />
+      </div>
+    </main>
   );
 }
