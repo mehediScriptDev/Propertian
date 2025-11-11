@@ -9,7 +9,7 @@ export default function RelatedArticles({ relatedArticles, locale }) {
   const base = locale ? `/${locale}` : "";
 
   return (
-    <div className="w-full mt-16">
+    <div className="w-full mt-8">
       <h3 className="text-3xl font-bold font-display text-center mb-8">
         You Might Also Like
       </h3>
@@ -17,7 +17,7 @@ export default function RelatedArticles({ relatedArticles, locale }) {
         {list.map((article) => (
           <div
             key={article.id}
-            className="flex flex-col gap-3 rounded-xl bg-background-light dark:bg-card-dark shadow-md border border-[#f6efcb] dark:border-border-dark overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            className="flex flex-col gap-3 rounded-xl bg-white/50 dark:bg-card-dark shadow-md border border-[#f6efcb] dark:border-border-dark overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
           >
             <div className="relative w-full aspect-5/3 bg-gray-200 dark:bg-gray-700 overflow-hidden">
               <Image

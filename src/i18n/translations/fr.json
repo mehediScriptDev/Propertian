@@ -72,61 +72,60 @@
       }
     },
     "register": {
-  "title": "Créer un compte",
-  "subtitle": "Inscrivez-vous pour commencer votre aventure avec Q Homes.",
-  "fullName": "Nom complet",
-  "fullNamePlaceholder": "Entrez votre nom complet",
-  "email": "E-mail",
-  "emailPlaceholder": "Entrez votre adresse e-mail",
-  "password": "Mot de passe",
-  "passwordPlaceholder": "Créez un mot de passe",
-  "confirmPassword": "Confirmez le mot de passe",
-  "confirmPasswordPlaceholder": "Ressaisissez votre mot de passe",
-  "registerButton": "S'inscrire",
-  "registering": "Inscription en cours...",
-  "backToLogin": "Retour à la connexion",
-  "orDivider": "OU",
-  "continueWithGoogle": "Continuer avec Google",
-  "continueWithFacebook": "Continuer avec Facebook",
-  "haveAccount": "Vous avez déjà un compte ?",
-  "loginNow": "Connectez-vous maintenant",
-  "backToHome": "Retour à l'accueil",
-  "check1": "J'accepte les Termes et Conditions",
-  "check2": "J'ai lu la Politique de confidentialité",
-  "createAccount": "Créer un compte",
+      "title": "Créer un compte",
+      "subtitle": "Inscrivez-vous pour commencer votre aventure avec Q Homes.",
+      "fullName": "Nom complet",
+      "fullNamePlaceholder": "Entrez votre nom complet",
+      "email": "E-mail",
+      "emailPlaceholder": "Entrez votre adresse e-mail",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Créez un mot de passe",
+      "confirmPassword": "Confirmez le mot de passe",
+      "confirmPasswordPlaceholder": "Ressaisissez votre mot de passe",
+      "registerButton": "S'inscrire",
+      "registering": "Inscription en cours...",
+      "backToLogin": "Retour à la connexion",
+      "orDivider": "OU",
+      "continueWithGoogle": "Continuer avec Google",
+      "continueWithFacebook": "Continuer avec Facebook",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "loginNow": "Connectez-vous maintenant",
+      "backToHome": "Retour à l'accueil",
+      "check1": "J'accepte les Termes et Conditions",
+      "check2": "J'ai lu la Politique de confidentialité",
+      "createAccount": "Créer un compte",
 
-  "errors": {
-    "fullNameRequired": "Le nom complet est requis",
-    "emailRequired": "L'e-mail est requis",
-    "emailInvalid": "Veuillez entrer une adresse e-mail valide",
-    "passwordRequired": "Le mot de passe est requis",
-    "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
-    "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
-    "passwordsMismatch": "Les mots de passe ne correspondent pas",
-    "registrationFailed": "Échec de l'inscription. Veuillez réessayer."
-  }
-},
-"forgotPassword": {
-  "title": "Mot de passe oublié ?",
-  "subtitle": "Entrez votre adresse e-mail pour réinitialiser votre mot de passe.",
-  "email": "E-mail",
-  "emailPlaceholder": "Entrez votre adresse e-mail",
-  "submitButton": "Envoyer",
-  "submitting": "Envoi en cours...",
-  "backToLogin": "Retour à la connexion",
-  "backToHome": "Retour à l'accueil",
-  "checkEmail": "Vérifiez votre e-mail",
-  "checkEmailInstructions": "Nous avons envoyé les instructions de réinitialisation du mot de passe à {{email}}. Veuillez vérifier votre boîte de réception et votre dossier spam.",
-  "returnToLogin": "Retour à la connexion",
-  "didNotReceiveEmail": "Vous n'avez pas reçu l'e-mail ?",
-  "resend": "Renvoyer",
-  "errors": {
-    "emailRequired": "L'e-mail est requis",
-    "emailInvalid": "Veuillez entrer une adresse e-mail valide",
-    "resetFailed": "Échec de l'envoi du lien de réinitialisation. Veuillez réessayer."
-  }
-}
-
+      "errors": {
+        "fullNameRequired": "Le nom complet est requis",
+        "emailRequired": "L'e-mail est requis",
+        "emailInvalid": "Veuillez entrer une adresse e-mail valide",
+        "passwordRequired": "Le mot de passe est requis",
+        "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
+        "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
+        "passwordsMismatch": "Les mots de passe ne correspondent pas",
+        "registrationFailed": "Échec de l'inscription. Veuillez réessayer."
+      }
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié ?",
+      "subtitle": "Entrez votre adresse e-mail pour réinitialiser votre mot de passe.",
+      "email": "E-mail",
+      "emailPlaceholder": "Entrez votre adresse e-mail",
+      "submitButton": "Envoyer",
+      "submitting": "Envoi en cours...",
+      "backToLogin": "Retour à la connexion",
+      "backToHome": "Retour à l'accueil",
+      "checkEmail": "Vérifiez votre e-mail",
+      "checkEmailInstructions": "Nous avons envoyé les instructions de réinitialisation du mot de passe à {{email}}. Veuillez vérifier votre boîte de réception et votre dossier spam.",
+      "returnToLogin": "Retour à la connexion",
+      "didNotReceiveEmail": "Vous n'avez pas reçu l'e-mail ?",
+      "resend": "Renvoyer",
+      "errors": {
+        "emailRequired": "L'e-mail est requis",
+        "emailInvalid": "Veuillez entrer une adresse e-mail valide",
+        "resetFailed": "Échec de l'envoi du lien de réinitialisation. Veuillez réessayer."
+      }
+    }
   },
   "searchBar": {
     "buy": "Acheter",
@@ -181,7 +180,7 @@
         "priceHigh": "Prix (Élevé à Bas)",
         "bedrooms": "Plus de Chambres"
       },
-  "loadMore": "Charger Plus",
+      "loadMore": "Charger Plus",
       "noResults": "Aucune Propriété Trouvée",
       "noResultsMessage": "Essayez d'ajuster vos filtres pour voir plus de propriétés"
     },
@@ -1061,6 +1060,61 @@
       "button": "Listez Votre Projet"
     }
   },
+  "residentialDetails": {
+    "notFound": {
+      "title": "Propriété Non Trouvée",
+      "description": "La propriété que vous recherchez n'existe pas.",
+      "backLink": "← Retour aux Propriétés Résidentielles"
+    },
+    "navigation": {
+      "overview": "Aperçu",
+      "units": "Plans d'Unités et Tarification",
+      "amenities": "Commodités",
+      "location": "Emplacement",
+      "developer": "Promoteur",
+      "payment": "Plans de Paiement",
+      "menu": "Menu"
+    },
+    "buttons": {
+      "downloadBrochure": "Télécharger la Brochure",
+      "brochure": "Brochure",
+      "inquire": "Renseignement",
+      "viewPlan": "Voir le Plan",
+      "inquireAbout": "Renseignements sur ce Développement",
+      "bookSiteVisit": "Réserver une Visite",
+      "whatsapp": "Chatter sur WhatsApp"
+    },
+    "breadcrumb": {
+      "home": "Accueil",
+      "newDevelopments": "Nouveaux Développements"
+    },
+    "badges": {
+      "verifiedBy": "Vérifié par",
+      "escrowEligible": "Éligible à l'Entiercement",
+      "by": "par"
+    },
+    "sections": {
+      "unitPlans": "Plans d'Unités et Tarification",
+      "amenities": "Commodités",
+      "locationConnectivity": "Emplacement et Connectivité",
+      "developerProfile": "Profil du Promoteur",
+      "paymentPlans": "Plans de Paiement"
+    },
+    "sidebar": {
+      "developmentOverview": "Aperçu du Développement",
+      "investmentHighlights": "Points Forts de l'Investissement",
+      "unitTypes": "Types d'Unités",
+      "startingPrice": "Prix de Départ",
+      "estCompletion": "Achèvement Est."
+    },
+    "developer": {
+      "defaultDescription": "Avec plus de 15 ans d'expérience dans la création de propriétés résidentielles haut de gamme, Q Homes Development est synonyme de qualité, d'innovation et de confiance. Notre portefeuille témoigne d'un engagement envers l'excellence architecturale et la création de communautés qui résistent à l'épreuve du temps."
+    },
+    "payment": {
+      "description": "Nous proposons des plans de paiement flexibles pour répondre à vos besoins financiers. Notre équipe est disponible pour discuter des options de financement et vous guider tout au long du processus."
+    },
+    "locationMap": "Carte de l'Emplacement"
+  },
   "concierge": {
     "hero": {
       "title": "Votre Déménagement, Simplifié.",
@@ -1335,6 +1389,93 @@
       "subtitle": "Planifiez un appel avec l'un de nos experts pour discuter de vos besoins immobiliers en détail.",
       "primaryButton": "Planifier un Appel",
       "secondaryButton": "Parcourir les FAQ"
+    }
+  },
+  "faq": {
+    "title": "Foire aux questions",
+    "subtitle": "Trouvez des réponses aux questions courantes sur Q Homes et nos services."
+  },
+  "PartnerDirectory": {
+    "Title": "Nos Partenaires de Confiance : Votre Réseau pour un Déménagement Sans Accroc",
+    "Subtitle": "Explorez notre réseau de professionnels vérifiés, des conseillers juridiques aux spécialistes du déménagement, garantissant que chaque étape de votre parcours immobilier en Côte d'Ivoire soit fluide et sécurisée.",
+    "searchAndFilters": {
+      "searchPlaceholder": "Rechercher par nom de partenaire...",
+      "filters": {
+        "All": "Toute",
+        "Legal": "Légale",
+        "Financial": "Financière"
+      }
+    },
+    "Financial": {
+      "title": "Institutions financières",
+      "visit": "Visiter le Site Web"
+    },
+    "Legal": {
+      "title": "Conseillers Juridiques",
+      "contact": "Contacter le Partenaire"
+    },
+    "partnerCTA": {
+      "title": "Devenez partenaire de Q Homes",
+      "subtitle": "Rejoignez notre réseau exclusif de professionnels de confiance et connectez-vous avec un public ciblé d'acheteurs et de vendeurs de maisons.",
+      "button": "Rejoindre Notre Réseau"
+    }
+  },
+  "ConciergeService": {
+    "title": "Votre installation en Côte d’Ivoire commence ici.",
+    "subtitle": "De l’assistance pour le visa à votre installation, notre équipe de conciergerie dédiée s’occupe de chaque détail afin que vous vous sentiez chez vous dès le premier jour.",
+    "contactButton": "Réservez une consultation gratuite",
+    "ComprehensiveSection": {
+      "title": "Nos services de conciergerie complets",
+      "card": {
+        "relocationPlanning": {
+          "title": "Planification de la relocalisation",
+          "description": "Assistance complète pour les visas et la logistique afin d’assurer une transition en douceur."
+        },
+        "virtual": {
+          "title": "Visites virtuelles et sur place",
+          "description": "Découvrez vos futurs logements où que vous soyez, avec l’aide de nos experts."
+        },
+        "moving": {
+          "title": "Assistance au déménagement et à l’installation",
+          "description": "Nous nous occupons de tout, de l’emballage à la mise en place finale."
+        },
+        "utilities": {
+          "title": "Services publics et ameublement",
+          "description": "Préparez votre nouveau logement avec les services essentiels et la coordination du mobilier."
+        },
+        "corporate": {
+          "title": "Forfaits d’entreprise",
+          "description": "Des solutions de relocalisation sur mesure pour vos employés et les besoins de votre entreprise."
+        },
+        "Local": {
+          "title": "Accompagnement à l’intégration locale",
+          "description": "Trouvez les meilleures écoles, soins de santé et commodités locales grâce à notre assistance."
+        }
+      }
+    },
+    "HowItWorks": {
+      "title": "Un parcours simple vers votre nouveau chez-vous",
+      "Initial": {
+        "title": "Consultation initiale",
+        "description": "Partagez vos besoins et vos attentes lors d’une rencontre gratuite et sans engagement."
+      },
+      "Customized": {
+        "title": "Plan personnalisé",
+        "description": "Nous concevons une stratégie de relocalisation sur mesure qui répond à toutes vos exigences."
+      },
+      "Seamless": {
+        "title": "Exécution fluide",
+        "description": "Détendez-vous pendant que notre équipe s’occupe de chaque détail et vous tient informé à chaque étape."
+      }
+    },
+    "Testimonials": {
+      "title": "Plébiscité par des acheteurs et des vendeurs du monde entier",
+      "subtitle": "Découvrez les témoignages de nos clients qui ont trouvé la propriété de leurs rêves avec Q HOMES."
+    },
+    "finalCta": {
+      "title": "Prêt à simplifier votre déménagement ?",
+      "description": "Laissez nos experts s’occuper de chaque détail afin que vous puissiez profiter pleinement de l’enthousiasme de votre nouveau départ en Côte d’Ivoire.",
+      "button": "Demander un devis"
     }
   }
 }
