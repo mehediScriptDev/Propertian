@@ -1393,25 +1393,30 @@
           "description": "Trouvez les meilleures écoles, soins de santé et commodités locales grâce à notre assistance."
         }
       }
-    }
-  },
-  "HowItWorks": {
-    "title": "Un parcours simple vers votre nouveau chez-vous",
-    "Initial": {
-      "title": "Consultation initiale",
-      "description": "Partagez vos besoins et vos attentes lors d’une rencontre gratuite et sans engagement."
     },
-    "Customized": {
-      "title": "Plan personnalisé",
-      "description": "Nous concevons une stratégie de relocalisation sur mesure qui répond à toutes vos exigences."
+    "HowItWorks": {
+      "title": "Un parcours simple vers votre nouveau chez-vous",
+      "Initial": {
+        "title": "Consultation initiale",
+        "description": "Partagez vos besoins et vos attentes lors d’une rencontre gratuite et sans engagement."
+      },
+      "Customized": {
+        "title": "Plan personnalisé",
+        "description": "Nous concevons une stratégie de relocalisation sur mesure qui répond à toutes vos exigences."
+      },
+      "Seamless": {
+        "title": "Exécution fluide",
+        "description": "Détendez-vous pendant que notre équipe s’occupe de chaque détail et vous tient informé à chaque étape."
+      }
     },
-    "Seamless": {
-      "title": "Exécution fluide",
-      "description": "Détendez-vous pendant que notre équipe s’occupe de chaque détail et vous tient informé à chaque étape."
+    "Testimonials": {
+      "title": "Plébiscité par des acheteurs et des vendeurs du monde entier",
+      "subtitle": "Découvrez les témoignages de nos clients qui ont trouvé la propriété de leurs rêves avec Q HOMES."
+    },
+    "finalCta": {
+      "title": "Prêt à simplifier votre déménagement ?",
+      "description": "Laissez nos experts s’occuper de chaque détail afin que vous puissiez profiter pleinement de l’enthousiasme de votre nouveau départ en Côte d’Ivoire.",
+      "button": "Demander un devis"
     }
-  },
-  "Testimonials": {
-    "title": "Plébiscité par des acheteurs et des vendeurs du monde entier",
-    "subtitle": "Découvrez les témoignages de nos clients qui ont trouvé la propriété de leurs rêves avec Q HOMES."
   }
 }

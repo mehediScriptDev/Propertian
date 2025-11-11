@@ -103,10 +103,10 @@ export default function TestimonialsSection() {
         {/* Header */}
         <div className="text-center lg:mb-10 ">
           <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white">
-            {t("Testimonials.title")}
+            {t("ConciergeService.Testimonials.title")}
           </h2>
           <p className="mx-auto my-3 w-xs md:w-xl text-sm sm:text-base text-black dark:text-soft-grey/70">
-            {t("Testimonials.subtitle")}
+            {t("ConciergeService.Testimonials.subtitle")}
           </p>
         </div>
 

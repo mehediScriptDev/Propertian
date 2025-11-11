@@ -1394,25 +1394,30 @@
           "description": "Find the best schools, healthcare, and local amenities with our help."
         }
       }
-    }
-  },
-  "HowItWorks": {
-    "title": "A Simple Path to Your New Home",
-    "Initial": {
-      "title": "Initial Consultation",
-      "description": "Share your needs and expectations with us in a free, no-obligation meeting."
     },
-    "Customized": {
-      "title": "Customized Plan",
-      "description": "We design a personalized relocation strategy that covers all your requirements."
+    "HowItWorks": {
+      "title": "A Simple Path to Your New Home",
+      "Initial": {
+        "title": "Initial Consultation",
+        "description": "Share your needs and expectations with us in a free, no-obligation meeting."
+      },
+      "Customized": {
+        "title": "Customized Plan",
+        "description": "We design a personalized relocation strategy that covers all your requirements."
+      },
+      "Seamless": {
+        "title": "Seamless Execution",
+        "description": "Relax as our team handles every detail, providing you with regular updates."
+      }
     },
-    "Seamless": {
-      "title": "Seamless Execution",
-      "description": "Relax as our team handles every detail, providing you with regular updates."
+    "Testimonials": {
+      "title": "Trusted by Buyers and Sellers Worldwide",
+      "subtitle": "Hear from clients who found their dream property with Q HOMES."
+    },
+    "finalCta": {
+      "title": "Ready to Make Your Move Effortless?",
+      "description": "Let our experts handle the details so you can focus on the excitement of your new beginning in Côte d’Ivoire.",
+      "button": "Request a Quote"
     }
-  },
-  "Testimonials" :{
-    "title": "Trusted by Buyers and Sellers Worldwide",
-    "subtitle": "Hear from clients who found their dream property with Q HOMES."
   }
 }

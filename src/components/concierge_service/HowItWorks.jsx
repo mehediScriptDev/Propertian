@@ -8,27 +8,27 @@ export default function HowItWorks() {
   const steps = [
     {
       number: 1,
-      title: t("HowItWorks.Initial.title"),
+      title: t("ConciergeService.HowItWorks.Initial.title"),
       description:
-        t("HowItWorks.Initial.description"),
+        t("ConciergeService.HowItWorks.Initial.description"),
     },
     {
       number: 2,
-      title: t("HowItWorks.Customized.title"),
+      title: t("ConciergeService.HowItWorks.Customized.title"),
       description:
-        t("HowItWorks.Customized.description"),
+        t("ConciergeService.HowItWorks.Customized.description"),
     },
     {
       number: 3,
-      title: t("HowItWorks.Seamless.title"),
+      title: t("ConciergeService.HowItWorks.Seamless.title"),
       description:
-        t("HowItWorks.Seamless.description"),
+        t("ConciergeService.HowItWorks.Seamless.description"),
     },
   ];
   return (
     <section className="flex flex-col gap-2 md:gap-10 px-4 pt-10">
       <h2 className="text-2xl md:text-3xl font-bold font-heading text-center">
-        {t("HowItWorks.title")}
+        {t("ConciergeService.HowItWorks.title")}
       </h2>
 
       <div className="relative grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-4 ">
