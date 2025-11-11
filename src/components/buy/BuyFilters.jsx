@@ -44,7 +44,7 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
 
   return (
     <>
-      <div className='p-4 rounded-xl bg-[#fafafa] dark:bg-card-dark shadow-sm border border-gray-200 dark:border-border-dark'>
+      <div className='p-4 rounded-xl bg-white/50 dark:bg-card-dark shadow-sm border border-gray-200 dark:border-border-dark'>
         {/* Mobile stacked layout */}
         <div className='flex flex-col gap-3 lg:hidden'>
           <div className='grid grid-cols-3 gap-2'>
@@ -60,7 +60,7 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
                   onChange={(e) => { handleFilterChange('city', e.target.value); applyFilters(); }}
                   onFocus={() => handleDropdownFocus('city')}
                   onBlur={() => handleDropdownBlur('city')}
-                  className='w-full h-9 px-2 pr-7 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-xs appearance-none cursor-pointer outline-none'
+                  className='w-full h-9 px-2 pr-7 rounded-lg border border-gray-300 dark:border-border-dark bg-white/50 dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-xs appearance-none cursor-pointer outline-none'
                 >
                   <option value='abidjan'>{t('buy.filters.cities.abidjan', 'Abidjan')}</option>
                   <option value='assinie'>{t('buy.filters.cities.assinie', 'Assinie-Mafia')}</option>
