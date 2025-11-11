@@ -21,9 +21,9 @@ export default function LegalAdvisors({ filteredPartners }) {
   }
 
   return (
-    <section className='mb-10'>
-      <div className='border-b-2 border-accent mb-6 pb-2'>
-        <h2 className='font-display text-primary dark:text-text-dark text-3xl font-bold leading-tight tracking-tight px-4'>
+    <section className='mb-8'>
+      <div className='mb-1.5 md:mb-3 pb-1.5 md:pb-3'>
+        <h2 className='font-display text-black dark:text-text-dark text-2xl md:text-3xl font-bold leading-tight tracking-tight px-4'>
           Legal Advisors
         </h2>
       </div>
@@ -32,7 +32,7 @@ export default function LegalAdvisors({ filteredPartners }) {
         {partnersToDisplay.map((partner) => (
           <div
             key={partner.name}
-            className='bg-white dark:bg-primary/30 rounded-xl overflow-hidden flex flex-col p-6 border border-primary/10 dark:border-accent/10'
+            className='bg-white/50 dark:bg-primary/30 rounded-xl overflow-hidden flex flex-col p-6 border border-primary/10 dark:border-accent/10'
           >
             <div className='flex items-center gap-4 mb-4'>
               {partner.logo}

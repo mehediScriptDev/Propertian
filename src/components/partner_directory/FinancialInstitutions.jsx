@@ -37,9 +37,9 @@ export default function FinancialInstitutions({ filteredPartners }) {
   }
 
   return (
-    <section className="mb-10">
-      <div className="border-b-2 border-accent mb-6 pb-3 md:pb-4">
-        <h2 className="font-display text-primary dark:text-text-dark text-3xl font-bold leading-tight tracking-tight px-4">
+    <section className="mb-8">
+      <div className="mb-1.5 md:mb-3 pb-1.5 md:pb-3">
+        <h2 className="font-display text-black dark:text-text-dark text-2xl md:text-3xl font-bold leading-tight tracking-tight px-4">
           Financial Institutions
         </h2>
       </div>
@@ -48,15 +48,15 @@ export default function FinancialInstitutions({ filteredPartners }) {
         {partnersToDisplay.map((partner) => (
           <div
             key={partner.name}
-            className="bg-white dark:bg-primary/30 rounded-xl  overflow-hidden flex flex-col p-6 border border-primary/10 dark:border-accent/10"
+            className="bg-white/50 dark:bg-primary/30 rounded-xl  overflow-hidden flex flex-col p-6 border border-primary/10 dark:border-accent/10"
           >
             <div className="flex items-center gap-4 mb-4">
               {partner.logo}
-              <h3 className="font-display text-xl font-bold text-primary dark:text-text-dark">
+              <h3 className="font-display text-xl font-bold text-black dark:text-text-dark">
                 {partner.name}
               </h3>
             </div>
-            <p className="text-text-muted-light dark:text-text-muted-dark text-base mb-6 flex-grow">
+            <p className="text-text-muted-light dark:text-text-muted-dark text-base mb-6 grow">
               {partner.description}
             </p>
             {/* Use anchor for navigation (better for accessibility and SEO) */}
@@ -66,7 +66,7 @@ export default function FinancialInstitutions({ filteredPartners }) {
                 ? { target: "_blank", rel: "noopener noreferrer" }
                 : {})}
               aria-label={`Visit ${partner.name} website`}
-              className="mt-auto flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-accent text-black/70 text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="mt-auto flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-accent text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <span>Visit Website</span>
             </Link>

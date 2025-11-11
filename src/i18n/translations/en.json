@@ -70,7 +70,8 @@
         "loginFailed": "Login failed",
         "socialLoginFailed": "Failed to sign in with {provider}. Please try again."
       }
-    }, "register": {
+    },
+    "register": {
       "title": "Create an Account",
       "subtitle": "Sign up to start your journey with Q Homes.",
       "fullName": "Full Name",
@@ -93,7 +94,7 @@
       "check1": "I agree to the Terms &amp; Conditions",
       "check2": " have read the Privacy Policy",
       "createAccount": "Create Account",
- 
+
       "errors": {
         "fullNameRequired": "Full name is required",
         "emailRequired": "Email is required",
@@ -125,7 +126,6 @@
         "resetFailed": "Failed to send reset link. Please try again."
       }
     }
- 
   },
   "searchBar": {
     "buy": "Buy",
@@ -180,7 +180,7 @@
         "priceHigh": "Price (High to Low)",
         "bedrooms": "Most Bedrooms"
       },
-  "loadMore": "Load More",
+      "loadMore": "Load More",
       "noResults": "No Properties Found",
       "noResultsMessage": "Try adjusting your filters to see more properties"
     },
@@ -614,7 +614,7 @@
       "yourNotifications": "Your Notifications",
       "notificationSubtitle": "Here are your latest property alerts and updates.",
       "markallRead": "Mark all as read",
-      "tickets":" Support Tickets",
+      "tickets": " Support Tickets",
 
       "personalDetails": {
         "title": "Personal Details",
@@ -1336,5 +1336,9 @@
       "primaryButton": "Schedule a Call",
       "secondaryButton": "Browse FAQs"
     }
+  },
+  "PartnerDirectory": {
+    "Title": "Our Trusted Partners : Your Network for a Seamless Move",
+    "Subtitle": "Explore our curated network of vetted professionals, from legal advisors to moving specialists, ensuring every step of your real estate journey in Côte d’Ivoire is seamless and secure."
   }
 }
