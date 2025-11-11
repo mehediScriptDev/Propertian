@@ -3,6 +3,8 @@
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslation } from "@/i18n";
 
 const testimonials = [
   {
@@ -53,6 +55,8 @@ const testimonials = [
 ];
 
 export default function TestimonialsSection() {
+  const { locale } = useLanguage();
+  const { t } = useTranslation(locale);
   const scrollContainerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -99,10 +103,10 @@ export default function TestimonialsSection() {
         {/* Header */}
         <div className="text-center lg:mb-10 ">
           <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white">
-            Trusted by Buyers and Sellers Worldwide
+            {t("Testimonials.title")}
           </h2>
           <p className="mx-auto my-3 w-xs md:w-xl text-sm sm:text-base text-black dark:text-soft-grey/70">
-            Hear from clients who found their dream property with Q HOMES.
+            {t("Testimonials.subtitle")}
           </p>
         </div>
 
