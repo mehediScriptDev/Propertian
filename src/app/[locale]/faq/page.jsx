@@ -48,7 +48,7 @@ const ContactFAQ = React.memo(() => {
   }, []);
 
   return (
-    <section className="w-full py-10 sm:py-16  px-4">
+    <section className="w-full py-6 min-h-screen sm:py-6  px-4">
       <div className="mx-auto max-w-4xl flex flex-col items-center gap-10">
         {/* Header */}
         <div className="text-center">
@@ -70,7 +70,7 @@ const ContactFAQ = React.memo(() => {
             return (
               <div
                 key={index}
-                className="rounded-xl bg-white p-4 sm:p-6 shadow-sm dark:bg-navy-light transition-all duration-300"
+                className="rounded-xl bg-white/50 p-4 sm:p-6 shadow-sm dark:bg-navy-light transition-all duration-300"
               >
                 <dt>
                   <button
