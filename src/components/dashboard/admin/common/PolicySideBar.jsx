@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const PolicySideBar = ({ items }) => {
   // Default to the first item on page load (ignore URL hash)
@@ -7,6 +7,23 @@ const PolicySideBar = ({ items }) => {
 
   // Note: We intentionally do NOT observe scroll/visibility.
   // Active state is controlled only via clicks on the sidebar links.
+
+  // On mount, remove any URL hash and ensure the page is at the top so the
+  // browser doesn't auto-scroll to an anchored section from a previous hash.
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined" && window.location && window.location.hash) {
+        // remove hash without adding history entry
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+      // make sure page is at top
+      if (typeof window !== "undefined" && window.scrollTo) {
+        window.scrollTo({ top: 0, behavior: "auto" });
+      }
+    } catch (e) {
+      // ignore errors
+    }
+  }, []);
 
   const handleClick = (e, id) => {
     e.preventDefault();
