@@ -1572,6 +1572,16 @@
         "description": "If you have any queries regarding any of our terms, please contact us. You can reach us via our Contact Page.",
         "sortDescription": ""
       }
+    },
+    "Sidebar" :{
+      "Introduction" : "1. Introduction",
+      "UserObligations" : "2. User Obligations & Conduct",
+      "Intellectual" : "3. Intellectual Property Rights",
+      "Disclaimer" : "4. Disclaimer",
+      "Limitation" : "5. Limitation of Liability",
+      "Governing" : "6. Governing Law & Jurisdiction",
+      "ChangesToTerms" : "7. Changes to Terms",
+      "ContactInformation" : "8. Contact Information"
     }
   }
 }

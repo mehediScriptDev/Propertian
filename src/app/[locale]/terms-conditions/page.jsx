@@ -60,12 +60,12 @@ export default function TermsCondition() {
   ];
 
   const items = [
-    { id: "introduction", label: "1. Introduction" },
-    { id: "user-obligations", label: "2. User Obligations & Conduct" },
-    { id: "intellectual-property", label: "3. Intellectual Property Rights" },
-    { id: "disclaimer", label: "4. Disclaimer" },
-    { id: "limitation-liability", label: "5. Limitation of Liability" },
-    { id: "changes-terms", label: "7. Changes to Terms" },
+    { id: "introduction", label: t("Terms.Sidebar.Introduction") },
+    { id: "user-obligations", label: t("Terms.Sidebar.UserObligations") },
+    { id: "intellectual-property", label: t("Terms.Sidebar.Intellectual") },
+    { id: "disclaimer", label: t("Terms.Sidebar.Disclaimer") },
+    { id: "limitation-liability", label: t("Terms.Sidebar.Limitation") },
+    { id: "changes-terms", label: t("Terms.Sidebar.ChangesToTerms") },
     { id: "contact-information", label: "8. Contact Information" },
   ];
   return (

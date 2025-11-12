@@ -1566,6 +1566,16 @@
         "title": "8. Informations de contact",
         "description": "Si vous avez des questions concernant nos conditions, veuillez nous contacter. Vous pouvez nous joindre via notre page de contact."
       }
+    },
+    "Sidebar": {
+      "Introduction": "1. Introduction",
+      "UserObligations": "2. Obligations et conduite de l’utilisateur",
+      "Intellectual": "3. Droits de propriété intellectuelle",
+      "Disclaimer": "4. Clause de non-responsabilité",
+      "Limitation": "5. Limitation de responsabilité",
+      "Governing": "6. Droit applicable et juridiction",
+      "ChangesToTerms": "7. Modifications des conditions",
+      "ContactInformation": "8. Informations de contact"
     }
   }
 }
