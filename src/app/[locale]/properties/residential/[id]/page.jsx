@@ -80,7 +80,7 @@ const PropertyDetailPage = () => {
       >
         <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black/60" />
         <div className=" justify-start items-start w-full">
-          <div className="relative max-w-7xl mx-auto px-6 h-full flex flex-col items-start sm:pb-12">
+          <div className="relative max-w-7xl mx-auto px-2 lg:px-6 h-full flex flex-col items-start sm:pb-12">
             <h1 className="text-2xl lg:text-4xl font-bold text-white mb-2 text-center sm:text-left">
               {propertyData.name}
             </h1>
@@ -242,18 +242,18 @@ const PropertyDetailPage = () => {
 
             {/* Title & Badges */}
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
+              <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3">
                 {propertyData.name}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 {t("residentialDetails.badges.by")} {propertyData.developer}
               </p>
               <div className="flex gap-3">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FEF3C7] text-[#92400E] rounded-full text-sm font-medium">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FEF3C7] text-[#92400E] rounded-full text-xs lg:text-sm font-medium">
                   <CheckCircle className="w-4 h-4" />
                   {t("residentialDetails.badges.verifiedBy")} {propertyData.verifiedBy}
                 </span>
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FEF3C7] text-[#92400E] rounded-full text-sm font-medium">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FEF3C7] text-[#92400E] rounded-full text-xs lg:text-sm font-medium">
                   <Building className="w-4 h-4" />
                   {t("residentialDetails.badges.escrowEligible")}
                 </span>

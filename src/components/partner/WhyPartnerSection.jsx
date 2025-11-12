@@ -27,7 +27,7 @@ export default function WhyPartnerSection() {
   ];
 
   return (
-    <section className="py-4 lg:py-10 bg-background-light rounded-xl md:rounded-2xl mb-6 lg:mb-8">
+    <section className="py-4 bg-background-light rounded-xl md:rounded-2xl mb-6 lg:mb-8">
       <div className="text-center mb-5 lg:mb-8 px-4">
         <h2 className="text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-2 lg:mb-4 leading-tight">
           Why Partner With Q Homes?

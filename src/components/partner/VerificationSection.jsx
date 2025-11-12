@@ -9,7 +9,7 @@ import { Shield, ArrowRight } from 'lucide-react';
  */
 export default function VerificationSection() {
   return (
-    <section className="max-w-7xl mx-auto lg:px-6 py-5 lg:py-10 mb-6 lg:mb-8">
+    <section className="max-w-7xl mx-auto lg:px-6 py-5 mb-6 lg:mb-8">
       <h2 className="text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-center text-charcoal mb-4 lg:mb-10">
         A Mark of Trust and Quality
       </h2>

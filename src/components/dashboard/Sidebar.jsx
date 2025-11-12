@@ -169,6 +169,8 @@ export default function Sidebar({ role = "admin" }) {
   const { user, logout } = useAuth();
   const { locale, changeLanguage } = useLanguage(); // Use LanguageContext
   const { t } = useTranslation(locale);
+  // const { t } = useMemo(() => useTranslation(locale), [locale]);
+
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);

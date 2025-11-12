@@ -171,7 +171,7 @@ export default function ResidentialPage() {
           role='banner'
         >
           <div className='flex flex-col gap-4 max-w-3xl'>
-            <h1 className='text-white text-2xl sm:text-3xl font-black leading-tight tracking-[-0.033em] lg:text-5xl'>
+            <h1 className='text-white font-black leading-tight tracking-[-0.033em] lg:text-5xl text-2xl sm:text-3xl'>
               {t('newDevelopments.hero.title')}
             </h1>
             <p className='text-gray-200 text-sm sm:text-base font-normal leading-normal lg:text-lg'>

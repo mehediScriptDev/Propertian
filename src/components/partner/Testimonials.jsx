@@ -10,7 +10,7 @@ import React from 'react';
  */
 export default function Testimonials() {
   return (
-    <section className="bg-background-light lg:pt-10 pb-5 py-5">
+    <section className="bg-background-light pb-5 py-3">
       <div className="max-w-4xl mx-auto lg:px-6">
         <h2 className="text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-center text-charcoal mb-6">
           What Our Partners Say

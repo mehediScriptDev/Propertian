@@ -6,10 +6,10 @@ import Link from 'next/link';
 const ContactCTA = React.memo(
   ({ title, subtitle, primaryButton, secondaryButton }) => {
     return (
-      <section className=' w-full rounded-xl bg-white/20 py-8 dark:bg-[#D4AF37]/10 border border-gray-200 shadow-sm sm:py-12 md:py-16 lg:py-20'>
+      <section className=' w-full rounded-xl bg-white/20 py-8 dark:bg-[#D4AF37]/10 border border-gray-200 shadow-sm '>
         <div className='flex flex-col items-center gap-4 px-4 text-center sm:gap-6 sm:px-6 lg:px-8'>
           {/* Heading */}
-          <h2 className='font-heading text-[24px] font-bold text-navy dark:text-white sm:text-[28px] md:text-[32px] lg:text-[40px]'>
+          <h2 className='font-heading text-[24px] font-bold text-navy dark:text-white sm:text-[28px] leading-tight md:text-[32px] lg:text-[40px]'>
             {title}
           </h2>
 
