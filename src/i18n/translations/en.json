@@ -1525,6 +1525,17 @@
         "email": "privacy@qhomes.com",
         "sortDescription": ""
       }
+    },
+    "Sidebar": {
+      "Information": "Information We Collect",
+      "HowWeUse": "How We Use Your Information",
+      "HowWeShare": "How We Share Your Information",
+      "YourPrivacyRights": "Your Privacy Rights",
+      "CookiesandTracking": "Cookies and Tracking Technologies",
+      "DataSecurity": "Data Security",
+      "ThirdPartyLinks": "Third-Party Links",
+      "ChangesToOurPrivacyPolicy": "Changes to Our Privacy Policy",
+      "ContactUs": "Contact Us"
     }
   },
   "Terms": {
@@ -1573,15 +1584,15 @@
         "sortDescription": ""
       }
     },
-    "Sidebar" :{
-      "Introduction" : "1. Introduction",
-      "UserObligations" : "2. User Obligations & Conduct",
-      "Intellectual" : "3. Intellectual Property Rights",
-      "Disclaimer" : "4. Disclaimer",
-      "Limitation" : "5. Limitation of Liability",
-      "Governing" : "6. Governing Law & Jurisdiction",
-      "ChangesToTerms" : "7. Changes to Terms",
-      "ContactInformation" : "8. Contact Information"
+    "Sidebar": {
+      "Introduction": "1. Introduction",
+      "UserObligations": "2. User Obligations & Conduct",
+      "Intellectual": "3. Intellectual Property Rights",
+      "Disclaimer": "4. Disclaimer",
+      "Limitation": "5. Limitation of Liability",
+      "Governing": "6. Governing Law & Jurisdiction",
+      "ChangesToTerms": "7. Changes to Terms",
+      "ContactInformation": "8. Contact Information"
     }
   }
 }

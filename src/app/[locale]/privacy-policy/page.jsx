@@ -71,15 +71,15 @@ export default function PrivacyPolicyPage() {
     },
   ];
   const items = [
-    { id: "info-collect", label: "Information We Collect" },
-    { id: "info-use", label: "How We Use Your Information" },
-    { id: "info-share", label: "How We Share Your Information" },
-    { id: "privacy-rights", label: "Your Privacy Rights" },
-    { id: "cookies", label: "Cookies & Tracking" },
-    { id: "data-security", label: "Data Security" },
-    { id: "third-party", label: "Third-Party Links" },
-    { id: "changes", label: "Changes to Our Policy" },
-    { id: "contact", label: "Contact Us" },
+    { id: "info-collect", label: t("Policy.Sidebar.Information") },
+    { id: "info-use", label: t("Policy.Sidebar.HowWeUse") },
+    { id: "info-share", label: t("Policy.Sidebar.HowWeShare") },
+    { id: "privacy-rights", label: t("Policy.Sidebar.YourPrivacyRights") },
+    { id: "cookies", label: t("Policy.Sidebar.CookiesandTracking") },
+    { id: "data-security", label: t("Policy.Sidebar.DataSecurity") },
+    { id: "third-party", label: t("Policy.Sidebar.ThirdPartyLinks") },
+    { id: "changes", label: t("Policy.Sidebar.ChangesToOurPrivacyPolicy") },
+    { id: "contact", label: t("Policy.Sidebar.ContactUs") },
   ];
   return (
     <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">

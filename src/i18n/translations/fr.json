@@ -1524,6 +1524,17 @@
         "email": "privacy@qhomes.com",
         "sortDescription": ""
       }
+    },
+    "Sidebar": {
+      "Information": "Informations que nous collectons",
+      "HowWeUse": "Comment nous utilisons vos informations",
+      "HowWeShare": "Comment nous partageons vos informations",
+      "YourPrivacyRights": "Vos droits en matière de confidentialité",
+      "CookiesandTracking": "Cookies et technologies de suivi",
+      "DataSecurity": "Sécurité des données",
+      "ThirdPartyLinks": "Liens vers des sites tiers",
+      "ChangesToOurPrivacyPolicy": "Modifications de notre politique de confidentialité",
+      "ContactUs": "Nous contacter"
     }
   },
   "Terms": {
