@@ -1720,8 +1720,7 @@
     "Adddevelopmentprojectlisting": "Ajouter une annonce de projet de développement",
     "PropertyBuySell": "Achat / Vente de propriété",
     "AddProperty": "Ajouter une annonce d’achat / vente de propriété"
-  }
-  ,
+  },
   "PropertyDeveloperForm": {
     "propertyName": "Nom de la propriété",
     "propertyNamePlaceholder": "Entrez le nom de la propriété",
@@ -1738,8 +1737,7 @@
     "picturesPlaceholder": "Entrez les URLs des images (séparées par des virgules)",
     "paymentPlan": "Plan de paiement",
     "paymentPlanPlaceholder": "Entrez les détails du plan de paiement"
-  }
-  ,
+  },
   "PropertyBuySellForm": {
     "userId": "ID utilisateur",
     "userIdPlaceholder": "Entrez l'ID utilisateur",
@@ -1761,5 +1759,24 @@
     "statusAvailable": "Disponible",
     "statusSold": "Vendu",
     "statusPending": "En attente"
+  },
+  "InquiryDetails": {
+    "title": "Demandes",
+    "subtitle": "Consultez et répondez aux demandes concernant vos propriétés de la part d’acheteurs potentiels.",
+    "SearchByName": "Rechercher par nom, e-mail ou sujet...",
+    "AllStatus": "Tous les statuts",
+    "Pending": "En attente",
+    "In Progress": "En cours",
+    "Responded": "Répondu",
+    "ID": "ID",
+    "ContactInfo": "Informations de contact",
+    "Type": "Type",
+    "Subject": "Sujet",
+    "Status": "Statut",
+    "Date": "Date",
+    "Actions": "Actions",
+    "ViewDetails": "Voir les détails",
+    "NoInquiries": "Aucune demande trouvée",
+    "TryAdjusting": "Essayez de modifier vos critères de recherche ou de filtrage."
   }
 }

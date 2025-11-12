@@ -1721,13 +1721,12 @@
     "addButton": "Add New Listing",
     "Yourproperty": "Your property listings will be displayed here."
   },
-  "Partner_my_listing_Modal":{
-    "PropertyDeveloper" : "Property Developer",
-    "Adddevelopmentprojectlisting" : "Add a development project listing",
-    "PropertyBuySell" : "Property Buy / Sell",
-    "AddProperty" : "Add Property Buy / Sell listing"
-  }
-,
+  "Partner_my_listing_Modal": {
+    "PropertyDeveloper": "Property Developer",
+    "Adddevelopmentprojectlisting": "Add a development project listing",
+    "PropertyBuySell": "Property Buy / Sell",
+    "AddProperty": "Add Property Buy / Sell listing"
+  },
   "PropertyDeveloperForm": {
     "propertyName": "Property Name",
     "propertyNamePlaceholder": "Enter property name",
@@ -1744,8 +1743,7 @@
     "picturesPlaceholder": "Enter picture URLs (comma-separated)",
     "paymentPlan": "Payment Plan",
     "paymentPlanPlaceholder": "Enter payment plan details"
-  }
-  ,
+  },
   "PropertyBuySellForm": {
     "userId": "User ID",
     "userIdPlaceholder": "Enter user ID",
@@ -1767,5 +1765,24 @@
     "statusAvailable": "Available",
     "statusSold": "Sold",
     "statusPending": "Pending"
+  },
+  "InquiryDetails": {
+    "title": "Inquiries",
+    "subtitle": "View and respond to property inquiries from potential buyers.",
+    "SearchByName": "Search by name, email, or subject...",
+    "AllStatus": "All Status",
+    "Pending": "Pending",
+    "InProgress": "In Progress",
+    "Responded": "Responded",
+    "ID": "ID",
+    "ContactInfo": "Contact Info",
+    "Type": "Type",
+    "Subject": "Subject",
+    "Status": "Status",
+    "Date": "Date",
+    "Actions": "Actions",
+    "ViewDetails": "View Details",
+    "NoInquiries": "No Inquiries Found",
+    "TryAdjusting": "Try adjusting your search or filter criteria."
   }
 }
