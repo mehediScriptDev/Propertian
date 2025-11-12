@@ -1671,16 +1671,48 @@
       "description": "Important information about limitations of liability and platform use."
     }
   },
-  "Blog":{
-    "SearchResults" : "Search Results for",
-    "search" : "Search",
-    "searchByKeyword" : "Search by partner name...",
-    "Home" : "Home",
-    "Blog" : "Blog",
-    "By" : "By",
-    "Published" : "Published on",
-    "ShareThisArticle" : "Share this article",
-    "ReadMoreArticles" : "You Might Also Like",
-    "ReadMore" : "Read More"
+  "Blog": {
+    "SearchResults": "Search Results for",
+    "search": "Search",
+    "searchByKeyword": "Search by partner name...",
+    "Home": "Home",
+    "Blog": "Blog",
+    "By": "By",
+    "Published": "Published on",
+    "ShareThisArticle": "Share this article",
+    "ReadMoreArticles": "You Might Also Like",
+    "ReadMore": "Read More"
+  },
+  "Partner": {
+    "welcome": "Welcome Back, Partner",
+    "title": "Here's an overview of your property portfolio and recent activities",
+    "addButton": "Add New Property",
+    "statsData": {
+      "totalProperties": "Total Properties",
+      "totalViews": "Total Views",
+      "activeListings": "Active Listings",
+      "newInquiries": "New Inquiries"
+    },
+    "AllInquiries": "All Inquiries",
+    "SearchInquiries": "Search inquiries...",
+    "AllStatus": "All Status",
+    "Active": "Active",
+    "Pending": "Pending",
+    "Properties": "Properties",
+    "Locations": "Locations",
+    "Price": "Price",
+    "Views": "Views",
+    "Inquiries": "Inquiries",
+    "Status": "Status",
+    "views": "views",
+    "inquiries": "inquiries",
+    "NoPropertiesFound": "No Properties Found",
+    "TryAdjusting": "Try adjusting your search or filters",
+    "Next": "Next",
+    "Previous": "Previous",
+    "Showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "results": "properties"
   }
 }

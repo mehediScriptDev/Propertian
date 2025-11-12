@@ -1677,5 +1677,36 @@
     "ReadMoreArticles": "Vous pourriez aussi aimer",
     "ReadMore": "Lire la suite"
   },
-  "Patner":{}
+  "Partner": {
+    "welcome": "Bon retour, partenaire",
+    "title": "Voici un aperçu de votre portefeuille immobilier et de vos activités récentes",
+    "addButton": "Ajouter une nouvelle propriété",
+    "statsData": {
+      "totalProperties": "Total des propriétés",
+      "totalViews": "Nombre total de vues",
+      "activeListings": "Annonces actives",
+      "newInquiries": "Nouvelles demandes"
+    },
+    "AllInquiries": "Toutes les demandes",
+    "SearchInquiries": "Rechercher des demandes...",
+    "AllStatus": "Tous les statuts",
+    "Active": "Actif",
+    "Pending": "En attente",
+    "Properties": "Propriétés",
+    "Locations": "Emplacements",
+    "Price": "Prix",
+    "Views": "Vues",
+    "Inquiries": "Demandes",
+    "Status": "Statut",
+    "views": "vues",
+    "inquiries": "demandes",
+    "NoPropertiesFound": "Aucune propriété trouvée",
+    "TryAdjusting": "Essayez d’ajuster votre recherche ou vos filtres",
+    "Next": "Suivant",
+    "Previous": "Précédent",
+    "Showing": "Affichage de",
+    "to": "à",
+    "of": "sur",
+    "results": "propriétés"
+  }
 }
