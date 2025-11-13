@@ -121,10 +121,10 @@ export default function Footer({ locale }) {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="mailto:info@qhomes.ci"
+                  href="mailto:info@qglobaliving.com"
                   className="text-sm text-white/80 hover:text-white hover:underline transition-colors inline-block"
                 >
-                  info@qhomes.ci
+                  info@qglobaliving.com
                 </a>
               </li>
               <li>
@@ -132,7 +132,7 @@ export default function Footer({ locale }) {
                   href="tel:+2250123456789"
                   className="text-sm text-white/80 hover:text-white hover:underline transition-colors inline-block"
                 >
-                  +225 01 23 45 67 89
+                  +225 01 23 45 67 89 (Sample)
                 </a>
               </li>
               <li className="text-sm text-white/80">

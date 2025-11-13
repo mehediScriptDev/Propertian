@@ -1401,9 +1401,9 @@
       "officeTitle": "Our Office",
       "officeAddress": "Plateau, Abidjan, Côte d'Ivoire",
       "phoneTitle": "Phone",
-      "phoneNumber": "+225 01 23 45 67 89",
+      "phoneNumber": "+225 01 23 45 67 89 (Sample)",
       "emailTitle": "Email",
-      "emailAddress": "hello@qhomes.ci",
+      "emailAddress": "info@qglobaliving.com",
       "hoursTitle": "Business Hours",
       "hoursContent": "Mon - Fri: 8:00 AM - 6:00 PM WAT\nSat: 9:00 AM - 2:00 PM\nSun: Closed",
       "mapTitle": "Find Us on the Map"
@@ -1557,7 +1557,7 @@
       "ContactUs": {
         "title": "Contact Us",
         "description": "If you have any questions or concerns about this Privacy Policy, please contact us at",
-        "email": "privacy@qhomes.com",
+        "email": "privacy@qglobaliving.com",
         "sortDescription": ""
       }
     },
@@ -1676,8 +1676,8 @@
       },
       "ContactUs": {
         "title": "Contact Us",
-        "description": "If you have any questions about our use of cookies or other technologies, please email us at support@chances.com.",
-        "email": "support@chances.com"
+        "description": "If you have any questions about our use of cookies or other technologies, please email us at support@qglobaliving.com.",
+        "email": "support@qglobaliving.com"
       }
     }
   },

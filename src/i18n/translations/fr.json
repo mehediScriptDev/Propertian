@@ -1400,9 +1400,9 @@
       "officeTitle": "Notre Bureau",
       "officeAddress": "Plateau, Abidjan, Côte d'Ivoire",
       "phoneTitle": "Téléphone",
-      "phoneNumber": "+225 01 23 45 67 89",
+      "phoneNumber": "+225 01 23 45 67 89 (Sample)",
       "emailTitle": "Email",
-      "emailAddress": "hello@qhomes.ci",
+      "emailAddress": "info@qglobaliving.com",
       "hoursTitle": "Heures d'Ouverture",
       "hoursContent": "Lun - Ven: 8h00 - 18h00 WAT\nSam: 9h00 - 14h00\nDim: Fermé",
       "mapTitle": "Trouvez-Nous sur la Carte"
@@ -1672,7 +1672,7 @@
       "ContactUs": {
         "title": "Nous contacter",
         "description": "Si vous avez des questions concernant notre utilisation des cookies ou d’autres technologies, veuillez nous écrire à l’adresse suivante :",
-        "email": "support@chances.com"
+        "email": "support@qglobaliving.com"
       }
     }
   },

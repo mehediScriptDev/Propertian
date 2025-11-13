@@ -128,7 +128,7 @@ export default function ContactPage() {
     {
       question: "How can I contact Q Homes support?",
       answer:
-        "You can reach us anytime via support@qhomes.ci/ support@qgloballiving.com or through WhatsApp directly from the platform’s footer and contact page.",
+        "You can reach us anytime via support@qglobaliving.com or through WhatsApp directly from the platform's footer and contact page.",
     },
     ],
   };

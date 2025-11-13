@@ -211,11 +211,6 @@ export default function Sidebar({ role = 'admin' }) {
     }
 
     return () => {
-
-
-
-
-      
       document.removeEventListener('click', handleClickOutside);
     };
   }, [showLangDropdown]);
