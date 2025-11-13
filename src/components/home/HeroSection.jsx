@@ -68,7 +68,7 @@ export default function HeroSection({ locale }) {
     <section className='relative flex min-h-[500px] sm:min-h-[600px] md:min-h-[70vh] lg:min-h-[75vh] flex-col items-center justify-center overflow-hidden px-4 py-12 sm:py-16 md:py-20 text-center text-white'>
       {/* Fallback Background Image */}
       <Image
-        src='https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80'
+        src='/heroMain.jpg'
         alt='Luxury property background'
         fill
         priority={true}
@@ -92,7 +92,6 @@ export default function HeroSection({ locale }) {
         poster='https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80'
       >
         <source src='/heroVideo.mp4' type='video/mp4' />
-        Your browser does not support the video tag. Please upgrade to a modern browser.
       </video>
 
       {/* Overlay */}
