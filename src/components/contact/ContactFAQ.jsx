@@ -1,20 +1,14 @@
 "use client";
 
 import React from "react";
+import ComponentTitle from '@/components/shared/ComponentTitle';
 
 const ContactFAQ = React.memo(({ title, subtitle, faqs }) => {
   return (
-    <section className="w-full py-8 md:py-12 mb-8">
+    <section  className="w-full">
       <div className="mx-auto flex max-w-4xl flex-col items-center gap-6">
         {/* Header */}
-        <div className="text-center">
-          <h2 className="font-heading text-[24px] font-bold text-navy dark:text-[#FFFFF0] sm:text-[28px] md:text-[32px] lg:text-[36px]">
-            {title}
-          </h2>
-          <p className="mt-2 max-w-2xl text-[14px] text-navy/70 dark:text-[#FFFFF0]/70 sm:mt-4 sm:text-[15px] md:text-base">
-            {subtitle}
-          </p>
-        </div>
+       <ComponentTitle title={title} subtitle={subtitle} position={'text-center'} />
 
         {/* FAQ Accordion */}
         <div className="w-full space-y-3 sm:space-y-4">

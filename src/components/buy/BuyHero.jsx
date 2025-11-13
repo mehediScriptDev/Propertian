@@ -38,7 +38,7 @@ export default function BuyHero() {
 
       {/* Content */}
       <div className='relative z-10 flex flex-col gap-4 text-center max-w-3xl mx-auto'>
-        <h1 className='text-white text-2xl sm:text-3xl font-black leading-tight tracking-[-0.033em] lg:text-5xl'>
+        <h1 className='text-white  font-black leading-tight tracking-[-0.033em] text-2xl sm:text-3xl lg:text-5xl'>
           {t('buy.hero.title', "Find Your Dream Home in Côte d'Ivoire")}
         </h1>
         <p className='text-gray-200 text-sm sm:text-base font-normal leading-normal lg:text-lg'>

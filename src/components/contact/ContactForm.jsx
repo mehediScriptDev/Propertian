@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import  ComponentTitle  from '@/components/shared/ComponentTitle';
 
 const ContactForm = React.memo(
   ({ title, subtitle, labels, privacyNote, submitButton }) => {
@@ -24,17 +25,10 @@ const ContactForm = React.memo(
     };
 
     return (
-      <section id='contact-form' className='w-full py-8 sm:py-10'>
+      <section id='contact-form' className='w-full -mt-1'>
         <div className='mx-auto flex max-w-4xl flex-col items-center gap-6'>
           {/* Header */}
-          <div className='text-center'>
-            <h2 className='font-heading text-[24px] font-bold text-navy dark:text-[#FFFFF0] sm:text-[28px] md:text-[32px] lg:text-[36px]'>
-              {title}
-            </h2>
-            <p className='mt-2 max-w-2xl text-[14px] text-navy/70 dark:text-[#FFFFF0]/70 sm:mt-2.5 sm:text-[15px] md:text-base'>
-              {subtitle}
-            </p>
-          </div>
+          <ComponentTitle title={title} subtitle={subtitle} position={'text-center'} />
 
           {/* Form Card */}
           <div className='w-full rounded-xl bg-white/50 border border-gray-200 p-4 shadow-sm dark:bg-navy-light sm:p-6 md:p-10'>

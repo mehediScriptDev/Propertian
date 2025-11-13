@@ -1411,14 +1411,14 @@
     "faq": {
       "title": "Frequently Asked Questions",
       "subtitle": "Quick answers to common questions about our services.",
-      "q1": "How do I schedule a property viewing?",
-      "a1": "You can schedule a viewing directly through our website by clicking 'Book Viewing' on any property listing, or contact our concierge team via WhatsApp or email.",
-      "q2": "What areas do you serve?",
-      "a2": "We primarily serve Abidjan and surrounding areas, including Plateau, Cocody, Marcory, and emerging neighborhoods. We also assist with properties in Assinie and Grand-Bassam.",
-      "q3": "Do you offer property management services?",
-      "a3": "Yes, we provide comprehensive property management services for landlords, including tenant screening, rent collection, maintenance coordination, and regular property inspections.",
-      "q4": "How does your escrow service work?",
-      "a4": "Our escrow service acts as a neutral third party holding funds during the transaction. Money is only released when all contract conditions are met, ensuring security for both buyers and sellers."
+      "q1": "What types of properties does Q Homes specialize in?",
+      "a1": "Q Homes specializes in a wide range of properties in Côte d'Ivoire, including luxury villas, modern apartments, and commercial spaces. We cater to various needs, from long-term rentals to sales for both locals and expatriates relocating to the country.",
+      "q2": "How does Q Homes verify property listings?",
+      "a2": "We have a rigorous verification process. Our team conducts on-site visits, checks legal documentation and ownership titles (ACD - Arrêté de Concession Définitive), and ensures all listings meet our high standards for quality and safety. This guarantees that you are viewing legitimate, high-quality properties.",
+      "q3": "Do you offer relocation assistance for international clients?",
+      "a3": "Yes, we provide comprehensive relocation services. This includes helping you find the perfect home, assisting with administrative paperwork, and offering insights into life in Abidjan. Our goal is to make your move to Côte d'Ivoire as smooth and stress-free as possible.",
+      "q4": "What are the typical fees associated with renting or buying?",
+      "a4": "For rentals, standard fees usually include one month's rent for the agency fee, a security deposit (typically 2 months' rent), and the first month's rent in advance. For purchases, fees include notary fees and our agency commission, which are calculated based on the property's value. We ensure full transparency on all costs upfront."
     },
     "cta": {
       "title": "Prefer to Talk Directly?",

@@ -1408,17 +1408,18 @@
       "mapTitle": "Trouvez-Nous sur la Carte"
     },
     "faq": {
-      "title": "Questions Fréquemment Posées",
-      "subtitle": "Réponses rapides aux questions courantes sur nos services.",
-      "q1": "Comment puis-je planifier une visite de propriété?",
-      "a1": "Vous pouvez planifier une visite directement sur notre site web en cliquant sur 'Réserver une Visite' sur n'importe quelle annonce de propriété, ou contacter notre équipe de conciergerie via WhatsApp ou email.",
-      "q2": "Quelles zones desservez-vous?",
-      "a2": "Nous desservons principalement Abidjan et les environs, y compris Plateau, Cocody, Marcory et les quartiers émergents. Nous aidons également avec les propriétés à Assinie et Grand-Bassam.",
-      "q3": "Proposez-vous des services de gestion immobilière?",
-      "a3": "Oui, nous fournissons des services complets de gestion immobilière pour les propriétaires, y compris le filtrage des locataires, la collecte des loyers, la coordination de l'entretien et les inspections régulières de propriété.",
-      "q4": "Comment fonctionne votre service de séquestre?",
-      "a4": "Notre service de séquestre agit comme un tiers neutre détenant les fonds pendant la transaction. L'argent n'est libéré que lorsque toutes les conditions du contrat sont remplies, assurant la sécurité pour les acheteurs et les vendeurs."
+      "title": "Foire Aux Questions",
+      "subtitle": "Des réponses rapides aux questions les plus courantes sur nos services.",
+      "q1": "Quels types de biens Q Homes propose-t-il ?",
+      "a1": "Q Homes propose une large gamme de biens immobiliers en Côte d'Ivoire, notamment des villas de luxe, des appartements modernes et des espaces commerciaux. Nous répondons à différents besoins, allant des locations longue durée aux ventes, pour les locaux comme pour les expatriés qui s’installent dans le pays.",
+      "q2": "Comment Q Homes vérifie-t-il les annonces immobilières ?",
+      "a2": "Nous avons un processus de vérification rigoureux. Notre équipe effectue des visites sur site, vérifie la documentation légale et les titres de propriété (ACD - Arrêté de Concession Définitive), et s’assure que toutes les annonces respectent nos normes élevées de qualité et de sécurité. Cela garantit que vous consultez uniquement des biens légitimes et de haute qualité.",
+      "q3": "Offrez-vous une assistance à la relocalisation pour les clients internationaux ?",
+      "a3": "Oui, nous proposons un service complet de relocalisation. Cela comprend l’aide à la recherche du logement idéal, l’assistance dans les démarches administratives, ainsi que des conseils sur la vie à Abidjan. Notre objectif est de rendre votre installation en Côte d'Ivoire aussi simple et sereine que possible.",
+      "q4": "Quels sont les frais typiques liés à la location ou à l’achat ?",
+      "a4": "Pour les locations, les frais standards comprennent généralement un mois de loyer pour les frais d’agence, un dépôt de garantie (souvent équivalent à deux mois de loyer) et le premier mois de loyer payable à l’avance. Pour les achats, les frais incluent les honoraires du notaire et notre commission d’agence, calculés en fonction de la valeur du bien. Nous assurons une transparence totale sur tous les coûts dès le départ."
     },
+
     "cta": {
       "title": "Préférez Parler Directement?",
       "subtitle": "Planifiez un appel avec l'un de nos experts pour discuter de vos besoins immobiliers en détail.",

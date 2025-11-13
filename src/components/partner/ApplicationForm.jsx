@@ -36,7 +36,7 @@ export default function ApplicationForm() {
   };
 
   return (
-    <section id="apply" className="max-w-4xl mx-auto lg:px-6 py-6 lg:pt-10 mb-6 scroll-mt-20">
+    <section id="apply" className="max-w-4xl mx-auto lg:px-6 py-5 mb-7 lg:mb-8 scroll-mt-20">
       <h2 className="text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-center text-charcoal mb-1.5 lg:mb-4">
         Become a Q Homes Partner
       </h2>

@@ -59,7 +59,7 @@ export default function PackagesSection({ onApplyClick }) {
   ];
 
   return (
-    <section className="py-4  mb-6 lg:mb-8">
+    <section className="py-4 mb-6 lg:mb-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-5 lg:mb-8 px-4 lg:px-6">
           <h2 className="text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-2 lg:mb-4">
