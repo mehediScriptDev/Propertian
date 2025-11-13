@@ -28,7 +28,7 @@ export default function Testimonials() {
               className="w-16 h-16 rounded-full object-cover border-2 border-primary"
             />
             <div>
-              <p className="font-bold text-charcoal">Jean-Luc Bamba</p>
+              <p className="font-bold text-charcoal">Jean-Luc Bamba (Sample)</p>
               <p className="text-sm text-charcoal-600">CEO, Bamba Construction Group</p>
             </div>
           </div>
