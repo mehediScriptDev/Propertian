@@ -661,7 +661,28 @@
         "property": "Propriété",
         "replies": "Réponses",
         "created": "Créé le",
-        "Actions": "Actions"
+        "Actions": "Actions",
+        "createNewTicket": {
+          "CreateNewTicket": "Créer un nouveau ticket",
+          "EditTicket": "Modifier le ticket",
+          "PropertyID": "ID de la propriété",
+          "PropertyName": "Nom de la propriété",
+          "Subject": "Sujet",
+          "Priority": "Priorité",
+          "Low": "Faible",
+          "Medium": "Moyenne",
+          "High": "Élevée",
+          "DescriptionPlaceholder": "Décrivez votre problème",
+          "Cancel": "Annuler",
+          "SaveChanges": "Enregistrer les modifications",
+          "CreateTicket": "Créer un ticket",
+          "subjectPlaceholder": "Entrez le sujet de votre ticket",
+          "Description": "Description",
+          "descriptionPlaceholder": "Décrivez votre problème en détail",
+          "attachFile": "Joindre un fichier (optionnel)",
+          "submitTicket": "Soumettre le ticket",
+          "creatingTicket": "Création du ticket..."
+        }
       },
       "personalDetails": {
         "title": "Détails personnels",
