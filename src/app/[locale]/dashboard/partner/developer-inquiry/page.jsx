@@ -692,7 +692,7 @@ export default function DeveloperInquiryPage() {
               {/* Contact Information */}
               <div className="rounded-lg border border-gray-200 p-4">
                 <h4 className="mb-3 text-sm font-semibold text-gray-900">
-                  Contact Information
+                  {t("Developer_Inquiry.InquiryDetailModal.ContactInformation")}
                 </h4>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
@@ -729,7 +729,7 @@ export default function DeveloperInquiryPage() {
               {/* Inquiry Details */}
               <div>
                 <h4 className="mb-2 text-sm font-semibold text-gray-900">
-                  Message
+                  {t("Developer_Inquiry.InquiryDetailModal.Message")}
                 </h4>
                 <p className="text-sm leading-relaxed text-gray-700">
                   {selectedInquiry.message}
