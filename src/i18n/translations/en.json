@@ -341,7 +341,10 @@
           "statusAll": "All",
           "role": "Role",
           "roleAll": "All",
-          "lastActivity": "Last Activity"
+          "lastActivity": "Last Activity",
+          "last" : "Last",
+          "days": "Days"
+          
         },
         "table": {
           "userId": "User ID",
