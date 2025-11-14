@@ -6,8 +6,6 @@ import {
   WhyPartnerSection,
   PackagesSection,
   VerificationSection,
-  HowItWorks,
-  ApplicationForm,
   Testimonials
 } from '@/components/partner';
 

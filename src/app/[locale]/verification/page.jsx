@@ -36,33 +36,7 @@ export default function VerificationPage() {
       setSubmitted(true);
     }
   }
-  const steps = [
-    {
-      number: 1,
-      title: "Legal Review",
-      description: "Ownership, land title & permits.",
-    },
-    {
-      number: 2,
-      title: "On-Site Validation",
-      description: "Digital mapping + inspection.",
-    },
-    {
-      number: 3,
-      title: "Developer Authentication",
-      description: "RCCM/K-bis + track record.",
-    },
-    {
-      number: 4,
-      title: "Escrow Readiness",
-      description: "Eligibility via partner banks.",
-    },
-    {
-      number: 5,
-      title: "Final Verification Badge",
-      description: "Listings passing all checks receive “Verified by Q Homes.”",
-    },
-  ];
+
   return (
     <main className="max-w-7xl mx-auto px-4 ">
       {/* <h1 className="text-5xl font-bold text-center mb-4">Verified by Q Homes</h1>

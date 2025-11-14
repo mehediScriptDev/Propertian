@@ -1875,6 +1875,23 @@
     "step5": {
       "title": "Badge de vérification final",
       "description": "Seules les annonces qui passent toutes les vérifications reçoivent le sceau « Vérifié par Q Homes »."
+    },
+    "ApplicationForm": {
+      "title": "Devenez partenaire Q Homes",
+      "subtitle": "Remplissez le formulaire ci-dessous pour commencer le processus de vérification.",
+      "CompanyName": "Nom de l'entreprise",
+      "ContactPerson": "Personne de contact",
+      "Email": "Adresse e-mail",
+      "Phone": "Numéro de téléphone",
+      "ProjectName": "Nom du projet",
+      "PreferredPackage": "Forfait préféré",
+      "Starter": "Débutant",
+      "Featured": "En vedette",
+      "Premium": "Premium",
+      "UploadDocuments": "Télécharger des documents",
+      "OrDragAndDrop": "ou glisser-déposer",
+      "fileTypes": "PDF, DOCX, PNG, JPG jusqu'à 10 Mo",
+      "SubmitButton": "Soumettre la candidature"
     }
   }
 }

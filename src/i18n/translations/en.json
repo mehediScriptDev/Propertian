@@ -1880,6 +1880,23 @@
     "step5": {
       "title": "Final Verification Badge",
       "description": "Only listings that pass all checks receive the “Verified by Q Homes” seal."
+    },
+    "ApplicationForm": {
+      "title": "Become a Q Homes Partner",
+      "subtitle": "Complete the form below to begin the verification process.",
+      "CompanyName": "Company Name",
+      "ContactPerson": "Contact Person",
+      "Email": "Email Address",
+      "Phone": "Phone Number",
+      "ProjectName": "Project Name",
+      "PreferredPackage": "Preferred Package",
+      "Starter": "Starter",
+      "Featured": "Featured",
+      "Premium": "Premium",
+      "UploadDocuments": "Upload Documents",
+      "OrDragAndDrop": "or drag and drop",
+      "fileTypes": "PDF, DOCX, PNG, JPG up to 10MB",
+      "SubmitButton": "Submit Application"
     }
   }
 }
