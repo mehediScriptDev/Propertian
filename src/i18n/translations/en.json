@@ -1863,6 +1863,36 @@
     "UnitsSold": "Units Sold",
     "TotalRevenue": "Total Revenue"
   },
+  "Developer_Inquiry": {
+    "title": "Developer Inquiry",
+    "subTitle": "Manage and respond to developer inquiries and customer messages",
+    "ComposeMessage": "Compose Message",
+    "TotalInquiries": "Total Inquiries",
+    "NewInquiries": "New Inquiries",
+    "Pending": "Pending",
+    "Resolved": "Resolved",
+    "AllInquiries": "All Inquiries",
+    "SearchByKeyword": "Search by keyword...",
+    "AllStatus": "All Status",
+    "New": "New",
+    "Closed": "Closed",
+    "Contact": "Contact",
+    "Subject": "Subject",
+    "Project": "Project",
+    "Date": "Date",
+    "Priority": "Priority",
+    "Actions": "Actions",
+    "TryAdjusting": "Try adjusting your search or filters.",
+    "NoInquiriesReceived": "No inquiries have been received yet",
+    "Status": "Status",
+    "NoInquiriesFound": "No inquiries found",
+    "InquiryDetailModal": {
+      "ContactInformation": "Contact Information",
+      "Message": "Message",
+      "ReplyToInquiry": "Reply to Inquiry",
+      "Archive": "Archive"
+    }
+  },
   "Verification": {
     "HowItWorksTitle": "How to Get Verified in 5 Simple Steps",
     "step1": {

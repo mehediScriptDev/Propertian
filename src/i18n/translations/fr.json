@@ -1858,6 +1858,36 @@
     "UnitsSold": "Unités Vendues",
     "TotalRevenue": "Revenu Total"
   },
+  "Developer_Inquiry": {
+    "title": "Demandes Promoteur",
+    "subTitle": "Gérez et répondez aux demandes des promoteurs et aux messages des clients",
+    "ComposeMessage": "Rédiger un message",
+    "TotalInquiries": "Total des demandes",
+    "NewInquiries": "Nouvelles demandes",
+    "Pending": "En attente",
+    "Resolved": "Résolues",
+    "AllInquiries": "Toutes les demandes",
+    "SearchByKeyword": "Rechercher par mot-clé...",
+    "AllStatus": "Tous les statuts",
+    "New": "Nouvelle",
+    "Closed": "Fermée",
+    "TryAdjusting": "Essayez de modifier vos critères de recherche ou de filtrage.",
+    "NoInquiriesReceived": "Aucune demande n'a encore été reçue",
+    "Contact": "Contact",
+    "Subject": "Sujet",
+    "Project": "Projet",
+    "Date": "Date",
+    "Priority": "Priorité",
+    "Actions": "Actions",
+    "Status": "Statut",
+    "NoInquiriesFound": "Aucune demande trouvée",
+    "InquiryDetailModal": {
+      "ContactInformation": "Informations de contact",
+      "Message": "Message",
+      "ReplyToInquiry": "Répondre à la demande",
+      "Archive": "Archiver"
+    }
+  },
   "Verification": {
     "HowItWorksTitle": "Comment être vérifié en 5 étapes simples",
     "step1": {
