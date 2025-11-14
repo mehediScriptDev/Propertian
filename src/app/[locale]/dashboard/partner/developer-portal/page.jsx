@@ -174,25 +174,25 @@ export default function DeveloperPortalPage() {
   // Static stats data - moved outside component for better performance
   const stats = [
     {
-      title: "Total Projects",
+      title: t("Developer_Portal.TotalProjects"),
       value: 12,
       trend: "+2 this month",
       variant: "primary",
     },
     {
-      title: "Active Listings",
+      title: t("Developer_Portal.ActiveListings"),
       value: 90,
       trend: "+15 this week",
       variant: "success",
     },
     {
-      title: "Units Sold",
+      title: t("Developer_Portal.UnitsSold"),
       value: 247,
       trend: "+32 this month",
       variant: "info",
     },
     {
-      title: "Total Revenue",
+      title: t("Developer_Portal.TotalRevenue"),
       value: "8.2M",
       trend: "+18%",
       variant: "warning",

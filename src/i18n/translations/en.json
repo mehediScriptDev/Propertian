@@ -1857,7 +1857,11 @@
     "Status": "Status",
     "Actions": "Actions",
     "LastUpdated": "Last Updated",
-    "NoProjectsFound": "No Projects Found"
+    "NoProjectsFound": "No Projects Found",
+    "TotalProjects": "Total Projects",
+    "ActiveListings": "Active Listings",
+    "UnitsSold": "Units Sold",
+    "TotalRevenue": "Total Revenue"
   },
   "Verification": {
     "HowItWorksTitle": "How to Get Verified in 5 Simple Steps",

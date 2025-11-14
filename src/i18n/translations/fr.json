@@ -1852,7 +1852,11 @@
     "Status": "Statut",
     "Actions": "Actions",
     "LastUpdated": "Dernière mise à jour",
-    "NoProjectsFound": "Aucun projet trouvé"
+    "NoProjectsFound": "Aucun projet trouvé",
+    "TotalProjects": "Total Projets",
+    "ActiveListings": "Annonces Actives",
+    "UnitsSold": "Unités Vendues",
+    "TotalRevenue": "Revenu Total"
   },
   "Verification": {
     "HowItWorksTitle": "Comment être vérifié en 5 étapes simples",
