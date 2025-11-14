@@ -1893,6 +1893,34 @@
       "Archive": "Archive"
     }
   },
+  "PertnerProfile": {
+    "title": "Partner Profile",
+    "subtitle": "Manage your profile information and settings.",
+    "EditProfile": "Edit Profile",
+    "Edit": "Edit",
+    "SaveChanges": "Save Changes",
+    "Cancel": "Cancel",
+    "save": "Save",
+    "VerificationStatus": "Verification Status",
+    "Verified": "Verified",
+    "Unverified": "Unverified",
+    "PaymentStatus": "Payment Status",
+    "Paid": "Paid",
+    "Unpaid": "Unpaid",
+    "CompanyInformation": "Company Information",
+    "PartnerID": "Partner ID",
+    "CompanyName": "Company Name",
+    "ContactPerson": "Contact Person",
+    "EmailAddress": "Email Address",
+    "PhoneNumber": "Phone Number",
+    "PackageType": "Package Type",
+    "ProjectNames": "Project Names",
+    "UploadedDocuments": "Uploaded Documents",
+    "PDFDocuments": "PDF Documents",
+    "AccountInformation": "Account Information",
+    "AccountCreated": "Account Created",
+    "LastLogin": "Last Login"
+  },
   "Verification": {
     "HowItWorksTitle": "How to Get Verified in 5 Simple Steps",
     "step1": {
