@@ -154,8 +154,7 @@ export default function SearchBar({ locale = 'en', onSearch }) {
                   <option value='apartment'>{t('buy.propertyTypes.apartment', 'Apartment')}</option>
                   <option value='house'>{t('buy.propertyTypes.house', 'House')}</option>
                   <option value='villa'>{t('buy.propertyTypes.villa', 'Villa')}</option>
-                  <option value='penthouse'>{t('newDevelopments.filters.types.penthouse', 'Penthouse')}</option>
-                  <option value='townhouse'>{t('newDevelopments.filters.types.townhouse', 'Townhouse')}</option>
+                  
                 </select>
                 <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
                   <svg className='h-4 w-4' fill='currentColor' viewBox='0 0 20 20'>
@@ -263,8 +262,7 @@ export default function SearchBar({ locale = 'en', onSearch }) {
               <option value='apartment'>{t('buy.propertyTypes.apartment', 'Apartment')}</option>
               <option value='house'>{t('buy.propertyTypes.house', 'House')}</option>
               <option value='villa'>{t('buy.propertyTypes.villa', 'Villa')}</option>
-              <option value='penthouse'>{t('newDevelopments.filters.types.penthouse', 'Penthouse')}</option>
-              <option value='townhouse'>{t('newDevelopments.filters.types.townhouse', 'Townhouse')}</option>
+              
             </select>
             <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
               <svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
