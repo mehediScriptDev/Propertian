@@ -615,41 +615,41 @@
       "notificationSubtitle": "Here are your latest property alerts and updates.",
       "markallRead": "Mark all as read",
       "tickets": " Support Tickets",
-      "searchProperties":"Search properties...",
+      "searchProperties": "Search properties...",
       "addProperty": "Add Property",
-      "SavedSearches":{
+      "SavedSearches": {
         "title": "Saved Searches and Settings",
-        "subtitle":"Manage Your Saved Property alerts, enable or disable notifications, and keep your preferences organized efficiently",
+        "subtitle": "Manage Your Saved Property alerts, enable or disable notifications, and keep your preferences organized efficiently",
         "noSavedSearches": "No saved searches yet. Start searching to save your preferences!",
         "yourSavedSearches": "Your Saved Searches",
-        "resetButton":"Reset to Default",
-        "saveChanges":"Save Changes"
+        "resetButton": "Reset to Default",
+        "saveChanges": "Save Changes"
       },
-      "AppointmentTable":{
-        "id":"ID",
-        "Name":"Name",
-        "email":"Email",
-        "type":"Type",
-       
-        "date":"Date",
-        "status":"Status",
-        "actions":"Actions"
+      "AppointmentTable": {
+        "id": "ID",
+        "Name": "Name",
+        "email": "Email",
+        "type": "Type",
+
+        "date": "Date",
+        "status": "Status",
+        "actions": "Actions"
       },
-      "supportTicket":{
+      "supportTicket": {
         "title": "Support Tickets",
-        "subtitle":"Manage all your support requests in one place",
-        "totalTickets":"Total Tickets",
-        "openTicket":"Open ",
-        "inProgress":"In Progress",
-        "resolved":"Resolved",
-        "searchTickets":"Search tickets...",
-        "createTicket":"Create Ticket",
-        "id":"ID",
-        "subject":"Subject",
-        "property":"Property",
-        "replies":"Replies",
-        "created":"Created At",
-        "Actions":"Actions"
+        "subtitle": "Manage all your support requests in one place",
+        "totalTickets": "Total Tickets",
+        "openTicket": "Open ",
+        "inProgress": "In Progress",
+        "resolved": "Resolved",
+        "searchTickets": "Search tickets...",
+        "createTicket": "Create Ticket",
+        "id": "ID",
+        "subject": "Subject",
+        "property": "Property",
+        "replies": "Replies",
+        "created": "Created At",
+        "Actions": "Actions"
       },
       "personalDetails": {
         "title": "Personal Details",
@@ -1856,7 +1856,109 @@
     "Revenue": "Revenue",
     "Status": "Status",
     "Actions": "Actions",
-    "LastUpdated" : "Last Updated",
-    "NoProjectsFound": "No Projects Found"
+    "LastUpdated": "Last Updated",
+    "NoProjectsFound": "No Projects Found",
+    "TotalProjects": "Total Projects",
+    "ActiveListings": "Active Listings",
+    "UnitsSold": "Units Sold",
+    "TotalRevenue": "Total Revenue"
+  },
+  "Developer_Inquiry": {
+    "title": "Developer Inquiry",
+    "subTitle": "Manage and respond to developer inquiries and customer messages",
+    "ComposeMessage": "Compose Message",
+    "TotalInquiries": "Total Inquiries",
+    "NewInquiries": "New Inquiries",
+    "Pending": "Pending",
+    "Resolved": "Resolved",
+    "AllInquiries": "All Inquiries",
+    "SearchByKeyword": "Search by keyword...",
+    "AllStatus": "All Status",
+    "New": "New",
+    "Closed": "Closed",
+    "Contact": "Contact",
+    "Subject": "Subject",
+    "Project": "Project",
+    "Date": "Date",
+    "Priority": "Priority",
+    "Actions": "Actions",
+    "TryAdjusting": "Try adjusting your search or filters.",
+    "NoInquiriesReceived": "No inquiries have been received yet",
+    "Status": "Status",
+    "NoInquiriesFound": "No inquiries found",
+    "InquiryDetailModal": {
+      "ContactInformation": "Contact Information",
+      "Message": "Message",
+      "ReplyToInquiry": "Reply to Inquiry",
+      "Archive": "Archive"
+    }
+  },
+  "PertnerProfile": {
+    "title": "Partner Profile",
+    "subtitle": "Manage your profile information and settings.",
+    "EditProfile": "Edit Profile",
+    "Edit": "Edit",
+    "SaveChanges": "Save Changes",
+    "Cancel": "Cancel",
+    "save": "Save",
+    "VerificationStatus": "Verification Status",
+    "Verified": "Verified",
+    "Unverified": "Unverified",
+    "PaymentStatus": "Payment Status",
+    "Paid": "Paid",
+    "Unpaid": "Unpaid",
+    "CompanyInformation": "Company Information",
+    "PartnerID": "Partner ID",
+    "CompanyName": "Company Name",
+    "ContactPerson": "Contact Person",
+    "EmailAddress": "Email Address",
+    "PhoneNumber": "Phone Number",
+    "PackageType": "Package Type",
+    "ProjectNames": "Project Names",
+    "UploadedDocuments": "Uploaded Documents",
+    "PDFDocuments": "PDF Documents",
+    "AccountInformation": "Account Information",
+    "AccountCreated": "Account Created",
+    "LastLogin": "Last Login"
+  },
+  "Verification": {
+    "HowItWorksTitle": "How to Get Verified in 5 Simple Steps",
+    "step1": {
+      "title": "Legal Review",
+      "description": "Ownership, land title, and development permits."
+    },
+    "step2": {
+      "title": "On-Site Validation",
+      "description": "Digital mapping and in-person inspection."
+    },
+    "step3": {
+      "title": "Developer Authentication",
+      "description": "Business registration (RCCM/K-bis) and project track record."
+    },
+    "step4": {
+      "title": "Escrow Readiness",
+      "description": "Eligibility for secure transactions via partner banks."
+    },
+    "step5": {
+      "title": "Final Verification Badge",
+      "description": "Only listings that pass all checks receive the “Verified by Q Homes” seal."
+    },
+    "ApplicationForm": {
+      "title": "Become a Q Homes Partner",
+      "subtitle": "Complete the form below to begin the verification process.",
+      "CompanyName": "Company Name",
+      "ContactPerson": "Contact Person",
+      "Email": "Email Address",
+      "Phone": "Phone Number",
+      "ProjectName": "Project Name",
+      "PreferredPackage": "Preferred Package",
+      "Starter": "Starter",
+      "Featured": "Featured",
+      "Premium": "Premium",
+      "UploadDocuments": "Upload Documents",
+      "OrDragAndDrop": "or drag and drop",
+      "fileTypes": "PDF, DOCX, PNG, JPG up to 10MB",
+      "SubmitButton": "Submit Application"
+    }
   }
 }

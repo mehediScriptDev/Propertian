@@ -57,7 +57,7 @@
       "continueWithFacebook": "Continuer avec Facebook",
       "quickLogin": "Connexion Rapide (Démo)",
       "loginAsAdmin": "Connexion Admin",
-      "loginAsClient": "Connexion Client",
+      "loginAsClient": "Connexion User",
       "loginAsPartner": "Connexion Partenaire",
       "noAccount": "Vous n'avez pas de compte?",
       "registerNow": "S'inscrire Maintenant",
@@ -1852,6 +1852,108 @@
     "Status": "Statut",
     "Actions": "Actions",
     "LastUpdated": "Dernière mise à jour",
-    "NoProjectsFound": "Aucun projet trouvé"
+    "NoProjectsFound": "Aucun projet trouvé",
+    "TotalProjects": "Total Projets",
+    "ActiveListings": "Annonces Actives",
+    "UnitsSold": "Unités Vendues",
+    "TotalRevenue": "Revenu Total"
+  },
+  "Developer_Inquiry": {
+    "title": "Demandes Promoteur",
+    "subTitle": "Gérez et répondez aux demandes des promoteurs et aux messages des clients",
+    "ComposeMessage": "Rédiger un message",
+    "TotalInquiries": "Total des demandes",
+    "NewInquiries": "Nouvelles demandes",
+    "Pending": "En attente",
+    "Resolved": "Résolues",
+    "AllInquiries": "Toutes les demandes",
+    "SearchByKeyword": "Rechercher par mot-clé...",
+    "AllStatus": "Tous les statuts",
+    "New": "Nouvelle",
+    "Closed": "Fermée",
+    "TryAdjusting": "Essayez de modifier vos critères de recherche ou de filtrage.",
+    "NoInquiriesReceived": "Aucune demande n'a encore été reçue",
+    "Contact": "Contact",
+    "Subject": "Sujet",
+    "Project": "Projet",
+    "Date": "Date",
+    "Priority": "Priorité",
+    "Actions": "Actions",
+    "Status": "Statut",
+    "NoInquiriesFound": "Aucune demande trouvée",
+    "InquiryDetailModal": {
+      "ContactInformation": "Informations de contact",
+      "Message": "Message",
+      "ReplyToInquiry": "Répondre à la demande",
+      "Archive": "Archiver"
+    }
+  },
+  "PertnerProfile": {
+    "title": "Profil Partenaire",
+    "subtitle": "Gérez les informations et les paramètres de votre profil.",
+    "EditProfile": "Modifier le profil",
+    "Edit": "Modifier",
+    "SaveChanges": "Enregistrer les modifications",
+    "Cancel": "Annuler",
+    "save": "Enregistrer",
+    "VerificationStatus": "Statut de vérification",
+    "Verified": "érifié",
+    "Unverified": "Non vérifié",
+    "PaymentStatus": "Statut de paiement",
+    "Paid": "Payé",
+    "Unpaid": "Non payé",
+    "CompanyInformation": "Informations sur l'entreprise",
+    "PartnerID": "ID Partenaire",
+    "CompanyName": "Nom de l'entreprise",
+    "ContactPerson": "Personne de contact",
+    "EmailAddress": "Adresse e-mail",
+    "PhoneNumber": "Numéro de téléphone",
+    "PackageType": "Type de forfait",
+    "ProjectNames": "Noms des projets",
+    "UploadedDocuments": "Documents téléchargés",
+    "PDFDocuments": "Documents PDF",
+    "AccountInformation": "Informations du compte",
+    "AccountCreated": "Compte créé",
+    "LastUpdated": "Dernière mise à jour"
+  },
+  "Verification": {
+    "HowItWorksTitle": "Comment être vérifié en 5 étapes simples",
+    "step1": {
+      "title": "Examen juridique",
+      "description": "Propriété, titre foncier et permis de développement."
+    },
+    "step2": {
+      "title": "Validation sur site",
+      "description": "Cartographie numérique et inspection en personne."
+    },
+    "step3": {
+      "title": "Authentification du promoteur",
+      "description": "Enregistrement commercial (RCCM/K-bis) et historique des projets."
+    },
+    "step4": {
+      "title": "Préparation de l'entiercement",
+      "description": "Éligibilité aux transactions sécurisées via les banques partenaires."
+    },
+    "step5": {
+      "title": "Badge de vérification final",
+      "description": "Seules les annonces qui passent toutes les vérifications reçoivent le sceau « Vérifié par Q Homes »."
+    },
+    "ApplicationForm": {
+      "title": "Devenez partenaire Q Homes",
+      "subtitle": "Remplissez le formulaire ci-dessous pour commencer le processus de vérification.",
+      "CompanyName": "Nom de l'entreprise",
+      "ContactPerson": "Personne de contact",
+      "Email": "Adresse e-mail",
+      "Phone": "Numéro de téléphone",
+      "ProjectName": "Nom du projet",
+      "PreferredPackage": "Forfait préféré",
+      "Starter": "Débutant",
+      "Featured": "En vedette",
+      "Premium": "Premium",
+      "UploadDocuments": "Télécharger des documents",
+      "OrDragAndDrop": "ou glisser-déposer",
+      "fileTypes": "PDF, DOCX, PNG, JPG jusqu'à 10 Mo",
+      "SubmitButton": "Soumettre la candidature"
+    }
   }
 }

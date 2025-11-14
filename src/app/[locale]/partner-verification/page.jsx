@@ -6,8 +6,6 @@ import {
   WhyPartnerSection,
   PackagesSection,
   VerificationSection,
-  HowItWorks,
-  ApplicationForm,
   Testimonials
 } from '@/components/partner';
 
@@ -26,8 +24,8 @@ export default function PartnerLandingPage() {
       <WhyPartnerSection />
       <PackagesSection onApplyClick={scrollToApply} />
       <VerificationSection />
-      <HowItWorks />
-      <ApplicationForm />
+      {/* <HowItWorks />
+      <ApplicationForm /> */}
       <Testimonials />
     </main>
   );
