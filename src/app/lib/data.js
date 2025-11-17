@@ -5,7 +5,7 @@ const mockCollections = [
     id: 1,
     title: "City Apartments",
     imageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCbv6_n6PIxxn2ZEH9Mm7P56DCgty6h6YS_VzrL0qDJ0TVaH1cSfERivE57g5vQZnzaB8Q8dZ7wVdg5uDwF9fPC1RgzxfzpxVf__fAkcYM19wP1LyoMBGT1jArC-anrCEzhFNFtevrtRSgil7QLKkPU7AubuKExZpUMiBDIXpREEa5_jgJgUGEHOHh9GSXrwSrL685TsnqAPYQETfJMRRVzjX7ae3ax-d7d0_hkm4EB1i6xDU_CvjAnUVEf1idF_FIDlTTzAWzlsMw",
+      "/home/city.png",
     alt: "Modern city apartment",
     href: "/buy",
   },
@@ -13,7 +13,7 @@ const mockCollections = [
     id: 2,
     title: "Beach Villas",
     imageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD81-2lU7ZtvCUbr0MaRkCzuUz5R1_WDXMbQuce1lMxXFkAQktAOgvRiiiLAbmRJoy_8GsBBdW1gYHhPSKbFE8cyYl9dmMYg52odLedjT5-ssCz36nWfZsuYWHiosWMs-CHblST9O_75Uxy0I5oo3lWAgpihpw2DmDLZSrontgP6-R_nBMbaQ8oXEKoDMqdfYrt7IIcLdO4loalxl5OLN44Pdcoa8UqoKx3KSe8GF741-VbG4QMU4NnxSKSlR6ms6j8PkEX-z_HGF8",
+      "/home/beach.png",
     alt: "Luxurious beach villa",
     href: "/buy",
   },
@@ -21,15 +21,14 @@ const mockCollections = [
     id: 3,
     title: "New Developments",
     imageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDVVkzRkqpEh5NvwD4mYz8w_yKSBt0w21q141jZal8YOBH67M7eK5xaAUpffW31dpHfKILe8u0kBpFc22uuEh0x-D39li0lHBb-feKXg_uIBibDvMPRVpnicl4BLSK4HE2bZukXny3nEDqBlYJ-dgQ5LrMlgDGwtEP2V77_YhqT5iw9Hrvl_TjmnIYPHNfzL2srgsZPll9kxIy35IH5xZhxh4Ze43Btz59fsXe92thZHOX-c4u_dFRlifLhMB6S14QsXeE0js8YWME",
-    alt: "New building development",
+      "/home/newDevelopment.png",
     href: "/properties/residential",
   },
   {
     id: 4,
     title: "Investment Units",
     imageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCwjfNQmrUe72xEBso4IUvDMVwMnOOC4taoR3ufL8ZQH10tZRsk-obTa2R59eAZNhIeRbUS6Qu23N8jX_I-H74zsmxHhyVDLlE5d6nfXxkr4vb_9LUsn0aWWPBN05aR9dpOFkkf1AC0kt7sTJc030ILByplyOV5RP9KLml1TkQa3gKqZotGQTNrO0dSCa-wBwRZ5-cFhSO2y7vIPx6FQVHEognNaYtlQTgjDv4Q96BnuOh_3wT2DlQ-BDqsgji2nrs20Eb9oMHlXVA",
+      "/home/invest.jpg",
     alt: "Investment townhouses",
     href: "/buy",
   },

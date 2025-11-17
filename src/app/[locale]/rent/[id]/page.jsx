@@ -48,8 +48,11 @@ export default function RentDetailsPage() {
     images: [
       base.image,
       // add a couple of safe fallbacks for the gallery
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop",
+      '/buy-rent/khet.jpg',
+      '/buy-rent/villa.jpg',
+      '/buy-rent/homne.jpg',
+      '/buy-rent/night.jpg',
+      '/buy-rent/dogWoman.jpg',
     ],
     features: {
       bedrooms: base.bedrooms,

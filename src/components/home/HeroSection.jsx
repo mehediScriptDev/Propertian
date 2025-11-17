@@ -68,7 +68,7 @@ export default function HeroSection({ locale }) {
     <section className='relative flex min-h-[500px] sm:min-h-[600px] md:min-h-[70vh] lg:min-h-[75vh] flex-col items-center justify-center overflow-hidden px-4 py-12 sm:py-16 md:py-20 text-center text-white'>
       {/* Fallback Background Image */}
       <Image
-        src='/heroMain.jpg'
+        src='/mainBanner.jpg'
         alt='Luxury property background'
         fill
         priority={true}
@@ -89,9 +89,9 @@ export default function HeroSection({ locale }) {
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 z-1 ${
           isVideoVisible ? 'opacity-100' : 'opacity-0'
         }`}
-        poster='https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80'
+        poster='/mainBanner.jpg'
       >
-        <source src='/heroVideo.mp4' type='video/mp4' />
+        <source src='/Hero_Section.mp4' type='video/mp4' />
       </video>
 
       {/* Overlay */}

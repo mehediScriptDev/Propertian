@@ -40,7 +40,7 @@ export default function FeaturedCollections({ locale, collections }) {
                 <Image
                   className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-110'
                   src={collection.imageUrl}
-                  alt={collection.alt}
+                  alt={collection.alt ?? collection.title ?? 'Collection image'}
                   width={400}
                   height={500}
                   sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw'

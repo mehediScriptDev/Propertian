@@ -43,11 +43,11 @@ export default function BuyDetailsPage() {
     status: base.isVerified ? t('buy.property.status') : undefined,
     images: [
       base.image,
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&h=800&fit=crop',
+      '/buy-rent/khet.jpg',
+      '/buy-rent/villa.jpg',
+      '/buy-rent/homne.jpg',
+      '/buy-rent/night.jpg',
+      '/buy-rent/dogWoman.jpg',
     ],
     features: {
       bedrooms: base.bedrooms,

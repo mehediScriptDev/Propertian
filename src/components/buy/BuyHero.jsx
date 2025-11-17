@@ -21,7 +21,7 @@ export default function BuyHero() {
       {/* Background Image */}
       <div className='absolute inset-0 z-0'>
         <Image
-          src='https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&h=800&fit=crop'
+          src='/buy-rent/thumb.png'
           alt='Luxury property exterior with modern architecture'
           fill
           sizes='100vw'
