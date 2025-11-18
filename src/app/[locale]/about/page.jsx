@@ -164,18 +164,18 @@ export default function AboutPage() {
             <div className="mx-auto">
               {/* Left: primary narrative */}
               <div className="lg:col-span-7">
-                <h2 className="text-2xl font-extrabold text-black dark:text-white sm:text-3xl lg:text-4xl">
+                <h2 className="text-2xl font-bold text-black dark:text-white lg:text-3xl">
                     {t("about.overview.title")}
                   </h2>
 
                   <article className="mt-4 space-y-2">
-                    <p className="text-base md:text-lg leading-relaxed text-black dark:text-white/90">
+                    <p className="text-base lg:text-lg leading-relaxed text-black dark:text-white/90">
                       {t("about.overview.p1")}
                     </p>
-                    <p className="text-base md:text-lg leading-relaxed text-black dark:text-white/90">
+                    <p className="text-base lg:text-lg leading-relaxed text-black dark:text-white/90">
                       {t("about.overview.p2")}
                     </p>
-                    <p className="text-base md:text-lg leading-relaxed text-black dark:text-white/90">
+                    <p className="text-base lg:text-lg leading-relaxed text-black dark:text-white/90">
                       {t("about.overview.p3")}
                     </p>
                   {/* 
@@ -251,7 +251,7 @@ export default function AboutPage() {
                   <h3 className="text-xl md:text-xl lg:text-2xl font-semibold text-black dark:text-white mb-3">
                     {t("about.ecosystem.title")}
                   </h3>
-                  <ul className="list-inside list-disc space-x-1 md:space-y-2 text-base md:text-lg text-black dark:text-white/80 ml-2 md:ml-4">
+                  <ul className="list-inside list-disc space-x-1 md:space-y-2 text-sm md:text-base text-black dark:text-white/80 ml-2 md:ml-4">
                     <li>{t("about.ecosystem.qhomes")}</li>
                     <li>{t("about.ecosystem.concierge")}</li>
                     <li>{t("about.ecosystem.developments")}</li>
@@ -262,14 +262,14 @@ export default function AboutPage() {
                   <h3 className="text-xl md:text-xl lg:text-2xl font-semibold text-black dark:text-white mb-3">
                     {t("about.values.title")}
                   </h3>
-                  <ul className="list-inside list-disc space-x-1 md:space-y-2 text-base md:text-lg text-black  dark:text-white/80 ml-2 md:ml-4">
+                  <ul className="list-inside list-disc space-x-1 md:space-y-2 text-sm lg:text-base text-black  dark:text-white/80 ml-2 md:ml-4">
                     <li>{t("about.values.v1")}</li>
                     <li>{t("about.values.v2")}</li>
                     <li>{t("about.values.v3")}</li>
                     <li>{t("about.values.v4")}</li>
                   </ul>
 
-                  <p className="mt-3 md:mt-6 text-sm md:text-base text-black dark:text-white/70">
+                  <p className="mt-3 md:mt-6 text-base lg:text-lg text-black dark:text-white/70">
                     {t("about.values.conclusion")}
                   </p>
                 </div>
