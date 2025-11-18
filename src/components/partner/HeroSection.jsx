@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React from 'react';
 
 /**
@@ -27,13 +28,14 @@ export default function HeroSection({ onApplyClick }) {
             Showcase your verified projects to our exclusive network of global buyers and investors seeking opportunities in Côte d&apos;Ivoire.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-stretch sm:items-center mt-2">
-            <button 
+            <Link 
+            href={'/verification'}
               onClick={onApplyClick}
               className="w-full sm:w-auto bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 md:px-8 lg:px-10 py-3 md:py-3.5 rounded-lg transition-all duration-200 text-[15px] md:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label="Apply to partner with Q Homes"
             >
               Apply to Partner
-            </button>
+            </Link>
           </div>
         </div>
       </div>
