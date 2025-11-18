@@ -346,6 +346,45 @@ export default function ConciergePage() {
           })}
         </div>
       </section>
+      {/* <section
+        className='py-12 bg-[#f6efd1] border border-[#f6efcb] shadow-sm rounded-xl md:rounded-2xl'
+        aria-labelledby='add-ons-title'
+      >
+        <div className='text-center mb-10 px-4'>
+          <h2
+            id='add-ons-title'
+            className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-3 md:mb-4 leading-tight'
+          >
+            {t('concierge.addOns.title')}
+          </h2>
+          <p className='text-[15px] sm:text-base text-charcoal/80 max-w-3xl mx-auto leading-relaxed'>
+            {t('concierge.addOns.subtitle')}
+          </p>
+        </div>
+
+        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-8 px-4 md:px-6'>
+          {addOns.map((addOn, index) => {
+            const IconComponent = addOn.Icon;
+            return (
+              <article key={index} className='text-center border border-gray-300 p-4 rounded-md'>
+                <div
+                  className='w-16 h-16 sm:w-[72px] sm:h-[72px] mx-auto mb-3 md:mb-4 flex items-center justify-center'
+                  aria-hidden='true'
+                >
+                  
+                  <IconComponent
+                    className='w-10 h-10 sm:w-12 sm:h-12 text-primary' 
+                    strokeWidth={1} 
+                  />
+                </div>
+                <p className='text-sm sm:text-[15px] font-semibold text-charcoal leading-snug px-1'>
+                  {addOn.label}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+      </section> */}
 
       {/* Ready to Make Your Move Section */}
       <section
