@@ -96,9 +96,9 @@ export default function UsersTable({
               <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
                 {translations.table.email}
               </th>
-              <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
+              {/* <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
                 {translations.table.role}
-              </th>
+              </th> */}
               <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
                 {translations.table.registrationDate}
               </th>
@@ -133,11 +133,11 @@ export default function UsersTable({
                 </td>
 
                 {/* Role */}
-                <td className='px-6 py-4'>
+                {/* <td className='px-6 py-4'>
                   <span className='text-sm font-medium text-gray-700'>
                     {user.roleLabel}
                   </span>
-                </td>
+                </td> */}
 
                 {/* Registration Date */}
                 <td className='px-6 py-4'>
