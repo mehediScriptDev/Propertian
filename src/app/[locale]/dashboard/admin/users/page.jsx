@@ -1,11 +1,12 @@
 'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
+import { use, useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import UserFilters from '@/components/dashboard/admin/UserFilters';
 import UsersTable from '@/components/dashboard/admin/UsersTable';
 import Pagination from '@/components/dashboard/Pagination';
+import api from '@/lib/api';
 
 export default function AdminUsersPage({ params }) {
   const { locale } = use(params);
@@ -18,98 +19,58 @@ export default function AdminUsersPage({ params }) {
   const [roleFilter, setRoleFilter] = useState('all');
   const itemsPerPage = 5;
 
-  // Mock data - 100 users for realistic pagination
-  const allUsers = useMemo(() => {
-    const users = [];
-    const names = [
-      'Alima Kouassi',
-      'Yao Konan',
-      'Fatou Diallo',
-      'Moussa Traoré',
-      'Aya Cissé',
-      'Kwame Mensah',
-      'Aminata Sow',
-      'Ibrahim Kamara',
-      'Mariama Keita',
-      'Jean Dupont',
-      'Sophie Martin',
-      'Ahmed Hassan',
-      'Nadia Benali',
-      'Pierre Laurent',
-      'Fatoumata Ba',
-      'Omar Sy',
-      'Aisha Johnson',
-      'Mohamed Ali',
-      'Grace Owusu',
-      'Samuel Osei',
-    ];
-    const roles = [
-      'buyer',
-      'developer',
-      'concierge',
-      'admin',
-      'partner',
-      'agent',
-    ];
-    const statuses = ['active', 'inactive', 'suspended', 'pending'];
+  // Server state
+  const [users, setUsers] = useState([]);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: itemsPerPage,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    for (let i = 1; i <= 100; i++) {
-      const name = names[(i - 1) % names.length];
-      const role = roles[i % roles.length];
-      const status =
-        i % 15 === 0
-          ? 'suspended'
-          : i % 10 === 0
-          ? 'pending'
-          : i % 8 === 0
-          ? 'inactive'
-          : 'active';
-      const monthIndex = i % 12;
-      const dayIndex = ((i * 7) % 28) + 1;
+  // Fetch users from backend when filters/page change
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      setError(null);
 
-      users.push({
-        id: i,
-        userId: `U-${String(i).padStart(5, '0')}`,
-        name: `${name} ${i > 20 ? i : ''}`,
-        email: `${name.toLowerCase().replace(' ', '.')}${i > 20 ? i : ''}@${
-          role === 'developer' ? 'construct.ci' : 'example.com'
-        }`,
-        role: role,
-        roleLabel: t(`dashboard.admin.users.roles.${role}`),
-        status: status,
-        statusLabel: t(`dashboard.admin.users.statuses.${status}`),
-        registrationDate: new Date(2022, monthIndex, dayIndex)
-          .toISOString()
-          .split('T')[0],
-      });
-    }
-    return users;
-  }, [t]);
+      try {
+        const params = {
+          page: currentPage,
+          limit: itemsPerPage,
+        };
 
-  // Filter and search logic
-  const filteredUsers = useMemo(() => {
-    return allUsers.filter((user) => {
-      const matchesSearch =
-        searchTerm === '' ||
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.userId.toLowerCase().includes(searchTerm.toLowerCase());
+        if (searchTerm) params.search = searchTerm;
+        if (roleFilter && roleFilter !== 'all') params.role = roleFilter;
 
-      const matchesStatus =
-        statusFilter === 'all' || user.status === statusFilter;
-      const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+        if (statusFilter && statusFilter !== 'all') {
+          if (statusFilter === 'active') params.isActive = true;
+          else if (statusFilter === 'inactive') params.isActive = false;
+          else params.status = statusFilter; // suspended, pending
+        }
 
-      return matchesSearch && matchesStatus && matchesRole;
-    });
-  }, [allUsers, searchTerm, statusFilter, roleFilter]);
+        const res = await api.get('/users', { params });
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const paginatedUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredUsers.slice(startIndex, endIndex);
-  }, [filteredUsers, currentPage, itemsPerPage]);
+        // res expected: { success: true, data: { users: [], pagination: {} } }
+        const payload = res?.data || res;
+        if (payload) {
+          setUsers(payload.users || []);
+          setPagination((prev) => ({ ...prev, ...(payload.pagination || {}) }));
+        } else {
+          setUsers([]);
+          setPagination({ currentPage: 1, totalPages: 1, totalItems: 0, itemsPerPage });
+        }
+      } catch (err) {
+        setError(err?.message || 'Failed to load users');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [currentPage, searchTerm, statusFilter, roleFilter, itemsPerPage]);
 
   // Reset to page 1 when filters change
   const handleSearchChange = useCallback((value) => {
@@ -132,11 +93,11 @@ export default function AdminUsersPage({ params }) {
   }, []);
 
   const handleActionClick = useCallback((action, user) => {
-    // In production, implement actual actions
+    // In production, implement actual actions (view/edit/suspend/delete)
     console.log(`Action: ${action} on user:`, user);
   }, []);
 
-  // Get translations object for components
+  // Translations for child components
   const userTranslations = useMemo(() => {
     return {
       filters: {
@@ -220,17 +181,20 @@ export default function AdminUsersPage({ params }) {
 
       {/* Users Table with Pagination */}
       <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
-        <UsersTable
-          users={paginatedUsers}
-          translations={userTranslations}
-          onActionClick={handleActionClick}
-        />
-        {filteredUsers.length > 0 && (
+        {error && (
+          <div className='p-4 text-sm text-red-600'>
+            {t('common.error')}: {error}
+          </div>
+        )}
+
+        <UsersTable users={users} translations={userTranslations} onActionClick={handleActionClick} />
+
+        {pagination && pagination.totalItems > 0 && (
           <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={filteredUsers.length}
-            itemsPerPage={itemsPerPage}
+            currentPage={pagination.currentPage || currentPage}
+            totalPages={pagination.totalPages || 1}
+            totalItems={pagination.totalItems || 0}
+            itemsPerPage={pagination.itemsPerPage || itemsPerPage}
             onPageChange={handlePageChange}
             translations={paginationTranslations}
           />
