@@ -8,6 +8,8 @@ import {
   startTransition,
 } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import Cookies from 'js-cookie';
+import authService from '@/services/authService';
 
 const AuthContext = createContext(null);
 
@@ -24,7 +26,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // Check for existing session on mount using startTransition for non-urgent updates
     startTransition(() => {
-      const storedUser = localStorage.getItem('user');
+      const storedUser = Cookies.get('user');
       const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
       if (parsedUser) {
@@ -35,78 +37,164 @@ export function AuthProvider({ children }) {
   }, []);
 
   /**
-   * Login function with role-based credentials
+   * Map backend roles to frontend roles
+   * Backend: user, SUPER_ADMIN, superAdmin, partner
+   * Frontend: client, admin, partner
+   */
+  const mapRoleToFrontend = (backendRole) => {
+    // Normalize the role to lowercase for comparison
+    const normalizedRole = backendRole?.toLowerCase().replace(/_/g, '');
+
+    const roleMapping = {
+      user: 'client',
+      superadmin: 'admin',
+      partner: 'partner',
+    };
+
+    return roleMapping[normalizedRole] || 'client';
+  };
+
+  /**
+   * Login function with real backend API
    * @param {string} email - User email
    * @param {string} password - User password
    * @returns {Promise<Object>} User object or error
    */
   const login = async (email, password) => {
-    // Predefined credentials for role-based access
-    const credentials = {
-      'admin@gmail.com': {
-        role: 'admin',
-        name: 'Admin User',
-        password: '123@123',
-      },
-      'user@gmail.com': {
-        role: 'client',
-        name: 'Client User',
-        password: '123@123',
-      },
-      'partner@gmail.com': {
-        role: 'partner',
-        name: 'Partner User',
-        password: '123@123',
-      },
-    };
+    try {
+      // Call backend API for login
+      // Note: authService.login already returns response.data (see api.js)
+      const loginData = await authService.login({ email, password });
 
-    const userCred = credentials[email];
+      console.log('Login response:', loginData); // Debug log
 
-    if (!userCred || userCred.password !== password) {
-      throw new Error('Invalid credentials');
+      // Extract token from login response
+      // Backend structure: { success, message, data: { user, token, refreshToken } }
+      const token = loginData.data?.token || loginData.token || loginData.accessToken;
+      const refreshToken = loginData.data?.refreshToken || loginData.refreshToken;
+
+      if (!token) {
+        console.error('No token in response:', loginData);
+        throw new Error('No token received from server');
+      }
+
+      // Store token temporarily to make authenticated profile request
+      Cookies.set('token', token, { expires: 1, sameSite: 'Lax', path: '/' });
+      if (refreshToken) {
+        Cookies.set('refreshToken', refreshToken, { expires: 7, sameSite: 'Lax', path: '/' });
+      }
+
+      // Fetch complete user profile from /auth/profile
+      const profileData = await authService.getCurrentUser();
+      console.log('Profile response:', profileData); // Debug log
+
+      // Extract user from profile response
+      const backendUser = profileData.data?.user || profileData.user || profileData.data || profileData;
+
+      // Map backend role to frontend role
+      const frontendRole = mapRoleToFrontend(backendUser.role);
+
+      // Build complete user data with profile information
+      const userData = {
+        id: backendUser.id || backendUser._id,
+        email: backendUser.email,
+        firstName: backendUser.firstName,
+        lastName: backendUser.lastName,
+        fullName: `${backendUser.firstName || ''} ${backendUser.lastName || ''}`.trim(),
+        phone: backendUser.phone,
+        role: frontendRole,
+        backendRole: backendUser.role, // Keep original backend role
+        token: token,
+        refreshToken: refreshToken,
+        avatar: backendUser.avatar,
+        isVerified: backendUser.isVerified,
+        isActive: backendUser.isActive,
+        createdAt: backendUser.createdAt,
+        updatedAt: backendUser.updatedAt,
+        lastLoginAt: backendUser.lastLoginAt,
+      };
+
+      // Store token in secure cookies
+      Cookies.set('token', userData.token, { expires: 1, sameSite: 'Lax', path: '/' });
+      if (userData.refreshToken) {
+        Cookies.set('refreshToken', userData.refreshToken, { expires: 7, sameSite: 'Lax', path: '/' });
+      }
+
+      // Store user data in cookie (without token for security)
+      const userDataWithoutToken = { ...userData };
+      delete userDataWithoutToken.token;
+      delete userDataWithoutToken.refreshToken;
+      Cookies.set('user', JSON.stringify(userDataWithoutToken), { expires: 1, sameSite: 'Lax', path: '/' });
+
+      setUser(userData);
+
+      // Redirect based on mapped frontend role
+      const locale = pathname.split('/')[1] || 'en';
+      const dashboardRoutes = {
+        admin: `/${locale}/dashboard/admin`,
+        client: `/${locale}/dashboard/client`,
+        partner: `/${locale}/dashboard/partner`,
+      };
+
+      router.push(dashboardRoutes[frontendRole]);
+      return userData;
+    } catch (error) {
+      // Clear any temporary data on error
+      Cookies.remove('token');
+      Cookies.remove('refreshToken');
+      Cookies.remove('user');
+
+      // Handle API errors
+      const errorMessage =
+        error.message || error.data?.message || 'Invalid credentials';
+      throw new Error(errorMessage);
     }
-
-    const userData = {
-      email,
-      name: userCred.name,
-      role: userCred.role,
-      id: `U-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-    };
-
-    // Store in localStorage
-    localStorage.setItem('user', JSON.stringify(userData));
-
-    // Also set a cookie for middleware
-    document.cookie = `user=${JSON.stringify(
-      userData
-    )}; path=/; max-age=86400; SameSite=Lax`;
-
-    setUser(userData);
-
-    // Redirect based on role
-    const locale = pathname.split('/')[1] || 'en';
-    const dashboardRoutes = {
-      admin: `/${locale}/dashboard/admin`,
-      client: `/${locale}/dashboard/client`,
-      partner: `/${locale}/dashboard/partner`,
-    };
-
-    router.push(dashboardRoutes[userCred.role]);
-    return userData;
   };
 
   /**
-   * Logout function
+   * Logout function with backend API call
    */
-  const logout = () => {
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      // Call backend logout API (optional - depends on your backend)
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout API error:', error);
+      // Continue with local logout even if API fails
+    } finally {
+      // Clear all cookies
+      Cookies.remove('token');
+      Cookies.remove('refreshToken');
+      Cookies.remove('user');
 
-    // Remove cookie
-    document.cookie = 'user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      setUser(null);
+      const locale = pathname.split('/')[1] || 'en';
+      router.push(`/${locale}/login`);
+    }
+  };
 
-    setUser(null);
-    const locale = pathname.split('/')[1] || 'en';
-    router.push(`/${locale}/login`);
+  /**
+   * Register new user
+   * @param {object} userData - User registration data
+   * @returns {Promise<Object>} User object or error
+   */
+  const register = async (userData) => {
+    try {
+      // Call backend API
+      const response = await authService.register(userData);
+
+      console.log('Registration response:', response); // Debug log
+
+      // Registration successful - redirect to login page
+      const locale = pathname.split('/')[1] || 'en';
+      router.push(`/${locale}/login`);
+
+      return response;
+    } catch (error) {
+      const errorMessage =
+        error.message || error.data?.message || 'Registration failed';
+      throw new Error(errorMessage);
+    }
   };
 
   /**
@@ -122,6 +210,7 @@ export function AuthProvider({ children }) {
     user,
     login,
     logout,
+    register,
     hasRole,
     loading,
     isAuthenticated: !!user,

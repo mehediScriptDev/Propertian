@@ -95,22 +95,6 @@ const SignInForm = () => {
     }
   };
 
-  const handleQuickLogin = async (email, password) => {
-    setFormData({ emailOrUsername: email, password });
-    setErrors({});
-    setIsLoading(true);
-
-    try {
-      await login(email, password);
-    } catch (error) {
-      setErrors({
-        general: error.message || t('auth.login.errors.loginFailed'),
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className='flex w-full flex-col items-center justify-center gap-4 rounded-xl bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm p-6 sm:p-8 shadow-2xl'>
       <div className='flex flex-col items-center gap-2 pb-4'>
@@ -194,7 +178,7 @@ const SignInForm = () => {
         </button>
       </form>
 
-      <Divider text={t('auth.login.orDivider')} />
+      {/* <Divider text={t('auth.login.orDivider')} />
 
       <div className='flex w-full flex-col gap-3'>
         <SocialButton
@@ -205,54 +189,14 @@ const SignInForm = () => {
           {t('auth.login.continueWithGoogle')}
         </SocialButton>
 
-        {/* <SocialButton
+        <SocialButton
           provider='facebook'
           onClick={() => handleSocialLogin('facebook')}
           disabled={isLoading}
         >
           {t('auth.login.continueWithFacebook')}
-        </SocialButton> */}
-      </div>
-
-      {/* Quick Login Demo Section */}
-      <div className='w-full mt-4'>
-        <Divider text={t('auth.login.quickLogin')} />
-        <div className='grid gap-2 mt-4'>
-          <button
-            type='button'
-            onClick={() => handleQuickLogin('admin@gmail.com', '123@123')}
-            disabled={isLoading}
-            className='flex items-center justify-between rounded-lg bg-blue-500 hover:bg-blue-600 p-3 text-white transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50'
-          >
-            <span className='text-sm font-medium'>
-              {t('auth.login.loginAsAdmin')}
-            </span>
-            <span className='text-xs opacity-75'>admin@gmail.com</span>
-          </button>
-          <button
-            type='button'
-            onClick={() => handleQuickLogin('user@gmail.com', '123@123')}
-            disabled={isLoading}
-            className='flex items-center justify-between rounded-lg bg-green-500 hover:bg-green-600 p-3 text-white transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50'
-          >
-            <span className='text-sm font-medium'>
-              {t('auth.login.loginAsClient')}
-            </span>
-            <span className='text-xs opacity-75'>user@gmail.com</span>
-          </button>
-          <button
-            type='button'
-            onClick={() => handleQuickLogin('partner@gmail.com', '123@123')}
-            disabled={isLoading}
-            className='flex items-center justify-between rounded-lg bg-purple-500 hover:bg-purple-600 p-3 text-white transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50'
-          >
-            <span className='text-sm font-medium'>
-              {t('auth.login.loginAsPartner')}
-            </span>
-            <span className='text-xs opacity-75'>partner@gmail.com</span>
-          </button>
-        </div>
-      </div>
+        </SocialButton>
+      </div> */}
 
       <div className='pt-4 text-center'>
         <p className='text-charcoal-500 dark:text-charcoal-300 text-sm font-normal'>

@@ -49,29 +49,31 @@ const ProfileDropDown = () => {
       {/* user info - shown first on desktop */}
       <div className='hidden lg:flex flex-col items-start'>
         <p className='text-gray-900 dark:text-white text-sm font-semibold leading-tight'>
-          {user?.user?.fullName || user?.name || 'User'}
+          {user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'User'}
         </p>
-        <p className='text-gray-500 dark:text-gray-400 text-xs mt-0.5'>
-          {user?.user?.role || user?.role || 'Member'}
+        <p className='text-gray-500 dark:text-gray-400 text-xs mt-0.5 capitalize'>
+          {user?.role || 'Member'}
         </p>
       </div>
 
       {/* dropdown menu with premium styling */}
       <div
         className={`absolute top-14 right-0 w-56 bg-white dark:bg-[#0F1B2E] rounded-md shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50 origin-top-right transition-all duration-200 ease-out
-        ${
-          open
+        ${open
             ? 'opacity-100 scale-100 translate-y-0'
             : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
-        }`}
+          }`}
       >
         {/* User info header in dropdown */}
         <div className='px-4 py-3 bg-linear-to-br from-gray-50 to-white dark:from-[#1A2B42] dark:to-[#0F1B2E] border-b border-[#ecd077]/30 dark:border-gray-700'>
           <p className='text-sm font-semibold text-gray-900 dark:text-white truncate'>
-            {user?.user?.fullName || user?.name || 'User'}
+            {user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'User'}
           </p>
-          <p className='text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5'>
-            {user?.user?.email || user?.email || 'user@example.com'}
+          <p className='text-xs text-gray-500 dark:text-gray-400 truncate mt-1'>
+            {user?.email || 'user@example.com'}
+          </p>
+          <p className='text-xs text-[#C5A572] dark:text-[#ecd077] font-medium truncate mt-0.5 capitalize'>
+            {user?.role || 'Member'}
           </p>
         </div>
 
