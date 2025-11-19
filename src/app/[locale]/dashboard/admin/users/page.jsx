@@ -6,6 +6,7 @@ import { useTranslation } from '@/i18n';
 import UserFilters from '@/components/dashboard/admin/UserFilters';
 import UsersTable from '@/components/dashboard/admin/UsersTable';
 import Pagination from '@/components/dashboard/Pagination';
+import Modal from '@/components/Modal';
 import api from '@/lib/api';
 
 export default function AdminUsersPage({ params }) {
@@ -17,7 +18,7 @@ export default function AdminUsersPage({ params }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
-  const itemsPerPage = 5;
+  const itemsPerPage = 8;
 
   // Server state
   const [users, setUsers] = useState([]);
@@ -29,6 +30,8 @@ export default function AdminUsersPage({ params }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   // Fetch users from backend when filters/page change
   useEffect(() => {
@@ -93,7 +96,13 @@ export default function AdminUsersPage({ params }) {
   }, []);
 
   const handleActionClick = useCallback((action, user) => {
-    // In production, implement actual actions (view/edit/suspend/delete)
+    if (action === 'view') {
+      setSelectedUser(user);
+      setShowUserModal(true);
+      return;
+    }
+
+    // other actions: edit/suspend/activate/delete — keep logging for now
     console.log(`Action: ${action} on user:`, user);
   }, []);
 
@@ -188,6 +197,118 @@ export default function AdminUsersPage({ params }) {
         )}
 
         <UsersTable users={users} translations={userTranslations} onActionClick={handleActionClick} />
+
+        <Modal
+          isOpen={showUserModal}
+          onClose={() => setShowUserModal(false)}
+          title={
+            selectedUser
+              ? `${selectedUser.firstName || selectedUser.name || ''} ${
+                  selectedUser.lastName || ''
+                }`.trim()
+              : t('dashboard.admin.users.details')
+          }
+          maxWidth='max-w-xl'
+          footer={
+            <div className='flex items-center justify-end gap-3'>
+              <button
+                onClick={() => {
+                  // edit action
+                  handleActionClick('edit', selectedUser);
+                  setShowUserModal(false);
+                }}
+                className='px-4 py-2 rounded-md bg-primary/90 text-white text-sm font-medium hover:bg-primary'
+              >
+                {t('dashboard.admin.users.actions.edit')}
+              </button>
+              <button
+                onClick={() => {
+                  handleActionClick('delete', selectedUser);
+                  setShowUserModal(false);
+                }}
+                className='px-4 py-2 rounded-md border border-red-600 text-red-600 text-sm font-medium hover:bg-red-50'
+              >
+                {t('dashboard.admin.users.actions.delete')}
+              </button>
+              <button
+                onClick={() => setShowUserModal(false)}
+                className='px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800'
+              >
+                {t('common.close') || 'Close'}
+              </button>
+            </div>
+          }
+        >
+          {selectedUser ? (
+            <div className='text-gray-900'>
+              <div className='flex items-center gap-4'>
+                <div className='flex items-center justify-center h-16 w-16 rounded-full bg-indigo-600 text-white text-xl font-semibold'>
+                  {(selectedUser.firstName || selectedUser.name || '?')
+                    .toString()
+                    .split(' ')
+                    .map((n) => n[0])
+                    .slice(0, 2)
+                    .join('')}
+                </div>
+                <div>
+                  <div className='text-lg font-semibold'>{selectedUser.firstName || selectedUser.name || '-' } {selectedUser.lastName || ''}</div>
+                  <div className='text-sm text-gray-600'>{selectedUser.email}</div>
+                </div>
+                <div className='ml-auto flex items-center gap-2'>
+                  <span className='px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-800 border border-slate-200'>
+                    {selectedUser.role || selectedUser.roleLabel || '-'}
+                  </span>
+                  <span className='px-2 py-1 text-xs rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200'>
+                    {(() => {
+                      const isAct = selectedUser?.isActive;
+                      if (typeof isAct === 'boolean') return isAct ? userTranslations.statuses.active : userTranslations.statuses.inactive;
+                      const st = (selectedUser?.status || '').toString().toLowerCase();
+                      return (userTranslations.statuses && userTranslations.statuses[st]) || (selectedUser?.status ? selectedUser.status : '-');
+                    })()}
+                  </span>
+                </div>
+              </div>
+
+              <div className='mt-6 grid grid-cols-2 gap-4 text-sm'>
+                <div className='bg-gray-50 p-4 rounded-lg'>
+                  <div className='text-xs text-gray-500'>Phone</div>
+                  <div className='mt-1 font-medium text-gray-800'>{selectedUser.phone || '-'}</div>
+                </div>
+                <div className='bg-gray-50 p-4 rounded-lg'>
+                  <div className='text-xs text-gray-500'>Verified</div>
+                  <div className='mt-1 font-medium text-gray-800'>{String(selectedUser.isVerified ?? '-')}</div>
+                </div>
+                <div className='bg-gray-50 p-4 rounded-lg'>
+                  <div className='text-xs text-gray-500'>Last Login</div>
+                  <div className='mt-1 font-medium text-gray-800'>{selectedUser.lastLoginAt ? new Date(selectedUser.lastLoginAt).toLocaleString() : '-'}</div>
+                </div>
+                <div className='bg-gray-50 p-4 rounded-lg'>
+                  <div className='text-xs text-gray-500'>Created</div>
+                  <div className='mt-1 font-medium text-gray-800'>{selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleString() : '-'}</div>
+                </div>
+              </div>
+
+              {selectedUser._count && (
+                <div className='mt-6 grid grid-cols-3 gap-4'>
+                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
+                    <div className='text-xs text-gray-500'>Properties</div>
+                    <div className='mt-1 text-lg font-semibold text-gray-800'>{selectedUser._count.properties}</div>
+                  </div>
+                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
+                    <div className='text-xs text-gray-500'>Inquiries</div>
+                    <div className='mt-1 text-lg font-semibold text-gray-800'>{selectedUser._count.inquiries}</div>
+                  </div>
+                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
+                    <div className='text-xs text-gray-500'>Favorites</div>
+                    <div className='mt-1 text-lg font-semibold text-gray-800'>{selectedUser._count.favorites}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className='text-sm text-gray-700'>No user selected</div>
+          )}
+        </Modal>
 
         {pagination && pagination.totalItems > 0 && (
           <Pagination
