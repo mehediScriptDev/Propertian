@@ -71,6 +71,7 @@ export default function AddPropertyForm({ translations = {}, locale }) {
 
   // constants
   const MAX_GALLERY = 8;
+  const MIN_GALLERY = 4;
   const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
 
   // generate id once on mount
@@ -159,6 +160,10 @@ export default function AddPropertyForm({ translations = {}, locale }) {
     if (!form.developer) errs.developer = "Developer is required";
     if (!form.description) errs.description = "Description is required";
     if (!form.mainImage) errs.mainImage = "Main cover image is required";
+    // require minimum 4 gallery images
+    if (!form.gallery || form.gallery.length < 4) {
+      errs.gallery = `Please upload at least 4 gallery images (you have ${form.gallery ? form.gallery.length : 0})`;
+    }
     if (!form.priceXOF && !form.priceUSD)
       errs.price = "At least one price is required";
     if (!form.propertyType) errs.propertyType = "Property type is required";
@@ -183,25 +188,68 @@ export default function AddPropertyForm({ translations = {}, locale }) {
     }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!validate()) return;
     setIsSubmitting(true);
-    const payload = {
-      ...form,
-      highlights,
-      interior,
-      exterior,
-      gallery: form.gallery.map((f) => f.name || f),
-      mainImage: form.mainImage ? form.mainImage.name : null,
-      coordinates:
-        form.lat && form.lng ? { lat: form.lat, lng: form.lng } : undefined,
-    };
-    console.log("Submitting property:", payload);
-    setSuccess("Property saved (demo only).");
-    setTimeout(() => setSuccess(""), 4000);
-    // simulate save delay for UX
-    setTimeout(() => setIsSubmitting(false), 800);
+    setErrors({});
+    try {
+      const fd = new FormData();
+      // append simple fields
+      Object.keys(form).forEach((key) => {
+        const val = form[key];
+        // skip files/arrays handled separately
+        if (key === 'gallery' || key === 'mainImage') return;
+        if (val === undefined || val === null) return;
+        fd.append(key, typeof val === 'object' ? JSON.stringify(val) : String(val));
+      });
+
+      // append coordinates if present
+      if (form.lat && form.lng) {
+        fd.append('coordinates', JSON.stringify({ lat: form.lat, lng: form.lng }));
+      }
+
+      // append arrays
+      fd.append('highlights', JSON.stringify(highlights));
+      fd.append('interior', JSON.stringify(interior));
+      fd.append('exterior', JSON.stringify(exterior));
+
+      // append files
+      if (form.mainImage) fd.append('mainImage', form.mainImage);
+      if (form.gallery && form.gallery.length) {
+        form.gallery.forEach((f, i) => fd.append('gallery', f));
+      }
+
+      // send to /properties as requested
+      const res = await fetch('/properties', {
+        method: 'POST',
+        body: fd,
+        credentials: 'same-origin',
+      });
+
+      if (!res.ok) {
+        let msg = `Save failed: ${res.status}`;
+        try {
+          const data = await res.json();
+          msg = data?.message || msg;
+          if (data?.errors) setErrors(data.errors);
+        } catch (err) {
+          // ignore json parse
+        }
+        setErrors((prev) => ({ ...prev, submit: msg }));
+        setIsSubmitting(false);
+        return;
+      }
+
+      const result = await res.json().catch(() => null);
+      setSuccess(result?.message || 'Property saved');
+      setTimeout(() => setSuccess(''), 4000);
+    } catch (err) {
+      console.error('submit error', err);
+      setErrors((prev) => ({ ...prev, submit: 'Network error' }));
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -433,7 +481,7 @@ export default function AddPropertyForm({ translations = {}, locale }) {
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-1">
-              Gallery Images (max {MAX_GALLERY})
+              Gallery Images (min max {MAX_GALLERY})
             </label>
             <div className="border border-dashed border-gray-200 rounded-md p-3">
               <input
@@ -584,6 +632,7 @@ export default function AddPropertyForm({ translations = {}, locale }) {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
             {success && <p className="text-sm md:text-base text-green-700">{success}</p>}
+            {errors.submit && <p className="text-sm md:text-base text-red-600">{errors.submit}</p>}
           </div>
           <div className="flex items-center space-x-3">
             <button
