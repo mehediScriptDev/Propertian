@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from 'react';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 import { AiOutlineHeart } from "react-icons/ai";
+import { FaHeart } from 'react-icons/fa';
 
 /**
  * DevelopmentCard Component
@@ -34,6 +36,7 @@ export default function DevelopmentCard({
 }) {
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const handleInquire = () => {
     onInquire?.(development.id);
@@ -116,10 +119,16 @@ export default function DevelopmentCard({
           </div>
           <div>
             <button
-              title="add favourite"
-              className="cursor-pointer hover:scale-125 text-accent text-2xl"
+              title={isFavorite ? 'Remove favourite' : 'Add favourite'}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsFavorite((v) => !v);
+              }}
+              aria-pressed={isFavorite}
+              className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
             >
-              <AiOutlineHeart />
+              {isFavorite ? <FaHeart /> : <AiOutlineHeart />}
             </button>
           </div>
         </div>

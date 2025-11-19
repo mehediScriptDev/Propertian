@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 import Image from 'next/image';
@@ -32,6 +33,8 @@ export default function BuyPropertyCard({ property }) {
     bathrooms,
     area,
   } = property;
+
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // Format price with thousand separators
   const formatPrice = (price) => {
@@ -116,8 +119,17 @@ export default function BuyPropertyCard({ property }) {
           <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
           {location}
         </p>
-        <button title='add favourite' className='cursor-pointer hover:scale-125 text-accent text-2xl'>
-          <AiOutlineHeart />
+        <button
+          title={isFavorite ? 'Remove favourite' : 'Add favourite'}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsFavorite((v) => !v);
+          }}
+          aria-pressed={isFavorite}
+          className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
+        >
+          {isFavorite ? <FaHeart /> : <AiOutlineHeart />}
         </button>
         </div>
 
