@@ -481,7 +481,7 @@ export default function AddPropertyForm({ translations = {}, locale }) {
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-1">
-              Gallery Images (min max {MAX_GALLERY})
+              Gallery Images (min {MIN_GALLERY} and max {MAX_GALLERY})
             </label>
             <div className="border border-dashed border-gray-200 rounded-md p-3">
               <input
