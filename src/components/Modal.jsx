@@ -34,7 +34,7 @@ const Modal = ({
 
   return (
     <div
-      className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm'
+      className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4'
       onClick={onClose}
       aria-hidden={!isOpen}
     >
@@ -42,7 +42,7 @@ const Modal = ({
         role='dialog'
         aria-modal='true'
         aria-labelledby='modal-title'
-        className={`relative w-full ${maxWidth} mx-4 rounded-2xl transform-gpu transition-all duration-200 ease-out scale-100`}
+        className={`relative w-full ${maxWidth} rounded-2xl transform-gpu transition-all duration-200 ease-out scale-100`}
         style={{
           background: '#ffffff',
           boxShadow: '0px 12px 48px rgba(2,6,23,0.08), inset 0px 1px 1px rgba(0,0,0,0.02)',
@@ -51,11 +51,11 @@ const Modal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        {title && (
-          <div className='flex items-center justify-between p-6 border-b border-gray-100'>
+        {/* {title && (
+          <div className='flex items-center justify-between px-4 py-4 sm:p-6 border-b border-gray-100'>
             <div className='flex items-start gap-4'>
               <div className='flex flex-col'>
-                <h3 id='modal-title' className="text-gray-900 text-lg font-semibold font-['Poppins']">
+                <h3 id='modal-title' className="text-gray-900 text-lg md:text-2xl lg:text-3xl font-semibold font-['Poppins']">
                   {title}
                 </h3>
               </div>
@@ -65,7 +65,7 @@ const Modal = ({
               <button
                 onClick={onClose}
                 aria-label='Close'
-                className='w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-colors'
+                className='w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-0 transition-colors'
               >
                 <svg
                   className='w-5 h-5 text-gray-600'
@@ -83,17 +83,17 @@ const Modal = ({
               </button>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Modal Body */}
-        <div className='p-6 max-h-[70vh] overflow-y-auto custom-scrollbar text-gray-900'>
+          <div className='px-4 py-5 sm:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar text-gray-900'>
           {children}
         </div>
 
         {/* Modal Footer (Optional) */}
-        {/* {footer && (
-          <div className='p-6 pt-0 border-t border-white/6'>{footer}</div>
-        )} */}
+        {footer && (
+          <div className='px-4 py-4 sm:px-6 sm:py-6 pt-0 border-t border-gray-100'>{footer}</div>
+        )}
       </div>
 
       {/* Custom Scrollbar Styles & Enter/Exit */}

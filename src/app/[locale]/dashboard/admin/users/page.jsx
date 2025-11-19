@@ -32,48 +32,53 @@ export default function AdminUsersPage({ params }) {
   const [error, setError] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState(null);
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState(null);
+  const [updateSuccess, setUpdateSuccess] = useState(null);
 
   // Fetch users from backend when filters/page change
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      setError(null);
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-      try {
-        const params = {
-          page: currentPage,
-          limit: itemsPerPage,
-        };
+    try {
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+      };
 
-        if (searchTerm) params.search = searchTerm;
-        if (roleFilter && roleFilter !== 'all') params.role = roleFilter;
+      if (searchTerm) params.search = searchTerm;
+      if (roleFilter && roleFilter !== 'all') params.role = roleFilter;
 
-        if (statusFilter && statusFilter !== 'all') {
-          if (statusFilter === 'active') params.isActive = true;
-          else if (statusFilter === 'inactive') params.isActive = false;
-          else params.status = statusFilter; // suspended, pending
-        }
-
-        const res = await api.get('/users', { params });
-
-        // res expected: { success: true, data: { users: [], pagination: {} } }
-        const payload = res?.data || res;
-        if (payload) {
-          setUsers(payload.users || []);
-          setPagination((prev) => ({ ...prev, ...(payload.pagination || {}) }));
-        } else {
-          setUsers([]);
-          setPagination({ currentPage: 1, totalPages: 1, totalItems: 0, itemsPerPage });
-        }
-      } catch (err) {
-        setError(err?.message || 'Failed to load users');
-      } finally {
-        setLoading(false);
+      if (statusFilter && statusFilter !== 'all') {
+        if (statusFilter === 'active') params.isActive = true;
+        else if (statusFilter === 'inactive') params.isActive = false;
+        else params.status = statusFilter; // suspended, pending
       }
-    };
 
-    fetchUsers();
+      const res = await api.get('/users', { params });
+
+      // res expected: { success: true, data: { users: [], pagination: {} } }
+      const payload = res?.data || res;
+      if (payload) {
+        setUsers(payload.users || []);
+        setPagination((prev) => ({ ...prev, ...(payload.pagination || {}) }));
+      } else {
+        setUsers([]);
+        setPagination({ currentPage: 1, totalPages: 1, totalItems: 0, itemsPerPage });
+      }
+    } catch (err) {
+      setError(err?.message || 'Failed to load users');
+    } finally {
+      setLoading(false);
+    }
   }, [currentPage, searchTerm, statusFilter, roleFilter, itemsPerPage]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   // Reset to page 1 when filters change
   const handleSearchChange = useCallback((value) => {
@@ -95,16 +100,76 @@ export default function AdminUsersPage({ params }) {
     setCurrentPage(page);
   }, []);
 
-  const handleActionClick = useCallback((action, user) => {
+  
+  function handleActionClick(action, user) {
     if (action === 'view') {
       setSelectedUser(user);
       setShowUserModal(true);
       return;
     }
 
-    // other actions: edit/suspend/activate/delete — keep logging for now
+    if (action === 'edit') {
+      // open edit modal
+      openEditModal(user);
+      return;
+    }
+
+    // other actions: suspend/activate/delete — keep logging for now
     console.log(`Action: ${action} on user:`, user);
-  }, []);
+  }
+
+  
+  function openEditModal(user) {
+    if (!user) return;
+    setSelectedUser(user);
+    // prepare editable form fields
+    setEditForm({
+      firstName: user.firstName || user.name || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      role: user.role || user.roleLabel || '',
+      isActive: typeof user.isActive === 'boolean' ? user.isActive : undefined,
+      isVerified: typeof user.isVerified === 'boolean' ? user.isVerified : undefined,
+    });
+    setUpdateError(null);
+    setShowEditModal(true);
+  }
+
+  const handleUpdateUser = useCallback(
+    async (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      if (!selectedUser) return;
+      setUpdating(true);
+      setUpdateError(null);
+      setUpdateSuccess(null);
+      try {
+        const userId = selectedUser.id ?? selectedUser.userId ?? selectedUser.user_id;
+        if (!userId) throw new Error('Missing user id');
+
+        // Build a minimal payload - only allowed editable fields
+        const payload = {};
+        if (editForm?.firstName) payload.firstName = editForm.firstName;
+        if (editForm?.lastName) payload.lastName = editForm.lastName;
+        if (editForm?.email) payload.email = editForm.email;
+        if (editForm?.phone) payload.phone = editForm.phone;
+        if (editForm?.role) payload.role = editForm.role;
+
+        // send PUT request to /users/:userId
+        await api.put(`/users/${userId}`, payload);
+
+        setUpdateSuccess(t('common.save') || 'Saved');
+        setShowEditModal(false);
+        // refresh list
+        fetchUsers();
+      } catch (err) {
+        setUpdateError(err?.message || 'Failed to update user');
+      } finally {
+        setUpdating(false);
+      }
+    },
+    [selectedUser, editForm, fetchUsers, t]
+  );
 
   // Translations for child components
   const userTranslations = useMemo(() => {
@@ -212,25 +277,6 @@ export default function AdminUsersPage({ params }) {
           footer={
             <div className='flex items-center justify-end gap-3'>
               <button
-                onClick={() => {
-                  // edit action
-                  handleActionClick('edit', selectedUser);
-                  setShowUserModal(false);
-                }}
-                className='px-4 py-2 rounded-md bg-primary/90 text-white text-sm font-medium hover:bg-primary'
-              >
-                {t('dashboard.admin.users.actions.edit')}
-              </button>
-              <button
-                onClick={() => {
-                  handleActionClick('delete', selectedUser);
-                  setShowUserModal(false);
-                }}
-                className='px-4 py-2 rounded-md border border-red-600 text-red-600 text-sm font-medium hover:bg-red-50'
-              >
-                {t('dashboard.admin.users.actions.delete')}
-              </button>
-              <button
                 onClick={() => setShowUserModal(false)}
                 className='px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800'
               >
@@ -241,8 +287,8 @@ export default function AdminUsersPage({ params }) {
         >
           {selectedUser ? (
             <div className='text-gray-900'>
-              <div className='flex items-center gap-4'>
-                <div className='flex items-center justify-center h-16 w-16 rounded-full bg-indigo-600 text-white text-xl font-semibold'>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex items-center justify-center h-16 w-16 rounded-full bg-indigo-600 text-white text-2xl md:text-3xl font-semibold'>
                   {(selectedUser.firstName || selectedUser.name || '?')
                     .toString()
                     .split(' ')
@@ -251,14 +297,14 @@ export default function AdminUsersPage({ params }) {
                     .join('')}
                 </div>
                 <div>
-                  <div className='text-lg font-semibold'>{selectedUser.firstName || selectedUser.name || '-' } {selectedUser.lastName || ''}</div>
-                  <div className='text-sm text-gray-600'>{selectedUser.email}</div>
+                  <div className='text-lg md:text-xl font-semibold'>{selectedUser.firstName || selectedUser.name || '-' } {selectedUser.lastName || ''}</div>
+                  <div className='text-sm md:text-base text-gray-600'>{selectedUser.email}</div>
                 </div>
                 <div className='ml-auto flex items-center gap-2'>
-                  <span className='px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-800 border border-slate-200'>
+                  <span className='px-2 py-1 text-xs md:text-sm rounded-full bg-slate-100 text-slate-800 border border-slate-200'>
                     {selectedUser.role || selectedUser.roleLabel || '-'}
                   </span>
-                  <span className='px-2 py-1 text-xs rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200'>
+                  <span className='px-2 py-1 text-xs md:text-sm rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200'>
                     {(() => {
                       const isAct = selectedUser?.isActive;
                       if (typeof isAct === 'boolean') return isAct ? userTranslations.statuses.active : userTranslations.statuses.inactive;
@@ -269,21 +315,21 @@ export default function AdminUsersPage({ params }) {
                 </div>
               </div>
 
-              <div className='mt-6 grid grid-cols-2 gap-4 text-sm'>
+              <div className='mt-6 grid grid-cols-2 gap-4 text-sm md:text-base'>
                 <div className='bg-gray-50 p-4 rounded-lg'>
-                  <div className='text-xs text-gray-500'>Phone</div>
+                  <div className='text-xs md:text-sm text-gray-500'>Phone</div>
                   <div className='mt-1 font-medium text-gray-800'>{selectedUser.phone || '-'}</div>
                 </div>
                 <div className='bg-gray-50 p-4 rounded-lg'>
-                  <div className='text-xs text-gray-500'>Verified</div>
+                  <div className='text-xs md:text-sm text-gray-500'>Verified</div>
                   <div className='mt-1 font-medium text-gray-800'>{String(selectedUser.isVerified ?? '-')}</div>
                 </div>
                 <div className='bg-gray-50 p-4 rounded-lg'>
-                  <div className='text-xs text-gray-500'>Last Login</div>
+                  <div className='text-xs md:text-sm text-gray-500'>Last Login</div>
                   <div className='mt-1 font-medium text-gray-800'>{selectedUser.lastLoginAt ? new Date(selectedUser.lastLoginAt).toLocaleString() : '-'}</div>
                 </div>
                 <div className='bg-gray-50 p-4 rounded-lg'>
-                  <div className='text-xs text-gray-500'>Created</div>
+                  <div className='text-xs md:text-sm text-gray-500'>Created</div>
                   <div className='mt-1 font-medium text-gray-800'>{selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleString() : '-'}</div>
                 </div>
               </div>
@@ -291,16 +337,16 @@ export default function AdminUsersPage({ params }) {
               {selectedUser._count && (
                 <div className='mt-6 grid grid-cols-3 gap-4'>
                   <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                    <div className='text-xs text-gray-500'>Properties</div>
-                    <div className='mt-1 text-lg font-semibold text-gray-800'>{selectedUser._count.properties}</div>
+                      <div className='text-xs md:text-sm text-gray-500'>Properties</div>
+                      <div className='mt-1 text-lg md:text-xl font-semibold text-gray-800'>{selectedUser._count.properties}</div>
                   </div>
                   <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                    <div className='text-xs text-gray-500'>Inquiries</div>
-                    <div className='mt-1 text-lg font-semibold text-gray-800'>{selectedUser._count.inquiries}</div>
+                    <div className='text-xs md:text-sm text-gray-500'>Inquiries</div>
+                    <div className='mt-1 text-lg md:text-xl font-semibold text-gray-800'>{selectedUser._count.inquiries}</div>
                   </div>
                   <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                    <div className='text-xs text-gray-500'>Favorites</div>
-                    <div className='mt-1 text-lg font-semibold text-gray-800'>{selectedUser._count.favorites}</div>
+                    <div className='text-xs md:text-sm text-gray-500'>Favorites</div>
+                    <div className='mt-1 text-lg md:text-xl font-semibold text-gray-800'>{selectedUser._count.favorites}</div>
                   </div>
                 </div>
               )}
@@ -308,6 +354,90 @@ export default function AdminUsersPage({ params }) {
           ) : (
             <div className='text-sm text-gray-700'>No user selected</div>
           )}
+        </Modal>
+
+        {/* Edit User Modal */}
+        <Modal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          // title={
+          //   selectedUser
+          //     ? `${t('dashboard.admin.users.actions.edit') || userTranslations.actions.edit} — ${selectedUser.firstName || selectedUser.name || ''}`
+          //     : t('dashboard.admin.users.actions.edit') || userTranslations.actions.edit
+          // }
+          maxWidth='max-w-xl'
+          footer={
+            <div className='flex items-center justify-end gap-3'>
+              <button
+                type='button'
+                onClick={() => setShowEditModal(false)}
+                className='px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800'
+              >
+                {t('common.cancel') || 'Cancel'}
+              </button>
+              <button
+                type='button'
+                onClick={handleUpdateUser}
+                disabled={updating}
+                className={`px-4 py-2 rounded-md text-sm font-medium text-white bg-primary hover:bg-primary/90 ${updating ? 'opacity-60 cursor-not-allowed' : ''}`}
+              >
+                {updating ? (t('common.saving') || 'Saving...') : (t('common.save') || 'Save')}
+              </button>
+            </div>
+          }
+        >
+          <form onSubmit={handleUpdateUser} className='space-y-4'>
+            {updateError && <div className='text-sm text-red-600'>{updateError}</div>}
+
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              <div>
+                <label className='block text-sm md:text-base text-gray-600 mb-1'>First name</label>
+                <input
+                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
+                  value={editForm?.firstName || ''}
+                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), firstName: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className='block text-sm md:text-base text-gray-600 mb-1'>Last name</label>
+                <input
+                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
+                  value={editForm?.lastName || ''}
+                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), lastName: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className='block text-sm md:text-base text-gray-600 mb-1'>Email</label>
+                <input
+                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
+                  value={editForm?.email || ''}
+                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), email: e.target.value }))}
+                  type='email'
+                />
+              </div>
+              <div>
+                <label className='block text-sm md:text-base text-gray-600 mb-1'>Phone</label>
+                <input
+                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
+                  value={editForm?.phone || ''}
+                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), phone: e.target.value }))}
+                />
+              </div>
+              {/* <div>
+                <label className='block text-xs font-medium text-gray-600 mb-1'>Role</label>
+                <select
+                  className='w-full px-3 py-2 border border-gray-200 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30'
+                  value={editForm?.role || ''}
+                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), role: e.target.value }))}
+                >
+                  <option value='USER'>{t('dashboard.admin.users.roles.user') || 'User'}</option>
+                  <option value='PARTNER'>{userTranslations.roles.partner}</option>
+                </select>
+                <p className='mt-1 text-xs text-gray-400'>Only User or Partner roles are allowed here.</p>
+              </div> */}
+              {/* Active / Verified checkboxes intentionally hidden per design */}
+            </div>
+          </form>
         </Modal>
 
         {pagination && pagination.totalItems > 0 && (
