@@ -15,7 +15,7 @@ export default function BuyHero() {
 
   return (
     <section
-      className='relative w-full sm:min-h-[480px] flex flex-col items-center justify-center rounded-xl overflow-hidden p-6'
+      className='relative w-full min-h-50 sm:min-h-60 lg:min-h-[480px] flex flex-col items-center justify-center rounded-xl overflow-hidden p-6'
       aria-label='Buy properties hero section'
     >
       {/* Background Image */}

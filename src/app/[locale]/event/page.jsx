@@ -106,9 +106,9 @@ export default function EventPage({ params }) {
 
           {/* Right Column - Registration Form (Sticky) */}
           <div className='lg:col-span-1'>
-            <div className='lg:sticky lg:top-24'>
-              <EventRegistration translations={registrationTranslations} />
-            </div>
+            <div id='event-registration' className='lg:sticky lg:top-24'>
+                <EventRegistration translations={registrationTranslations} />
+              </div>
           </div>
         </div>
       </div>

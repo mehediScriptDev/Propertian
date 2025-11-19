@@ -14,7 +14,7 @@ const AboutHero = memo(({ title, subtitle }) => {
       aria-labelledby='about-hero-title'
     >
       {/* Background Image with Overlay */}
-      <div className='relative h-[260px] md:h-[480px] w-full'>
+      <div className='relative min-h-50 sm:min-h-60 lg:min-h-[480px] flex items-center justify-center w-full'>
         <Image
           src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80'
           alt="Panoramic view of modern architecture in Abidjan, Côte d'Ivoire at dusk"

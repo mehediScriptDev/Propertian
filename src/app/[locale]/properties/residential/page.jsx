@@ -164,7 +164,7 @@ export default function ResidentialPage() {
       {/* Hero Section */}
       <section className='w-full sm:mb-8'>
         <div
-          className='flex sm:min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat rounded-xl items-center justify-center p-6 text-center'
+          className='flex min-h-50 sm:min-h-60 lg:min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat rounded-xl items-center justify-center p-6 text-center'
           style={{
             backgroundImage: `linear-gradient(rgba(10, 25, 49, 0.4) 0%, rgba(10, 25, 49, 0.3) 100%), url("/new-development/banner.png")`,
           }}
