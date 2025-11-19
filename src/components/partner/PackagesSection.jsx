@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
+import Link from 'next/link';
 
 /**
  * Pricing Packages Section
@@ -129,9 +130,10 @@ export default function PackagesSection({ onApplyClick }) {
                   
                 </div>
                 <div className="mt-auto pt-4">
-                  <button
+                  <Link
+                  href={'/verification'}
                     onClick={onApplyClick}
-                    className={`w-full text-center text-sm md:text-base font-medium px-5 py-2.5 md:py-3 rounded-lg transition-all duration-200 ${
+                    className={`w-full block text-center text-sm md:text-base font-medium px-5 py-2.5 md:py-3 rounded-lg transition-all duration-200 ${
                       pkg.popular
                         ? 'bg-[#D1B156] text-white hover:bg-[#C4A54D] shadow-sm'
                         : 'bg-primary/20 text-charcoal hover:bg-primary/30'
@@ -139,7 +141,7 @@ export default function PackagesSection({ onApplyClick }) {
                     aria-label={`Choose ${pkg.name} package`}
                   >
                     {pkg.buttonText}
-                  </button>
+                  </Link>
                 </div>
               </div>
             </article>

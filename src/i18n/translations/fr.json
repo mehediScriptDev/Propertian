@@ -163,6 +163,14 @@
         "two": "2",
         "threePlus": "3+"
       }
+      ,
+      "bathroomsLabel": "Salles de Bain",
+      "bathrooms": {
+        "any": "Tous",
+        "one": "1",
+        "two": "2",
+        "threePlus": "3+"
+      }
     },
     "propertyTypes": {
       "villa": "Villa",
@@ -954,6 +962,7 @@
       "title": "Filtrer les Résultats",
       "cityLabel": "Ville",
       "bedroomsLabel": "Chambres",
+      "bathroomsLabel": "Salles de Bain",
       "durationLabel": "Durée",
       "priceRangeLabel": "Gamme de Prix (XOF)",
       "verifiedOnly": "Vérifié Uniquement",
@@ -966,6 +975,12 @@
         "yamoussoukro": "Yamoussoukro"
       },
       "bedrooms": {
+        "any": "Tous",
+        "one": "1",
+        "two": "2",
+        "threePlus": "3+"
+      },
+      "bathrooms": {
         "any": "Tous",
         "one": "1",
         "two": "2",

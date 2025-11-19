@@ -33,7 +33,7 @@ const AboutHero = memo(({ title, subtitle }) => {
           <div className='max-w-4xl space-y-4'>
             <h1
               id='about-hero-title'
-              className='text-[28px] font-black leading-[1.2] tracking-[-0.015em] text-white sm:text-[36px] md:text-[48px] lg:text-[64px]'
+              className='text-white  font-black leading-tight tracking-[-0.033em] text-2xl sm:text-3xl lg:text-5xl'
             >
               {title}
             </h1>
