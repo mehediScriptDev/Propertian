@@ -4,6 +4,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FaHeart } from 'react-icons/fa';
+import { AiOutlineHeart } from "react-icons/ai";
 
 /**
  * BuyPropertyCard Component
@@ -110,9 +112,14 @@ export default function BuyPropertyCard({ property }) {
       {/* Property Details */}
       <div className='p-4 flex flex-col grow'>
         {/* Location */}
-        <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
+        <div className='flex justify-between'>
+          <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
           {location}
         </p>
+        <button title='add favourite' className='cursor-pointer hover:scale-125 text-accent text-2xl'>
+          <AiOutlineHeart />
+        </button>
+        </div>
 
         {/* Title */}
         <h3 className='text-xl lg:text-2xl font-bold leading-snug mt-1 line-clamp-1 text-gray-900 dark:text-white'>

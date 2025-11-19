@@ -356,15 +356,15 @@ export default function Sidebar({ role = 'admin' }) {
                 {user?.email || ''}
               </p>
             </div>
-            <ChevronDown
+            {/* <ChevronDown
               className={`h-4 w-4 shrink-0 text-gray-400 transition-transform ${
                 showLangDropdown ? 'rotate-180' : ''
               }`}
-            />
+            /> */}
           </button>
 
           {/* Language Dropdown */}
-          {showLangDropdown && (
+          {/* {showLangDropdown && (
             <div className='absolute bottom-full left-0 right-0 mb-2 bg-[#1A2B42] rounded-lg shadow-xl border border-gray-700/50 z-50'>
               <button
                 onClick={() => handleLanguageChange('en')}
@@ -395,7 +395,7 @@ export default function Sidebar({ role = 'admin' }) {
                 )}
               </button>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Logout Button */}

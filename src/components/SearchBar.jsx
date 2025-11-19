@@ -51,7 +51,7 @@ export default function SearchBar({ locale = 'en', onSearch }) {
           {/* Primary filters always visible */}
           <div className='grid grid-cols-2 gap-2 sm:gap-3'>
             {/* Type */}
-            <div className='relative'>
+            <div className='relative group'>
               <select
                 value={searchType}
                 onChange={(e) => setSearchType(e.target.value)}
@@ -65,13 +65,13 @@ export default function SearchBar({ locale = 'en', onSearch }) {
                 <option value='rent'>{t('searchBar.rent', 'Rent')}</option>
               </select>
               <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
-                <svg className='h-4 w-4' fill='currentColor' viewBox='0 0 20 20'>
+                <svg className='h-4 w-4 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>
                   <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
                 </svg>
               </div>
             </div>
             {/* City/Area */}
-            <div className='relative'>
+            <div className='relative group'>
               <select
                 value={cityArea}
                 onChange={(e) => setCityArea(e.target.value)}
@@ -86,7 +86,7 @@ export default function SearchBar({ locale = 'en', onSearch }) {
                 <option value='yamoussoukro'>{t('buy.filters.cities.yamoussoukro', 'Yamoussoukro')}</option>
               </select>
               <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
-                <svg className='h-4 w-4' fill='currentColor' viewBox='0 0 20 20'>
+                <svg className='h-4 w-4 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>
                   <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
                 </svg>
               </div>
@@ -106,7 +106,7 @@ export default function SearchBar({ locale = 'en', onSearch }) {
           {showAllFilters && (
             <div className='grid grid-cols-2 gap-2 sm:gap-3'>
               {/* Price Range */}
-              <div className='relative'>
+              <div className='relative group'>
                 <select
                   value={priceRange}
                   onChange={(e) => setPriceRange(e.target.value)}
@@ -118,13 +118,13 @@ export default function SearchBar({ locale = 'en', onSearch }) {
                   <option value='desc'>Max to Min</option>
                 </select>
                 <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
-                  <svg className='h-4 w-4' fill='currentColor' viewBox='0 0 20 20'>
+                    <svg className='h-4 w-4 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>
                     <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
                   </svg>
                 </div>
               </div>
               {/* Bedrooms */}
-              <div className='relative'>
+              <div className='relative group'>
                 <select
                   value={bedrooms}
                   onChange={(e) => setBedrooms(e.target.value)}
@@ -137,13 +137,13 @@ export default function SearchBar({ locale = 'en', onSearch }) {
                   <option value='3+'>3+</option>
                 </select>
                 <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
-                  <svg className='h-4 w-4' fill='currentColor' viewBox='0 0 20 20'>
+                    <svg className='h-4 w-4 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>
                     <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
                   </svg>
                 </div>
               </div>
               {/* Property Type */}
-              <div className='relative col-span-2'>
+              <div className='relative col-span-2 group'>
                 <select
                   value={propertyType}
                   onChange={(e) => setPropertyType(e.target.value)}
@@ -157,7 +157,7 @@ export default function SearchBar({ locale = 'en', onSearch }) {
                   
                 </select>
                 <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
-                  <svg className='h-4 w-4' fill='currentColor' viewBox='0 0 20 20'>
+                  <svg className='h-4 w-4 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>
                     <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
                   </svg>
                 </div>
@@ -173,9 +173,9 @@ export default function SearchBar({ locale = 'en', onSearch }) {
         </div>
 
         {/* Desktop: Horizontal layout */}
-        <div className='hidden lg:flex items-center gap-3'>
+          <div className='hidden lg:flex items-center gap-3'>
           {/* Type */}
-          <div className='relative flex-1 min-w-[120px]'>
+          <div className='relative group flex-1 min-w-[120px]'>
             <select
               value={searchType}
               onChange={(e) => setSearchType(e.target.value)}
@@ -189,13 +189,13 @@ export default function SearchBar({ locale = 'en', onSearch }) {
               <option value='rent'>{t('searchBar.rent', 'Rent')}</option>
             </select>
             <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
-              <svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
+              <svg className='h-5 w-5 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>
                 <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
               </svg>
             </div>
           </div>
           {/* City/Area */}
-          <div className='relative flex-1 min-w-[120px]'>
+          <div className='relative group flex-1 min-w-[120px]'>
             <select
               value={cityArea}
               onChange={(e) => setCityArea(e.target.value)}
@@ -208,13 +208,13 @@ export default function SearchBar({ locale = 'en', onSearch }) {
               <option value='yamoussoukro'>{t('buy.filters.cities.yamoussoukro', 'Yamoussoukro')}</option>
             </select>
             <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
-              <svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
+              <svg className='h-5 w-5 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>
                 <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
               </svg>
             </div>
           </div>
           {/* Price Range */}
-          <div className='relative flex-1 min-w-[120px]'>
+          <div className='relative group flex-1 min-w-[120px]'>
             <select
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
@@ -226,13 +226,13 @@ export default function SearchBar({ locale = 'en', onSearch }) {
               <option value='desc'>Max to Min</option>
             </select>
             <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
-              <svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
+              <svg className='h-5 w-5 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>
                 <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
               </svg>
             </div>
           </div>
           {/* Bedrooms */}
-          <div className='relative flex-1 min-w-[120px]'>
+          <div className='relative group flex-1 min-w-[120px]'>
             <select
               value={bedrooms}
               onChange={(e) => setBedrooms(e.target.value)}
@@ -245,13 +245,13 @@ export default function SearchBar({ locale = 'en', onSearch }) {
               <option value='3+'>3+</option>
             </select>
             <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
-              <svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
+              <svg className='h-5 w-5 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>
                 <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
               </svg>
             </div>
           </div>
           {/* Property Type */}
-          <div className='relative flex-1 min-w-[120px]'>
+          <div className='relative group flex-1 min-w-[120px]'>
             <select
               value={propertyType}
               onChange={(e) => setPropertyType(e.target.value)}
@@ -265,7 +265,7 @@ export default function SearchBar({ locale = 'en', onSearch }) {
               
             </select>
             <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
-              <svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
+              <svg className='h-5 w-5 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>
                 <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
               </svg>
             </div>

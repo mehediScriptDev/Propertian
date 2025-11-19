@@ -87,7 +87,7 @@ export default function Page({ params }) {
           />
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-stretch sm:items-center mt-2">
             <Link
-              href={"#"}
+              href={"#form"}
               className="w-full sm:w-auto bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 md:px-8 lg:px-10 py-3 md:py-3.5 rounded-lg transition-all duration-200 text-sm lg:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label="Book a consultation with our concierge team"
             >
@@ -150,9 +150,9 @@ export default function Page({ params }) {
       </div>
 
       {/* form */}
-      <div>
+      <div id="form">
         {/* Waitlist Section */}
-        <div className="w-full mx-auto max-w-7xl pt-12">
+        <div  className="w-full mx-auto max-w-7xl pt-12">
           <div className="bg-white/50 border border-[#C5A572]/50 rounded-2xl p-8 sm:p-12 lg:p-16">
             <div className="text-center mb-6 lg:mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
