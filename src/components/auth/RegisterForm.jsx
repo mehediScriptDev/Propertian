@@ -245,7 +245,7 @@ const RegisterForm = () => {
                             <span className='material-symbols-outlined animate-spin mr-2'>
                                 progress_activity
                             </span>
-                            {t('') || 'Creating Account...'}
+                           
                         </>
                     ) : (
                         t('auth.register.createAccount')

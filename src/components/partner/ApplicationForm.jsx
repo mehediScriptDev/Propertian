@@ -1,10 +1,10 @@
 "use client";
-
+ 
 import React, { useState } from "react";
 import { Upload } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
-
+ 
 /**
  * Application Form Section
  * Partner application form with validation
@@ -20,25 +20,25 @@ export default function ApplicationForm() {
     projectNames: "",
     preferredPackage: "premium",
   });
-
+ 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
+ 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+ 
     // Basic validation
     if (!formData.companyName || !formData.email || !formData.phone) {
       alert("Please fill in all required fields");
       return;
     }
-
+ 
     console.log("Form submitted:", formData);
     alert("Application submitted successfully! We will contact you soon.");
   };
-
+ 
   return (
     <section
       id="apply"
@@ -50,7 +50,7 @@ export default function ApplicationForm() {
       <p className="text-center text-charcoal-600 mb-6">
         {t("Verification.ApplicationForm.subtitle")}
       </p>
-
+ 
       <form
         onSubmit={handleSubmit}
         className="bg-white/50 rounded-xl p-6 md:p-8 border border-[#f6efcb] shadow-sm"
@@ -69,7 +69,7 @@ export default function ApplicationForm() {
               className="w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
             />
           </div>
-
+ 
           <div>
             <label className="block text-sm font-medium text-charcoal mb-2">
               {t("Verification.ApplicationForm.ContactPerson")} <span className="text-red-500">*</span>
@@ -84,7 +84,7 @@ export default function ApplicationForm() {
             />
           </div>
         </div>
-
+ 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:gap-6 gap-3.5 lg:mb-6 mb-3.5">
           <div>
             <label className="block text-sm font-medium text-charcoal mb-2">
@@ -100,7 +100,7 @@ export default function ApplicationForm() {
               className="w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
             />
           </div>
-
+ 
           <div>
             <label className="block text-sm font-medium text-charcoal mb-2">
               {t("Verification.ApplicationForm.Phone")} <span className="text-red-500">*</span>
@@ -115,7 +115,7 @@ export default function ApplicationForm() {
             />
           </div>
         </div>
-
+ 
         <div className="lg:mb-6 mb-3.5">
           <label className="block text-sm font-medium text-charcoal mb-2">
             {t("Verification.ApplicationForm.ProjectName")}
@@ -128,7 +128,7 @@ export default function ApplicationForm() {
             className="w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
           />
         </div>
-
+ 
         <div className="lg:mb-6 mb-3.5">
           <label className="block text-sm font-medium text-charcoal mb-3">
             {t("Verification.ApplicationForm.PreferredPackage")}
@@ -167,7 +167,7 @@ export default function ApplicationForm() {
             ))}
           </div>
         </div>
-
+ 
         <div className="lg:mb-6 mb-3.5">
           <label className="block text-sm font-medium text-charcoal mb-2">
             Upload Documents
@@ -182,7 +182,7 @@ export default function ApplicationForm() {
             </p>
           </div>
         </div>
-
+ 
         <button
           type="submit"
           className="w-full py-2.5 lg:py-4 bg-primary hover:bg-primary-dark text-charcoal rounded-lg transition-all duration-200 font-semibold text-sm lg:text-base shadow-lg hover:shadow-xl transform hover:-translate-y-1"
@@ -193,3 +193,5 @@ export default function ApplicationForm() {
     </section>
   );
 }
+ 
+ 

@@ -170,7 +170,7 @@ const SignInForm = () => {
               <span className='material-symbols-outlined animate-spin mr-2'>
                 progress_activity
               </span>
-              {t('auth.login.signingIn')}
+       
             </>
           ) : (
             t('auth.login.loginButton')

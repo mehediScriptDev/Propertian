@@ -3,6 +3,7 @@
 import React from 'react';
 import { Shield, ArrowRight } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Verification Badge Section
@@ -11,11 +12,19 @@ import { useRouter, usePathname } from 'next/navigation';
 export default function VerificationSection() {
   const router = useRouter();
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
 
   function handleLearn() {
     // pathname is like: /en/... -> first segment is the locale
     const segments = (pathname || '').split('/').filter(Boolean);
     const locale = segments[0] || 'en';
+    // If user is not authenticated, redirect to login with a return URL
+    if (!isAuthenticated) {
+      const currentPath = pathname || `/${locale}`;
+      router.push(`/${locale}/login?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+
     router.push(`/${locale}/verification`);
   }
   return (
