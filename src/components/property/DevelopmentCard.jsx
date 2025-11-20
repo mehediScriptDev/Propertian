@@ -43,11 +43,12 @@ export default function DevelopmentCard({
   };
 
   return (
-    <article
-      className="flex flex-col gap-3 rounded-xl bg-white/50 border border-[#f6efcb] dark:bg-navy/20 shadow-md overflow-hidden group"
-      role="article"
-      aria-labelledby={`development-title-${development.id}`}
-    >
+    <>
+      <article
+        className="flex flex-col gap-3 rounded-xl bg-white/50 border border-[#f6efcb] dark:bg-navy/20 shadow-md overflow-hidden group"
+        role="article"
+        aria-labelledby={`development-title-${development.id}`}
+      >
       {/* Image Container */}
       <div className="relative w-full aspect-video overflow-hidden">
         <div
@@ -171,5 +172,6 @@ export default function DevelopmentCard({
         </div>
       </div>
     </article>
+    </>
   );
 }

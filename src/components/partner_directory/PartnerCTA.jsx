@@ -62,9 +62,9 @@ export default function PartnerCTA() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-background-light rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#fffff8] rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-background-light border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
+            <div className="sticky top-0 bg-[#fffff8] border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
               <h3 className="text-2xl font-bold text-charcoal">
                 Become a Partner
               </h3>
@@ -98,7 +98,7 @@ export default function PartnerCTA() {
                     value={formState.companyName}
                     placeholder="Enter company name here"
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
                     required
                   />
                 </div>
@@ -117,7 +117,7 @@ export default function PartnerCTA() {
                     value={formState.contactPerson}
                     placeholder="Enter contact person name"
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
                     required
                   />
                 </div>
@@ -136,7 +136,7 @@ export default function PartnerCTA() {
                     value={formState.email}
                     onChange={handleChange}
                     placeholder="Enter email address"
-                    className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
                     required
                   />
                 </div>
@@ -155,7 +155,7 @@ export default function PartnerCTA() {
                     value={formState.phone}
                     onChange={handleChange}
                     placeholder="Enter phone or whatsApp"
-                    className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
                     required
                   />
                 </div>
@@ -172,7 +172,7 @@ export default function PartnerCTA() {
                     name="partnerType"
                     value={formState.partnerType}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
                     required
                   >
                     <option value="bank">Bank/Mortgage</option>
@@ -198,7 +198,7 @@ export default function PartnerCTA() {
                     value={formState.message}
                     placeholder="Write your short and clear message"
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[15px] transition-all duration-200"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[15px] transition-all duration-200"
                   />
                 </div>
 

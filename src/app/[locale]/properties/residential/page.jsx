@@ -7,6 +7,7 @@ import DevelopmentCard from '@/components/property/DevelopmentCard';
 import DevelopmentFilters from '@/components/property/DevelopmentFilters';
 import WhyInvestCard from '@/components/property/WhyInvestCard';
 import DeveloperCTA from '@/components/property/DeveloperCTA';
+import { X } from 'lucide-react';
 
 /**
  * ResidentialPage - New Developments Page
@@ -23,6 +24,15 @@ export default function ResidentialPage() {
     developmentStage: 'all',
     propertyType: 'all',
     priceRange: 'all'
+  });
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDevelopment, setSelectedDevelopment] = useState(null);
+  const [formState, setFormState] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    message: '',
   });
 
   // Mock data for developments - Replace with API call in production
@@ -146,8 +156,29 @@ export default function ResidentialPage() {
   };
 
   const handleInquire = (id) => {
-    console.log('Inquire about development:', id);
-    // Open inquiry form or modal
+    const development = allDevelopments.find(dev => dev.id === id);
+    if (development) {
+      setSelectedDevelopment(development);
+      setFormState({
+        fullName: '',
+        email: '',
+        phone: '',
+        message: `I am interested in ${development.title}. Please send me more information.`,
+      });
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormState((s) => ({ ...s, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Inquiry submitted:', { development: selectedDevelopment, ...formState });
+    alert('Thank you for your inquiry! The developer will contact you shortly.');
+    setIsModalOpen(false);
   };
 
   const handleFilterChange = (newFilters) => {
@@ -240,6 +271,129 @@ export default function ResidentialPage() {
 
       {/* Developer CTA */}
       <DeveloperCTA onListProject={handleListProject} />
+
+      {/* Inquiry Modal */}
+      {isModalOpen && selectedDevelopment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-[#fffff8] rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-[#fffff8] border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
+              <div>
+                <h3 className="text-2xl font-bold text-charcoal">
+                  Inquire about {selectedDevelopment.title}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Fill out the form below and the developer will contact you shortly.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label
+                    htmlFor="fullName"
+                    className="block text-[14px] font-medium text-charcoal mb-1.5"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    value={formState.fullName}
+                    placeholder='Write your full name'
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-[14px] font-medium text-charcoal mb-1.5"
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formState.email}
+                    placeholder='Enter your email address'
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-[14px] font-medium text-charcoal mb-1.5"
+                  >
+                    Phone / WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formState.phone}
+                    placeholder='Enter your phone number'
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="message"
+                    className="block text-[14px] font-medium text-charcoal mb-1.5"
+                  >
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={4}
+                    value={formState.message}
+
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[15px] transition-all duration-200"
+                    required
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  >
+                    Send Inquiry
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
