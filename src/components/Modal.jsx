@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 /**
  * Reusable Modal Component
@@ -19,37 +19,56 @@ const Modal = ({
   showCloseButton = true,
   footer,
 }) => {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose?.();
+    };
+
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div
-      className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm'
+      className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4'
       onClick={onClose}
+      aria-hidden={!isOpen}
     >
       <div
-        className={`relative w-full ${maxWidth} mx-4 rounded-2xl backdrop-blur-xl`}
+        role='dialog'
+        aria-modal='true'
+        aria-labelledby='modal-title'
+        className={`relative w-full ${maxWidth} rounded-2xl transform-gpu transition-all duration-200 ease-out scale-100`}
         style={{
-          background:
-            'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
-          boxShadow:
-            '0px 8px 32px 0px rgba(0, 0, 0, 0.8), inset 0px 1px 1px 0px rgba(255, 255, 255, 0.1)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          background: '#ffffff',
+          boxShadow: '0px 12px 48px rgba(2,6,23,0.08), inset 0px 1px 1px rgba(0,0,0,0.02)',
+          border: '1px solid rgba(0,0,0,0.06)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        {title && (
-          <div className='flex items-center justify-between p-6 border-b border-white/10'>
-            <h3 className="text-white text-lg font-semibold font-['Poppins']">
-              {title}
-            </h3>
+        {/* {title && (
+          <div className='flex items-center justify-between px-4 py-4 sm:p-6 border-b border-gray-100'>
+            <div className='flex items-start gap-4'>
+              <div className='flex flex-col'>
+                <h3 id='modal-title' className="text-gray-900 text-lg md:text-2xl lg:text-3xl font-semibold font-['Poppins']">
+                  {title}
+                </h3>
+              </div>
+            </div>
+
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors'
+                aria-label='Close'
+                className='w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-0 transition-colors'
               >
                 <svg
-                  className='w-5 h-5 text-white'
+                  className='w-5 h-5 text-gray-600'
                   fill='none'
                   stroke='currentColor'
                   viewBox='0 0 24 24'
@@ -64,35 +83,25 @@ const Modal = ({
               </button>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Modal Body */}
-        <div className='p-6 max-h-[70vh] overflow-y-auto custom-scrollbar'>
+          <div className='px-4 py-5 sm:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar text-gray-900'>
           {children}
         </div>
 
         {/* Modal Footer (Optional) */}
         {footer && (
-          <div className='p-6 pt-0 border-t border-white/10'>{footer}</div>
+          <div className='px-4 py-4 sm:px-6 sm:py-6 pt-0 border-t border-gray-100'>{footer}</div>
         )}
       </div>
 
-      {/* Custom Scrollbar Styles */}
+      {/* Custom Scrollbar Styles & Enter/Exit */}
       <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(168, 85, 247, 0.5);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(168, 85, 247, 0.7);
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.12); }
       `}</style>
     </div>
   );

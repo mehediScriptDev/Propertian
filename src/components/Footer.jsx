@@ -19,7 +19,7 @@ export default function Footer({ locale }) {
         key: "partner",
       },
       {
-        href: `/${locale}/concierge-service`,
+        href: `/${locale}/concierge`,
         label: t("Concierge Service"),
         key: "concierge",
       },

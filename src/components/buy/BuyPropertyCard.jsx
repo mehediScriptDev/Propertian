@@ -212,7 +212,7 @@ export default function BuyPropertyCard({ property }) {
             {t('buy.propertyCard.viewDetails', 'View Details')}
           </Link>
           <Link
-            href={`/${locale}/book-visit?property=${id}`}
+            href={`/${locale}/book-visit?property=${id}&type=buy`}
             className='text-xs sm:text-sm lg:text-base font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 whitespace-nowrap'
             aria-label={`Book viewing for ${title}`}
           >

@@ -524,7 +524,21 @@
           "apartment": "Apartment",
           "commercial": "Commercial",
           "house": "House"
-        }
+          },
+          "add": {
+            "title": "Add Property",
+            "subtitle": "Create a new property listing",
+            "basicInfo": "Basic Information",
+            "pricing": "Pricing",
+            "images": "Images",
+            "features": "Features",
+            "interior": "Interior Features",
+            "exterior": "Exterior Features",
+            "highlights": "Highlights",
+            "locationDescription": "Location Description",
+            "developerDescription": "Developer Description",
+            "rental": "Rental Information (optional)"
+          }
       },
       "partners": {
         "title": "Partner Management",

@@ -1,11 +1,13 @@
 'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
+import { use, useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import UserFilters from '@/components/dashboard/admin/UserFilters';
 import UsersTable from '@/components/dashboard/admin/UsersTable';
 import Pagination from '@/components/dashboard/Pagination';
+import Modal from '@/components/Modal';
+import api from '@/lib/api';
 
 export default function AdminUsersPage({ params }) {
   const { locale } = use(params);
@@ -16,100 +18,67 @@ export default function AdminUsersPage({ params }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
-  const itemsPerPage = 5;
+  const itemsPerPage = 8;
 
-  // Mock data - 100 users for realistic pagination
-  const allUsers = useMemo(() => {
-    const users = [];
-    const names = [
-      'Alima Kouassi',
-      'Yao Konan',
-      'Fatou Diallo',
-      'Moussa Traoré',
-      'Aya Cissé',
-      'Kwame Mensah',
-      'Aminata Sow',
-      'Ibrahim Kamara',
-      'Mariama Keita',
-      'Jean Dupont',
-      'Sophie Martin',
-      'Ahmed Hassan',
-      'Nadia Benali',
-      'Pierre Laurent',
-      'Fatoumata Ba',
-      'Omar Sy',
-      'Aisha Johnson',
-      'Mohamed Ali',
-      'Grace Owusu',
-      'Samuel Osei',
-    ];
-    const roles = [
-      'buyer',
-      'developer',
-      'concierge',
-      'admin',
-      'partner',
-      'agent',
-    ];
-    const statuses = ['active', 'inactive', 'suspended', 'pending'];
+  // Server state
+  const [users, setUsers] = useState([]);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: itemsPerPage,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState(null);
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState(null);
+  const [updateSuccess, setUpdateSuccess] = useState(null);
 
-    for (let i = 1; i <= 100; i++) {
-      const name = names[(i - 1) % names.length];
-      const role = roles[i % roles.length];
-      const status =
-        i % 15 === 0
-          ? 'suspended'
-          : i % 10 === 0
-          ? 'pending'
-          : i % 8 === 0
-          ? 'inactive'
-          : 'active';
-      const monthIndex = i % 12;
-      const dayIndex = ((i * 7) % 28) + 1;
+  // Fetch users from backend when filters/page change
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-      users.push({
-        id: i,
-        userId: `U-${String(i).padStart(5, '0')}`,
-        name: `${name} ${i > 20 ? i : ''}`,
-        email: `${name.toLowerCase().replace(' ', '.')}${i > 20 ? i : ''}@${
-          role === 'developer' ? 'construct.ci' : 'example.com'
-        }`,
-        role: role,
-        roleLabel: t(`dashboard.admin.users.roles.${role}`),
-        status: status,
-        statusLabel: t(`dashboard.admin.users.statuses.${status}`),
-        registrationDate: new Date(2022, monthIndex, dayIndex)
-          .toISOString()
-          .split('T')[0],
-      });
+    try {
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+      };
+
+      if (searchTerm) params.search = searchTerm;
+      if (roleFilter && roleFilter !== 'all') params.role = roleFilter;
+
+      if (statusFilter && statusFilter !== 'all') {
+        if (statusFilter === 'active') params.isActive = true;
+        else if (statusFilter === 'inactive') params.isActive = false;
+        else params.status = statusFilter; // suspended, pending
+      }
+
+      const res = await api.get('/users', { params });
+
+      // res expected: { success: true, data: { users: [], pagination: {} } }
+      const payload = res?.data || res;
+      if (payload) {
+        setUsers(payload.users || []);
+        setPagination((prev) => ({ ...prev, ...(payload.pagination || {}) }));
+      } else {
+        setUsers([]);
+        setPagination({ currentPage: 1, totalPages: 1, totalItems: 0, itemsPerPage });
+      }
+    } catch (err) {
+      setError(err?.message || 'Failed to load users');
+    } finally {
+      setLoading(false);
     }
-    return users;
-  }, [t]);
+  }, [currentPage, searchTerm, statusFilter, roleFilter, itemsPerPage]);
 
-  // Filter and search logic
-  const filteredUsers = useMemo(() => {
-    return allUsers.filter((user) => {
-      const matchesSearch =
-        searchTerm === '' ||
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.userId.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesStatus =
-        statusFilter === 'all' || user.status === statusFilter;
-      const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-
-      return matchesSearch && matchesStatus && matchesRole;
-    });
-  }, [allUsers, searchTerm, statusFilter, roleFilter]);
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const paginatedUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredUsers.slice(startIndex, endIndex);
-  }, [filteredUsers, currentPage, itemsPerPage]);
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   // Reset to page 1 when filters change
   const handleSearchChange = useCallback((value) => {
@@ -131,12 +100,78 @@ export default function AdminUsersPage({ params }) {
     setCurrentPage(page);
   }, []);
 
-  const handleActionClick = useCallback((action, user) => {
-    // In production, implement actual actions
-    console.log(`Action: ${action} on user:`, user);
-  }, []);
+  
+  function handleActionClick(action, user) {
+    if (action === 'view') {
+      setSelectedUser(user);
+      setShowUserModal(true);
+      return;
+    }
 
-  // Get translations object for components
+    if (action === 'edit') {
+      // open edit modal
+      openEditModal(user);
+      return;
+    }
+
+    // other actions: suspend/activate/delete — keep logging for now
+    console.log(`Action: ${action} on user:`, user);
+  }
+
+  
+  function openEditModal(user) {
+    if (!user) return;
+    setSelectedUser(user);
+    // prepare editable form fields
+    setEditForm({
+      firstName: user.firstName || user.name || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      role: user.role || user.roleLabel || '',
+      isActive: typeof user.isActive === 'boolean' ? user.isActive : undefined,
+      isVerified: typeof user.isVerified === 'boolean' ? user.isVerified : undefined,
+    });
+    setUpdateError(null);
+    setShowEditModal(true);
+  }
+
+  const handleUpdateUser = useCallback(
+    async (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      if (!selectedUser) return;
+      setUpdating(true);
+      setUpdateError(null);
+      setUpdateSuccess(null);
+      try {
+        const userId = selectedUser.id ?? selectedUser.userId ?? selectedUser.user_id;
+        if (!userId) throw new Error('Missing user id');
+
+        // Build a minimal payload - only allowed editable fields
+        const payload = {};
+        if (editForm?.firstName) payload.firstName = editForm.firstName;
+        if (editForm?.lastName) payload.lastName = editForm.lastName;
+        if (editForm?.email) payload.email = editForm.email;
+        if (editForm?.phone) payload.phone = editForm.phone;
+        if (editForm?.role) payload.role = editForm.role;
+
+        // send PUT request to /users/:userId
+        await api.put(`/users/${userId}`, payload);
+
+        setUpdateSuccess(t('common.save') || 'Saved');
+        setShowEditModal(false);
+        // refresh list
+        fetchUsers();
+      } catch (err) {
+        setUpdateError(err?.message || 'Failed to update user');
+      } finally {
+        setUpdating(false);
+      }
+    },
+    [selectedUser, editForm, fetchUsers, t]
+  );
+
+  // Translations for child components
   const userTranslations = useMemo(() => {
     return {
       filters: {
@@ -220,17 +255,197 @@ export default function AdminUsersPage({ params }) {
 
       {/* Users Table with Pagination */}
       <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
-        <UsersTable
-          users={paginatedUsers}
-          translations={userTranslations}
-          onActionClick={handleActionClick}
-        />
-        {filteredUsers.length > 0 && (
+        {error && (
+          <div className='p-4 text-sm text-red-600'>
+            {t('common.error')}: {error}
+          </div>
+        )}
+
+        <UsersTable users={users} translations={userTranslations} onActionClick={handleActionClick} />
+
+        <Modal
+          isOpen={showUserModal}
+          onClose={() => setShowUserModal(false)}
+          title={
+            selectedUser
+              ? `${selectedUser.firstName || selectedUser.name || ''} ${
+                  selectedUser.lastName || ''
+                }`.trim()
+              : t('dashboard.admin.users.details')
+          }
+          maxWidth='max-w-xl'
+          footer={
+            <div className='flex items-center justify-end gap-3'>
+              <button
+                onClick={() => setShowUserModal(false)}
+                className='px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800'
+              >
+                {t('common.close') || 'Close'}
+              </button>
+            </div>
+          }
+        >
+          {selectedUser ? (
+            <div className='text-gray-900'>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex items-center justify-center h-16 w-16 rounded-full bg-indigo-600 text-white text-2xl md:text-3xl font-semibold'>
+                  {(selectedUser.firstName || selectedUser.name || '?')
+                    .toString()
+                    .split(' ')
+                    .map((n) => n[0])
+                    .slice(0, 2)
+                    .join('')}
+                </div>
+                <div>
+                  <div className='text-lg md:text-xl font-semibold'>{selectedUser.firstName || selectedUser.name || '-' } {selectedUser.lastName || ''}</div>
+                  <div className='text-sm md:text-base text-gray-600'>{selectedUser.email}</div>
+                </div>
+                <div className='ml-auto flex items-center gap-2'>
+                  <span className='px-2 py-1 text-xs md:text-sm rounded-full bg-slate-100 text-slate-800 border border-slate-200'>
+                    {selectedUser.role || selectedUser.roleLabel || '-'}
+                  </span>
+                  <span className='px-2 py-1 text-xs md:text-sm rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200'>
+                    {(() => {
+                      const isAct = selectedUser?.isActive;
+                      if (typeof isAct === 'boolean') return isAct ? userTranslations.statuses.active : userTranslations.statuses.inactive;
+                      const st = (selectedUser?.status || '').toString().toLowerCase();
+                      return (userTranslations.statuses && userTranslations.statuses[st]) || (selectedUser?.status ? selectedUser.status : '-');
+                    })()}
+                  </span>
+                </div>
+              </div>
+
+              <div className='mt-6 grid grid-cols-2 gap-4 text-sm md:text-base'>
+                <div className='bg-gray-50 p-4 rounded-lg'>
+                  <div className='text-xs md:text-sm text-gray-500'>Phone</div>
+                  <div className='mt-1 font-medium text-gray-800'>{selectedUser.phone || '-'}</div>
+                </div>
+                <div className='bg-gray-50 p-4 rounded-lg'>
+                  <div className='text-xs md:text-sm text-gray-500'>Verified</div>
+                  <div className='mt-1 font-medium text-gray-800'>{String(selectedUser.isVerified ?? '-')}</div>
+                </div>
+                <div className='bg-gray-50 p-4 rounded-lg'>
+                  <div className='text-xs md:text-sm text-gray-500'>Last Login</div>
+                  <div className='mt-1 font-medium text-gray-800'>{selectedUser.lastLoginAt ? new Date(selectedUser.lastLoginAt).toLocaleString() : '-'}</div>
+                </div>
+                <div className='bg-gray-50 p-4 rounded-lg'>
+                  <div className='text-xs md:text-sm text-gray-500'>Created</div>
+                  <div className='mt-1 font-medium text-gray-800'>{selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleString() : '-'}</div>
+                </div>
+              </div>
+
+              {selectedUser._count && (
+                <div className='mt-6 grid grid-cols-3 gap-4'>
+                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
+                      <div className='text-xs md:text-sm text-gray-500'>Properties</div>
+                      <div className='mt-1 text-lg md:text-xl font-semibold text-gray-800'>{selectedUser._count.properties}</div>
+                  </div>
+                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
+                    <div className='text-xs md:text-sm text-gray-500'>Inquiries</div>
+                    <div className='mt-1 text-lg md:text-xl font-semibold text-gray-800'>{selectedUser._count.inquiries}</div>
+                  </div>
+                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
+                    <div className='text-xs md:text-sm text-gray-500'>Favorites</div>
+                    <div className='mt-1 text-lg md:text-xl font-semibold text-gray-800'>{selectedUser._count.favorites}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className='text-sm text-gray-700'>No user selected</div>
+          )}
+        </Modal>
+
+        {/* Edit User Modal */}
+        <Modal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          // title={
+          //   selectedUser
+          //     ? `${t('dashboard.admin.users.actions.edit') || userTranslations.actions.edit} — ${selectedUser.firstName || selectedUser.name || ''}`
+          //     : t('dashboard.admin.users.actions.edit') || userTranslations.actions.edit
+          // }
+          maxWidth='max-w-xl'
+          footer={
+            <div className='flex items-center justify-end gap-3'>
+              <button
+                type='button'
+                onClick={() => setShowEditModal(false)}
+                className='px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800'
+              >
+                {t('common.cancel') || 'Cancel'}
+              </button>
+              <button
+                type='button'
+                onClick={handleUpdateUser}
+                disabled={updating}
+                className={`px-4 py-2 rounded-md text-sm font-medium text-white bg-primary hover:bg-primary/90 ${updating ? 'opacity-60 cursor-not-allowed' : ''}`}
+              >
+                {updating ? (t('common.saving') || 'Saving...') : (t('common.save') || 'Save')}
+              </button>
+            </div>
+          }
+        >
+          <form onSubmit={handleUpdateUser} className='space-y-4'>
+            {updateError && <div className='text-sm text-red-600'>{updateError}</div>}
+
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              <div>
+                <label className='block text-sm md:text-base text-gray-600 mb-1'>First name</label>
+                <input
+                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
+                  value={editForm?.firstName || ''}
+                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), firstName: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className='block text-sm md:text-base text-gray-600 mb-1'>Last name</label>
+                <input
+                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
+                  value={editForm?.lastName || ''}
+                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), lastName: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className='block text-sm md:text-base text-gray-600 mb-1'>Email</label>
+                <input
+                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
+                  value={editForm?.email || ''}
+                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), email: e.target.value }))}
+                  type='email'
+                />
+              </div>
+              <div>
+                <label className='block text-sm md:text-base text-gray-600 mb-1'>Phone</label>
+                <input
+                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
+                  value={editForm?.phone || ''}
+                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), phone: e.target.value }))}
+                />
+              </div>
+              {/* <div>
+                <label className='block text-xs font-medium text-gray-600 mb-1'>Role</label>
+                <select
+                  className='w-full px-3 py-2 border border-gray-200 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30'
+                  value={editForm?.role || ''}
+                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), role: e.target.value }))}
+                >
+                  <option value='USER'>{t('dashboard.admin.users.roles.user') || 'User'}</option>
+                  <option value='PARTNER'>{userTranslations.roles.partner}</option>
+                </select>
+                <p className='mt-1 text-xs text-gray-400'>Only User or Partner roles are allowed here.</p>
+              </div> */}
+              {/* Active / Verified checkboxes intentionally hidden per design */}
+            </div>
+          </form>
+        </Modal>
+
+        {pagination && pagination.totalItems > 0 && (
           <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={filteredUsers.length}
-            itemsPerPage={itemsPerPage}
+            currentPage={pagination.currentPage || currentPage}
+            totalPages={pagination.totalPages || 1}
+            totalItems={pagination.totalItems || 0}
+            itemsPerPage={pagination.itemsPerPage || itemsPerPage}
             onPageChange={handlePageChange}
             translations={paginationTranslations}
           />

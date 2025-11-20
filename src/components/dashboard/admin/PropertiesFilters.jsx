@@ -2,6 +2,7 @@
 
 import { memo } from 'react';
 import { Search } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
 
 const PropertiesFilters = memo(
   ({
@@ -11,6 +12,8 @@ const PropertiesFilters = memo(
     onStatusChange,
     translations,
   }) => {
+    const pathname = usePathname();
+    const router = useRouter();
     return (
       <div className='bg-white border border-gray-200 rounded-lg p-4 sm:p-6'>
         <div className='flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between'>
@@ -46,6 +49,11 @@ const PropertiesFilters = memo(
             {/* Add Property Button */}
             <button
               type='button'
+              onClick={() => {
+                const target = pathname.endsWith('/') ? `${pathname}add` : `${pathname}/add`;
+                if (router && router.push) router.push(target);
+                else window.location.href = target;
+              }}
               className='px-4 sm:px-6 py-2.5 bg-[#d4af37] hover:bg-[#c19b2a] text-[#1e3a5f] rounded-lg text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap'
             >
               {translations.addProperty}
@@ -54,7 +62,7 @@ const PropertiesFilters = memo(
         </div>
       </div>
     );
-  }
+  }   
 );
 
 PropertiesFilters.displayName = 'PropertiesFilters';
