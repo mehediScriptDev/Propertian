@@ -131,11 +131,7 @@ export default function UsersTable({
                   <div className='relative'>
                     <button
                       onClick={() => toggleMenu(user.id)}
-                      className='
-                        flex h-8 w-8 items-center justify-center rounded-lg
-                        text-gray-400 transition-colors
-                        hover:bg-gray-100 hover:text-gray-600
-                      '
+                      className='flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600'
                       aria-label='Actions menu'
                     >
                       <MoreVertical className='h-5 w-5' />

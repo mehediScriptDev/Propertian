@@ -53,13 +53,7 @@ export default function UserFilters({
           value={searchTerm}
           onChange={handleSearchChange}
           placeholder={searchPlaceholder}
-          className='
-            h-12 w-full rounded-lg border border-gray-200 bg-white pl-12 pr-4
-            text-sm text-gray-900 placeholder:text-gray-400
-            transition-all duration-200
-            hover:border-gray-300
-            focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20
-          '
+          className='h-12 w-full rounded-lg border border-gray-200 bg-white pl-12 pr-4 text-sm text-gray-900 placeholder:text-gray-400 transition-all duration-200 hover:border-gray-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20'
         />
       </div>
 
@@ -68,14 +62,7 @@ export default function UserFilters({
         <select
           value={statusFilter}
           onChange={handleStatusChange}
-          className='
-            h-12 appearance-none rounded-lg border border-gray-200 bg-white
-            pl-4 pr-10 text-sm font-medium text-gray-700
-            transition-all duration-200
-            hover:border-gray-300
-            focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20
-            cursor-pointer
-          '
+          className='h-12 appearance-none rounded-lg border border-gray-200 bg-white pl-4 pr-10 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer'
         >
           <option value='all'>
             {translations.filters.status}: {translations.filters.statusAll}
@@ -93,14 +80,7 @@ export default function UserFilters({
         <select
           value={roleFilter}
           onChange={handleRoleChange}
-          className='
-            h-12 appearance-none rounded-lg border border-gray-200 bg-white
-            pl-4 pr-10 text-sm font-medium text-gray-700
-            transition-all duration-200
-            hover:border-gray-300
-            focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20
-            cursor-pointer
-          '
+          className='h-12 appearance-none rounded-lg border border-gray-200 bg-white pl-4 pr-10 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer'
         >
           <option value='all'>
             {translations.filters.role}: {translations.filters.roleAll}
@@ -118,14 +98,7 @@ export default function UserFilters({
       {/* Last Activity Filter (Optional) */}
       <div className='relative'>
         <select
-          className='
-            h-12 appearance-none rounded-lg border border-gray-200 bg-white
-            pl-4 pr-10 text-sm font-medium text-gray-700
-            transition-all duration-200
-            hover:border-gray-300
-            focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20
-            cursor-pointer
-          '
+          className='h-12 appearance-none rounded-lg border border-gray-200 bg-white pl-4 pr-10 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer'
         >
           <option>{translations.filters.lastActivity}</option>
           <option>{translations.filters.last} 7 {translations.filters.days}</option>

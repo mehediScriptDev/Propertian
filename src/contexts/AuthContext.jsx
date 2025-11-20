@@ -149,10 +149,10 @@ export function AuthProvider({ children }) {
       router.push(safeRedirect || dashboardRoutes[frontendRole]);
       return userData;
     } catch (error) {
-      // Clear any temporary data on error
-      Cookies.remove('token');
-      Cookies.remove('refreshToken');
-      Cookies.remove('user');
+      // Clear any temporary data on error (ensure same path used when setting)
+      Cookies.remove('token', { path: '/' });
+      Cookies.remove('refreshToken', { path: '/' });
+      Cookies.remove('user', { path: '/' });
 
       // Handle API errors
       const errorMessage =
@@ -172,10 +172,10 @@ export function AuthProvider({ children }) {
       console.error('Logout API error:', error);
       // Continue with local logout even if API fails
     } finally {
-      // Clear all cookies
-      Cookies.remove('token');
-      Cookies.remove('refreshToken');
-      Cookies.remove('user');
+      // Clear all cookies (make sure to remove using same path)
+      Cookies.remove('token', { path: '/' });
+      Cookies.remove('refreshToken', { path: '/' });
+      Cookies.remove('user', { path: '/' });
 
       setUser(null);
       const locale = pathname.split('/')[1] || 'en';
@@ -208,6 +208,42 @@ export function AuthProvider({ children }) {
   };
 
   /**
+   * DEV-ONLY: Impersonate a partner user for local development/testing.
+   * This should never run in production. It sets cookies and the local user state
+   * so you can quickly access the partner dashboard without a backend.
+   */
+  const devImpersonate = (email = 'dev@local', password = 'dev123') => {
+    if (process.env.NODE_ENV !== 'development') {
+      console.warn('devImpersonate is only available in development');
+      return;
+    }
+
+    const locale = pathname.split('/')[1] || 'en';
+
+    const userData = {
+      id: 'dev-partner',
+      email,
+      firstName: 'Dev',
+      lastName: 'Partner',
+      fullName: 'Dev Partner',
+      phone: null,
+      role: 'partner',
+      backendRole: 'partner',
+      avatar: null,
+      isVerified: true,
+      isActive: true,
+    };
+
+    // Set a dummy token and user cookie so middleware/client reads them
+    Cookies.set('token', 'dev-token', { expires: 1, sameSite: 'Lax', path: '/' });
+    Cookies.set('user', JSON.stringify(userData), { expires: 1, sameSite: 'Lax', path: '/' });
+
+    setUser(userData);
+    // Navigate to partner dashboard
+    router.push(`/${locale}/dashboard/partner`);
+  };
+
+  /**
    * Check if user has required role
    * @param {string} requiredRole - Required role for access
    * @returns {boolean}
@@ -221,6 +257,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
     register,
+    devImpersonate,
     hasRole,
     loading,
     isAuthenticated: !!user,
