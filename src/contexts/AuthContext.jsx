@@ -7,7 +7,7 @@ import {
   useEffect,
   startTransition,
 } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Cookies from 'js-cookie';
 import authService from '@/services/authService';
 
@@ -22,6 +22,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     // Check for existing session on mount using startTransition for non-urgent updates
@@ -128,7 +129,9 @@ export function AuthProvider({ children }) {
 
       setUser(userData);
 
-      // Redirect based on mapped frontend role
+      // Determine redirect destination:
+      // - If a `redirect` query param exists (set by middleware when protecting pages), use it
+      // - Otherwise send the user to their role dashboard
       const locale = pathname.split('/')[1] || 'en';
       const dashboardRoutes = {
         admin: `/${locale}/dashboard/admin`,
@@ -136,7 +139,14 @@ export function AuthProvider({ children }) {
         partner: `/${locale}/dashboard/partner`,
       };
 
-      router.push(dashboardRoutes[frontendRole]);
+      const redirectParam = searchParams?.get?.('redirect');
+      // Only allow same-origin absolute paths to avoid open-redirect issues
+      const safeRedirect =
+        redirectParam && typeof redirectParam === 'string' && redirectParam.startsWith('/')
+          ? redirectParam
+          : null;
+
+      router.push(safeRedirect || dashboardRoutes[frontendRole]);
       return userData;
     } catch (error) {
       // Clear any temporary data on error
