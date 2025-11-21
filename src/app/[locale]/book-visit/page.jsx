@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { Calendar, Bed, Square, ParkingCircle } from 'lucide-react';
+import { Bed, Square, ParkingCircle } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { getRentPropertyById } from '@/lib/rentProperties';
 import { getResidentialPropertyById } from '@/lib/residentialProperties';
@@ -215,7 +215,6 @@ export default function HotelBooking() {
                     onChange={(e) => setPreferredDateTime(e.target.value)}
                     className="w-full px-4 py-3 border bg-background-light outline-none border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f6efd1] focus:border-transparent"
                   />
-                  <Calendar className="absolute right-3 top-3.5 w-5 h-5 text-gray-400" />
                 </div>
               </div>
 
