@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Check,
-  Key,
-  Package,
-  Sparkles,
-  GraduationCap,
-  PawPrint,
-  Lightbulb,
-  Globe,
-  Car,
-} from 'lucide-react';
+import { Check, Key, Package, Sparkles, GraduationCap, PawPrint, Lightbulb, Globe, Car } from 'lucide-react';
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
@@ -91,6 +81,7 @@ export default function ConciergePage() {
   return (
     <main className='flex flex-col items-center bg-background-light dark:bg-navy-light'>
       <div className='w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8 lg:space-y-16'>
+
       {/* Hero Section */}
       <section className='w-full' aria-labelledby='hero-title'>
         <div
@@ -359,17 +350,20 @@ export default function ConciergePage() {
           {addOns.map((addOn, index) => {
             const IconComponent = addOn.Icon;
             return (
-              <article key={index} className='text-center'>
+              <article
+                key={addOn.label ?? index}
+                className='text-center'
+              >
                 <div
-                  className='w-16 h-16 sm:w-[72px] sm:h-[72px] mx-auto mb-3 md:mb-4 flex items-center justify-center'
+                  className='w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-2 flex items-center justify-center rounded-full bg-[#D1B156] shadow'
                   aria-hidden='true'
                 >
                   <IconComponent
-                    className='w-8 h-8 sm:w-9 sm:h-9 text-charcoal'
-                    strokeWidth={1.5}
+                    className='w-7 h-7 sm:w-8 sm:h-8 text-white'
+                    strokeWidth={1.8}
                   />
                 </div>
-                <p className='text-sm sm:text-[15px] font-semibold text-charcoal leading-snug px-1'>
+                <p className='text-sm sm:text-[15px] font-semibold text-charcoal leading-snug px-1 mt-1'>
                   {addOn.label}
                 </p>
               </article>
@@ -377,6 +371,7 @@ export default function ConciergePage() {
           })}
         </div>
       </section>
+      
       {/* <section
         className='py-12 bg-[#f6efd1] border border-[#f6efcb] shadow-sm rounded-xl md:rounded-2xl'
         aria-labelledby='add-ons-title'

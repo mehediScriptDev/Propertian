@@ -1,6 +1,9 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { Calendar, Bed, Square, ParkingCircle } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { getRentPropertyById } from '@/lib/rentProperties';
+import { getResidentialPropertyById } from '@/lib/residentialProperties';
 
 export default function HotelBooking() {
   const [category, setCategory] = useState(() => {
@@ -71,6 +74,25 @@ export default function HotelBooking() {
       return null;
     }
   });
+
+  // Read search params reactively (no setState inside effects) so client-side
+  // navigation updates preview immediately.
+  const searchParams = useSearchParams();
+  const typeParam = searchParams ? searchParams.get('type') : null;
+  const propParam = searchParams ? searchParams.get('property') : null;
+
+  const derivedCategory = typeParam ? (typeParam.toLowerCase() === 'rent' ? 'Rent' : 'Buy') : null;
+  const derivedPropertyId = propParam ? decodeURIComponent(propParam) : null;
+
+  // Try to resolve property data from our mock libs.
+  let propertyData = null;
+  if (derivedPropertyId) {
+    if (derivedCategory && derivedCategory.toLowerCase() === 'rent') {
+      propertyData = getRentPropertyById(derivedPropertyId);
+    } else {
+      propertyData = getResidentialPropertyById(derivedPropertyId);
+    }
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -248,20 +270,20 @@ export default function HotelBooking() {
           <div>
             <div className="bg-white/50 rounded-lg shadow-sm overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&h=400&fit=crop"
-                alt="Deluxe Room"
-                className="w-full h-48 object-cover"
+                src={propertyData?.image || propertyData?.heroImage || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&h=400&fit=crop'}
+                alt={propertyData?.title || propertyData?.name || 'Property'}
+                className="w-full h-56 object-cover"
               />
 
               <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-2xl font-bold">Deluxe Room</h2>
-                  <span className="text-2xl font-bold">$250</span>
-                </div>
+                  <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-2xl font-bold">{propertyData?.title || propertyData?.name || 'Property'}</h2>
+                    <span className="text-2xl font-bold">{propertyData?.priceUSD ? `$${propertyData.priceUSD}` : propertyData?.priceXOF ? `${propertyData.priceXOF} XOF` : '—'}</span>
+                  </div>
 
-                <p className="text-gray-600 mb-6">
-                  The room has a double-sized bed draped in soft, flowing linens, a deep, freestanding tub overlooking the jungle, and a rain shower with a glass ceiling to enjoy the tropical sky.
-                </p>
+                  <p className="text-gray-600 mb-6">
+                    {propertyData?.description || propertyData?.overview?.startingPrice || 'No additional details available.'}
+                  </p>
 
                 <h3 className="font-semibold mb-4">Room features</h3>
 
