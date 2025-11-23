@@ -341,7 +341,7 @@ export default function Sidebar({ role = 'admin' }) {
       <div className='border-t border-gray-700/50 p-4'>
         {/* User Info with Dropdown */}
         <div className='relative z-50' ref={dropdownRef}>
-          <button
+          {/* <button
             onClick={() => setShowLangDropdown(!showLangDropdown)}
             className='mb-3 flex w-full items-center gap-3 rounded-lg bg-[#1A2B42] px-3 py-2.5 hover:bg-[#1E3A5F] transition-colors'
           >
@@ -356,12 +356,12 @@ export default function Sidebar({ role = 'admin' }) {
                 {user?.email || ''}
               </p>
             </div>
-            {/* <ChevronDown
+            <ChevronDown
               className={`h-4 w-4 shrink-0 text-gray-400 transition-transform ${
                 showLangDropdown ? 'rotate-180' : ''
               }`}
-            /> */}
-          </button>
+            />
+          </button> */}
 
           {/* Language Dropdown */}
           {/* {showLangDropdown && (
