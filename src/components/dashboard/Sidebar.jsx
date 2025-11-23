@@ -338,7 +338,7 @@ export default function Sidebar({ role = 'admin' }) {
       </nav>
 
       {/* User Section */}
-      <div className=' p-4'>
+      <div className='p-4'>
         {/* User Info with Dropdown */}
         <div className='relative z-50' ref={dropdownRef}>
           {/* <button
