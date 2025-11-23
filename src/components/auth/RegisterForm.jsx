@@ -7,6 +7,7 @@ import FormInput from './FormInput';
 import SocialButton from './SocialButton';
 import Divider from './Divider';
 import QHomesLogo from './QHomesLogo';
+import { Loader } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -242,10 +243,8 @@ const RegisterForm = () => {
                 >
                     {isLoading ? (
                         <>
-                            <span className='material-symbols-outlined animate-spin mr-2'>
-                                progress_activity
-                            </span>
-                            {t('auth.register.creatingAccount') || 'Creating Account...'}
+                            <Loader className='animate-spin mr-2 h-4 w-4' />
+                            {t('auth.register.createAccount')}
                         </>
                     ) : (
                         t('auth.register.createAccount')

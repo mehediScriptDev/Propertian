@@ -4,6 +4,7 @@ import { use, useMemo, useState } from "react";
 import { useTranslation } from "@/i18n";
 import dynamic from "next/dynamic";
 import StatsCard from "@/components/dashboard/admin/StatsCard";
+import AddPropertyModal from "@/components/dashboard/partner/AddPropertyModal";
 import {
   Eye,
   MapPin,
@@ -26,6 +27,7 @@ export default function PartnerDashboardPage({ params }) {
   const itemsPerPage = 5;
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Stats data matching admin dashboard style with SAME colors
   const [statsData, setStatsData] = useState([
@@ -193,7 +195,7 @@ export default function PartnerDashboardPage({ params }) {
             </h1>
             <p className="mt-2 text-sm text-gray-600">{t("Partner.title")}</p>
           </div>
-          <button className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-[#0F1B2E] transition-colors hover:bg-[#d4a520] focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:ring-offset-2">
+          <button onClick={() => setIsAddModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-[#0F1B2E] transition-colors hover:bg-[#d4a520] focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:ring-offset-2">
             <Plus className="h-4 w-4" aria-hidden="true" />
             {t("Partner.addButton")}
           </button>
@@ -219,7 +221,7 @@ export default function PartnerDashboardPage({ params }) {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">
-               {t("Partner.AllInquiries")}
+                {t("Partner.AllInquiries")}
               </h2>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -266,7 +268,7 @@ export default function PartnerDashboardPage({ params }) {
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                 {t("Partner.Properties")}
+                  {t("Partner.Properties")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   {t("Partner.Locations")}
@@ -322,11 +324,10 @@ export default function PartnerDashboardPage({ params }) {
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        property.status === "active"
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${property.status === "active"
                           ? "bg-green-100 text-green-800"
                           : "bg-yellow-100 text-yellow-800"
-                      }`}
+                        }`}
                     >
                       {property.status === "active" ? "Active" : "Pending"}
                     </span>
@@ -365,11 +366,10 @@ export default function PartnerDashboardPage({ params }) {
 
               <div className="flex items-center justify-between">
                 <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    property.status === "active"
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${property.status === "active"
                       ? "bg-green-100 text-green-800"
                       : "bg-yellow-100 text-yellow-800"
-                  }`}
+                    }`}
                 >
                   {property.status === "active" ? "Active" : "Pending"}
                 </span>
@@ -417,6 +417,7 @@ export default function PartnerDashboardPage({ params }) {
             }}
           />
         )}
+        <AddPropertyModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
       </div>
     </div>
   );

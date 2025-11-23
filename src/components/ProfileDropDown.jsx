@@ -17,10 +17,8 @@ const ProfileDropDown = () => {
 
   const logOutHandler = async () => {
     await logout();
-    // Redirect to localized login/home after logout
-    router.push(`/${locale}/login`);
-    // reload to ensure client state resets
-    window.location.reload();
+    // Force full navigation to localized login to ensure cookies/middleware are re-evaluated
+    window.location.href = `/${locale}/login`;
   };
 
   // click outside close dropdown
