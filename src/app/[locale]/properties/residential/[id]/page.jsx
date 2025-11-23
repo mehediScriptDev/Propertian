@@ -31,6 +31,39 @@ const PropertyDetailPage = () => {
   const propertyId = params?.id;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [formState, setFormState] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormState((s) => ({ ...s, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Inquiry submitted:", { property: selectedProperty, ...formState });
+    alert("Thank you for your inquiry! The developer will contact you shortly.");
+    setIsModalOpen(false);
+  };
+
+  const openInquire = (prefillMessage) => {
+    setSelectedProperty(propertyData);
+    setFormState({
+      fullName: "",
+      email: "",
+      phone: "",
+      message:
+        prefillMessage || `I am interested in ${propertyData.name}. Please send me more information.`,
+    });
+    setIsModalOpen(true);
+  };
+
   // Get translations
   const translations = getTranslation(locale);
   const t = (key) => {
@@ -153,12 +186,8 @@ const PropertyDetailPage = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-2 sm:gap-3 ml-auto lg:ml-0">
-              <button className="hidden sm:flex px-3 sm:px-4 py-2 bg-soft-grey dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition items-center gap-2 text-sm">
-                <Download className="w-4 h-4" />
-                <span className="hidden md:inline">{t("residentialDetails.buttons.downloadBrochure")}</span>
-                <span className="md:hidden">{t("residentialDetails.buttons.brochure")}</span>
-              </button>
-              <button className="px-4 sm:px-6 py-2 bg-[#0A2540] text-white rounded-lg hover:bg-[#0A2540]/90 transition text-sm font-medium">
+          
+              <button onClick={() => openInquire()} className="px-4 sm:px-6 py-2 bg-[#0A2540] text-white rounded-lg hover:bg-[#0A2540]/90 transition text-sm font-medium">
                 {t("residentialDetails.buttons.inquire")}
               </button>
             </div>
@@ -456,12 +485,18 @@ const PropertyDetailPage = () => {
 
               {/* CTA Buttons */}
               <div className="space-y-3">
-                <button className="w-full py-3 bg-[#0A2540] text-white rounded-lg hover:bg-[#0A2540]/90 transition font-medium">
+                <button
+                  onClick={() => openInquire()}
+                  className="w-full py-3 bg-[#0A2540] text-white rounded-lg hover:bg-[#0A2540]/90 transition font-medium"
+                >
                   {t("residentialDetails.buttons.inquireAbout")}
                 </button>
-                <button className="w-full py-3 bg-white/50 border border-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition font-medium">
+                <Link
+                  href={`/${locale}/book-visit?property=${propertyId}&type=buy`}
+                  className="w-full block text-center py-3 bg-white/50 border border-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition font-medium"
+                >
                   {t("residentialDetails.buttons.bookSiteVisit")}
-                </button>
+                </Link>
                 <button className="w-full py-3 bg-[#25D366]/10 text-[#25D366] rounded-lg hover:bg-[#25D366]/20 transition font-medium flex items-center justify-center gap-2">
                   <Phone className="w-4 h-4" />
                   {t("residentialDetails.buttons.whatsapp")}
@@ -471,6 +506,104 @@ const PropertyDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {isModalOpen && selectedProperty && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-[#fffff8] rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-[#fffff8] border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
+              <div>
+                <h3 className="text-2xl font-bold text-charcoal">Inquire about {selectedProperty.name}</h3>
+                <p className="text-sm text-gray-600 mt-1">Fill out the form below and the developer will contact you shortly.</p>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label htmlFor="fullName" className="block text-[14px] font-medium text-charcoal mb-1.5">Full Name</label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    value={formState.fullName}
+                    placeholder='Write your full name'
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-[14px] font-medium text-charcoal mb-1.5">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formState.email}
+                    placeholder='Enter your email address'
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-[14px] font-medium text-charcoal mb-1.5">Phone / WhatsApp</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formState.phone}
+                    placeholder='Enter your phone number'
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="message" className="block text-[14px] font-medium text-charcoal mb-1.5">Message</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={4}
+                    value={formState.message}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[15px] transition-all duration-200"
+                    required
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  >
+                    Send Inquiry
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
