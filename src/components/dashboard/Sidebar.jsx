@@ -399,14 +399,14 @@ export default function Sidebar({ role = 'admin' }) {
         </div>
 
         {/* Logout Button */}
-        <button
+        {/* <button
           onClick={handleLogout}
           className='flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-300 transition-all duration-200 hover:bg-[#1A2B42] hover:text-white'
           aria-label='Logout'
         >
           <LogOut className='h-5 w-5 shrink-0 text-gray-400' />
           <span>{t('dashboard.logout')}</span>
-        </button>
+        </button> */}
       </div>
     </div>
   );
