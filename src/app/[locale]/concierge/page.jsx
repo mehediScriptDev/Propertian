@@ -1,19 +1,11 @@
 'use client';
 
-import {
-  Check,
-  Key,
-  Package,
-  Sparkles,
-  GraduationCap,
-  PawPrint,
-  Lightbulb,
-  Globe,
-  Car,
-} from 'lucide-react';
+import { Check, Key, Package, Sparkles, GraduationCap, PawPrint, Lightbulb, Globe, Car } from 'lucide-react';
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
+import { useState } from 'react';
+import COUNTRY_CODES from '@/utils/countryCodes';
 import Link from 'next/link';
 
 export default function ConciergePage() {
@@ -57,13 +49,43 @@ export default function ConciergePage() {
     { Icon: Car, label: t('concierge.addOns.carImport') },
   ];
 
+  // Service keys used as option values
+
+  const [formState, setFormState] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    moveDate: '',
+    moveTiming: '',
+    planDetails: '',
+    countryOfResidence: 'CI',
+    serviceNeeded: 'relocation',
+  });
+
+  // Leave native select for country of residence to match form style; no custom component.
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormState((s) => ({ ...s, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Simple placeholder submission - wire to API later
+    console.log('Concierge request', formState);
+    alert('Request submitted — check console for details.');
+    // Keep minimal UX: reset optional fields
+    setFormState((s) => ({ ...s, fullName: '', email: '', phone: '', moveTiming: '', planDetails: '' }));
+  };
+
   return (
     <main className='flex flex-col items-center bg-background-light dark:bg-navy-light'>
       <div className='w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8 lg:space-y-16'>
+
       {/* Hero Section */}
       <section className='w-full' aria-labelledby='hero-title'>
         <div
-          className='flex min-h-[420px] sm:min-h-[480px] flex-col gap-5 md:gap-6 bg-cover bg-center bg-no-repeat rounded-xl md:rounded-2xl items-center justify-center p-6 md:p-8 lg:p-10 text-center'
+          className='flex min-h-50 sm:min-h-60 lg:min-h-[480px] flex-col gap-5 md:gap-6 bg-cover bg-center bg-no-repeat rounded-xl md:rounded-2xl items-center justify-center p-6 md:p-8 lg:p-10 text-center'
           style={{
             backgroundImage: `linear-gradient(rgba(10, 25, 49, 0.35) 0%, rgba(10, 25, 49, 0.35) 100%), url("/concierge/ss.png")`,
           }}
@@ -328,17 +350,20 @@ export default function ConciergePage() {
           {addOns.map((addOn, index) => {
             const IconComponent = addOn.Icon;
             return (
-              <article key={index} className='text-center'>
+              <article
+                key={addOn.label ?? index}
+                className='text-center'
+              >
                 <div
-                  className='w-16 h-16 sm:w-[72px] sm:h-[72px] mx-auto mb-3 md:mb-4 flex items-center justify-center'
+                  className='w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-2 flex items-center justify-center rounded-full bg-[#D1B156] shadow'
                   aria-hidden='true'
                 >
                   <IconComponent
-                    className='w-8 h-8 sm:w-9 sm:h-9 text-charcoal'
-                    strokeWidth={1.5}
+                    className='w-7 h-7 sm:w-8 sm:h-8 text-white'
+                    strokeWidth={1.8}
                   />
                 </div>
-                <p className='text-sm sm:text-[15px] font-semibold text-charcoal leading-snug px-1'>
+                <p className='text-sm sm:text-[15px] font-semibold text-charcoal leading-snug px-1 mt-1'>
                   {addOn.label}
                 </p>
               </article>
@@ -346,6 +371,7 @@ export default function ConciergePage() {
           })}
         </div>
       </section>
+      
       {/* <section
         className='py-12 bg-[#f6efd1] border border-[#f6efcb] shadow-sm rounded-xl md:rounded-2xl'
         aria-labelledby='add-ons-title'
@@ -388,133 +414,207 @@ export default function ConciergePage() {
 
       {/* Ready to Make Your Move Section */}
       <section
-      id='concierge-form'
-        className=' bg-background-light rounded-xl md:rounded-2xl'
+        id='concierge-form'
+        className='bg-background-light rounded-xl md:rounded-2xl lg:px-6 pt-6'
         aria-labelledby='contact-title'
       >
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center px-4 md:px-6'>
-          {/* Image */}
-          <div className='order-2 lg:order-1'>
-            <div className='relative h-80 sm:h-[400px] md:h-[480px] lg:h-[580px] rounded-2xl overflow-hidden shadow-xl'>
-              <Image
-                src='/concierge/contact.jpg'
-                alt="Modern luxury home in Côte d'Ivoire with contemporary design"
-                fill
-                className='object-cover'
-                sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 600px'
-                priority={false}
-                loading='lazy'
-              />
-            </div>
-          </div>
+        <div className='max-w-7xl mx-auto'>
+          <h2
+            id='contact-title'
+            className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-3 md:mb-4 leading-tight'
+          >
+            {t('concierge.contact.title')}
+          </h2>
+          <p className='text-[15px] sm:text-base text-gray-500 mb-6 md:mb-8 leading-relaxed'>
+            {t('concierge.contact.subtitle')}
+          </p>
 
-          {/* Form */}
-          <div  id='concierge-form' className='order-1 lg:order-2'>
-            <h2
-              id='contact-title'
-              className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-4 md:mb-5 leading-tight'
-            >
-              {t('concierge.contact.title')}
-            </h2>
-            <p className='text-[15px] sm:text-base text-gray-500 mb-6 md:mb-8 leading-relaxed'>
-              {t('concierge.contact.subtitle')}
-            </p>
-
-            <form className='space-y-5' aria-label='Consultation booking form'>
+          <form onSubmit={handleSubmit} className='space-y-5' aria-label='Consultation booking form'>
+            {/* Two column grid for lg screens */}
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-5'>
+              {/* Column 1 - Left side */}
               <div>
                 <label
                   htmlFor='fullName'
                   className='block text-[14px] font-medium text-charcoal mb-1.5'
                 >
-                  {t('concierge.contact.fullName')}
+                  Full Name
                 </label>
                 <input
                   type='text'
                   id='fullName'
                   name='fullName'
+                  value={formState.fullName}
+                  onChange={handleChange}
                   className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
                   required
                   aria-required='true'
                 />
               </div>
 
+              {/* Column 2 - Right side */}
               <div>
                 <label
                   htmlFor='email'
                   className='block text-[14px] font-medium text-charcoal mb-1.5'
                 >
-                  {t('concierge.contact.email')}
+                  Email
                 </label>
                 <input
                   type='email'
                   id='email'
                   name='email'
+                  value={formState.email}
+                  onChange={handleChange}
                   className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
                   required
                   aria-required='true'
                 />
               </div>
 
+              {/* Phone */}
               <div>
                 <label
                   htmlFor='phone'
                   className='block text-[14px] font-medium text-charcoal mb-1.5'
                 >
-                  {t('concierge.contact.phone')}
+                  Phone / WhatsApp
                 </label>
                 <input
                   type='tel'
                   id='phone'
                   name='phone'
+                  value={formState.phone}
+                  onChange={handleChange}
                   className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
                   required
                   aria-required='true'
                 />
               </div>
 
+              {/* Country */}
+              <div>
+                <label
+                  htmlFor='countryOfResidence'
+                  className='block text-[14px] font-medium text-charcoal mb-1.5'
+                >
+                  Country of Residence
+                </label>
+                <select
+                  id='countryOfResidence'
+                  name='countryOfResidence'
+                  value={formState.countryOfResidence}
+                  onChange={handleChange}
+                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
+                >
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.iso2} value={c.iso2}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Preferred Date */}
               <div>
                 <label
                   htmlFor='moveDate'
                   className='block text-[14px] font-medium text-charcoal mb-1.5'
                 >
-                  {t('concierge.contact.preferredDate')}
+                  Preferred Date & Time
                 </label>
                 <input
                   type='datetime-local'
                   id='moveDate'
                   name='moveDate'
+                  value={formState.moveDate}
+                  onChange={handleChange}
                   className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
                   required
                   aria-required='true'
                 />
               </div>
 
+              {/* Service Needed */}
               <div>
                 <label
-                  htmlFor='message'
+                  htmlFor='serviceNeeded'
                   className='block text-[14px] font-medium text-charcoal mb-1.5'
                 >
-                  {t('concierge.contact.message')}
+                  Service Needed
+                </label>
+                <select
+                  id='serviceNeeded'
+                  name='serviceNeeded'
+                  value={formState.serviceNeeded}
+                  onChange={handleChange}
+                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
+                  required
+                >
+                  <option value='relocation'>Relocation</option>
+                  <option value='schoolSearch'>School Search</option>
+                  <option value='neighborhoodSearch'>Neighborhood Search</option>
+                  <option value='corporateRelocation'>Corporate Relocation</option>
+                  <option value='lifestyleAssistance'>Lifestyle Assistance</option>
+                </select>
+              </div>
+
+              {/* Move Timing */}
+              <div>
+                <label
+                  htmlFor='moveTiming'
+                  className='block text-[14px] font-medium text-charcoal mb-1.5'
+                >
+                  When do you plan to move?
+                </label>
+                <select
+                  id='moveTiming'
+                  name='moveTiming'
+                  value={formState.moveTiming}
+                  onChange={handleChange}
+                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
+                  required
+                >
+                  <option value=''>Select time frame</option>
+                  <option value='asap'>ASAP</option>
+                  <option value='within_3_months'>Within 3 months</option>
+                  <option value='3_to_6_months'>3 - 6 months</option>
+                  <option value='6_to_12_months'>6 - 12 months</option>
+                  <option value='more_than_12_months'>More than 12 months</option>
+                  <option value='not_sure'>Not sure</option>
+                </select>
+              </div>
+
+              {/* Plan Details - Full width */}
+              <div className='lg:col-span-2'>
+                <label
+                  htmlFor='planDetails'
+                  className='block text-[14px] font-medium text-charcoal mb-1.5'
+                >
+                  Tell us briefly about your plans
                 </label>
                 <textarea
-                  id='message'
-                  name='message'
+                  id='planDetails'
+                  name='planDetails'
                   rows={4}
+                  value={formState.planDetails}
+                  onChange={handleChange}
                   className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[15px] transition-all duration-200'
                   required
                   aria-required='true'
                 />
               </div>
+            </div>
 
-              <button
-                type='submit'
-                className='w-full bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 py-3.5 rounded-lg transition-all duration-200 text-[15px] mt-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
-                aria-label='Submit consultation booking form'
-              >
-                {t('concierge.contact.submit')}
-              </button>
-            </form>
-          </div>
+            {/* Submit Button - Full width */}
+            <button
+              type='submit'
+              className='w-full bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 py-3.5 rounded-lg transition-all duration-200 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+              aria-label='Submit consultation booking form'
+            >
+              Submit
+            </button>
+          </form>
         </div>
       </section>
       </div>

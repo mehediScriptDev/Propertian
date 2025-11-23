@@ -2,6 +2,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 import React, { useState, useCallback, useId } from "react";
+import { SUPPORT_EMAIL } from '@/config/emails';
 
 const ContactFAQ = React.memo(() => {
   const baseId = useId();
@@ -63,8 +64,7 @@ const ContactFAQ = React.memo(() => {
     },
     {
       question: "How can I contact Q Homes support?",
-      answer:
-        "You can reach us anytime via support@qglobaliving.com or through WhatsApp directly from the platform's footer and contact page.",
+      answer: `You can reach us anytime via ${SUPPORT_EMAIL} or through WhatsApp directly from the platform's footer and contact page.`,
     },
   ];
   return (

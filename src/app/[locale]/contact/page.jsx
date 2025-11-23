@@ -6,6 +6,7 @@ import ContactHero from "@/components/contact/ContactHero";
 import ContactForm from "@/components/contact/ContactForm";
 import ContactInfo from "@/components/contact/ContactInfo";
 import ContactFAQ from "@/components/contact/ContactFAQ";
+import { SUPPORT_EMAIL } from '@/config/emails';
 import ContactCTA from "@/components/contact/ContactCTA";
 
 export default function ContactPage() {
@@ -127,8 +128,7 @@ export default function ContactPage() {
     },
     {
       question: "How can I contact Q Homes support?",
-      answer:
-        "You can reach us anytime via support@qglobaliving.com or through WhatsApp directly from the platform's footer and contact page.",
+      answer: `You can reach us anytime via ${SUPPORT_EMAIL} or through WhatsApp directly from the platform's footer and contact page.`,
     },
     ],
   };

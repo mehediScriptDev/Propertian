@@ -87,7 +87,7 @@ export default function Page({ params }) {
           />
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-stretch sm:items-center mt-2">
             <Link
-              href={"#"}
+              href={"#form"}
               className="w-full sm:w-auto bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 md:px-8 lg:px-10 py-3 md:py-3.5 rounded-lg transition-all duration-200 text-sm lg:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label="Book a consultation with our concierge team"
             >
@@ -150,9 +150,9 @@ export default function Page({ params }) {
       </div>
 
       {/* form */}
-      <div>
+      <div id="form">
         {/* Waitlist Section */}
-        <div className="w-full mx-auto max-w-7xl pt-12">
+        <div  className="w-full mx-auto max-w-7xl pt-12">
           <div className="bg-white/50 border border-[#C5A572]/50 rounded-2xl p-8 sm:p-12 lg:p-16">
             <div className="text-center mb-6 lg:mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -165,7 +165,7 @@ export default function Page({ params }) {
             </div>
 
             <form
-              className="flex flex-wrap gap-4 items-end justify-center max-w-4xl mx-auto"
+              className="space-y-5 max-w-4xl mx-auto"
               onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
@@ -174,82 +174,113 @@ export default function Page({ params }) {
                     "fullName"
                   )}\nEmail: ${formData.get("email")}\nCountry: ${formData.get(
                     "country"
-                  )}`
+                  )}\nInterested in: ${formData.get("interest")}`
                 );
                 e.currentTarget.reset();
               }}
             >
-              <div className="flex flex-col items-start min-w-[200px] flex-1">
-                <label
-                  htmlFor="fullName"
-                  className="text-gray-900 dark:text-white text-sm font-medium mb-2"
-                >
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  placeholder="Enter your full name"
-                  required
-                  className="w-full px-4 py-3.5 bg-transparent border border-[#C5A572]/50 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-[#C5A572] focus:ring-2 focus:ring-[#C5A572]/20 outline-none transition-all duration-300"
-                />
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="flex flex-col items-start">
+                  <label
+                    htmlFor="fullName"
+                    className="text-gray-900 dark:text-white text-sm font-medium mb-2"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    placeholder="Enter your full name"
+                    required
+                    className="w-full px-4 py-3.5 bg-transparent border border-[#C5A572]/50 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-[#C5A572] focus:ring-2 focus:ring-[#C5A572]/20 outline-none transition-all duration-300"
+                  />
+                </div>
 
-              <div className="flex flex-col items-start min-w-[200px] flex-1">
-                <label
-                  htmlFor="email"
-                  className="text-gray-900 dark:text-white text-sm font-medium mb-2"
-                >
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  required
-                  className="w-full px-4 py-3.5 bg-transparent border border-[#C5A572]/50 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-[#C5A572] focus:ring-2 focus:ring-[#C5A572]/20 outline-none transition-all duration-300"
-                />
-              </div>
+                <div className="flex flex-col items-start">
+                  <label
+                    htmlFor="email"
+                    className="text-gray-900 dark:text-white text-sm font-medium mb-2"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                    className="w-full px-4 py-3.5 bg-transparent border border-[#C5A572]/50 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:border-[#C5A572] focus:ring-2 focus:ring-[#C5A572]/20 outline-none transition-all duration-300"
+                  />
+                </div>
 
-              <div className="flex flex-col items-start min-w-[200px] flex-1">
-                <label
-                  htmlFor="country"
-                  className="text-gray-900 dark:text-white text-sm font-medium mb-2"
-                >
-                  Country of Residence
-                </label>
-                <select
-                  id="country"
-                  name="country"
-                  required
-                  defaultValue="United States"
-                  className="w-full px-4 py-3.5 bg-transparent border border-[#C5A572]/50 rounded-lg text-gray-900 dark:text-white focus:border-[#C5A572] focus:ring-2 focus:ring-[#C5A572]/20 outline-none transition-all duration-300 appearance-none cursor-pointer"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23b8c5d6' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 1rem center",
-                    paddingRight: "2.5rem",
-                  }}
-                >
-                  <option value="United States">United States</option>
-                  <option value="France">France</option>
-                  <option value="United Kingdom">United Kingdom</option>
-                  <option value="Canada">Canada</option>
-                  <option value="Germany">Germany</option>
-                  <option value="Australia">Australia</option>
-                  <option value="Japan">Japan</option>
-                  <option value="India">India</option>
-                  <option value="Nigeria">Nigeria</option>
-                  <option value="South Africa">South Africa</option>
-                  <option value="Other">Other</option>
-                </select>
+                <div className="flex flex-col items-start">
+                  <label
+                    htmlFor="country"
+                    className="text-gray-900 dark:text-white text-sm font-medium mb-2"
+                  >
+                    Country of Residence
+                  </label>
+                  <select
+                    id="country"
+                    name="country"
+                    required
+                    defaultValue="United States"
+                    className="w-full px-4 py-3.5 bg-transparent border border-[#C5A572]/50 rounded-lg text-gray-900 dark:text-white focus:border-[#C5A572] focus:ring-2 focus:ring-[#C5A572]/20 outline-none transition-all duration-300 appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23b8c5d6' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 1rem center",
+                      paddingRight: "2.5rem",
+                    }}
+                  >
+                    <option value="United States">United States</option>
+                    <option value="France">France</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Germany">Germany</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Japan">Japan</option>
+                    <option value="India">India</option>
+                    <option value="Nigeria">Nigeria</option>
+                    <option value="South Africa">South Africa</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col items-start">
+                  <label
+                    htmlFor="interest"
+                    className="text-gray-900 dark:text-white text-sm font-medium mb-2"
+                  >
+                    I am interested in:
+                  </label>
+                  <select
+                    id="interest"
+                    name="interest"
+                    required
+                    defaultValue=""
+                    className="w-full px-4 py-3.5 bg-transparent border border-[#C5A572]/50 rounded-lg text-gray-900 dark:text-white focus:border-[#C5A572] focus:ring-2 focus:ring-[#C5A572]/20 outline-none transition-all duration-300 appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23b8c5d6' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 1rem center",
+                      paddingRight: "2.5rem",
+                    }}
+                  >
+                    <option value="" disabled>Select your interest</option>
+                    <option value="buying">Buying</option>
+                    <option value="renting">Renting</option>
+                    <option value="investing">Investing</option>
+                    <option value="relocating">Relocating</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
               </div>
 
               <button
                 type="submit"
-                className="px-8 py-3.5 bg-primary text-[#0a1929] rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-[#C5A572]/30 hover:-translate-y-0.5 min-w-40"
+                className="w-full px-8 py-3.5 bg-primary text-[#0a1929] rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-[#C5A572]/30 hover:-translate-y-0.5"
               >
                 Join Waitlist →
               </button>

@@ -1485,7 +1485,7 @@
       "phoneTitle": "Téléphone",
       "phoneNumber": "+225 01 23 45 67 89 (Sample)",
       "emailTitle": "Email",
-      "emailAddress": "info@qglobaliving.com",
+      "emailAddress": "info@qgloballiving.com",
       "hoursTitle": "Heures d'Ouverture",
       "hoursContent": "Lun - Ven: 8h00 - 18h00 WAT\nSam: 9h00 - 14h00\nDim: Fermé",
       "mapTitle": "Trouvez-Nous sur la Carte"
@@ -1640,7 +1640,7 @@
       "ContactUs": {
         "title": "Nous contacter",
         "description": "Si vous avez des questions ou des préoccupations concernant cette politique de confidentialité, veuillez nous contacter à l’adresse suivante :",
-        "email": "privacy@qglobaliving.com",
+        "email": "privacy@qgloballiving.com",
         "sortDescription": ""
       }
     },
@@ -1755,7 +1755,7 @@
       "ContactUs": {
         "title": "Nous contacter",
         "description": "Si vous avez des questions concernant notre utilisation des cookies ou d’autres technologies, veuillez nous écrire à l’adresse suivante :",
-        "email": "support@qglobaliving.com"
+        "email": "support@qgloballiving.com"
       }
     }
   },

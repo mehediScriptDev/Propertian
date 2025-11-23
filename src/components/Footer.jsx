@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Facebook, Instagram, Linkedin } from "lucide-react";
+import { SUPPORT_EMAIL } from '@/config/emails';
 import { useTranslation } from "@/i18n";
 
 export default function Footer({ locale }) {
@@ -19,7 +20,7 @@ export default function Footer({ locale }) {
         key: "partner",
       },
       {
-        href: `/${locale}/concierge-service`,
+        href: `/${locale}/concierge`,
         label: t("Concierge Service"),
         key: "concierge",
       },
@@ -121,10 +122,10 @@ export default function Footer({ locale }) {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="mailto:support@qgloballiving.com"
+                  href={`mailto:${SUPPORT_EMAIL}`}
                   className="text-sm text-white/80 hover:text-white hover:underline transition-colors inline-block"
                 >
-                  support@qgloballiving.com
+                  {SUPPORT_EMAIL}
                 </a>
               </li>
               <li>

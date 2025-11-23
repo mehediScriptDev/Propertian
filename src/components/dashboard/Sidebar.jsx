@@ -338,10 +338,10 @@ export default function Sidebar({ role = 'admin' }) {
       </nav>
 
       {/* User Section */}
-      <div className='border-t border-gray-700/50 p-4'>
+      <div className=' p-4'>
         {/* User Info with Dropdown */}
         <div className='relative z-50' ref={dropdownRef}>
-          <button
+          {/* <button
             onClick={() => setShowLangDropdown(!showLangDropdown)}
             className='mb-3 flex w-full items-center gap-3 rounded-lg bg-[#1A2B42] px-3 py-2.5 hover:bg-[#1E3A5F] transition-colors'
           >
@@ -361,10 +361,10 @@ export default function Sidebar({ role = 'admin' }) {
                 showLangDropdown ? 'rotate-180' : ''
               }`}
             />
-          </button>
+          </button> */}
 
           {/* Language Dropdown */}
-          {showLangDropdown && (
+          {/* {showLangDropdown && (
             <div className='absolute bottom-full left-0 right-0 mb-2 bg-[#1A2B42] rounded-lg shadow-xl border border-gray-700/50 z-50'>
               <button
                 onClick={() => handleLanguageChange('en')}
@@ -395,18 +395,18 @@ export default function Sidebar({ role = 'admin' }) {
                 )}
               </button>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Logout Button */}
-        <button
+        {/* <button
           onClick={handleLogout}
           className='flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-300 transition-all duration-200 hover:bg-[#1A2B42] hover:text-white'
           aria-label='Logout'
         >
           <LogOut className='h-5 w-5 shrink-0 text-gray-400' />
           <span>{t('dashboard.logout')}</span>
-        </button>
+        </button> */}
       </div>
     </div>
   );

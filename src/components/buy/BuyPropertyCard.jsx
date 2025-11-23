@@ -1,9 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FaHeart } from 'react-icons/fa';
+import { AiOutlineHeart } from "react-icons/ai";
 
 /**
  * BuyPropertyCard Component
@@ -30,6 +33,8 @@ export default function BuyPropertyCard({ property }) {
     bathrooms,
     area,
   } = property;
+
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // Format price with thousand separators
   const formatPrice = (price) => {
@@ -110,9 +115,23 @@ export default function BuyPropertyCard({ property }) {
       {/* Property Details */}
       <div className='p-4 flex flex-col grow'>
         {/* Location */}
-        <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
+        <div className='flex justify-between'>
+          <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
           {location}
         </p>
+        <button
+          title={isFavorite ? 'Remove favourite' : 'Add favourite'}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsFavorite((v) => !v);
+          }}
+          aria-pressed={isFavorite}
+          className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
+        >
+          {isFavorite ? <FaHeart /> : <AiOutlineHeart />}
+        </button>
+        </div>
 
         {/* Title */}
         <h3 className='text-xl lg:text-2xl font-bold leading-snug mt-1 line-clamp-1 text-gray-900 dark:text-white'>
@@ -193,7 +212,7 @@ export default function BuyPropertyCard({ property }) {
             {t('buy.propertyCard.viewDetails', 'View Details')}
           </Link>
           <Link
-            href={`/${locale}/book-visit?property=${id}`}
+            href={`/${locale}/book-visit?property=${id}&type=buy`}
             className='text-xs sm:text-sm lg:text-base font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 whitespace-nowrap'
             aria-label={`Book viewing for ${title}`}
           >

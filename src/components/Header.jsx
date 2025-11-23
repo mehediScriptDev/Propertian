@@ -167,13 +167,12 @@ function Header({ locale }) {
           onClick={handleMobileMenuClose}
           aria-label={t("common.home") || "Home"}
         >
-          <Image
+          <img
             src="/logo.png"
             alt="Q Global Living - Real Estate"
-            width={80}
-            height={40}
-            className="h-10 w-auto object-contain"
-            priority
+            
+            className="h-10 w-20 xl:w-26 object-contain"
+            
           />
         </Link>
 

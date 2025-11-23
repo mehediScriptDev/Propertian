@@ -68,7 +68,7 @@ export default function HeroSection({ locale }) {
   }, []);
 
   return (
-    <section className="relative flex min-h-[500px] sm:min-h-[600px] md:min-h-[70vh] lg:min-h-[75vh] flex-col items-center justify-center overflow-hidden px-4 py-12 sm:py-16 md:py-20 text-center text-white">
+    <section className="relative flex min-h-[500px]  xl:min-h-[75vh] flex-col items-center justify-center overflow-hidden px-4 py-12 sm:py-16 md:py-20 text-center text-white">
       {/* Fallback Background Image */}
       <Image
         src="/mainBanner.jpg"
