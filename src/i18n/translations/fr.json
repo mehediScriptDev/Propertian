@@ -524,7 +524,21 @@
           "apartment": "Appartement",
           "commercial": "Commercial",
           "house": "Maison"
-        }
+          },
+          "add": {
+            "title": "Ajouter une propriété",
+            "subtitle": "Créer une nouvelle annonce immobilière",
+            "basicInfo": "Informations de base",
+            "pricing": "Tarification",
+            "images": "Images",
+            "features": "Caractéristiques",
+            "interior": "Caractéristiques intérieures",
+            "exterior": "Caractéristiques extérieures",
+            "highlights": "Points forts",
+            "locationDescription": "Description de l'emplacement",
+            "developerDescription": "Description du promoteur",
+            "rental": "Informations sur la location (optionnel)"
+          }
       },
       "partners": {
         "title": "Gestion des Partenaires",
