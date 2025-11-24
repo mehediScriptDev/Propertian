@@ -32,6 +32,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@/i18n';
+import { RiQuestionnaireLine } from "react-icons/ri";
 
 /**
  * Navigation items configuration for each role - using translation keys
@@ -108,7 +109,7 @@ const navigationConfig = {
     {
       key: 'dashboard.client.savedSearches',
       href: '/dashboard/client/saved-searches',
-      icon: Search,
+      icon: RiQuestionnaireLine ,
     },
     {
       key: 'dashboard.client.appointments',
