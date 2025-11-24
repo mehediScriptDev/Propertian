@@ -10,7 +10,7 @@ const STATUS_BADGE_STYLES = {
   inactive: 'bg-gray-100 text-gray-700',
 };
 
-const PropertiesListTable = memo(({ properties, translations }) => {
+const PropertiesListTable = memo(({ properties, translations, onView, onEdit, onDelete }) => {
   const getStatusBadge = (status) => {
     const badgeStyle =
       STATUS_BADGE_STYLES[status] || 'bg-gray-100 text-gray-700';
@@ -104,6 +104,7 @@ const PropertiesListTable = memo(({ properties, translations }) => {
                   <div className='flex items-center gap-2'>
                     <button
                       type='button'
+                      onClick={() => onView && onView(property)}
                       className='p-1.5 rounded-lg hover:bg-gray-100 transition-colors duration-200'
                       title={translations.table.view}
                       aria-label={`${translations.table.view} ${property.title}`}
@@ -112,6 +113,7 @@ const PropertiesListTable = memo(({ properties, translations }) => {
                     </button>
                     <button
                       type='button'
+                      onClick={() => onEdit && onEdit(property)}
                       className='p-1.5 rounded-lg hover:bg-blue-50 transition-colors duration-200'
                       title={translations.table.edit}
                       aria-label={`${translations.table.edit} ${property.title}`}
@@ -120,6 +122,7 @@ const PropertiesListTable = memo(({ properties, translations }) => {
                     </button>
                     <button
                       type='button'
+                      onClick={() => onDelete && onDelete(property)}
                       className='p-1.5 rounded-lg hover:bg-red-50 transition-colors duration-200'
                       title={translations.table.delete}
                       aria-label={`${translations.table.delete} ${property.title}`}

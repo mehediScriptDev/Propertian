@@ -210,8 +210,48 @@ export default function AuditLogs({ params }) {
   }, []);
 
   const handleExportCsv = useCallback(() => {
-    console.log("Exporting CSV with", filteredLogs.length, "logs");
-  }, [filteredLogs.length]);
+    if (!filteredLogs || filteredLogs.length === 0) {
+      console.warn('No audit logs to export');
+      return;
+    }
+
+    // Header labels (use translated table headers when available)
+    const headers = [
+      auditLogsTranslations.table.dateTime || 'DateTime',
+      auditLogsTranslations.table.userActor || 'User',
+      auditLogsTranslations.table.actionPerformed || 'Action',
+      auditLogsTranslations.table.itemAffected || 'Item Affected',
+      auditLogsTranslations.table.ipAddress || 'IP Address',
+    ];
+
+    // Build CSV rows, escaping quotes
+    const escape = (v) => {
+      if (v === null || v === undefined) return '';
+      const s = String(v);
+      return '"' + s.replace(/"/g, '""') + '"';
+    };
+
+    const rows = filteredLogs.map((log) => [
+      escape(log.dateTime),
+      escape(log.user),
+      escape(log.actionType),
+      escape(log.itemAffected),
+      escape(log.ipAddress),
+    ].join(','));
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const now = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    a.download = `audit-logs-${now}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, [filteredLogs, auditLogsTranslations]);
 
   const handleSearchChange = useCallback((value) => {
     setSearchQuery(value);

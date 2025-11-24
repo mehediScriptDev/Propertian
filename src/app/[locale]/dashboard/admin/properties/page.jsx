@@ -6,6 +6,8 @@ import { Building2, Check, Eye, X } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
 import PropertiesFilters from '@/components/dashboard/admin/PropertiesFilters';
 import PropertiesListTable from '@/components/dashboard/admin/PropertiesListTable';
+import ViewPropertyModal from './components/Modals/ViewPropertyModal';
+import EditPropertyModal from './components/Modals/EditPropertyModal';
 import Pagination from '@/components/dashboard/Pagination';
 
 // Mock properties data - deterministic generation
@@ -208,6 +210,9 @@ export default function PropertiesManagementPage({ params }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
 
   // Constants
   const ITEMS_PER_PAGE = 5;
@@ -319,6 +324,22 @@ export default function PropertiesManagementPage({ params }) {
     setCurrentPage(page);
   }, []);
 
+  const handleView = useCallback((property) => {
+    setSelectedProperty(property);
+    setShowViewModal(true);
+  }, []);
+
+  const handleEdit = useCallback((property) => {
+    setSelectedProperty(property);
+    setShowEditModal(true);
+  }, []);
+
+  const handleSaveEdit = useCallback((updated) => {
+    // update local list (mock data in this page) — replace item in `properties`
+    // Since properties is memoized mock data, we won't mutate it here; in a real app you would call API and refresh.
+    console.log('Saved property (mock):', updated);
+  }, []);
+
   // Pagination translations
   const paginationTranslations = useMemo(
     () => ({
@@ -372,7 +393,12 @@ export default function PropertiesManagementPage({ params }) {
         <PropertiesListTable
           properties={paginatedProperties}
           translations={propertiesTranslations}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={(p) => console.log('delete', p)}
         />
+        <ViewPropertyModal isOpen={showViewModal} onClose={() => setShowViewModal(false)} property={selectedProperty} t={t} />
+        <EditPropertyModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} property={selectedProperty} onSave={handleSaveEdit} t={t} />
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
