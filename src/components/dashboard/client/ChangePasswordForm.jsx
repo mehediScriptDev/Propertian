@@ -65,6 +65,7 @@ export default function ChangePasswordForm() {
                         id={idCurrent}
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
+                        placeholder="Enter your current Password"
                         type="password"
                         className="w-full rounded-md border border-slate-200 px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
                     />

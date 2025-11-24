@@ -92,7 +92,7 @@ export default function SavedProperties() {
         {/* Toolbar (search, status select, add) - matches provided image */}
         <div className="bg-white rounded-lg px-4 py-6 mb-6 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="flex-1 max-w-xl">
+            <div className="flex-1 max-w-full">
               <div className="relative">
                 <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
                   <Search className="h-4 w-4" />
@@ -107,7 +107,7 @@ export default function SavedProperties() {
               </div>
             </div>
 
-            <div className="ml-auto flex items-center gap-3">
+            {/* <div className="ml-auto flex items-center gap-3">
 
               <button
                 type="button"
@@ -118,7 +118,7 @@ export default function SavedProperties() {
                 <Plus className="h-6 text-white w-6 mr-2" aria-hidden="true" />
                 <span>{t('dashboard.client.addProperty')}</span>
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
 
