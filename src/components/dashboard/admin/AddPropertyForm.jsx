@@ -1,34 +1,31 @@
 "use client";
 
 import { useState, useRef } from "react";
-export default function AddPropertyForm({ translations = {}, locale }) {
+import { post } from "../../../lib/api";
+import { ChevronDown } from "lucide-react";
+
+export default function AddPropertyForm({ translations = {} }) {
   const [form, setForm] = useState({
-    id: "",
     title: "",
+    description: "",
     location: "",
     address: "",
     city: "",
-    description: "",
-    developer: "",
-    isVerified: false,
-    priceXOF: "",
-    priceUSD: "",
+    state: "",
+    zipCode: "",
+    country: "",
     propertyType: "villa",
+    listingType: "SALE",
+    price: "",
     bedrooms: "",
     bathrooms: "",
-    area: "",
-    areaUnit: "sqm",
-    garages: "",
+    sqft: "",
+    amenities: "",
+    rentalDuration: "12 Months (Minimum)",
+    furnishing: "Unfurnished",
+    rentalTerms: "",
     mainImage: null,
     gallery: [],
-    locationDescription: "",
-    developerDescription: "",
-    rentalDuration: "12 Months (Minimum)",
-    rentalDeposit: "2 Months Deposit",
-    furnishing: "Unfurnished",
-    lat: "",
-    lng: "",
-    featured: false,
   });
 
   const [galleryPreviews, setGalleryPreviews] = useState([]);
@@ -39,16 +36,6 @@ export default function AddPropertyForm({ translations = {}, locale }) {
 
   const galleryRef = useRef(null);
 
-  const highlightOptions = [
-    "pool",
-    "living area",
-    "modern kitchen",
-    "master bedroom",
-    "security",
-    "proximity to road/market",
-  ];
-
-  // Updated to match the property detail features exactly as requested
   const interiorOptions = [
     "Modern fitted kitchen",
     "Air conditioning throughout",
@@ -65,52 +52,23 @@ export default function AddPropertyForm({ translations = {}, locale }) {
     "Outdoor entertainment area",
   ];
 
-  const [highlights, setHighlights] = useState([]);
-  const [interior, setInterior] = useState([]);
-  const [exterior, setExterior] = useState([]);
+  const [interiorFeatures, setInteriorFeatures] = useState([]);
+  const [exteriorFeatures, setExteriorFeatures] = useState([]);
 
-  // constants
-  const MAX_GALLERY = 8;
-  const MIN_GALLERY = 4;
-  const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
-
-  // generate id once on mount
-  useState(() => {
-    if (!form.id) {
-      let id = "";
-      try {
-        if (typeof crypto !== "undefined" && crypto.randomUUID)
-          id = crypto.randomUUID();
-        else id = `prop_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-      } catch (e) {
-        id = `prop_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-      }
-      setForm((s) => ({ ...s, id }));
-    }
+  const [openDropdowns, setOpenDropdowns] = useState({
+    propertyType: false,
+    listingType: false,
+    rentalDuration: false,
+    furnishing: false,
   });
 
-  function slugify(text) {
-    return (text || "")
-      .toString()
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9\-]/g, "")
-      .replace(/\-+/g, "-");
-  }
+  const MAX_GALLERY = 8;
+  const MIN_GALLERY = 4;
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
   function handleChange(e) {
-    const { name, value, type, checked } = e.target;
-    if (type === "checkbox" && name === "isVerified") {
-      setForm((s) => ({ ...s, [name]: checked }));
-      return;
-    }
-    if (type === "checkbox" && name === "featured") {
-      setForm((s) => ({ ...s, featured: checked }));
-      return;
-    }
+    const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
-    // title change handled but no slug/meta generation required
   }
 
   function handleMainImage(e) {
@@ -138,14 +96,10 @@ export default function AddPropertyForm({ translations = {}, locale }) {
       validFiles.push(f);
       previews.push(URL.createObjectURL(f));
     }
-    if (files.length > MAX_GALLERY)
-      errs.push(`Max ${MAX_GALLERY} images allowed`);
+    if (files.length > MAX_GALLERY) errs.push(`Max ${MAX_GALLERY} images allowed`);
     setForm((s) => ({ ...s, gallery: validFiles }));
     setGalleryPreviews(previews);
-    setErrors((prev) => ({
-      ...prev,
-      gallery: errs.length ? errs.join(", ") : undefined,
-    }));
+    setErrors((prev) => ({ ...prev, gallery: errs.length ? errs.join(", ") : undefined }));
   }
 
   function toggleSelection(value, setFn, state) {
@@ -156,36 +110,23 @@ export default function AddPropertyForm({ translations = {}, locale }) {
   function validate() {
     const errs = {};
     if (!form.title) errs.title = "Title is required";
-    if (!form.location && !form.city) errs.location = "Location is required";
-    if (!form.developer) errs.developer = "Developer is required";
     if (!form.description) errs.description = "Description is required";
-    if (!form.mainImage) errs.mainImage = "Main cover image is required";
-    // require minimum 4 gallery images
-    if (!form.gallery || form.gallery.length < 4) {
-      errs.gallery = `Please upload at least 4 gallery images (you have ${form.gallery ? form.gallery.length : 0})`;
-    }
-    if (!form.priceXOF && !form.priceUSD)
-      errs.price = "At least one price is required";
+    if (!form.address) errs.address = "Address is required";
+    if (!form.city) errs.city = "City is required";
+    if (!form.state) errs.state = "State is required";
+    if (!form.zipCode) errs.zipCode = "Zip Code is required";
+    if (!form.country) errs.country = "Country is required";
     if (!form.propertyType) errs.propertyType = "Property type is required";
+    if (!form.listingType) errs.listingType = "Listing type is required";
+    if (!form.price) errs.price = "Price is required";
     const numBedrooms = parseFloat(form.bedrooms);
-    if (!form.bedrooms || Number.isNaN(numBedrooms) || numBedrooms < 0)
-      errs.bedrooms = "Enter number of bedrooms";
+    if (isNaN(numBedrooms) || numBedrooms < 0) errs.bedrooms = "Enter number of bedrooms";
     const numBathrooms = parseFloat(form.bathrooms);
-    if (!form.bathrooms || Number.isNaN(numBathrooms) || numBathrooms < 0)
-      errs.bathrooms = "Enter number of bathrooms";
-    const areaNum = parseFloat(form.area);
-    if (!form.area || Number.isNaN(areaNum) || areaNum <= 0)
-      errs.area = "Enter a valid area";
+    if (isNaN(numBathrooms) || numBathrooms < 0) errs.bathrooms = "Enter number of bathrooms";
+    if (!form.sqft) errs.sqft = "Sqft is required";
+    // Image validation removed - not required for JSON POST
     setErrors(errs);
     return Object.keys(errs).length === 0;
-  }
-
-  function copyId() {
-    try {
-      navigator.clipboard.writeText(form.id);
-    } catch (e) {
-      console.log("copy failed", e);
-    }
   }
 
   async function handleSubmit(e) {
@@ -194,59 +135,49 @@ export default function AddPropertyForm({ translations = {}, locale }) {
     setIsSubmitting(true);
     setErrors({});
     try {
-      const fd = new FormData();
-      // append simple fields
-      Object.keys(form).forEach((key) => {
-        const val = form[key];
-        // skip files/arrays handled separately
-        if (key === 'gallery' || key === 'mainImage') return;
-        if (val === undefined || val === null) return;
-        fd.append(key, typeof val === 'object' ? JSON.stringify(val) : String(val));
+      console.log('Form data:', form);
+
+      const allowed = [
+        "title",
+        "description",
+        "address",
+        "city",
+        "state",
+        "zipCode",
+        "country",
+        "propertyType",
+        "listingType",
+        "price",
+        "bedrooms",
+        "bathrooms",
+        "sqft",
+        "rentalDuration",
+        "furnishing",
+        "rentalTerms",
+      ];
+
+      const payload = {};
+      allowed.forEach((k) => {
+        const v = form[k];
+        if (v !== undefined && v !== null && String(v) !== "") payload[k] = v;
       });
 
-      // append coordinates if present
-      if (form.lat && form.lng) {
-        fd.append('coordinates', JSON.stringify({ lat: form.lat, lng: form.lng }));
-      }
+      if (form.amenities) payload.amenities = form.amenities;
+      payload.interiorFeatures = interiorFeatures;
+      payload.exteriorFeatures = exteriorFeatures;
 
-      // append arrays
-      fd.append('highlights', JSON.stringify(highlights));
-      fd.append('interior', JSON.stringify(interior));
-      fd.append('exterior', JSON.stringify(exterior));
+      console.log('Payload to send:', payload);
 
-      // append files
-      if (form.mainImage) fd.append('mainImage', form.mainImage);
-      if (form.gallery && form.gallery.length) {
-        form.gallery.forEach((f, i) => fd.append('gallery', f));
-      }
-
-      // send to /properties as requested
-      const res = await fetch('/properties', {
-        method: 'POST',
-        body: fd,
-        credentials: 'same-origin',
-      });
-
-      if (!res.ok) {
-        let msg = `Save failed: ${res.status}`;
-        try {
-          const data = await res.json();
-          msg = data?.message || msg;
-          if (data?.errors) setErrors(data.errors);
-        } catch (err) {
-          // ignore json parse
-        }
-        setErrors((prev) => ({ ...prev, submit: msg }));
-        setIsSubmitting(false);
-        return;
-      }
-
-      const result = await res.json().catch(() => null);
-      setSuccess(result?.message || 'Property saved');
-      setTimeout(() => setSuccess(''), 4000);
+      const result = await post("/properties", payload);
+      setSuccess(result?.message || "Property saved");
+      alert(result?.message || "Property saved");
+      setTimeout(() => setSuccess(""), 4000);
     } catch (err) {
-      console.error('submit error', err);
-      setErrors((prev) => ({ ...prev, submit: 'Network error' }));
+      console.error("submit error", err);
+      const serverMsg = err?.response?.data?.message || "Save failed";
+      const serverErrors = err?.response?.data?.errors;
+      if (serverErrors) setErrors(serverErrors);
+      setErrors((prev) => ({ ...prev, submit: serverMsg }));
     } finally {
       setIsSubmitting(false);
     }
@@ -255,40 +186,27 @@ export default function AddPropertyForm({ translations = {}, locale }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-lg md:text-2xl font-semibold">
-              {translations.basicInfo || "Basic Information"}
-            </h2>
-            <p className="text-base md:text-lg text-gray-500">
-              {"Core property details and identifiers"}
-            </p>
-          </div>
+        <div>
+          <h2 className="text-lg md:text-2xl font-semibold">{translations.basicInfo || "Basic Information"}</h2>
+          <p className="text-base md:text-lg text-gray-500">Core property details</p>
         </div>
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
             <label className="block text-sm md:text-base font-medium mb-1">Title *</label>
-            <input
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#d4af37] focus:border-transparent"
-            />
-            {errors.title && (
-              <p className="text-xs md:text-sm text-red-600 mt-1">{errors.title}</p>
-            )}
+            <input name="title" value={form.title} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.title && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.title}</p>}
           </div>
 
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">
-              Property Type
-            </label>
+          <div className="relative">
+            <label className="block text-sm md:text-base font-medium mb-1">Property Type</label>
             <select
               name="propertyType"
               value={form.propertyType}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#d4af37] focus:border-transparent"
+              onFocus={() => setOpenDropdowns(prev => ({ ...prev, propertyType: true }))}
+              onBlur={() => setOpenDropdowns(prev => ({ ...prev, propertyType: false }))}
+              className="w-full px-3 py-2 border appearance-none border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]"
             >
               <option value="villa">Villa</option>
               <option value="apartment">Apartment</option>
@@ -296,216 +214,117 @@ export default function AddPropertyForm({ translations = {}, locale }) {
               <option value="house">House</option>
               <option value="land">Land</option>
             </select>
+            <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 translate-y-1/2 text-gray-500 transition-transform duration-200 ${openDropdowns.propertyType ? 'rotate-180' : ''}`} />
+          </div>
+
+          <div className="md:col-span-1">
+            <label className="block text-sm md:text-base font-medium mb-1">Location</label>
+            <input name="location" value={form.location} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm md:text-base font-medium mb-1">Location *</label>
-            <input
-              name="location"
-              value={form.location}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#d4af37] focus:border-transparent"
-            />
-            {errors.location && (
-              <p className="text-xs md:text-sm text-red-600 mt-1">{errors.location}</p>
-            )}
+            <label className="block text-sm md:text-base font-medium mb-1">Address *</label>
+            <input name="address" value={form.address} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.address && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.address}</p>}
           </div>
 
           <div>
-            <label className="block text-sm md:text-base font-medium mb-1">
-              Developer Name *
-            </label>
-            <input
-              name="developer"
-              value={form.developer}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#d4af37] focus:border-transparent"
-            />
-            {errors.developer && (
-              <p className="text-xs md:text-sm text-red-600 mt-1">{errors.developer}</p>
-            )}
+            <label className="block text-sm md:text-base font-medium mb-1">City *</label>
+            <input name="city" value={form.city} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.city && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.city}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm md:text-base font-medium mb-1">State *</label>
+            <input name="state" value={form.state} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.state && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.state}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm md:text-base font-medium mb-1">Zip Code *</label>
+            <input name="zipCode" value={form.zipCode} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.zipCode && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.zipCode}</p>}
           </div>
 
           <div className="md:col-span-3">
-            <label className="block text-sm md:text-base font-medium mb-1">
-              Developer Info
-            </label>
-            <textarea
-              name="developerDescription"
-              value={form.developerDescription}
-              onChange={handleChange}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#d4af37] focus:border-transparent"
-            />
-            <p className="text-xs md:text-sm text-gray-500 mt-1">
-              Optional: additional information about the developer or
-              construction company.
-            </p>
+            <label className="block text-sm md:text-base font-medium mb-1">Country *</label>
+            <input name="country" value={form.country} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.country && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.country}</p>}
           </div>
+
           <div className="md:col-span-3">
-            <label className="block text-sm md:text-base font-medium mb-1">
-              Description *
-            </label>
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#d4af37] focus:border-transparent"
-            />
-            {errors.description && (
-              <p className="text-xs md:text-sm text-red-600 mt-1">{errors.description}</p>
-            )}
+            <label className="block text-sm md:text-base font-medium mb-1">Description *</label>
+            <textarea name="description" value={form.description} onChange={handleChange} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.description && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.description}</p>}
           </div>
         </div>
       </section>
 
       <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <h3 className="text-md md:text-lg font-semibold mb-2">
-          {translations.pricing || "Pricing"}
-        </h3>
+        <h3 className="text-md md:text-lg font-semibold mb-2">Pricing</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">
-              Price (XOF)
-            </label>
-            <input
-              name="priceXOF"
-              value={form.priceXOF}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">
-              Price (USD)
-            </label>
-            <input
-              name="priceUSD"
-              value={form.priceUSD}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">
-              Area ({form.areaUnit})
-            </label>
-            <input
-              name="area"
-              value={form.area}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            {errors.area && (
-              <p className="text-xs md:text-sm text-red-600 mt-1">{errors.area}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Unit</label>
+          <div className="relative">
+            <label className="block text-sm md:text-base font-medium mb-1">Listing Type</label>
             <select
-              name="areaUnit"
-              value={form.areaUnit}
+              name="listingType"
+              value={form.listingType}
               onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md"
+              onFocus={() => setOpenDropdowns(prev => ({ ...prev, listingType: true }))}
+              onBlur={() => setOpenDropdowns(prev => ({ ...prev, listingType: false }))}
+              className="w-full px-3 py-2 border appearance-none border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]"
             >
-              <option value="sqm">sqm</option>
-              <option value="sqft">sqft</option>
+              <option value="SALE">Sale</option>
+              <option value="RENT">Rent</option>
             </select>
+            <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 translate-y-1/2 text-gray-500 transition-transform duration-200 ${openDropdowns.listingType ? 'rotate-180' : ''}`} />
           </div>
           <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Bedrooms</label>
-            <input
-              name="bedrooms"
-              value={form.bedrooms}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            {errors.bedrooms && (
-              <p className="text-xs md:text-sm text-red-600 mt-1">{errors.bedrooms}</p>
-            )}
+            <label className="block text-sm md:text-base font-medium mb-1">Price *</label>
+            <input name="price" value={form.price} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.price && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.price}</p>}
           </div>
           <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Bathrooms</label>
-            <input
-              name="bathrooms"
-              value={form.bathrooms}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            {errors.bathrooms && (
-              <p className="text-xs md:text-sm text-red-600 mt-1">{errors.bathrooms}</p>
-            )}
+            <label className="block text-sm md:text-base font-medium mb-1">Sqft *</label>
+            <input name="sqft" value={form.sqft} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.sqft && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.sqft}</p>}
           </div>
           <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Garages</label>
-            <input
-              name="garages"
-              value={form.garages}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md"
-            />
+            <label className="block text-sm md:text-base font-medium mb-1">Bedrooms *</label>
+            <input name="bedrooms" value={form.bedrooms} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.bedrooms && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.bedrooms}</p>}
+          </div>
+          <div>
+            <label className="block text-sm md:text-base font-medium mb-1">Bathrooms *</label>
+            <input name="bathrooms" value={form.bathrooms} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            {errors.bathrooms && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.bathrooms}</p>}
           </div>
         </div>
       </section>
 
       <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <h3 className="text-md md:text-lg font-semibold mb-2">
-          {translations.images || "Images"}
-        </h3>
+        <h3 className="text-md md:text-lg font-semibold mb-2">Images</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Main Cover Image (max 5MB)
-            </label>
+            <label className="block text-sm font-medium mb-1">Main Cover Image (max 5MB)</label>
             <div className="border border-dashed border-gray-200 rounded-md p-3">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleMainImage}
-                className="w-full"
-              />
-              {errors.mainImage && (
-                <p className="text-xs md:text-sm text-red-600 mt-1">{errors.mainImage}</p>
-              )}
+              <input type="file" accept="image/*" onChange={handleMainImage} className="w-full" />
+              {errors.mainImage && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.mainImage}</p>}
               {mainPreview && (
                 <div className="mt-3 w-full rounded-md overflow-hidden border">
-                  <img
-                    src={mainPreview}
-                    alt="main"
-                    className="w-full h-48 object-cover"
-                  />
+                  <img src={mainPreview} alt="main" className="w-full h-48 object-cover" />
                 </div>
               )}
             </div>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-1">
-              Gallery Images (min max {MAX_GALLERY})
-            </label>
+            <label className="block text-sm font-medium mb-1">Gallery Images (min {MIN_GALLERY})</label>
             <div className="border border-dashed border-gray-200 rounded-md p-3">
-              <input
-                ref={galleryRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleGallery}
-                className="w-full"
-              />
-              {errors.gallery && (
-                <p className="text-xs md:text-sm text-red-600 mt-1">{errors.gallery}</p>
-              )}
+              <input ref={galleryRef} type="file" accept="image/*" multiple onChange={handleGallery} className="w-full" />
+              {errors.gallery && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.gallery}</p>}
               <div className="mt-3 grid grid-cols-3 gap-3">
                 {galleryPreviews.map((src, i) => (
-                  <div
-                    key={i}
-                    className="w-full h-24 overflow-hidden rounded-md border"
-                  >
-                    <img
-                      src={src}
-                      className="w-full h-full object-cover"
-                      alt={`gallery-${i}`}
-                    />
+                  <div key={i} className="w-full h-24 overflow-hidden rounded-md border">
+                    <img src={src} className="w-full h-full object-cover" alt={`gallery-${i}`} />
                   </div>
                 ))}
               </div>
@@ -515,13 +334,10 @@ export default function AddPropertyForm({ translations = {}, locale }) {
       </section>
 
       <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <h3 className="text-md md:text-lg font-semibold mb-2">
-          {translations.features || "Features & SEO"}
-        </h3>
-        <div className="grid grid-cols-1 gap-4">
-          <p className="text-sm text-gray-600">
-            Select interior and exterior features below.
-          </p>
+        <h3 className="text-md md:text-lg font-semibold mb-2">Features</h3>
+        <div className="mt-3">
+          <label className="block text-sm md:text-base font-medium mb-1">Amenities (comma separated)</label>
+          <input name="amenities" value={form.amenities} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
         </div>
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -530,12 +346,7 @@ export default function AddPropertyForm({ translations = {}, locale }) {
             <div className="grid grid-cols-1 gap-2">
               {interiorOptions.map((opt) => (
                 <label key={opt} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={interior.includes(opt)}
-                    onChange={() => toggleSelection(opt, setInterior, interior)}
-                    className="w-4 h-4"
-                  />
+                  <input type="checkbox" checked={interiorFeatures.includes(opt)} onChange={() => toggleSelection(opt, setInteriorFeatures, interiorFeatures)} className="w-4 h-4" />
                   <span className="text-sm md:text-base">{opt}</span>
                 </label>
               ))}
@@ -547,12 +358,7 @@ export default function AddPropertyForm({ translations = {}, locale }) {
             <div className="grid grid-cols-1 gap-2">
               {exteriorOptions.map((opt) => (
                 <label key={opt} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={exterior.includes(opt)}
-                    onChange={() => toggleSelection(opt, setExterior, exterior)}
-                    className="w-4 h-4"
-                  />
+                  <input type="checkbox" checked={exteriorFeatures.includes(opt)} onChange={() => toggleSelection(opt, setExteriorFeatures, exteriorFeatures)} className="w-4 h-4" />
                   <span className="text-sm md:text-base">{opt}</span>
                 </label>
               ))}
@@ -564,67 +370,45 @@ export default function AddPropertyForm({ translations = {}, locale }) {
       <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
         <h3 className="text-md md:text-lg font-semibold mb-2">Rental Info</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
+          <div className="relative">
             <label className="block text-sm md:text-base font-medium mb-1">Rental Duration</label>
-            <select name="rentalDuration" value={form.rentalDuration} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md">
+            <select
+              name="rentalDuration"
+              value={form.rentalDuration}
+              onChange={handleChange}
+              onFocus={() => setOpenDropdowns(prev => ({ ...prev, rentalDuration: true }))}
+              onBlur={() => setOpenDropdowns(prev => ({ ...prev, rentalDuration: false }))}
+              className="w-full px-3 py-2 border appearance-none border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]"
+            >
               <option>12 Months (Minimum)</option>
               <option>6 Months</option>
               <option>3 Months</option>
               <option>Flexible</option>
             </select>
-            <p className="text-xs md:text-sm text-gray-500 mt-1">Minimum term displayed by default.</p>
+            <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 translate-y-1/2 text-gray-500 transition-transform duration-200 ${openDropdowns.rentalDuration ? 'rotate-180' : ''}`} />
           </div>
 
-          <div>
+          <div className="relative">
             <label className="block text-sm md:text-base font-medium mb-1">Furnishing</label>
-            <select name="furnishing" value={form.furnishing} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md">
+            <select
+              name="furnishing"
+              value={form.furnishing}
+              onChange={handleChange}
+              onFocus={() => setOpenDropdowns(prev => ({ ...prev, furnishing: true }))}
+              onBlur={() => setOpenDropdowns(prev => ({ ...prev, furnishing: false }))}
+              className="w-full px-3 py-2 border appearance-none border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]"
+            >
               <option>Unfurnished</option>
               <option>Partially Furnished</option>
               <option>Furnished</option>
             </select>
+            <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 translate-y-1/2 text-gray-500 transition-transform duration-200 ${openDropdowns.furnishing ? 'rotate-180' : ''}`} />
           </div>
 
           <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Terms</label>
-            <input name="rentalDeposit" value={form.rentalDeposit} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
-            <p className="text-xs md:text-sm text-gray-500 mt-1">e.g. 2 Months Deposit</p>
+            <label className="block text-sm md:text-base font-medium mb-1">Rental Terms</label>
+            <input name="rentalTerms" value={form.rentalTerms} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
           </div>
-        </div>
-      </section>
-
-      <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <h3 className="text-md md:text-lg font-semibold mb-2">Coordinates & Extra</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Latitude</label>
-            <input
-              name="lat"
-              value={form.lat}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#d4af37] focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Longitude</label>
-            <input
-              name="lng"
-              value={form.lng}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#d4af37] focus:border-transparent"
-            />
-          </div>
-          {/* <div className="flex items-center space-x-2">
-            <input
-              id="featured"
-              name="featured"
-              type="checkbox"
-              checked={form.featured}
-              onChange={handleChange}
-            />
-            <label htmlFor="featured" className="text-sm">
-              Featured
-            </label>
-          </div> */}
         </div>
       </section>
 
@@ -635,25 +419,9 @@ export default function AddPropertyForm({ translations = {}, locale }) {
             {errors.submit && <p className="text-sm md:text-base text-red-600">{errors.submit}</p>}
           </div>
           <div className="flex items-center space-x-3">
-            <button
-              type="button"
-              onClick={() => window.history.back()}
-              className="px-4 py-2 rounded-md border bg-white"
-            >
-              {translations.cancel || "Cancel"}
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`inline-flex items-center px-5 py-2 rounded-md font-semibold ${
-                isSubmitting
-                  ? "bg-gray-300 text-gray-700"
-                  : "bg-[#d4af37] text-[#1e3a5f] hover:bg-[#c19b2a]"
-              }`}
-            >
-              {isSubmitting
-                ? "Saving..."
-                : translations.submit || "Save Property"}
+            <button type="button" onClick={() => window.history.back()} className="px-4 py-2 rounded-md border bg-white">{translations.cancel || "Cancel"}</button>
+            <button type="submit" disabled={isSubmitting} className={`inline-flex items-center px-5 py-2 rounded-md font-semibold ${isSubmitting ? "bg-gray-300 text-gray-700" : "bg-[#d4af37] text-[#FFFFFF] hover:bg-[#c19b2a]"}`}>
+              {isSubmitting ? "Saving..." : translations.submit || "Save Property"}
             </button>
           </div>
         </div>
@@ -661,3 +429,5 @@ export default function AddPropertyForm({ translations = {}, locale }) {
     </form>
   );
 }
+
+
