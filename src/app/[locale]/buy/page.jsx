@@ -7,6 +7,8 @@ import BuyHero from '@/components/buy/BuyHero';
 import BuyFilters from '@/components/buy/BuyFilters';
 import BuyPropertyCard from '@/components/buy/BuyPropertyCard';
 import { BUY_PROPERTIES } from '@/lib/buyProperties';
+import axios from 'axios';
+import api from '@/lib/api';
 
 export default function BuyPage() {
   const { locale } = useLanguage();
@@ -24,6 +26,7 @@ export default function BuyPage() {
   const [sortBy, setSortBy] = useState('newest');
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const [displayCount, setDisplayCount] = useState(3);
+  const [properties, setProperties] = useState([]);
 
   // Inject structured data for SEO (match rent page behavior)
   useEffect(() => {
@@ -110,6 +113,8 @@ export default function BuyPage() {
   const displayedProperties = sortedProperties.slice(0, displayCount);
   const hasMore = displayCount < sortedProperties.length;
 
+  
+
   const handleLoadMore = () => {
     // Match rent behavior: show all remaining
     setDisplayCount(sortedProperties.length);
@@ -120,6 +125,16 @@ export default function BuyPage() {
     setFilters(newFilters);
     setDisplayCount(3);
   };
+
+
+  // properties fetch
+useEffect(() => {
+  api.get(`/properties?listingType=SALE`)
+    .then(res => {
+      setProperties(res.data.properties); 
+    })
+    .catch(err => console.error(err));
+}, []);
 
   return (
     <main className='w-full'>
@@ -199,10 +214,10 @@ export default function BuyPage() {
           </div>
 
           {/* Properties Grid */}
-          {displayedProperties.length > 0 ? (
+          {properties.length > 0 ? (
             <>
               <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 xl:gap-6'>
-                {displayedProperties.map((property) => (
+                {properties.map((property) => (
                   <BuyPropertyCard key={property.id} property={property} />
                 ))}
               </div>

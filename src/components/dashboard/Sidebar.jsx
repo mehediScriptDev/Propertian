@@ -106,11 +106,11 @@ const navigationConfig = {
       href: '/dashboard/client/favorites',
       icon: Heart,
     },
-    {
-      key: 'dashboard.client.savedSearches',
-      href: '/dashboard/client/saved-searches',
-      icon: RiQuestionnaireLine ,
-    },
+    // {
+    //   key: 'dashboard.client.savedSearches',
+    //   href: '/dashboard/client/saved-searches',
+    //   icon: RiQuestionnaireLine ,
+    // },
     {
       key: 'dashboard.client.appointments',
       href: '/dashboard/client/appointments',

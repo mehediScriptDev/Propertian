@@ -21,19 +21,32 @@ export default function BuyPropertyCard({ property }) {
 
   const {
     id,
-    image,
-    imageAlt,
-    location,
-    title,
-    priceXOF,
-    priceUSD,
-    isVerified = false,
-    propertyType = 'house',
-    bedrooms,
+    city,
+    address,
     bathrooms,
-    area,
+    bedrooms,
+    description,
+    title,
+    country,
+    developerInfo,
+    developerName,
+    furnishing,
+    images,
+    propertyType,
+    // 1. Rename API fields to match component variables
+    featured: isVerified = false, // API has 'featured', you want 'isVerified'
+    price: priceXOF,              // API has 'price', you want 'priceXOF'
+    sqft: area,                   // API has 'sqft', you want 'area'
+    state,                        // Need this to build 'location'
   } = property;
 
+  // 2. Create derived / calculated fields
+  const location = state ? `${city}, ${state}` : city || '';
+  const priceUSD = priceXOF ? Math.round(Number(priceXOF) / 610) : 0; // Calculate USD from XOF
+  const imageAlt = title; // Use title as alt text
+  // Prefer first image from images array, fall back to any single-image field or a local placeholder
+  const image = (images && images.length && images[0]) || property.image || '/buy-rent/thumb.png';
+  console.log(property)
   const [isFavorite, setIsFavorite] = useState(false);
 
   // Format price with thousand separators
