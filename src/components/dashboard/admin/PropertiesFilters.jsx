@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -14,6 +14,8 @@ const PropertiesFilters = memo(
   }) => {
     const pathname = usePathname();
     const router = useRouter();
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
     return (
       <div className='bg-white border border-gray-200 rounded-lg p-4 sm:p-6'>
         <div className='flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between'>
@@ -28,23 +30,30 @@ const PropertiesFilters = memo(
               placeholder={translations.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className='w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4af37] focus:border-transparent transition-all duration-200 text-sm text-gray-900 placeholder-gray-400'
+              className='w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-0 focus:ring-2 focus:ring-[#d4af37] focus:border-transparent transition-all duration-200 text-sm text-gray-900 placeholder-gray-400'
             />
           </div>
 
           {/* Filters and Action */}
           <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-3'>
             {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => onStatusChange(e.target.value)}
-              className='px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4af37] focus:border-transparent transition-all duration-200 text-sm text-gray-900 cursor-pointer'
-            >
-              <option value='all'>{translations.allStatus}</option>
-              <option value='active'>{translations.status.active}</option>
-              <option value='pending'>{translations.status.pending}</option>
-              <option value='inactive'>{translations.status.inactive}</option>
-            </select>
+            <div className='relative'>
+              <select
+                value={statusFilter}
+                onChange={(e) => onStatusChange(e.target.value)}
+                onFocus={() => setIsDropdownOpen(true)}
+                onBlur={() => setIsDropdownOpen(false)}
+                className='px-4 py-2.5 pr-10 bg-white border appearance-none border-gray-300 rounded-lg focus:outline-0 focus:ring-2 focus:ring-[#d4af37] focus:border-transparent transition-all duration-200 text-sm text-gray-900 cursor-pointer'
+              >
+                <option value='all'>{translations.allStatus}</option>
+                <option value='available'>Available</option>
+                <option value='pending'>{translations.status.pending}</option>
+                <option value='inactive'>{translations.status.inactive}</option>
+              </select>
+              <svg className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 transition-transform duration-200 rotate-180 ${isDropdownOpen ? 'rotate-0!' : ''}`} fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+              </svg>
+            </div>
 
             {/* Add Property Button */}
             <button
@@ -62,7 +71,7 @@ const PropertiesFilters = memo(
         </div>
       </div>
     );
-  }   
+  }
 );
 
 PropertiesFilters.displayName = 'PropertiesFilters';

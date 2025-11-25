@@ -413,10 +413,10 @@ export default function AddPropertyForm({ translations = {} }) {
       </section>
 
       <div className="sticky bottom-6 bg-transparent pt-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <div>
-            {success && <p className="text-sm md:text-base text-green-700">{success}</p>}
-            {errors.submit && <p className="text-sm md:text-base text-red-600">{errors.submit}</p>}
+            {/* {success && <p className="text-sm md:text-base text-green-700">{success}</p>}
+            {errors.submit && <p className="text-sm md:text-base text-red-600">{errors.submit}</p>} */}
           </div>
           <div className="flex items-center space-x-3">
             <button type="button" onClick={() => window.history.back()} className="px-4 py-2 rounded-md border bg-white">{translations.cancel || "Cancel"}</button>

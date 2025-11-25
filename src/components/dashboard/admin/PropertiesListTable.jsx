@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { MapPin, Eye, Edit, Trash2 } from 'lucide-react';
 
 const STATUS_BADGE_STYLES = {
+  available: 'bg-green-100 text-green-700',
   active: 'bg-green-100 text-green-700',
   pending: 'bg-yellow-100 text-yellow-700',
   inactive: 'bg-gray-100 text-gray-700',
@@ -14,11 +15,12 @@ const PropertiesListTable = memo(({ properties, translations, onView, onEdit, on
   const getStatusBadge = (status) => {
     const badgeStyle =
       STATUS_BADGE_STYLES[status] || 'bg-gray-100 text-gray-700';
+    const displayText = status === 'available' ? 'Available' : translations.status[status] || status;
     return (
       <span
         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badgeStyle}`}
       >
-        {translations.status[status]}
+        {displayText}
       </span>
     );
   };
