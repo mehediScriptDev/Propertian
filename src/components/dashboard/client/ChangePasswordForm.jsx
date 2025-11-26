@@ -54,7 +54,7 @@ export default function ChangePasswordForm() {
     }, [currentPassword, newPassword, confirmPassword, t]);
 
     return (
-        <div className="rounded-lg bg-white/50 border border-gray-200 shadow-sm mt-6">
+        <div className="rounded-lg bg-white/50 border border-gray-200 shadow-sm">
             <div className="border-b px-4 sm:px-8 border-gray-300 py-6">
                 <h2 className="text-xl font-semibold text-slate-800">{t("dashboard.client.password.title")}</h2>
             </div>

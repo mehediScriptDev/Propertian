@@ -213,23 +213,23 @@ function TicketsTable({
             <caption className="sr-only">List of support tickets</caption>
             <thead className="bg-gray-100 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   
                   {t("dashboard.client.supportTicket.id")}
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   {t("dashboard.client.supportTicket.subject")}
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   {t("dashboard.client.supportTicket.property")}
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   {t("dashboard.client.supportTicket.replies")}
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   {t("dashboard.client.supportTicket.created")}
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   {t("dashboard.client.supportTicket.Actions")}
                 </th>
               </tr>
@@ -251,7 +251,7 @@ function TicketsTable({
                   <td className="px-6 py-4 text-sm text-gray-700 font-medium">
                     {ticket.id}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 truncate">
                     <div className="flex items-center gap-2">
                       {getStatusIcon && getStatusIcon(ticket.status)}
                       <span className="text-gray-900 font-medium">
@@ -262,7 +262,7 @@ function TicketsTable({
                       {ticket.description}
                     </p>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-gray-600 truncate">
                     {ticket.property_name} <br />
                     <span className="text-xs text-gray-400">
                       (ID: {ticket.property_id})

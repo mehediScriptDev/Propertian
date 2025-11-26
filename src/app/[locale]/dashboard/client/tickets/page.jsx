@@ -223,7 +223,7 @@ export default function UserTicketDashboard() {
         Skip to content
       </a>
       <main id="main-content">
-        <div className="space-y-4">
+        <div className="space-y-3.5 lg:space-y-4">
           {/* Header */}
           <Header />
 

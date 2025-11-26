@@ -8,7 +8,7 @@ export default function SearchFilter({ searchTerm, setSearchTerm, filterStatus, 
       const { locale } = useLanguage();
   const { t } = useTranslation(locale);
     return (
-        <div className="flex gap-4 mb-6 flex-wrap  py-8 px-4 rounded-lg items-center justify-between bg-white/50 border border-gray-200 shadow-sm">
+        <div className="flex gap-4 flex-wrap py-8 px-4 rounded-lg items-center justify-between bg-white/50 border border-gray-200 shadow-sm">
             <div className="flex-1 min-w-64 relative">
                 <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                 <input

@@ -57,7 +57,7 @@ export default function AppointmentsTable({
 
   useEffect(() => {
     if (page !== 1) setPage(1);
-  }, [query, filtered.length]);
+  }, [query, filtered.length, page]);
 
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
@@ -95,14 +95,14 @@ export default function AppointmentsTable({
                   </td>
 
                   <td className="px-6 py-4">
-                    <p className="text-sm font-semibold text-gray-900">{apt.full_name}</p>
+                    <p className="text-sm font-semibold text-gray-900 truncate">{apt.full_name}</p>
                   </td>
 
                   <td className="px-6 py-4">
                     <p className="text-sm text-gray-600">{apt.email}</p>
                   </td>
 
-                  <td className="px-6 py-4 text-gray-700">{apt.appointment_type}</td>
+                  <td className="px-6 py-4 text-gray-700 truncate">{apt.appointment_type}</td>
 
                   <td className="px-6 py-4 text-sm text-gray-600">
                     <div className="flex flex-col">
@@ -123,7 +123,7 @@ export default function AppointmentsTable({
 
                   <td className="px-6 py-4">
                     <span
-                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${getStatusStyles(
+                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium truncate ${getStatusStyles(
                         apt.status
                       )}`}
                     >
@@ -186,7 +186,7 @@ export default function AppointmentsTable({
           translations.pagination || {
             showing: 'Showing',
             to: 'to',
-            of: 'of',
+            of: 'out of',
             results: 'results',
             previous: 'Previous',
             next: 'Next',

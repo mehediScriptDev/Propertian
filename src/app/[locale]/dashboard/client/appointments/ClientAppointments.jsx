@@ -86,7 +86,7 @@ export default function ClientAppointments() {
 
     return (
         <div className="min-h-screen space-y-6">
-            <div className='bg-white/50 rounded-lg p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 mb-6'>
+            <div className='bg-white/50 rounded-lg p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 mb-3 lg:mb-4.5'>
                 <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
                     <div className='relative'>
                         <button
@@ -112,7 +112,7 @@ export default function ClientAppointments() {
                                 onClick={() => setDropdownOpen((s) => !s)}
                                 aria-haspopup='true'
                                 aria-expanded={dropdownOpen}
-                                className='flex items-center gap-2 justify-between w-44 h-10 px-3 rounded-lg bg-accent  text-black text-sm font-semibold focus:outline-none'
+                                className='flex items-center gap-2 justify-between lg:w-44 h-10 px-3 rounded-lg bg-accent  text-black text-xs lg:text-sm font-semibold focus:outline-none'
                             >
                                 <span className='truncate text-white hover:text-gray-100'>{t('dashboard.client.newAppointment') || '+ New Appointment'}</span>
                                 <svg className={`w-4 h-4 text-white hover:text-gray-100 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} viewBox='0 0 24 24' fill='none' stroke='currentColor'>

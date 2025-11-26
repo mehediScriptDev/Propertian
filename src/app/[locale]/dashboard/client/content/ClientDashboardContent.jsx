@@ -16,9 +16,9 @@ export default function ClientDashboardContent() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-3 lg:space-y-4.5">
             {/* Page header */}
-            <header  className="bg-white/50 rounded-lg p-6 shadow-sm border border-gray-200 mb-6">
+            <header  className="bg-white/50 rounded-lg p-4 lg:p-6 shadow-sm border border-gray-200">
                         <h1 className="text-2xl sm:text-3xl font-bold text-black mb-2">{t("dashboard.client.profile")}</h1>
                         <p className="text-sm sm:text-base text-black/80">{t("dashboard.client.subtitle")}</p>
                  
@@ -26,7 +26,7 @@ export default function ClientDashboardContent() {
             </header>
 
             {/* Components: personal details and change password (client-side) */}
-            <div className="space-y-6 ">
+            <div className="space-y-3 lg:space-y-4.5">
                 <PersonalDetailsForm />
                 <ChangePasswordForm />
             </div>
