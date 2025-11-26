@@ -65,7 +65,7 @@ export default function AppointmentsTable({
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden border border-gray-200 rounded-lg">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-100">

@@ -81,16 +81,16 @@ export default function SavedProperties() {
   }, [savedProperties, search]);
 
   return (
-    <div className="min-h-screen bg-gray-50 space-y-6">
+    <div className="min-h-screen  space-y-6">
       <div>
         {/* Header */}
 
-        <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-6 shadow-lg mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">{t('dashboard.pages.savedProperties.title')}</h1>
-          <p className="text-sm sm:text-base text-white/80">{t('dashboard.pages.savedProperties.subtitle')}</p>
+        <div className="bg-white/50 rounded-lg p-6 shadow-sm border border-gray-200 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-black mb-2">{t('dashboard.pages.savedProperties.title')}</h1>
+          <p className="text-sm sm:text-base text-black/80">{t('dashboard.pages.savedProperties.subtitle')}</p>
         </div>
         {/* Toolbar (search, status select, add) - matches provided image */}
-        <div className="bg-white rounded-lg px-4 py-6 mb-6 shadow-sm">
+        <div className="bg-white/50 border border-gray-200 rounded-lg px-4 py-6 mb-6 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="flex-1 max-w-full">
               <div className="relative">

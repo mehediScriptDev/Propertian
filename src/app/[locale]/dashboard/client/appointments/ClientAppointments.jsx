@@ -85,8 +85,8 @@ export default function ClientAppointments() {
     // (no autofocus) keep menu items unstyled until hover
 
     return (
-        <div className="min-h-screen bg-gray-50 space-y-6">
-            <div className='bg-linear-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-4 sm:p-6 md:p-8 shadow-sm mb-6'>
+        <div className="min-h-screen space-y-6">
+            <div className='bg-white/50 rounded-lg p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 mb-6'>
                 <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
                     <div className='relative'>
                         <button
@@ -97,7 +97,7 @@ export default function ClientAppointments() {
                             aria-haspopup='true'
                             className='text-xl sm:text-2xl md:text-3xl font-bold text-white flex items-center gap-2 focus:outline-none'
                         >
-                            <span className='whitespace-nowrap'>{t('dashboard.client.appointments') || 'All Appointments'}</span>
+                            <span className='whitespace-nowrap text-black'>{t('dashboard.client.appointments') || 'All Appointments'}</span>
                             <svg className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} viewBox='0 0 24 24' fill='none' stroke='currentColor'>
                                 <path strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7' />
                             </svg>
@@ -112,10 +112,10 @@ export default function ClientAppointments() {
                                 onClick={() => setDropdownOpen((s) => !s)}
                                 aria-haspopup='true'
                                 aria-expanded={dropdownOpen}
-                                className='flex items-center gap-2 justify-between w-44 h-10 px-3 rounded-lg bg-[#d4af37] hover:bg-[#c19b2a] text-black text-sm font-semibold focus:outline-none'
+                                className='flex items-center gap-2 justify-between w-44 h-10 px-3 rounded-lg bg-accent  text-black text-sm font-semibold focus:outline-none'
                             >
-                                <span className='truncate'>{t('dashboard.client.newAppointment') || '+ New Appointment'}</span>
-                                <svg className={`w-4 h-4 text-black transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} viewBox='0 0 24 24' fill='none' stroke='currentColor'>
+                                <span className='truncate text-white hover:text-gray-100'>{t('dashboard.client.newAppointment') || '+ New Appointment'}</span>
+                                <svg className={`w-4 h-4 text-white hover:text-gray-100 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} viewBox='0 0 24 24' fill='none' stroke='currentColor'>
                                     <path strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7' />
                                 </svg>
                             </button>
@@ -132,7 +132,7 @@ export default function ClientAppointments() {
                     </div>
                 </div>
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white/50 border border-gray-200 rounded-lg shadow p-6">
                 <Suspense fallback={<div className="py-6">Loading header…</div>}>
                     <AppointmentsHeader count={appointments.length} query={query} onQueryChange={(q) => setQuery(q)} />
                 </Suspense>

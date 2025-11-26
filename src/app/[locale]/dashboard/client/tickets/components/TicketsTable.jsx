@@ -201,7 +201,7 @@ function TicketsTable({
      const { locale } = useLanguage();
   const { t } = useTranslation(locale);
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="bg-white/50 rounded-lg shadow-md overflow-hidden">
       {tickets.length > 0 ? (
         <div className="overflow-x-auto">
           {/* ✅ Desktop Table */}
@@ -246,7 +246,7 @@ function TicketsTable({
                     }
                   }}
                   tabIndex={0}
-                  className="hover:bg-gray-50 cursor-pointer transition border-b border-gray-100"
+                  className="hover:bg-gray-50 bg-white/50 cursor-pointer transition border-b border-gray-100"
                 >
                   <td className="px-6 py-4 text-sm text-gray-700 font-medium">
                     {ticket.id}

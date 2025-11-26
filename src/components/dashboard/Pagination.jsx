@@ -74,7 +74,7 @@ const Pagination = memo(
     };
 
     return (
-      <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-3 bg-white border-t border-gray-200'>
+      <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-3 bg-white/50 border-t border-gray-200'>
         {/* Results Info */}
         <div className='text-sm text-gray-700 order-2 sm:order-1'>
           {translations.showing} {startItem} {translations.to} {endItem}{' '}
@@ -122,7 +122,7 @@ const Pagination = memo(
                     shouldShowOnMobile ? 'inline-flex' : 'hidden sm:inline-flex'
                   } items-center justify-center min-w-8 sm:min-w-9 h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-medium rounded-md transition-colors ${
                     page === currentPage
-                      ? 'bg-[#E6B325] text-[#0F1B2E] font-semibold'
+                      ? 'bg-[#E6B325] text-white font-semibold'
                       : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
                   }`}
                   aria-label={`Page ${page}`}

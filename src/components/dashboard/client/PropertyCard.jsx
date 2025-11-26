@@ -35,7 +35,7 @@ export default function PropertyCard({
     const status = property.status || 'available';
 
     return (
-        <article className="group overflow-hidden rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md">
+        <article className="group overflow-hidden rounded-lg bg-white/50 border border-gray-200 shadow-sm transition-shadow hover:shadow-md">
             {/* Image */}
             <div className="relative aspect-video overflow-hidden bg-gray-100">
                 <Image

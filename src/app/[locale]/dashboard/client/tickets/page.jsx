@@ -223,12 +223,12 @@ export default function UserTicketDashboard() {
         Skip to content
       </a>
       <main id="main-content">
-        <div className="space-y-4 md:space-y-6">
+        <div className="space-y-4">
           {/* Header */}
           <Header />
 
           {/* Stats */}
-          <StatsSection stats={stats} />
+          {/* <StatsSection stats={stats} /> */}
 
           {/* Search + Filter */}
           <SearchFilter
