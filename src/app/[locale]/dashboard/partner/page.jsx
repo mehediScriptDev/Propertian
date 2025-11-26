@@ -185,9 +185,9 @@ export default function PartnerDashboardPage({ params }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 lg:space-y-4.5">
       {/* Welcome Section */}
-      <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-200">
+      <div className="rounded-xl bg-white/50 p-6 shadow-sm border border-gray-200">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -195,7 +195,7 @@ export default function PartnerDashboardPage({ params }) {
             </h1>
             <p className="mt-2 text-sm text-gray-600">{t("Partner.title")}</p>
           </div>
-          <button onClick={() => setIsAddModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-[#0F1B2E] transition-colors hover:bg-[#d4a520] focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:ring-offset-2">
+          <button onClick={() => setIsAddModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none focus:ring-offset-2">
             <Plus className="h-4 w-4" aria-hidden="true" />
             {t("Partner.addButton")}
           </button>
@@ -203,7 +203,7 @@ export default function PartnerDashboardPage({ params }) {
       </div>
 
       {/* Stats Grid - Using Admin StatsCard component */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 lg:gap-4.5 sm:grid-cols-2 lg:grid-cols-4">
         {statsData.map((stat, index) => (
           <StatsCard
             key={index}
@@ -216,7 +216,7 @@ export default function PartnerDashboardPage({ params }) {
       </div>
 
       {/* Recent Properties */}
-      <div className="rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden">
+      <div className="rounded-xl bg-white/50 shadow-sm border border-gray-200 overflow-hidden">
         <div className="border-b border-gray-200 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -410,7 +410,7 @@ export default function PartnerDashboardPage({ params }) {
             translations={{
               showing: t("Partner.Showing"),
               to: t("Partner.to"),
-              of: t("Partner.of"),
+              of: 'out of',
               results: t("Partner.results"),
               previous: t("Partner.Previous"),
               next: t("Partner.Next"),

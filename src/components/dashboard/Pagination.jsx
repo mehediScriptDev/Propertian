@@ -74,7 +74,7 @@ const Pagination = memo(
     };
 
     return (
-      <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-3 bg-white/50 border-t border-gray-200'>
+      <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-3 bg-[#fffff8] border-t border-gray-200'>
         {/* Results Info */}
         <div className='text-sm text-gray-700 order-2 sm:order-1'>
            {endItem}{' '}
@@ -87,7 +87,7 @@ const Pagination = memo(
           <button
             onClick={handlePrevious}
             disabled={currentPage === 1}
-            className='flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors'
+            className='flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white/50 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors'
             aria-label={translations.previous}
           >
             <ChevronLeft className='h-4 w-4' />

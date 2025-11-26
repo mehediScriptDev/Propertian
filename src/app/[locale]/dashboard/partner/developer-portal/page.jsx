@@ -257,9 +257,9 @@ export default function DeveloperPortalPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 lg:space-y-4.5">
       {/* Page Header */}
-      <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
+      <div className="rounded-lg bg-white/50 p-6 shadow-sm border border-gray-200">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -270,7 +270,7 @@ export default function DeveloperPortalPage() {
             </p>
           </div>
           <button
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-[#0F1B2E] transition-colors hover:bg-[#d4a520] focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:ring-offset-2"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none"
             aria-label="Add new project"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
@@ -289,7 +289,7 @@ export default function DeveloperPortalPage() {
           </div>
         }
       >
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 lg:gap-4.5 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, index) => (
             <StatsCard
               key={`stat-${index}`}
@@ -303,7 +303,7 @@ export default function DeveloperPortalPage() {
       </Suspense>
 
       {/* Projects Table */}
-      <div className="rounded-lg bg-white shadow-sm border border-gray-200">
+      <div className="rounded-lg bg-white/50 shadow-sm border border-gray-200">
         <div className="border-b border-gray-200 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold text-gray-900">My Projects</h2>
@@ -349,7 +349,7 @@ export default function DeveloperPortalPage() {
 
               {/* Export Data Button */}
               <button
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition-colors hover:border-[#E6B325] hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white/50 px-4 py-2 text-sm font-medium text-gray-900 transition-colors hover:border-[#E6B325] hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
                 aria-label="Export data"
               >
                 <Download
@@ -364,8 +364,8 @@ export default function DeveloperPortalPage() {
 
         {/* Desktop Table */}
         <div className="hidden overflow-x-auto lg:block">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+          <table className="w-full ">
+            <thead className=" border-b border-gray-200">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   {t("Developer_Portal.ProjectName")}
@@ -390,7 +390,7 @@ export default function DeveloperPortalPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-y divide-gray-200 bg-white/50">
               {currentProjects.map((project) => (
                 <tr
                   key={project.id}
