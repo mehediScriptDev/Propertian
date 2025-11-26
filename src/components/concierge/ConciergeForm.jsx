@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 import COUNTRY_CODES from '@/utils/countryCodes';
+import ConciergeModal from '@/components/concierge/component/ConciergeModal';
 
 export default function ConciergeForm({ onClose } = {}) {
 	const { locale } = useLanguage();
 	useTranslation(locale); // ensure locale hook runs (translations not used here)
+
+	const [showModal, setShowModal] = useState(false);
 
 	const [formState, setFormState] = useState({
 		fullName: '',
@@ -25,21 +28,23 @@ export default function ConciergeForm({ onClose } = {}) {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+		setShowModal(true);
 		console.log('Concierge request', formState);
-		alert('Request submitted — check console for details.');
 		// keep minimal UX: reset optional fields
 		setFormState((s) => ({ ...s, fullName: '', email: '', phone: '', moveTiming: '', planDetails: '' }));
-		onClose?.();
+		// show confirmation modal
+		
 	};
 
 	return (
+		<>
 		<form onSubmit={handleSubmit} className='space-y-5' aria-label='Consultation booking form'>
 			<div className='grid grid-cols-1 lg:grid-cols-2 gap-5'>
 				<div>
 					<label htmlFor='fullName' className='block text-[14px] font-medium text-charcoal mb-1.5'>
 						Full Name
 					</label>
-					  <input id='fullName' name='fullName' value={formState.fullName} onChange={handleChange} type='text' placeholder='Your full name' required className='w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200' />
+					  <input id='fullName' name='fullName' value={formState.fullName} placeholder='Write your full name' onChange={handleChange} type='text' required className='w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200' />
 				</div>
 
 				<div>
@@ -112,5 +117,8 @@ export default function ConciergeForm({ onClose } = {}) {
 				Submit
 			</button>
 		</form>
+
+		{showModal && <ConciergeModal initialOpen={true} onClose={() => setShowModal(false)} />}
+		</>
 	);
 }
