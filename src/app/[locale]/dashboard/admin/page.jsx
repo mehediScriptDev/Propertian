@@ -1,11 +1,15 @@
 'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
+import { use, useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from '@/i18n';
+import { Building2, Users, MessageSquare, ClipboardList } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
 import UserEngagementChart from '@/components/dashboard/admin/UserEngagementChart';
 import PropertiesTable from '@/components/dashboard/admin/PropertiesTable';
+import UsersTable from '@/components/dashboard/admin/UsersTable';
+import InquiriesTable from '@/components/dashboard/admin/InquiriesTable';
 import Pagination from '@/components/dashboard/Pagination';
+import { get } from '@/lib/api';
 
 export default function AdminDashboardPage({ params }) {
   const { locale } = use(params);
@@ -13,161 +17,125 @@ export default function AdminDashboardPage({ params }) {
 
   // State
   const [currentPage, setCurrentPage] = useState(1);
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const ITEMS_PER_PAGE = 5;
 
-  // Mock data - In production, fetch from API
-  const statsData = [
-    {
-      title: t('dashboard.admin.stats.totalListings'),
-      value: 1204,
-      trend: '+5.2%',
-      variant: 'primary',
-    },
-    {
-      title: t('dashboard.admin.stats.newUsers'),
-      value: 86,
-      trend: '+12%',
-      variant: 'success',
-    },
-    {
-      title: t('dashboard.admin.stats.pendingVerifications'),
-      value: 12,
-      trend: '+2%',
-      variant: 'info',
-    },
-    {
-      title: t('dashboard.admin.stats.activeConciergeRequests'),
-      value: 5,
-      trend: '-1.5%',
-      variant: 'warning',
-    },
-  ];
+  // Fetch analytics data from API
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        const response = await get('/dashboard/analytics');
+        if (response.success && response.data) {
+          setAnalyticsData(response.data);
+        }
+      } catch (err) {
+        console.error('Error fetching analytics:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const propertiesData = useMemo(
-    () => [
+    fetchAnalytics();
+  }, []);
+
+  // Stats data from API
+  const statsData = useMemo(() => {
+    if (!analyticsData?.overview) return [];
+
+    const overview = analyticsData.overview;
+    return [
       {
-        id: 1,
-        title: 'Modern Villa in Cocody',
-        type: 'buy',
-        typeLabel: t('dashboard.admin.propertiesTable.types.buy'),
-        status: 'approved',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.approved'),
-        agent: 'Jean Dupont',
-        dateAdded: '2023-10-25',
+        title: t('dashboard.admin.stats.totalListings'),
+        value: overview.totalProperties || 0,
+        icon: Building2,
+        variant: 'primary',
       },
       {
-        id: 2,
-        title: 'Seaside Apartment',
-        type: 'rent',
-        typeLabel: t('dashboard.admin.propertiesTable.types.rent'),
-        status: 'pending',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.pending'),
-        agent: 'Amina Keita',
-        dateAdded: '2023-10-24',
+        title: t('dashboard.admin.stats.newUsers'),
+        value: overview.totalUsers || 0,
+        icon: Users,
+        variant: 'success',
       },
       {
-        id: 3,
-        title: 'Riviera Golf Luxury Home',
-        type: 'buy',
-        typeLabel: t('dashboard.admin.propertiesTable.types.buy'),
-        status: 'approved',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.approved'),
-        agent: 'Moussa Traoré',
-        dateAdded: '2023-10-22',
+        title: t('dashboard.admin.stats.pendingVerifications'),
+        value: overview.totalInquiries || 0,
+        icon: ClipboardList,
+        variant: 'info',
       },
       {
-        id: 4,
-        title: 'Downtown Office Space',
-        type: 'rent',
-        typeLabel: t('dashboard.admin.propertiesTable.types.rent'),
-        status: 'rejected',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.rejected'),
-        agent: 'Fatou Diallo',
-        dateAdded: '2023-10-21',
+        title: t('dashboard.admin.stats.activeConciergeRequests'),
+        value: overview.totalMessages || 0,
+        icon: MessageSquare,
+        variant: 'warning',
       },
-      {
-        id: 5,
-        title: 'Plateau Business Center',
-        type: 'buy',
-        typeLabel: t('dashboard.admin.propertiesTable.types.buy'),
-        status: 'approved',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.approved'),
-        agent: 'Kofi Mensah',
-        dateAdded: '2023-10-20',
-      },
-      {
-        id: 6,
-        title: 'Marcory Family House',
-        type: 'rent',
-        typeLabel: t('dashboard.admin.propertiesTable.types.rent'),
-        status: 'pending',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.pending'),
-        agent: "Sophie N'Guessan",
-        dateAdded: '2023-10-19',
-      },
-      {
-        id: 7,
-        title: 'Grand-Bassam Beach Villa',
-        type: 'buy',
-        typeLabel: t('dashboard.admin.propertiesTable.types.buy'),
-        status: 'approved',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.approved'),
-        agent: 'Ibrahim Sanogo',
-        dateAdded: '2023-10-18',
-      },
-      {
-        id: 8,
-        title: 'Yopougon Commercial Space',
-        type: 'rent',
-        typeLabel: t('dashboard.admin.propertiesTable.types.rent'),
-        status: 'rejected',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.rejected'),
-        agent: 'Marie Coulibaly',
-        dateAdded: '2023-10-17',
-      },
-      {
-        id: 9,
-        title: 'Angré Premium Residence',
-        type: 'buy',
-        typeLabel: t('dashboard.admin.propertiesTable.types.buy'),
-        status: 'approved',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.approved'),
-        agent: 'David Koffi',
-        dateAdded: '2023-10-16',
-      },
-      {
-        id: 10,
-        title: 'Two Plateaus Luxury Apartment',
-        type: 'rent',
-        typeLabel: t('dashboard.admin.propertiesTable.types.rent'),
-        status: 'pending',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.pending'),
-        agent: 'Grace Touré',
-        dateAdded: '2023-10-15',
-      },
-      {
-        id: 11,
-        title: 'Cocody Heights Penthouse',
-        type: 'buy',
-        typeLabel: t('dashboard.admin.propertiesTable.types.buy'),
-        status: 'approved',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.approved'),
-        agent: 'Laurent Bamba',
-        dateAdded: '2023-10-14',
-      },
-      {
-        id: 12,
-        title: 'Riviera Palmeraie Villa',
-        type: 'buy',
-        typeLabel: t('dashboard.admin.propertiesTable.types.buy'),
-        status: 'pending',
-        statusLabel: t('dashboard.admin.propertiesTable.statuses.pending'),
-        agent: 'Aminata Diabaté',
-        dateAdded: '2023-10-13',
-      },
-    ],
-    [t]
-  );
+    ];
+  }, [analyticsData, t]);
+
+  const propertiesData = useMemo(() => {
+    if (!analyticsData?.recent?.properties) return [];
+
+    return analyticsData.recent.properties.map(prop => ({
+      id: prop.id,
+      title: prop.title,
+      city: prop.city || 'N/A',
+      state: prop.state || 'N/A',
+      price: prop.price || 0,
+      propertyType: prop.propertyType || 'N/A',
+      type: prop.listingType?.toLowerCase() || 'buy',
+      typeLabel: prop.listingType === 'RENT'
+        ? t('dashboard.admin.propertiesTable.types.rent')
+        : t('dashboard.admin.propertiesTable.types.buy'),
+      status: prop.status?.toLowerCase() || 'pending',
+      statusLabel: prop.status === 'AVAILABLE'
+        ? t('dashboard.admin.propertiesTable.statuses.approved')
+        : prop.status === 'PENDING'
+          ? t('dashboard.admin.propertiesTable.statuses.pending')
+          : t('dashboard.admin.propertiesTable.statuses.rejected'),
+      agent: `${prop.owner?.firstName || ''} ${prop.owner?.lastName || ''}`.trim() || 'Unknown',
+      dateAdded: prop.createdAt ? new Date(prop.createdAt).toISOString().split('T')[0] : '',
+      image: prop.images?.[0] ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${prop.images[0]}` : null,
+    }));
+  }, [analyticsData, t]);
+
+  const usersData = useMemo(() => {
+    if (!analyticsData?.recent?.users) return [];
+
+    return analyticsData.recent.users.map(user => ({
+      id: user.id,
+      name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown',
+      email: user.email,
+      role: user.role?.toLowerCase() || 'user',
+      roleLabel: user.role === 'USER' ? 'User'
+        : user.role === 'PARTNER' ? 'Partner'
+          : user.role === 'AGENT' ? 'Agent'
+            : user.role === 'SUPER_ADMIN' ? 'Super Admin'
+              : user.role || 'User',
+      dateJoined: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : '',
+    }));
+  }, [analyticsData]);
+
+  const inquiriesData = useMemo(() => {
+    if (!analyticsData?.recent?.inquiries) return [];
+
+    return analyticsData.recent.inquiries.map(inquiry => ({
+      id: inquiry.id,
+      userName: `${inquiry.user?.firstName || ''} ${inquiry.user?.lastName || ''}`.trim() || 'Unknown',
+      userEmail: inquiry.user?.email || '',
+      propertyTitle: inquiry.property?.title || null,
+      propertyCity: inquiry.property?.city || null,
+      message: inquiry.message || '',
+      status: inquiry.status?.toLowerCase() || 'pending',
+      statusLabel: inquiry.status === 'PENDING' ? 'Pending'
+        : inquiry.status === 'RESPONDED' ? 'Responded'
+          : inquiry.status === 'CLOSED' ? 'Closed'
+            : inquiry.status || 'Pending',
+      date: inquiry.createdAt ? new Date(inquiry.createdAt).toISOString().split('T')[0] : '',
+    }));
+  }, [analyticsData]);
 
   // Mock engagement data for the chart
   const engagementData = [45, 62, 58, 72, 55, 48, 68, 75, 42, 58, 78, 85];
@@ -222,23 +190,52 @@ export default function AdminDashboardPage({ params }) {
     setCurrentPage(page);
   }, []);
 
+  if (loading) {
+    return (
+      <div className='space-y-6'>
+        <div>
+          <h1 className='text-4xl font-bold text-gray-900'>Dashboard Overview</h1>
+        </div>
+        <div className='flex items-center justify-center py-12'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-[#d4af37]'></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='space-y-6'>
+        <div>
+          <h1 className='text-4xl font-bold text-gray-900'>Dashboard Overview</h1>
+        </div>
+        <div className='bg-red-50 border border-red-200 rounded-lg p-4'>
+          <p className='text-red-600'>Error loading dashboard data: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='space-y-6'>
+      <div>
+        <h1 className='text-4xl font-bold text-gray-900 '>Dashboard Overview</h1>
+      </div>
       {/* Stats Grid */}
-      <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-4'>
+      <div className='grid gap-6 sm:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4'>
         {statsData.map((stat, index) => (
           <StatsCard
             key={index}
             title={stat.title}
             value={stat.value}
-            trend={stat.trend}
+            icon={stat.icon}
             variant={stat.variant}
           />
         ))}
       </div>
 
       {/* User Engagement Chart */}
-      <UserEngagementChart
+      {/* <UserEngagementChart
         title={t('dashboard.admin.performance.title')}
         subtitle={t('dashboard.admin.performance.subtitle')}
         period={t('dashboard.admin.performance.period')}
@@ -250,7 +247,7 @@ export default function AdminDashboardPage({ params }) {
           t('dashboard.admin.performance.weeks.week4'),
         ]}
         data={engagementData}
-      />
+      /> */}
 
       {/* Properties Table with Pagination */}
       <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
@@ -260,6 +257,38 @@ export default function AdminDashboardPage({ params }) {
           properties={paginatedProperties}
           translations={propertiesTableTranslations}
           locale={locale}
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={propertiesData.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={handlePageChange}
+          translations={paginationTranslations}
+        />
+      </div>
+
+      {/* Users Table */}
+      <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
+        <UsersTable
+          title='Recent Users'
+          users={usersData.slice(0, 5)}
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={propertiesData.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={handlePageChange}
+          translations={paginationTranslations}
+        />
+      </div>
+
+      {/* Inquiries Table */}
+      <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
+        <InquiriesTable
+          title='Recent Inquiries'
+          inquiries={inquiriesData.slice(0, 5)}
         />
         <Pagination
           currentPage={currentPage}
