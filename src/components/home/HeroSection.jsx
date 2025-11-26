@@ -106,7 +106,7 @@ export default function HeroSection({ locale }) {
           {t("hero.title")}
         </h1>
         <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl font-normal text-white/80 max-w-3xl mx-auto drop-shadow-md">
-          {t("hero.subtitle")}
+          Your trusted gateway to discovering, renting, and investing in Côte d’Ivoire.
         </p>
 
         {/* CTA Buttons */}
