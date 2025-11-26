@@ -46,13 +46,7 @@ export default function PropertyCard({
                     unoptimized
                 />
 
-                <button
-                    onClick={() => onToggleLike && onToggleLike(property.id)}
-                    className="absolute top-3 right-3 h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-md"
-                    aria-label={property.liked ? 'Unsave property' : 'Save property'}
-                >
-                    <Heart size={18} className={property.liked ? 'text-red-500' : 'text-gray-400'} />
-                </button>
+                
             </div>
 
             {/* Content */}

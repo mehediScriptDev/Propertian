@@ -103,10 +103,11 @@ export default function HeroSection({ locale }) {
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto w-full px-4">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-white/80 font-extrabold leading-tight tracking-tight drop-shadow-lg">
-          {t("hero.title")}
+          Connecting the World to Côte d&apos;Ivoire&apos;s Real Estate
         </h1>
         <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl font-normal text-white/80 max-w-3xl mx-auto drop-shadow-md">
-          Your trusted gateway to discovering, renting, and investing in Côte d’Ivoire.
+          Your trusted gateway to discovering, renting, and investing in Côte
+          d’Ivoire.{" "}
         </p>
 
         {/* CTA Buttons */}
@@ -119,7 +120,9 @@ export default function HeroSection({ locale }) {
           </Link>
           <Link
             href={
-              !user || user.role === "client" ? `/${locale}/partner-verification` : `/${locale}/dashboard/admin`
+              !user || user.role === "client"
+                ? `/${locale}/partner-verification`
+                : `/${locale}/dashboard/admin`
             }
             className="w-full sm:w-auto flex items-center justify-center h-12 sm:h-14 px-6 sm:px-8 rounded-lg bg-white/95 backdrop-blur-sm text-base lg:text-lg font-bold text-charcoal transition-all hover:bg-white hover:shadow-xl hover:scale-105 active:scale-100"
           >
