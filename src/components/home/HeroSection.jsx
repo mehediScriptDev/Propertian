@@ -119,7 +119,7 @@ export default function HeroSection({ locale }) {
           </Link>
           <Link
             href={
-              !user || user.role === "client" ? `/${locale}/partner-verification` : `/${locale}/dashboard/admin`
+              !user || user.role === "client" ? `/${locale}/verification` : `/${locale}/dashboard/admin`
             }
             className="w-full sm:w-auto flex items-center justify-center h-12 sm:h-14 px-6 sm:px-8 rounded-lg bg-white/95 backdrop-blur-sm text-base lg:text-lg font-bold text-charcoal transition-all hover:bg-white hover:shadow-xl hover:scale-105 active:scale-100"
           >
