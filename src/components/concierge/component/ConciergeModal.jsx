@@ -60,33 +60,31 @@ export default function ConciergeModal({ initialOpen = true, onClose } = {}) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-linear-to-br from-amber-600 to-amber-700 rounded-full flex items-center justify-center">
-            <Image src="/logo.png" alt="Q Global Living Logo" width={40} height={40} />
+        <div className="flex justify-center ">
+          <div className=" rounded-full flex items-center justify-center">
+            <Image src="/logo.png" alt="Q Global Living Logo" width={200} height={200} />
           </div>
         </div>
         
         {/* Brand Name */}
-        <div className="text-center mb-6">
+        {/* <div className="text-center mb-6">
           <p className="text-amber-700 text-sm tracking-widest font-light">Q GLOBAL</p>
           <p className="text-amber-700 text-xs tracking-widest font-light">LIVING</p>
-        </div>
+        </div> */}
 
         {/* Title */}
-        <h2 className="text-amber-600 text-3xl font-bold text-center mb-6">
+        <h2 className="text-accent text-3xl font-bold text-center mb-3">
           Thank you!
         </h2>
 
         {/* Content */}
         <div className="text-center mb-4">
-          <p className="text-gray-700 text-sm mb-3">
+          <p className="text-gray-700 text-base font-semibold mb-3">
             Your concierge consultation request has been received.
           </p>
-          <p className="text-gray-700 text-sm mb-3">
-            A member of our Q Global Concierge team will contact you shortly.
-          </p>
-          <p className="text-gray-600 text-xs">
-            In the meantime, feel free to reach us at{' '}
+          
+          <p className="text-gray-600 text-sm">
+            A member of our Q Global Concierge team will contact you shortly. In the meantime, feel free to reach us at{' '}
             <a 
               href="mailto:support@qgloballiving.com" 
               className="text-amber-600 hover:text-amber-700 underline"
@@ -101,7 +99,7 @@ export default function ConciergeModal({ initialOpen = true, onClose } = {}) {
         <button
           ref={closeBtnRef}
           onClick={handleClose}
-          className="w-full bg-linear-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-medium py-3 rounded-md transition-all duration-200 shadow-md hover:shadow-lg mt-6 focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full bg-accent text-white font-medium py-3 rounded-md transition-all duration-200 shadow-md hover:shadow-lg mt-6 focus:outline-none focus:ring-2 focus:ring-primary"
         >
           Close
         </button>
