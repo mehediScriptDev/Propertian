@@ -76,9 +76,8 @@ export default function HeroSection({ locale }) {
         fill
         priority={true}
         quality={85}
-        className={`object-cover transition-opacity duration-1000 ${
-          isVideoVisible ? "opacity-0" : "opacity-100"
-        }`}
+        className={`object-cover transition-opacity duration-1000 ${isVideoVisible ? "opacity-0" : "opacity-100"
+          }`}
         sizes="100vw"
       />
 
@@ -89,9 +88,8 @@ export default function HeroSection({ locale }) {
         muted
         playsInline
         preload="auto"
-        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 z-1 ${
-          isVideoVisible ? "opacity-100" : "opacity-0"
-        }`}
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 z-1 ${isVideoVisible ? "opacity-100" : "opacity-0"
+          }`}
         poster="/mainBanner.jpg"
       >
         <source src="/Hero_Section.mp4" type="video/mp4" />
