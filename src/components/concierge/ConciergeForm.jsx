@@ -4,7 +4,7 @@ import { useTranslation } from '@/i18n';
 import COUNTRY_CODES from '@/utils/countryCodes';
 import ConciergeModal from '@/components/concierge/component/ConciergeModal';
 
-export default function ConciergeForm({ onClose } = {}) {
+export default function ConciergeForm({ onClose, onSuccess } = {}) {
 	const { locale } = useLanguage();
 	useTranslation(locale); // ensure locale hook runs (translations not used here)
 
@@ -28,12 +28,20 @@ export default function ConciergeForm({ onClose } = {}) {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		setShowModal(true);
 		console.log('Concierge request', formState);
 		// keep minimal UX: reset optional fields
 		setFormState((s) => ({ ...s, fullName: '', email: '', phone: '', moveTiming: '', planDetails: '' }));
-		// show confirmation modal
-		
+
+		// If parent provided an onSuccess handler, close parent modal first then trigger onSuccess
+		if (typeof onSuccess === 'function') {
+			if (typeof onClose === 'function') onClose();
+			// wait briefly to avoid modal stacking (allow parent to unmount this form)
+			setTimeout(() => onSuccess(), 200);
+			return;
+		}
+
+		// fallback: show success modal locally (for pages where form is not inside a parent modal)
+		setShowModal(true);
 	};
 
 	return (
@@ -113,7 +121,7 @@ export default function ConciergeForm({ onClose } = {}) {
 				</div>
 			</div>
 
-			<button type='submit' className='w-full bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 py-3.5 rounded-lg transition-all duration-200 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'>
+			<button type='submit' className='w-full bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-3.5 rounded-lg transition-all duration-200 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'>
 				Submit
 			</button>
 		</form>

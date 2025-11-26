@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
+import { useAuth } from '@/contexts/AuthContext';
+import axios from '@/lib/axios';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaHeart } from 'react-icons/fa';
@@ -47,11 +50,40 @@ export default function BuyPropertyCard({ property }) {
   // Prefer first image from images array, fall back to any single-image field or a local placeholder
   const image = (images && images.length && images[0]) || property.image || '/buy-rent/thumb.png';
   console.log(property)
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [isFavorite, setIsFavorite] = useState(Boolean(property.isFavorite));
 
   // Format price with thousand separators
   const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR').format(price);
+  };
+
+  // Map property type keys to English labels (avoid translation keys showing)
+  const mapPropertyType = (pt) => {
+    if (!pt) return '';
+    const key = String(pt).toLowerCase();
+    switch (key) {
+      case 'villa':
+      case 'villas':
+      case 'vlla':
+        return 'Villa';
+      case 'apartment':
+      case 'apartments':
+        return 'Apartment';
+      case 'house':
+      case 'homes':
+        return 'House';
+      case 'land':
+        return 'Land';
+      case 'studio':
+        return 'Studio';
+      case 'commercial':
+        return 'Commercial';
+      default:
+        // Fallback: capitalize the first letter
+        return key.charAt(0).toUpperCase() + key.slice(1);
+    }
   };
 
   // WhatsApp message handler
@@ -66,6 +98,34 @@ export default function BuyPropertyCard({ property }) {
     );
   };
 
+  // Toggle favorite - requires authentication
+  const handleToggleFavorite = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      // redirect to login page (preserve locale)
+      const locale = (typeof window !== 'undefined' && window.location.pathname.split('/')[1]) || 'en';
+      router.push(`/${locale}/login`);
+      return;
+    }
+
+    // optimistic UI
+    const prev = isFavorite;
+    setIsFavorite(!prev);
+
+    try {
+      const res = await axios.post(`/properties/${id}/favorite`);
+      // axios wrapper returns response; we don't strictly need to use res.data here
+      // but could check success if backend returns structured response
+      return res;
+    } catch (err) {
+      console.error('Favorite request failed', err);
+      // revert optimistic update
+      setIsFavorite(prev);
+    }
+  };
+
   return (
     <article
       className='flex flex-col gap-3 rounded-xl bg-white/50 dark:bg-card-dark shadow-md border border-[#f6efcb] dark:border-border-dark overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1'
@@ -74,7 +134,7 @@ export default function BuyPropertyCard({ property }) {
       {/* Property Image */}
       <div className='relative w-full aspect-5/3 bg-gray-200 dark:bg-gray-700 overflow-hidden'>
         <Image
-          src={image}
+          src={'/noImage.png'}
           alt={imageAlt || title}
           fill
           sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
@@ -109,8 +169,8 @@ export default function BuyPropertyCard({ property }) {
         {/* Property Type Badge - Top Right */}
         <div className='absolute top-3 right-3'>
           <span
-            className='flex items-center gap-1 bg-gray-700/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md capitalize'
-            aria-label={`${propertyType} property`}
+            className='flex items-center gap-1 bg-gray-700/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md'
+            aria-label={`${mapPropertyType(propertyType)} property`}
           >
             <svg
               className='w-3.5 h-3.5'
@@ -120,7 +180,7 @@ export default function BuyPropertyCard({ property }) {
             >
               <path d='M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z' />
             </svg>
-            <span>{t(`buy.propertyTypes.${propertyType}`, propertyType)}</span>
+            <span>{mapPropertyType(propertyType)}</span>
           </span>
         </div>
       </div>
@@ -134,11 +194,7 @@ export default function BuyPropertyCard({ property }) {
         </p>
         <button
           title={isFavorite ? 'Remove favourite' : 'Add favourite'}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsFavorite((v) => !v);
-          }}
+          onClick={handleToggleFavorite}
           aria-pressed={isFavorite}
           className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
         >

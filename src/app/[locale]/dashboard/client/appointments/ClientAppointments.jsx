@@ -6,6 +6,7 @@ import { useTranslation } from '@/i18n';
 import { Plus } from "lucide-react";
 import Modal from '@/components/Modal';
 import ConciergeForm from '@/components/concierge/ConciergeForm';
+import ConciergeModal from '@/components/concierge/component/ConciergeModal';
 
 // Lazy load heavier child components to split bundles
 const AppointmentsHeader = React.lazy(() => import('../../../../../components/dashboard/client/AppointmentsHeader'));
@@ -27,6 +28,7 @@ export default function ClientAppointments() {
     const [query, setQuery] = useState('');
     const [formData, setFormData] = useState({ full_name: '', email: '', phone: '', appointment_type: 'Property Visit', preferred_date: '', preferred_time: '', notes: '' });
     const [showConciergeModal, setShowConciergeModal] = useState(false);
+    const [showConciergeSuccess, setShowConciergeSuccess] = useState(false);
 
     const getStatusColor = (status) => {
         const colors = { confirmed: 'bg-green-100 text-green-800', pending: 'bg-yellow-100 text-yellow-800', completed: 'bg-blue-100 text-blue-800', cancelled: 'bg-red-100 text-red-800' };
@@ -50,13 +52,13 @@ export default function ClientAppointments() {
  
     // prevent body scroll when any modal is open
     useEffect(() => {
-        const open = showModal || showNewModal;
+        const open = showModal || showNewModal || showConciergeModal || showConciergeSuccess;
         const body = typeof document !== 'undefined' ? document.body : null;
         if (body) {
             if (open) body.classList.add('overflow-hidden'); else body.classList.remove('overflow-hidden');
         }
         return () => { if (body) body.classList.remove('overflow-hidden'); };
-    }, [showModal, showNewModal]);
+    }, [showModal, showNewModal, showConciergeModal, showConciergeSuccess]);
 
     const { locale } = useLanguage();
     const { t } = useTranslation(locale);
@@ -152,8 +154,12 @@ export default function ClientAppointments() {
 
             {/* Concierge / Consultation modal (uses the same fields as the concierge page) */}
             <Modal isOpen={showConciergeModal} onClose={() => setShowConciergeModal(false)} title={t('concierge.contact.title') || 'Book a Consultation'} maxWidth='max-w-3xl' showCloseButton={true}>
-                <ConciergeForm onClose={() => setShowConciergeModal(false)} />
+                <ConciergeForm onClose={() => setShowConciergeModal(false)} onSuccess={() => setShowConciergeSuccess(true)} />
             </Modal>
+
+            {showConciergeSuccess && (
+                <ConciergeModal initialOpen={true} onClose={() => setShowConciergeSuccess(false)} />
+            )}
         </div>
     );
 }
