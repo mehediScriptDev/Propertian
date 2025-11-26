@@ -10,6 +10,7 @@ import UsersTable from '@/components/dashboard/admin/UsersTable';
 import InquiriesTable from '@/components/dashboard/admin/InquiriesTable';
 import Pagination from '@/components/dashboard/Pagination';
 import { get } from '@/lib/api';
+import RecentUserTable from './Components/RecentUserTable';
 
 export default function AdminDashboardPage({ params }) {
   const { locale } = use(params);
@@ -270,7 +271,7 @@ export default function AdminDashboardPage({ params }) {
 
       {/* Users Table */}
       <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
-        <UsersTable
+        <RecentUserTable
           title='Recent Users'
           users={usersData.slice(0, 5)}
         />

@@ -1,8 +1,9 @@
 'use client';
 
 import { use, useState, useMemo, useCallback, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Users, UserCheck, UserX, ShieldCheck } from 'lucide-react';
 import { useTranslation } from '@/i18n';
+import StatsCard from '@/components/dashboard/admin/StatsCard';
 import UserFilters from '@/components/dashboard/admin/UserFilters';
 import UsersTable from '@/components/dashboard/admin/UsersTable';
 import Pagination from '@/components/dashboard/Pagination';
@@ -20,7 +21,8 @@ export default function AdminUsersPage({ params }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
-  const itemsPerPage = 8;
+  const [lastActivityFilter, setLastActivityFilter] = useState('all');
+  const itemsPerPage = 6;
 
   // Server state
   const [users, setUsers] = useState([]);
@@ -46,43 +48,124 @@ export default function AdminUsersPage({ params }) {
   const [createError, setCreateError] = useState(null);
   const [createSuccess, setCreateSuccess] = useState(null);
 
-  // Fetch users from backend when filters/page change
+  // State for all users (unfiltered)
+  const [allUsers, setAllUsers] = useState([]);
+  const [userStats, setUserStats] = useState(null);
+
+  // Fetch users from backend when page changes (without search/filter params)
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       const params = {
-        page: currentPage,
-        limit: itemsPerPage,
+        page: 1,
+        limit: 1000, // Get all users for frontend filtering
       };
 
-      if (searchTerm) params.search = searchTerm;
-      if (roleFilter && roleFilter !== 'all') params.role = roleFilter;
-
-      if (statusFilter && statusFilter !== 'all') {
-        if (statusFilter === 'active') params.isActive = true;
-        else if (statusFilter === 'inactive') params.isActive = false;
-        else params.status = statusFilter; // suspended, pending
-      }
-
       const res = await api.get('/users', { params });
+
+      // Fetch user stats
+      try {
+        const statsRes = await api.get('/users/stats');
+        if (statsRes?.data) {
+          setUserStats(statsRes.data);
+        }
+      } catch (statsErr) {
+        console.error('Error fetching user stats:', statsErr);
+      }
 
       // res expected: { success: true, data: { users: [], pagination: {} } }
       const payload = res?.data || res;
       if (payload) {
-        setUsers(payload.users || []);
-        setPagination((prev) => ({ ...prev, ...(payload.pagination || {}) }));
+        // Map API data to table format
+        const mappedUsers = (payload.users || []).map(user => ({
+          ...user,
+          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+          roleLabel: user.role === 'USER' ? 'User'
+            : user.role === 'PARTNER' ? 'Partner'
+              : user.role === 'AGENT' ? 'Agent'
+                : user.role === 'SUPER_ADMIN' ? 'Super Admin'
+                  : user.role || 'User',
+          dateJoined: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : '',
+        }));
+        setAllUsers(mappedUsers);
       } else {
-        setUsers([]);
-        setPagination({ currentPage: 1, totalPages: 1, totalItems: 0, itemsPerPage });
+        setAllUsers([]);
       }
     } catch (err) {
       setError(err?.message || 'Failed to load users');
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchTerm, statusFilter, roleFilter, itemsPerPage]);
+  }, []);
+
+  // Frontend filtering and pagination
+  const filteredAndPaginatedUsers = useMemo(() => {
+    let filtered = [...allUsers];
+
+    // Apply search filter
+    if (searchTerm && searchTerm.trim()) {
+      const search = searchTerm.trim().toLowerCase();
+      filtered = filtered.filter(user => {
+        const id = user.id?.toString().toLowerCase() || '';
+        const name = user.name?.toLowerCase() || '';
+        const email = user.email?.toLowerCase() || '';
+        const firstName = user.firstName?.toLowerCase() || '';
+        const lastName = user.lastName?.toLowerCase() || '';
+        return id.includes(search) || name.includes(search) || email.includes(search) ||
+          firstName.includes(search) || lastName.includes(search);
+      });
+    }
+
+    // Apply role filter
+    if (roleFilter && roleFilter !== 'all') {
+      filtered = filtered.filter(user => user.role === roleFilter);
+    }
+
+    // Apply status filter
+    if (statusFilter && statusFilter !== 'all') {
+      if (statusFilter === 'active') {
+        filtered = filtered.filter(user => user.isActive === true);
+      } else if (statusFilter === 'inactive') {
+        filtered = filtered.filter(user => user.isActive === false);
+      } else {
+        filtered = filtered.filter(user => user.status === statusFilter);
+      }
+    }
+
+    // Apply last activity filter
+    if (lastActivityFilter && lastActivityFilter !== 'all') {
+      const days = parseInt(lastActivityFilter);
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - days);
+
+      filtered = filtered.filter(user => {
+        if (user.lastLoginAt) {
+          const lastLogin = new Date(user.lastLoginAt);
+          return lastLogin >= cutoffDate;
+        }
+        return false;
+      });
+    }
+
+    // Calculate pagination
+    const totalItems = filtered.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = filtered.slice(startIndex, endIndex);
+
+    // Update pagination state
+    setPagination({
+      currentPage,
+      totalPages,
+      totalItems,
+      itemsPerPage,
+    });
+
+    return paginatedData;
+  }, [allUsers, searchTerm, roleFilter, statusFilter, lastActivityFilter, currentPage, itemsPerPage]);
 
   useEffect(() => {
     fetchUsers();
@@ -104,9 +187,52 @@ export default function AdminUsersPage({ params }) {
     setCurrentPage(1);
   }, []);
 
+  const handleLastActivityChange = useCallback((value) => {
+    setLastActivityFilter(value);
+    setCurrentPage(1);
+  }, []);
+
   const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
   }, []);
+
+  // User stats cards
+  const userStatsCards = useMemo(() => {
+    if (!userStats) return [];
+
+    return [
+      {
+        title: 'Total Users',
+        value: userStats.totalUsers || 0,
+        icon: Users,
+        variant: 'primary',
+      },
+      {
+        title: 'Active Users',
+        value: userStats.activeUsers || 0,
+        icon: UserCheck,
+        variant: 'success',
+      },
+      {
+        title: 'Verified Users',
+        value: userStats.verifiedUsers || 0,
+        icon: ShieldCheck,
+        variant: 'info',
+      },
+      // {
+      //   title: 'Inactive Users',
+      //   value: userStats.inactiveUsers || 0,
+      //   icon: UserX,
+      //   variant: 'warning',
+      // },
+      {
+        title: 'Unverified Users',
+        value: userStats.unverifiedUsers || 0,
+        icon: Users,
+        variant: 'warning',
+      },
+    ];
+  }, [userStats]);
 
 
   function handleActionClick(action, user) {
@@ -208,7 +334,7 @@ export default function AdminUsersPage({ params }) {
         setCurrentPage(1);
         fetchUsers();
       } catch (err) {
-        setCreateError(err?.message || 'Failed to create user'); 
+        setCreateError(err?.message || 'Failed to create user');
       } finally {
         setCreating(false);
       }
@@ -279,11 +405,11 @@ export default function AdminUsersPage({ params }) {
       {/* Page Header */}
       <div className='flex flex-wrap items-center justify-between gap-4'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900 sm:text-3xl'>
+          <h1 className='text-4xl font-bold text-gray-900 '>
             {t('dashboard.admin.users.title')}
           </h1>
         </div>
-        <button
+        {/* <button
           onClick={() => {
             setCreateForm({ firstName: '', lastName: '', email: '', phone: '', password: '' });
             setCreateError(null);
@@ -293,8 +419,23 @@ export default function AdminUsersPage({ params }) {
         >
           <Plus className='h-4 w-4' />
           {t('dashboard.admin.users.addUser')}
-        </button>
+        </button> */}
       </div>
+
+      {/* User Stats Cards */}
+      {userStatsCards.length > 0 && (
+        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+          {userStatsCards.map((stat, index) => (
+            <StatsCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              variant={stat.variant}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Filters */}
       <UserFilters
@@ -302,6 +443,7 @@ export default function AdminUsersPage({ params }) {
         onSearchChange={handleSearchChange}
         onStatusChange={handleStatusChange}
         onRoleChange={handleRoleChange}
+        onLastActivityChange={handleLastActivityChange}
         translations={userTranslations}
       />
 
@@ -313,7 +455,7 @@ export default function AdminUsersPage({ params }) {
           </div>
         )}
 
-        <UsersTable users={users} translations={userTranslations} onActionClick={handleActionClick} />
+        <UsersTable users={filteredAndPaginatedUsers} title='All Users' translations={userTranslations} onActionClick={handleActionClick} />
 
         <ViewUserModal
           isOpen={showUserModal}
@@ -323,7 +465,7 @@ export default function AdminUsersPage({ params }) {
           userTranslations={userTranslations}
         />
 
-        <AddUserModal
+        {/* <AddUserModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
           onCreate={handleCreateUser}
@@ -332,7 +474,7 @@ export default function AdminUsersPage({ params }) {
           creating={creating}
           createError={createError}
           t={t}
-        />
+        /> */}
 
         <EditUserModal
           isOpen={showEditModal}

@@ -42,7 +42,69 @@ export default function InquiriesTable({ title, inquiries = [] }) {
                 </div>
             </div>
 
-            <div className='overflow-x-auto'>
+            {/* Mobile Card View */}
+            <div className='block md:hidden px-4 pb-4 space-y-4'>
+                {inquiries.length === 0 ? (
+                    <div className='text-center py-8 text-gray-500'>No inquiries found</div>
+                ) : (
+                    inquiries.map((inquiry) => (
+                        <div
+                            key={inquiry.id}
+                            className='bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow'
+                        >
+                            {/* User Info */}
+                            <div className='mb-3'>
+                                <h3 className='text-lg font-semibold text-gray-900'>{inquiry.userName}</h3>
+                                <p className='text-sm text-gray-600'>{inquiry.userEmail}</p>
+                            </div>
+
+                            {/* Property & Details */}
+                            <div className='space-y-2 mb-4'>
+                                <div className='flex items-start justify-between'>
+                                    <span className='text-sm text-gray-500'>Property:</span>
+                                    <span className='text-sm font-medium text-gray-900 text-right flex-1 ml-2'>
+                                        {inquiry.propertyTitle || 'General Inquiry'}
+                                    </span>
+                                </div>
+                                {inquiry.propertyCity && (
+                                    <div className='flex items-center justify-between'>
+                                        <span className='text-sm text-gray-500'>City:</span>
+                                        <span className='text-sm font-medium text-gray-900'>{inquiry.propertyCity}</span>
+                                    </div>
+                                )}
+                                <div className='flex items-center justify-between'>
+                                    <span className='text-sm text-gray-500'>Status:</span>
+                                    <span
+                                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusStyles(
+                                            inquiry.status
+                                        )}`}
+                                    >
+                                        {inquiry.statusLabel}
+                                    </span>
+                                </div>
+                                <div className='flex items-center justify-between'>
+                                    <span className='text-sm text-gray-500'>Date:</span>
+                                    <span className='text-sm font-medium text-gray-900'>{inquiry.date}</span>
+                                </div>
+                            </div>
+
+                            {/* Action */}
+                            <div className='pt-3 border-t border-gray-200'>
+                                <button
+                                    onClick={() => handleViewDetails(inquiry)}
+                                    className='w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg font-medium text-sm transition-colors hover:bg-primary/20'
+                                >
+                                    <Eye className='h-4 w-4' />
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className='hidden md:block overflow-x-auto'>
                 <table className='w-full min-w-[800px]'>
                     <thead className='bg-gray-100 text-gray-900'>
                         <tr>

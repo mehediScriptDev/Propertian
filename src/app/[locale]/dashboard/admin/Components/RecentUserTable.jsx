@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye, Edit, User2, X } from 'lucide-react';
+import { Eye, User2, X } from 'lucide-react';
 import { useState } from 'react';
 
 /**
@@ -12,7 +12,7 @@ import { useState } from 'react';
  * @param {Array} props.users - User data array
  * @param {Function} props.onActionClick - Action click handler
  */
-export default function UsersTable({ title, users = [], onActionClick }) {
+export default function RecentUserTable({ title, users = [], onActionClick }) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -67,12 +67,9 @@ export default function UsersTable({ title, users = [], onActionClick }) {
               className='bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow'
             >
               {/* User Header */}
-              <div className='flex items-start justify-between mb-3'>
-                <div className='flex-1'>
-                  <div className='text-xs font-medium text-gray-500 mb-1'>User ID: {user.id}</div>
-                  <h3 className='text-lg font-semibold text-gray-900'>{user.name}</h3>
-                  <p className='text-sm text-gray-600 mt-1'>{user.email}</p>
-                </div>
+              <div className='mb-3'>
+                <h3 className='text-lg font-semibold text-gray-900'>{user.name}</h3>
+                <p className='text-sm text-gray-600 mt-1'>{user.email}</p>
               </div>
 
               {/* User Details */}
@@ -93,21 +90,14 @@ export default function UsersTable({ title, users = [], onActionClick }) {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className='flex items-center gap-3 pt-3 border-t border-gray-200'>
+              {/* Action */}
+              <div className='pt-3 border-t border-gray-200'>
                 <button
                   onClick={() => handleViewDetails(user)}
-                  className='flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg font-medium text-sm transition-colors hover:bg-primary/20'
+                  className='w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg font-medium text-sm transition-colors hover:bg-primary/20'
                 >
                   <Eye className='h-4 w-4' />
-                  View
-                </button>
-                <button
-                  onClick={(e) => handleEditClick(user, e)}
-                  className='flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium text-sm transition-colors hover:bg-blue-100'
-                >
-                  <Edit className='h-4 w-4' />
-                  Edit
+                  View Details
                 </button>
               </div>
             </div>
@@ -120,9 +110,6 @@ export default function UsersTable({ title, users = [], onActionClick }) {
         <table className='w-full min-w-[800px]'>
           <thead className='bg-gray-100 text-gray-900'>
             <tr>
-              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
-                User ID
-              </th>
               <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 Name
               </th>
@@ -143,16 +130,13 @@ export default function UsersTable({ title, users = [], onActionClick }) {
           <tbody className='divide-y divide-gray-200 bg-white'>
             {users.length === 0 ? (
               <tr>
-                <td colSpan='6' className='px-6 py-8 text-center text-gray-500'>
+                <td colSpan='5' className='px-6 py-8 text-center text-gray-500'>
                   No users found
                 </td>
               </tr>
             ) : (
               users.map((user) => (
                 <tr key={user.id} className='hover:bg-gray-50 transition-colors'>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <div className='text-sm font-mono text-gray-600'>{user.id}</div>
-                  </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className='text-sm font-medium text-gray-900'>{user.name}</div>
                   </td>
@@ -180,13 +164,7 @@ export default function UsersTable({ title, users = [], onActionClick }) {
                       >
                         <Eye className='h-4 w-4' />
                       </button>
-                      <button
-                        onClick={(e) => handleEditClick(user, e)}
-                        className='inline-flex items-center gap-2 font-semibold text-blue-400 transition-colors '
-                        title='Edit User'
-                      >
-                        <Edit className='h-4 w-4' />
-                      </button>
+
                     </div>
                   </td>
 

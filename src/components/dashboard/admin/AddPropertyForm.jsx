@@ -419,8 +419,8 @@ export default function AddPropertyForm({ translations = {} }) {
             {errors.submit && <p className="text-sm md:text-base text-red-600">{errors.submit}</p>} */}
           </div>
           <div className="flex items-center space-x-3">
-            <button type="button" onClick={() => window.history.back()} className="px-4 py-2 rounded-md border bg-white">{translations.cancel || "Cancel"}</button>
-            <button type="submit" disabled={isSubmitting} className={`inline-flex items-center px-5 py-2 rounded-md font-semibold ${isSubmitting ? "bg-gray-300 text-gray-700" : "bg-[#d4af37] text-[#FFFFFF] hover:bg-[#c19b2a]"}`}>
+            <button type="button" onClick={() => window.history.back()} className="px-4 py-2 rounded-md border border-gray-300 bg-white">{translations.cancel || "Cancel"}</button>
+            <button type="submit" disabled={isSubmitting} className={`inline-flex items-center px-5 py-2 rounded-md font-semibold ${isSubmitting ? "bg-gray-300 text-gray-700" : "bg-[#d4af37] text-[#FFFFFF] "}`}>
               {isSubmitting ? "Saving..." : translations.submit || "Save Property"}
             </button>
           </div>

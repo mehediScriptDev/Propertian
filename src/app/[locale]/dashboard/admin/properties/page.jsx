@@ -15,6 +15,14 @@ export default function PropertiesManagementPage({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
 
+  // Helper to build correct image URL. If the API returns a full URL, use it as-is.
+  const resolveImageUrl = (imgPath) => {
+    if (!imgPath) return '/placeholder-property.jpg';
+    if (/^https?:\/\//i.test(imgPath) || imgPath.startsWith('//')) return imgPath;
+    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    return `${base.replace(/\/$/, '')}/${imgPath.replace(/^\//, '')}`;
+  };
+
   // State
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -34,7 +42,7 @@ export default function PropertiesManagementPage({ params }) {
     const fetchProperties = async () => {
       try {
         setLoading(true);
-        const response = await get('/properties');
+        const response = await get('/properties?page=1&limit=1000');
         if (response.success && response.data?.properties) {
           // Transform API data to match component structure
           const transformedProperties = response.data.properties.map(prop => {
@@ -56,7 +64,7 @@ export default function PropertiesManagementPage({ params }) {
               area: prop.sqft,
               views: 0, // API doesn't provide views yet
               partner: `${prop.owner.firstName} ${prop.owner.lastName}`,
-              image: prop.images?.[0] ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${prop.images[0]}` : '/placeholder-property.jpg',
+              image: resolveImageUrl(prop.images?.[0]),
             };
           });
           setProperties(transformedProperties);
@@ -193,7 +201,7 @@ export default function PropertiesManagementPage({ params }) {
   const handleSaveEdit = useCallback(async (updated) => {
     // Refresh properties list after successful update
     try {
-      const response = await get('/properties');
+      const response = await get('/properties?page=1&limit=1000');
       if (response.success && response.data?.properties) {
         const transformedProperties = response.data.properties.map(prop => {
           // Map API status to filter status
@@ -214,7 +222,7 @@ export default function PropertiesManagementPage({ params }) {
             area: prop.sqft,
             views: 0,
             partner: `${prop.owner.firstName} ${prop.owner.lastName}`,
-            image: prop.images?.[0] ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${prop.images[0]}` : '/placeholder-property.jpg',
+            image: resolveImageUrl(prop.images?.[0]),
           };
         });
         setProperties(transformedProperties);
@@ -262,67 +270,22 @@ export default function PropertiesManagementPage({ params }) {
     [t]
   );
 
-  if (loading) {
-    return (
-      <div className='space-y-4 md:space-y-6'>
-        <div className='bg-linear-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-4 sm:p-6 md:p-8 shadow-lg'>
-          <h1 className='text-2xl sm:text-3xl font-bold text-white mb-2'>
-            {propertiesTranslations.title}
-          </h1>
-          <p className='text-sm sm:text-base text-white/80'>
-            {propertiesTranslations.subtitle}
-          </p>
-        </div>
-        <div className='flex items-center justify-center py-12'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-[#d4af37]'></div>
-        </div>
-      </div>
-    );
-  }
 
-  if (error) {
-    return (
-      <div className='space-y-4 md:space-y-6'>
-        <div className='bg-linear-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-4 sm:p-6 md:p-8 shadow-lg'>
-          <h1 className='text-2xl sm:text-3xl font-bold text-white mb-2'>
-            {propertiesTranslations.title}
-          </h1>
-          <p className='text-sm sm:text-base text-white/80'>
-            {propertiesTranslations.subtitle}
-          </p>
-        </div>
-        <div className='bg-red-50 border border-red-200 rounded-lg p-4'>
-          <p className='text-red-600'>Error loading properties: {error}</p>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className='space-y-4 md:space-y-6'>
       {/* Header */}
-      <div className='bg-linear-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-4 sm:p-6 md:p-8 shadow-lg'>
-        <h1 className='text-2xl sm:text-3xl font-bold text-white mb-2'>
+      <div className=''>
+        <h1 className='text-4xl font-bold text-gray-900 mb-2'>
           {propertiesTranslations.title}
         </h1>
-        <p className='text-sm sm:text-base text-white/80'>
+        <p className='text-base text-gray-600'>
           {propertiesTranslations.subtitle}
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6'>
-        {stats.map((stat, index) => (
-          <StatsCard
-            key={index}
-            label={stat.label}
-            value={stat.value}
-            trend={stat.trend}
-            icon={stat.icon}
-            variant={stat.variant}
-          />
-        ))}
-      </div>
+    
 
       {/* Filters */}
       <PropertiesFilters

@@ -277,18 +277,21 @@ export default function AuditLogs({ params }) {
     <div className="space-y-4 md:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+        <h1 className="text-4xl font-bold text-gray-900">
           {auditLogsTranslations.title}
         </h1>
+         <div className="">
         <button
           onClick={handleExportCsv}
           type="button"
-          className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg flex items-center justify-center gap-2 text-sm sm:text-base font-medium transition-colors duration-200"
+          className="w-full  sm:w-auto px-4 sm:px-6 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg flex items-center justify-center gap-2 text-sm sm:text-base font-medium transition-colors duration-200"
         >
           <Download size={18} />
           <span>{auditLogsTranslations.exportCsv}</span>
         </button>
       </div>
+      </div>
+     
 
       {/* Filters */}
       <AuditLogsFilters

@@ -27,6 +27,10 @@ const PropertiesListTable = memo(({ properties, translations, onView, onEdit, on
 
   return (
     <div>
+      {/* Table heading */}
+      <div className='px-4 py-4 border-b border-gray-100 bg-white/50'>
+        <h3 className='text-lg font-semibold text-gray-900'>All property name</h3>
+      </div>
       <div className='overflow-x-auto'>
         <table className='w-full'>
           <thead className='bg-gray-50 border-b border-gray-200'>
@@ -43,9 +47,7 @@ const PropertiesListTable = memo(({ properties, translations, onView, onEdit, on
               <th className='px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 {translations.table.status}
               </th>
-              <th className='px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
-                {translations.table.views}
-              </th>
+
               <th className='px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 {translations.table.actions}
               </th>
@@ -96,12 +98,7 @@ const PropertiesListTable = memo(({ properties, translations, onView, onEdit, on
                 <td className='px-4 sm:px-6 py-4 whitespace-nowrap'>
                   {getStatusBadge(property.status)}
                 </td>
-                <td className='px-4 sm:px-6 py-4 whitespace-nowrap'>
-                  <div className='flex items-center gap-1 text-sm text-gray-900'>
-                    <Eye className='h-4 w-4 text-gray-400' />
-                    <span>{property.views.toLocaleString()}</span>
-                  </div>
-                </td>
+
                 <td className='px-4 sm:px-6 py-4 whitespace-nowrap'>
                   <div className='flex items-center gap-2'>
                     <button

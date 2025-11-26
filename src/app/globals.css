@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 @theme {
   --color-primary: #d4af37;
@@ -41,7 +41,7 @@
 
 /* Material Symbols Configuration */
 .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
+  font-family: "Material Symbols Outlined";
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
@@ -52,7 +52,7 @@
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
   vertical-align: middle;
 }
 
@@ -124,7 +124,7 @@ body {
 main,
 section,
 article,
-div[class*='container'] {
+div[class*="container"] {
   transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
 }
 
@@ -163,7 +163,7 @@ img {
 }
 
 /* Smooth opacity transitions for better UX */
-[data-transitioning='true'] {
+[data-transitioning="true"] {
   opacity: 0.95;
   transform: translateZ(0);
   will-change: opacity;
@@ -279,7 +279,7 @@ html {
 /* Professional hover states with smooth transitions */
 button,
 a,
-[role='button'] {
+[role="button"] {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -289,4 +289,20 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* Toast Animation */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
 }

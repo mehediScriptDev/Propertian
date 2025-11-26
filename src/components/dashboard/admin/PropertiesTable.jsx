@@ -58,8 +58,73 @@ export default function PropertiesTable({
         </button>
       </div>
 
-      {/* Table */}
-      <div className='overflow-x-auto'>
+      {/* Mobile Card View */}
+      <div className='block md:hidden px-4 pb-4 space-y-4'>
+        {properties.length === 0 ? (
+          <div className='text-center py-8 text-gray-500'>No properties found</div>
+        ) : (
+          properties.map((property, index) => (
+            <div
+              key={property.id || index}
+              className='bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow'
+            >
+              {/* Property Image */}
+              {property.image && (
+                <div className='relative w-full h-40 mb-3 rounded-lg overflow-hidden'>
+                  <Image
+                    src={property.image}
+                    alt={property.title}
+                    fill
+                    className='object-cover'
+                    sizes='(max-width: 768px) 100vw'
+                  />
+                </div>
+              )}
+
+              {/* Property Info */}
+              <div className='mb-3'>
+                <h3 className='text-lg font-semibold text-gray-900'>{property.title}</h3>
+              </div>
+
+              {/* Property Details */}
+              <div className='space-y-2 mb-4'>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-gray-500'>Property Type:</span>
+                  <span
+                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getPropertyTypeStyles(
+                      property.propertyType
+                    )}`}
+                  >
+                    {property.propertyType || 'N/A'}
+                  </span>
+                </div>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-gray-500'>Date Added:</span>
+                  <span className='text-sm font-medium text-gray-900'>{property.dateAdded}</span>
+                </div>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-gray-500'>Agent:</span>
+                  <span className='text-sm font-medium text-gray-900'>{property.agent}</span>
+                </div>
+              </div>
+
+              {/* Action */}
+              <div className='pt-3 border-t border-gray-200'>
+                <button
+                  onClick={() => handleViewDetails(property)}
+                  className='w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg font-medium text-sm transition-colors hover:bg-primary/20'
+                >
+                  <Eye className='h-4 w-4' />
+                  View Details
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className='hidden md:block overflow-x-auto'>
         <table className='w-full min-w-[800px]'>
           <thead className='bg-gray-100 text-gray-900'>
             <tr>
@@ -82,64 +147,65 @@ export default function PropertiesTable({
             </tr>
           </thead>
           <tbody className='divide-y divide-gray-100 bg-white'>
-            {properties.map((property, index) => (
-              <tr
-                key={property.id || index}
-                className='transition-colors hover:bg-gray-50'
-              >
-                {/* Image */}
-
-
-                {/* Property Title */}
-                <td className='px-6 py-4'>
-                  <p className='font-semibold text-gray-900'>
-                    {property.title}
-                  </p>
-                </td>
-
-                {/* Property Type */}
-                <td className='px-6 py-4'>
-                  <span
-                    className={`
-                      inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium
-                      ${getPropertyTypeStyles(property.propertyType)}
-                    `}
-                  >
-                    {property.propertyType || 'N/A'}
-                  </span>
-                </td>
-
-                {/* Date Added */}
-                <td className='px-6 py-4'>
-                  <p className='text-sm text-gray-600'>{property.dateAdded}</p>
-                </td>
-
-                {/* Agent */}
-                <td className='px-6 py-4'>
-                  <p className='text-sm text-gray-700'>{property.agent}</p>
-                </td>
-
-                {/* Actions */}
-                <td className='px-6 py-4 pl-12'>
-                  <button
-                    onClick={() => handleViewDetails(property)}
-                    className='inline-flex items-center gap-2 font-semibold text-primary transition-colors hover:text-primary/80'
-                  >
-                    <Eye className='h-4 w-4' />
-                  </button>
+            {properties.length === 0 ? (
+              <tr>
+                <td colSpan='5' className='px-6 py-8 text-center text-gray-500'>
+                  No properties found
                 </td>
               </tr>
-            ))}
+            ) : (
+              properties.map((property, index) => (
+                <tr
+                  key={property.id || index}
+                  className='transition-colors hover:bg-gray-50'
+                >
+                  {/* Image */}
+
+
+                  {/* Property Title */}
+                  <td className='px-6 py-4'>
+                    <p className='font-semibold text-gray-900'>
+                      {property.title}
+                    </p>
+                  </td>
+
+                  {/* Property Type */}
+                  <td className='px-6 py-4'>
+                    <span
+                      className={`
+                        inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium
+                        ${getPropertyTypeStyles(property.propertyType)}
+                      `}
+                    >
+                      {property.propertyType || 'N/A'}
+                    </span>
+                  </td>
+
+                  {/* Date Added */}
+                  <td className='px-6 py-4'>
+                    <p className='text-sm text-gray-600'>{property.dateAdded}</p>
+                  </td>
+
+                  {/* Agent */}
+                  <td className='px-6 py-4'>
+                    <p className='text-sm text-gray-700'>{property.agent}</p>
+                  </td>
+
+                  {/* Actions */}
+                  <td className='px-6 py-4 pl-12'>
+                    <button
+                      onClick={() => handleViewDetails(property)}
+                      className='inline-flex items-center gap-2 font-semibold text-primary transition-colors hover:text-primary/80'
+                    >
+                      <Eye className='h-4 w-4' />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
-
-      {/* Empty State */}
-      {properties.length === 0 && (
-        <div className='py-12 text-center'>
-          <p className='text-gray-500'>No properties found</p>
-        </div>
-      )}
 
       {/* Details Modal */}
       {isModalOpen && selectedProperty && (
