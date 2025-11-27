@@ -169,12 +169,13 @@
 
 
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { MessageSquare } from "lucide-react";
 import ActionButtons from "./ActionButtons";
 import Pagination from "@/components/dashboard/Pagination";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
+import SupportTicketViewModal from '@/components/dashboard/client/SupportTicketViewModal';
 
 function TicketsTable({
   tickets,
@@ -200,6 +201,13 @@ function TicketsTable({
 }) {
      const { locale } = useLanguage();
   const { t } = useTranslation(locale);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [showView, setShowView] = useState(false);
+
+  const handleView = (ticket) => {
+    setSelectedTicket(ticket);
+    setShowView(true);
+  };
 
     const renderStatusBadge = (status) => {
       const key = String(status || '').toLowerCase();
@@ -240,6 +248,7 @@ function TicketsTable({
       }
     };
   return (
+    <>
     <div className="bg-white/50 rounded-lg shadow-md overflow-hidden">
       {tickets.length > 0 ? (
         <div className="overflow-x-auto">
@@ -329,7 +338,7 @@ function TicketsTable({
                   </td>
                   <td className="px-6 py-4">
                     <ActionButtons
-                      onView={() => onView && onView(ticket)}
+                      onView={() => handleView(ticket)}
                       onEdit={() => onEdit && onEdit(ticket)}
                       onDelete={() => onDelete && onDelete(ticket.id)}
                     />
@@ -390,7 +399,7 @@ function TicketsTable({
 
                 <div className="mt-3">
                   <ActionButtons
-                    onView={() => onView && onView(ticket)}
+                    onView={() => handleView(ticket)}
                     onEdit={() => onEdit && onEdit(ticket)}
                     onDelete={() => onDelete && onDelete(ticket.id)}
                   />
@@ -417,6 +426,9 @@ function TicketsTable({
         />
       )}
     </div>
+    {/* Support Ticket View Modal (controlled) */}
+    <SupportTicketViewModal show={showView} ticket={selectedTicket} onClose={() => setShowView(false)} />
+    </>
   );
 }
 

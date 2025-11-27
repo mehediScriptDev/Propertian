@@ -10,6 +10,7 @@ import {
     MapPin,
     TriangleRight,
 } from 'lucide-react';
+import axios from 'axios';
 
 function getStatusStyle(status) {
     switch (status) {
@@ -37,6 +38,7 @@ export default function PropertyCard({
     const menuRef = useRef(null);
     const btnRef = useRef(null);
     const [imgSrc, setImgSrc] = useState(property.image || '/noImage.png');
+    const [isFavorite, setIsFavorite] = useState([]);
 
     useEffect(() => {
         function onDocClick(e) {
@@ -54,6 +56,13 @@ export default function PropertyCard({
             document.removeEventListener('keydown', onKey);
         };
     }, []);
+
+    // fetch favorite data
+    // useEffect(()=>{
+    //     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/properties/user/favorites`)
+    //     .then((res)=>console.log(res.data))
+    //     .catch((err)=>console.error('Error fetching favorites', err))       
+    // },[])
 
     return (
         <article className="group overflow-hidden rounded-lg bg-white/50 border border-gray-200 shadow-sm transition-shadow hover:shadow-md">
