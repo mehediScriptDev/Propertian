@@ -31,7 +31,7 @@ export default function ClientInquiriesPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 5;
 
   const inquiries = useMemo(() => [
     {
@@ -259,7 +259,21 @@ export default function ClientInquiriesPage() {
         )}
 
         {filtered.length > itemsPerPage && (
-          <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={filtered.length} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} translations={{ showing: t("common.showing"), to: t("common.to"), of: 'of', results: t("common.results"), previous: t("common.previous"), next: t("common.next") }} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filtered.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            translations={{
+              showing: t("common.showing"),
+              to: t("common.to"),
+              of: "out of",
+              results: t("common.results"),
+              previous: t("common.previous"),
+              next: t("common.next"),
+            }}
+          />
         )}
       </div>
 
