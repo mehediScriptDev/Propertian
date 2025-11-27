@@ -34,6 +34,12 @@ const nextConfig = {
         hostname: "quiahgroup1backend.mtscorporate.com",
         pathname: "/api/uploads/**",
       },
+      // Allow images served from the public CDN host used by MTS
+      {
+        protocol: "https",
+        hostname: "img.mtscorporate.com",
+        pathname: "/**",
+      },
       {
         protocol: "http",
         hostname: "localhost",

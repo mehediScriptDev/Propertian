@@ -173,7 +173,7 @@ export default function PropertiesManagementPage({ params }) {
     return filteredProperties.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredProperties, currentPage]);
 
-  // Handlers
+  // Handlers  
   const handleSearchChange = useCallback((value) => {
     setSearchTerm(value);
     setCurrentPage(1); // Reset to first page on search

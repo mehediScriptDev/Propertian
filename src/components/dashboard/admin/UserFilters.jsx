@@ -70,7 +70,7 @@ export default function UserFilters({
       <div className='relative'>
         <select
           value={statusFilter}
-          onChange={handleStatusChange}
+          onChange={handleStatusChange} 
           className='h-12 appearance-none rounded-lg border border-gray-200 bg-white pl-4 pr-10 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer'
         >
           <option value='all'>

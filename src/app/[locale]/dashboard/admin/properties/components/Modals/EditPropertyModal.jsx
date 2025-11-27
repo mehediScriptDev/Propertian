@@ -94,16 +94,16 @@ export default function EditPropertyModal({ isOpen, onClose, property, onSave, t
             <div className='absolute inset-0 bg-black/50 backdrop-blur-sm' onClick={onClose} />
 
             {/* Panel */}
-            <div role='dialog' aria-modal='true' className='relative z-10 w-full max-w-2xl rounded-xl bg-white shadow-2xl overflow-hidden max-h-[90vh]'>
-                <form onSubmit={handleSave} className='bg-white'>
-                    <div className='flex items-start justify-between gap-4 px-4 py-3 border-b border-gray-100'>
+            <div role='dialog' aria-modal='true' className='relative z-10 w-full max-w-2xl rounded-xl bg-white shadow-2xl overflow-hidden'>
+                <form onSubmit={handleSave} className='bg-white flex flex-col max-h-[90vh]'>
+                    <div className='sticky top-0 z-20 bg-white flex items-start justify-between gap-4 px-4 py-3 border-b border-gray-100'>
                         <h2 className='text-xl font-semibold text-gray-900'>Edit Property Details</h2>
                         <button type='button' onClick={onClose} aria-label='Close' className='p-2 rounded-full text-gray-500 hover:bg-gray-50'>
                             <X className='h-5 w-5' />
                         </button>
                     </div>
 
-                    <div className='p-6 space-y-4'>
+                    <div className='p-6 space-y-4 overflow-auto flex-1'>
                         {error && (
                             <div className='bg-red-50 border border-red-200 rounded-md p-3'>
                                 <p className='text-sm text-red-600'>{error}</p>

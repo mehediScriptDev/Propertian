@@ -215,7 +215,7 @@ export default function AdminDashboardPage({ params }) {
         </div>
       </div>
     );
-  }
+  } 
 
   return (
     <div className='space-y-6'>
