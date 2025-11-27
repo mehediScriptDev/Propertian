@@ -203,7 +203,7 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
                   </div>
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap'>
-                  <div className='flex items-center gap-2'>
+                  <div className='flex items-center gap-2  pl-4'>
                     <button
                       onClick={() => handleViewRequest(request)}
                       className='p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'

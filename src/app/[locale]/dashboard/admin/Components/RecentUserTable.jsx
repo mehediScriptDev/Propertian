@@ -155,8 +155,8 @@ export default function RecentUserTable({ title, users = [], onActionClick }) {
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-700'>
                     {user.dateJoined}
                   </td>
-                  <td className='px-6 py-4'>
-                    <div className='flex items-center gap-4'>
+                  <td className='pl-8  py-4'>
+                    <div className='pl-4 flex items-center gap-4'>
                       <button
                         onClick={() => handleViewDetails(user)}
                         className='inline-flex items-center gap-2 font-semibold text-primary transition-colors'

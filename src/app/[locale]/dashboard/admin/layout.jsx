@@ -38,7 +38,7 @@ export default function AdminDashboardLayout({ children }) {
 
   return (
     <LanguageProvider initialLocale={locale}>
-      <div className='flex h-screen bg-gray-50 overflow-hidden'>
+      <div className='flex h-screen bg-background-light overflow-hidden'>
         <Sidebar role='admin' />
         <div className='flex flex-1 flex-col lg:pl-64 overflow-hidden'>
           <DashboardHeader title={t('dashboard.admin.title')} />

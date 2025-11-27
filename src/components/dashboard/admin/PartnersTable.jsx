@@ -215,7 +215,7 @@ const PartnersTable = memo(({ partners, translations }) => {
                 <td className='px-6 py-4'>
                   {getPaymentBadge(partner.is_paid ? 'paid' : 'unpaid')}
                 </td>
-                <td className='px-6 py-4'>
+                <td className='pl-2 py-4'>
                   <div className='flex items-center gap-2'>
                     <button
                       onClick={() => handleView(partner)}
