@@ -5,46 +5,52 @@ import Image from 'next/image';
 import { MapPin, Eye, Edit, Trash2 } from 'lucide-react';
 
 const STATUS_BADGE_STYLES = {
+  available: 'bg-green-100 text-green-700',
   active: 'bg-green-100 text-green-700',
   pending: 'bg-yellow-100 text-yellow-700',
   inactive: 'bg-gray-100 text-gray-700',
 };
 
-const PropertiesListTable = memo(({ properties, translations }) => {
+const PropertiesListTable = memo(({ properties, translations, onView, onEdit, onDelete }) => {
   const getStatusBadge = (status) => {
     const badgeStyle =
       STATUS_BADGE_STYLES[status] || 'bg-gray-100 text-gray-700';
+    const displayText = status === 'available' ? 'Available' : translations.status[status] || status;
     return (
       <span
         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badgeStyle}`}
       >
-        {translations.status[status]}
+        {displayText}
       </span>
     );
   };
 
   return (
     <div>
+      {/* Table heading */}
+       <div className='px-6 py-5'>
+        <div className='flex items-center justify-between'>
+          <h2 className='text-xl font-bold text-gray-900'>All Properties</h2>
+        </div>
+      </div>
       <div className='overflow-x-auto'>
-        <table className='w-full'>
-          <thead className='bg-gray-50 border-b border-gray-200'>
+      <table className='w-full min-w-[800px]'>
+          <thead className='bg-gray-100 text-gray-900'>
             <tr>
-              <th className='px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
+              <th className='px-4 sm:px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90 whitespace-nowrap'>
                 {translations.table.property}
               </th>
-              <th className='px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
+              <th className='px-4 sm:px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90 whitespace-nowrap'>
                 {translations.table.location}
               </th>
-              <th className='px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
+              <th className='px-4 sm:px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90 whitespace-nowrap'>
                 {translations.table.price}
               </th>
-              <th className='px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
+              <th className='px-4 sm:px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90 whitespace-nowrap'>
                 {translations.table.status}
               </th>
-              <th className='px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
-                {translations.table.views}
-              </th>
-              <th className='px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
+
+              <th className='px-4 sm:px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90 whitespace-nowrap'>
                 {translations.table.actions}
               </th>
             </tr>
@@ -94,16 +100,12 @@ const PropertiesListTable = memo(({ properties, translations }) => {
                 <td className='px-4 sm:px-6 py-4 whitespace-nowrap'>
                   {getStatusBadge(property.status)}
                 </td>
-                <td className='px-4 sm:px-6 py-4 whitespace-nowrap'>
-                  <div className='flex items-center gap-1 text-sm text-gray-900'>
-                    <Eye className='h-4 w-4 text-gray-400' />
-                    <span>{property.views.toLocaleString()}</span>
-                  </div>
-                </td>
+
                 <td className='px-4 sm:px-6 py-4 whitespace-nowrap'>
                   <div className='flex items-center gap-2'>
                     <button
                       type='button'
+                      onClick={() => onView && onView(property)}
                       className='p-1.5 rounded-lg hover:bg-gray-100 transition-colors duration-200'
                       title={translations.table.view}
                       aria-label={`${translations.table.view} ${property.title}`}
@@ -112,6 +114,7 @@ const PropertiesListTable = memo(({ properties, translations }) => {
                     </button>
                     <button
                       type='button'
+                      onClick={() => onEdit && onEdit(property)}
                       className='p-1.5 rounded-lg hover:bg-blue-50 transition-colors duration-200'
                       title={translations.table.edit}
                       aria-label={`${translations.table.edit} ${property.title}`}
@@ -120,6 +123,7 @@ const PropertiesListTable = memo(({ properties, translations }) => {
                     </button>
                     <button
                       type='button'
+                      onClick={() => onDelete && onDelete(property)}
                       className='p-1.5 rounded-lg hover:bg-red-50 transition-colors duration-200'
                       title={translations.table.delete}
                       aria-label={`${translations.table.delete} ${property.title}`}

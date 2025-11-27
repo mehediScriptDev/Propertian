@@ -81,27 +81,33 @@ const PartnersTable = memo(({ partners, translations }) => {
 
   return (
     <div>
+      <div className='px-6 py-5'>
+        <div className='flex items-center justify-between'>
+          <h2 className='text-xl font-bold text-gray-900'>All Partners</h2>
+        </div>
+      </div>
+
       {/* Desktop Table */}
       <div className='hidden lg:block overflow-x-auto'>
-        <table className='w-full'>
-          <thead className='bg-gray-50 border-b border-gray-200'>
+        <table className='w-full min-w-[800px]'>
+          <thead className='bg-gray-100 text-gray-900'>
             <tr>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.company}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.contact}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.projects}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.verification}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.payment}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.actions}
               </th>
             </tr>

@@ -1,12 +1,15 @@
 'use client';
 
 import { use, useState, useMemo, useCallback, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Users, UserCheck, UserX, ShieldCheck } from 'lucide-react';
 import { useTranslation } from '@/i18n';
+import StatsCard from '@/components/dashboard/admin/StatsCard';
 import UserFilters from '@/components/dashboard/admin/UserFilters';
 import UsersTable from '@/components/dashboard/admin/UsersTable';
 import Pagination from '@/components/dashboard/Pagination';
-import Modal from '@/components/Modal';
+import AddUserModal from '@/app/[locale]/dashboard/admin/users/components/Modals/AddUserModal';
+import EditUserModal from '@/app/[locale]/dashboard/admin/users/components/Modals/EditUserModal';
+import ViewUserModal from '@/app/[locale]/dashboard/admin/users/components/Modals/ViewUserModal';
 import api from '@/lib/api';
 
 export default function AdminUsersPage({ params }) {
@@ -18,7 +21,8 @@ export default function AdminUsersPage({ params }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
-  const itemsPerPage = 8;
+  const [lastActivityFilter, setLastActivityFilter] = useState('all');
+  const itemsPerPage = 6;
 
   // Server state
   const [users, setUsers] = useState([]);
@@ -37,44 +41,131 @@ export default function AdminUsersPage({ params }) {
   const [updating, setUpdating] = useState(false);
   const [updateError, setUpdateError] = useState(null);
   const [updateSuccess, setUpdateSuccess] = useState(null);
+  // Add user modal state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [createForm, setCreateForm] = useState({ firstName: '', lastName: '', email: '', phone: '', password: '' });
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState(null);
+  const [createSuccess, setCreateSuccess] = useState(null);
 
-  // Fetch users from backend when filters/page change
+  // State for all users (unfiltered)
+  const [allUsers, setAllUsers] = useState([]);
+  const [userStats, setUserStats] = useState(null);
+
+  // Fetch users from backend when page changes (without search/filter params)
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       const params = {
-        page: currentPage,
-        limit: itemsPerPage,
+        page: 1,
+        limit: 1000, // Get all users for frontend filtering
       };
 
-      if (searchTerm) params.search = searchTerm;
-      if (roleFilter && roleFilter !== 'all') params.role = roleFilter;
-
-      if (statusFilter && statusFilter !== 'all') {
-        if (statusFilter === 'active') params.isActive = true;
-        else if (statusFilter === 'inactive') params.isActive = false;
-        else params.status = statusFilter; // suspended, pending
-      }
-
       const res = await api.get('/users', { params });
+
+      // Fetch user stats
+      try {
+        const statsRes = await api.get('/users/stats');
+        if (statsRes?.data) {
+          setUserStats(statsRes.data);
+        }
+      } catch (statsErr) {
+        console.error('Error fetching user stats:', statsErr);
+      }
 
       // res expected: { success: true, data: { users: [], pagination: {} } }
       const payload = res?.data || res;
       if (payload) {
-        setUsers(payload.users || []);
-        setPagination((prev) => ({ ...prev, ...(payload.pagination || {}) }));
+        // Map API data to table format
+        const mappedUsers = (payload.users || []).map(user => ({
+          ...user,
+          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+          roleLabel: user.role === 'USER' ? 'User'
+            : user.role === 'PARTNER' ? 'Partner'
+              : user.role === 'AGENT' ? 'Agent'
+                : user.role === 'SUPER_ADMIN' ? 'Super Admin'
+                  : user.role || 'User',
+          dateJoined: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : '',
+        }));
+        setAllUsers(mappedUsers);
       } else {
-        setUsers([]);
-        setPagination({ currentPage: 1, totalPages: 1, totalItems: 0, itemsPerPage });
+        setAllUsers([]);
       }
     } catch (err) {
       setError(err?.message || 'Failed to load users');
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchTerm, statusFilter, roleFilter, itemsPerPage]);
+  }, []);
+
+  // Frontend filtering and pagination
+  const filteredAndPaginatedUsers = useMemo(() => {
+    let filtered = [...allUsers];
+
+    // Apply search filter
+    if (searchTerm && searchTerm.trim()) {
+      const search = searchTerm.trim().toLowerCase();
+      filtered = filtered.filter(user => {
+        const id = user.id?.toString().toLowerCase() || '';
+        const name = user.name?.toLowerCase() || '';
+        const email = user.email?.toLowerCase() || '';
+        const firstName = user.firstName?.toLowerCase() || '';
+        const lastName = user.lastName?.toLowerCase() || '';
+        return id.includes(search) || name.includes(search) || email.includes(search) ||
+          firstName.includes(search) || lastName.includes(search);
+      });
+    }
+
+    // Apply role filter
+    if (roleFilter && roleFilter !== 'all') {
+      filtered = filtered.filter(user => user.role === roleFilter);
+    }
+
+    // Apply status filter
+    if (statusFilter && statusFilter !== 'all') {
+      if (statusFilter === 'active') {
+        filtered = filtered.filter(user => user.isActive === true);
+      } else if (statusFilter === 'inactive') {
+        filtered = filtered.filter(user => user.isActive === false);
+      } else {
+        filtered = filtered.filter(user => user.status === statusFilter);
+      }
+    }
+
+    // Apply last activity filter
+    if (lastActivityFilter && lastActivityFilter !== 'all') {
+      const days = parseInt(lastActivityFilter);
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - days);
+
+      filtered = filtered.filter(user => {
+        if (user.lastLoginAt) {
+          const lastLogin = new Date(user.lastLoginAt);
+          return lastLogin >= cutoffDate;
+        }
+        return false;
+      });
+    }
+
+    // Calculate pagination
+    const totalItems = filtered.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = filtered.slice(startIndex, endIndex);
+
+    // Update pagination state
+    setPagination({
+      currentPage,
+      totalPages,
+      totalItems,
+      itemsPerPage,
+    });
+
+    return paginatedData;
+  }, [allUsers, searchTerm, roleFilter, statusFilter, lastActivityFilter, currentPage, itemsPerPage]);
 
   useEffect(() => {
     fetchUsers();
@@ -96,11 +187,54 @@ export default function AdminUsersPage({ params }) {
     setCurrentPage(1);
   }, []);
 
+  const handleLastActivityChange = useCallback((value) => {
+    setLastActivityFilter(value);
+    setCurrentPage(1);
+  }, []);
+
   const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
   }, []);
 
-  
+  // User stats cards
+  const userStatsCards = useMemo(() => {
+    if (!userStats) return [];
+
+    return [
+      {
+        title: 'Total Users',
+        value: userStats.totalUsers || 0,
+        icon: Users,
+        variant: 'primary',
+      },
+      {
+        title: 'Active Users',
+        value: userStats.activeUsers || 0,
+        icon: UserCheck,
+        variant: 'success',
+      },
+      {
+        title: 'Verified Users',
+        value: userStats.verifiedUsers || 0,
+        icon: ShieldCheck,
+        variant: 'info',
+      },
+      // {
+      //   title: 'Inactive Users',
+      //   value: userStats.inactiveUsers || 0,
+      //   icon: UserX,
+      //   variant: 'warning',
+      // },
+      {
+        title: 'Unverified Users',
+        value: userStats.unverifiedUsers || 0,
+        icon: Users,
+        variant: 'warning',
+      },
+    ];
+  }, [userStats]);
+
+
   function handleActionClick(action, user) {
     if (action === 'view') {
       setSelectedUser(user);
@@ -118,7 +252,7 @@ export default function AdminUsersPage({ params }) {
     console.log(`Action: ${action} on user:`, user);
   }
 
-  
+
   function openEditModal(user) {
     if (!user) return;
     setSelectedUser(user);
@@ -169,6 +303,43 @@ export default function AdminUsersPage({ params }) {
       }
     },
     [selectedUser, editForm, fetchUsers, t]
+  );
+
+  const handleCreateUser = useCallback(
+    async (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      setCreating(true);
+      setCreateError(null);
+      setCreateSuccess(null);
+      try {
+        // Basic validation
+        if (!createForm?.firstName || !createForm?.email || !createForm?.password) {
+          throw new Error('First name, email and password are required');
+        }
+
+        // POST to auth register endpoint to create user (include password)
+        await api.post('/auth/register', {
+          firstName: createForm.firstName,
+          lastName: createForm.lastName,
+          email: createForm.email,
+          phone: createForm.phone,
+          password: createForm.password,
+        });
+
+        setCreateSuccess(t('common.created') || 'Created');
+        setShowAddModal(false);
+        // reset form
+        setCreateForm({ firstName: '', lastName: '', email: '', phone: '', password: '' });
+        // refresh list and go to first page
+        setCurrentPage(1);
+        fetchUsers();
+      } catch (err) {
+        setCreateError(err?.message || 'Failed to create user');
+      } finally {
+        setCreating(false);
+      }
+    },
+    [createForm, fetchUsers, t]
   );
 
   // Translations for child components
@@ -234,15 +405,37 @@ export default function AdminUsersPage({ params }) {
       {/* Page Header */}
       <div className='flex flex-wrap items-center justify-between gap-4'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900 sm:text-3xl'>
+          <h1 className='text-4xl font-bold text-gray-900 '>
             {t('dashboard.admin.users.title')}
           </h1>
         </div>
-        <button className='flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-primary/90 hover:shadow-md active:scale-95'>
+        {/* <button
+          onClick={() => {
+            setCreateForm({ firstName: '', lastName: '', email: '', phone: '', password: '' });
+            setCreateError(null);
+            setShowAddModal(true);
+          }}
+          className='flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-primary/90 hover:shadow-md active:scale-95'
+        >
           <Plus className='h-4 w-4' />
           {t('dashboard.admin.users.addUser')}
-        </button>
+        </button> */}
       </div>
+
+      {/* User Stats Cards */}
+      {userStatsCards.length > 0 && (
+        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+          {userStatsCards.map((stat, index) => (
+            <StatsCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              variant={stat.variant}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Filters */}
       <UserFilters
@@ -250,6 +443,7 @@ export default function AdminUsersPage({ params }) {
         onSearchChange={handleSearchChange}
         onStatusChange={handleStatusChange}
         onRoleChange={handleRoleChange}
+        onLastActivityChange={handleLastActivityChange}
         translations={userTranslations}
       />
 
@@ -261,184 +455,38 @@ export default function AdminUsersPage({ params }) {
           </div>
         )}
 
-        <UsersTable users={users} translations={userTranslations} onActionClick={handleActionClick} />
+        <UsersTable users={filteredAndPaginatedUsers} title='All Users' translations={userTranslations} onActionClick={handleActionClick} />
 
-        <Modal
+        <ViewUserModal
           isOpen={showUserModal}
           onClose={() => setShowUserModal(false)}
-          title={
-            selectedUser
-              ? `${selectedUser.firstName || selectedUser.name || ''} ${
-                  selectedUser.lastName || ''
-                }`.trim()
-              : t('dashboard.admin.users.details')
-          }
-          maxWidth='max-w-xl'
-          footer={
-            <div className='flex items-center justify-end gap-3'>
-              <button
-                onClick={() => setShowUserModal(false)}
-                className='px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800'
-              >
-                {t('common.close') || 'Close'}
-              </button>
-            </div>
-          }
-        >
-          {selectedUser ? (
-            <div className='text-gray-900'>
-                  <div className='flex items-center gap-4'>
-                    <div className='flex items-center justify-center h-16 w-16 rounded-full bg-indigo-600 text-white text-2xl md:text-3xl font-semibold'>
-                  {(selectedUser.firstName || selectedUser.name || '?')
-                    .toString()
-                    .split(' ')
-                    .map((n) => n[0])
-                    .slice(0, 2)
-                    .join('')}
-                </div>
-                <div>
-                  <div className='text-lg md:text-xl font-semibold'>{selectedUser.firstName || selectedUser.name || '-' } {selectedUser.lastName || ''}</div>
-                  <div className='text-sm md:text-base text-gray-600'>{selectedUser.email}</div>
-                </div>
-                <div className='ml-auto flex items-center gap-2'>
-                  <span className='px-2 py-1 text-xs md:text-sm rounded-full bg-slate-100 text-slate-800 border border-slate-200'>
-                    {selectedUser.role || selectedUser.roleLabel || '-'}
-                  </span>
-                  <span className='px-2 py-1 text-xs md:text-sm rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200'>
-                    {(() => {
-                      const isAct = selectedUser?.isActive;
-                      if (typeof isAct === 'boolean') return isAct ? userTranslations.statuses.active : userTranslations.statuses.inactive;
-                      const st = (selectedUser?.status || '').toString().toLowerCase();
-                      return (userTranslations.statuses && userTranslations.statuses[st]) || (selectedUser?.status ? selectedUser.status : '-');
-                    })()}
-                  </span>
-                </div>
-              </div>
+          selectedUser={selectedUser}
+          t={t}
+          userTranslations={userTranslations}
+        />
 
-              <div className='mt-6 grid grid-cols-2 gap-4 text-sm md:text-base'>
-                <div className='bg-gray-50 p-4 rounded-lg'>
-                  <div className='text-xs md:text-sm text-gray-500'>Phone</div>
-                  <div className='mt-1 font-medium text-gray-800'>{selectedUser.phone || '-'}</div>
-                </div>
-                <div className='bg-gray-50 p-4 rounded-lg'>
-                  <div className='text-xs md:text-sm text-gray-500'>Verified</div>
-                  <div className='mt-1 font-medium text-gray-800'>{String(selectedUser.isVerified ?? '-')}</div>
-                </div>
-                <div className='bg-gray-50 p-4 rounded-lg'>
-                  <div className='text-xs md:text-sm text-gray-500'>Last Login</div>
-                  <div className='mt-1 font-medium text-gray-800'>{selectedUser.lastLoginAt ? new Date(selectedUser.lastLoginAt).toLocaleString() : '-'}</div>
-                </div>
-                <div className='bg-gray-50 p-4 rounded-lg'>
-                  <div className='text-xs md:text-sm text-gray-500'>Created</div>
-                  <div className='mt-1 font-medium text-gray-800'>{selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleString() : '-'}</div>
-                </div>
-              </div>
+        {/* <AddUserModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onCreate={handleCreateUser}
+          createForm={createForm}
+          setCreateForm={setCreateForm}
+          creating={creating}
+          createError={createError}
+          t={t}
+        /> */}
 
-              {selectedUser._count && (
-                <div className='mt-6 grid grid-cols-3 gap-4'>
-                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                      <div className='text-xs md:text-sm text-gray-500'>Properties</div>
-                      <div className='mt-1 text-lg md:text-xl font-semibold text-gray-800'>{selectedUser._count.properties}</div>
-                  </div>
-                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                    <div className='text-xs md:text-sm text-gray-500'>Inquiries</div>
-                    <div className='mt-1 text-lg md:text-xl font-semibold text-gray-800'>{selectedUser._count.inquiries}</div>
-                  </div>
-                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                    <div className='text-xs md:text-sm text-gray-500'>Favorites</div>
-                    <div className='mt-1 text-lg md:text-xl font-semibold text-gray-800'>{selectedUser._count.favorites}</div>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className='text-sm text-gray-700'>No user selected</div>
-          )}
-        </Modal>
-
-        {/* Edit User Modal */}
-        <Modal
+        <EditUserModal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          // title={
-          //   selectedUser
-          //     ? `${t('dashboard.admin.users.actions.edit') || userTranslations.actions.edit} — ${selectedUser.firstName || selectedUser.name || ''}`
-          //     : t('dashboard.admin.users.actions.edit') || userTranslations.actions.edit
-          // }
-          maxWidth='max-w-xl'
-          footer={
-            <div className='flex items-center justify-end gap-3'>
-              <button
-                type='button'
-                onClick={() => setShowEditModal(false)}
-                className='px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800'
-              >
-                {t('common.cancel') || 'Cancel'}
-              </button>
-              <button
-                type='button'
-                onClick={handleUpdateUser}
-                disabled={updating}
-                className={`px-4 py-2 rounded-md text-sm font-medium text-white bg-primary hover:bg-primary/90 ${updating ? 'opacity-60 cursor-not-allowed' : ''}`}
-              >
-                {updating ? (t('common.saving') || 'Saving...') : (t('common.save') || 'Save')}
-              </button>
-            </div>
-          }
-        >
-          <form onSubmit={handleUpdateUser} className='space-y-4'>
-            {updateError && <div className='text-sm text-red-600'>{updateError}</div>}
-
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-              <div>
-                <label className='block text-sm md:text-base text-gray-600 mb-1'>First name</label>
-                <input
-                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
-                  value={editForm?.firstName || ''}
-                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), firstName: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className='block text-sm md:text-base text-gray-600 mb-1'>Last name</label>
-                <input
-                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
-                  value={editForm?.lastName || ''}
-                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), lastName: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className='block text-sm md:text-base text-gray-600 mb-1'>Email</label>
-                <input
-                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
-                  value={editForm?.email || ''}
-                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), email: e.target.value }))}
-                  type='email'
-                />
-              </div>
-              <div>
-                <label className='block text-sm md:text-base text-gray-600 mb-1'>Phone</label>
-                <input
-                  className='w-full px-3 py-2 border rounded-md text-sm md:text-base focus:ring-2 focus:ring-primary/30'
-                  value={editForm?.phone || ''}
-                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), phone: e.target.value }))}
-                />
-              </div>
-              {/* <div>
-                <label className='block text-xs font-medium text-gray-600 mb-1'>Role</label>
-                <select
-                  className='w-full px-3 py-2 border border-gray-200 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30'
-                  value={editForm?.role || ''}
-                  onChange={(e) => setEditForm((p) => ({ ...(p || {}), role: e.target.value }))}
-                >
-                  <option value='USER'>{t('dashboard.admin.users.roles.user') || 'User'}</option>
-                  <option value='PARTNER'>{userTranslations.roles.partner}</option>
-                </select>
-                <p className='mt-1 text-xs text-gray-400'>Only User or Partner roles are allowed here.</p>
-              </div> */}
-              {/* Active / Verified checkboxes intentionally hidden per design */}
-            </div>
-          </form>
-        </Modal>
+          onSave={handleUpdateUser}
+          editForm={editForm}
+          setEditForm={setEditForm}
+          updating={updating}
+          updateError={updateError}
+          t={t}
+          selectedUser={selectedUser}
+        />
 
         {pagination && pagination.totalItems > 0 && (
           <Pagination

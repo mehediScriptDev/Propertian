@@ -92,19 +92,19 @@ export const del = async (url, config = {}) => {
  */
 export const uploadFile = async (url, formData, onUploadProgress = null) => {
   try {
-    const config = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    };
+    // Don't set Content-Type manually - let axios/browser set it with proper boundary
+    const config = {};
 
     if (onUploadProgress) {
       config.onUploadProgress = onUploadProgress;
     }
 
+    console.log("Uploading to:", url);
     const response = await axiosInstance.post(url, formData, config);
+    console.log("Upload response:", response.data);
     return response.data;
   } catch (error) {
+    console.error("Upload error:", error.response?.data || error.message);
     throw error;
   }
 };
