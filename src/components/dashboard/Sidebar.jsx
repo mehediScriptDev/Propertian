@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
@@ -25,11 +25,14 @@ import {
   X,
   Menu,
   Globe,
+  Briefcase,
+  HelpCircle,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@/i18n';
+import { RiQuestionnaireLine } from "react-icons/ri";
 
 /**
  * Navigation items configuration for each role - using translation keys
@@ -103,26 +106,26 @@ const navigationConfig = {
       href: '/dashboard/client/favorites',
       icon: Heart,
     },
-    {
-      key: 'dashboard.client.savedSearches',
-      href: '/dashboard/client/saved-searches',
-      icon: Search,
-    },
+    // {
+    //   key: 'dashboard.client.savedSearches',
+    //   href: '/dashboard/client/saved-searches',
+    //   icon: RiQuestionnaireLine ,
+    // },
     {
       key: 'dashboard.client.appointments',
       href: '/dashboard/client/appointments',
       icon: Calendar,
     },
     {
-      key: 'dashboard.client.messages',
-      href: '/dashboard/client/messages',
+      key: 'dashboard.client.tickets',
+      href: '/dashboard/client/tickets',
       icon: MessageSquare,
     },
-    {
-      key: 'dashboard.client.settings',
-      href: '/dashboard/client/settings',
-      icon: Settings,
-    },
+    // {
+    //   key: 'dashboard.client.settings',
+    //   href: '/dashboard/client/settings',
+    //   icon: Settings,
+    // },
   ],
   partner: [
     {
@@ -141,6 +144,16 @@ const navigationConfig = {
       icon: Mail,
     },
     {
+      key: 'dashboard.partner.developerPortal',
+      href: '/dashboard/partner/developer-portal',
+      icon: Briefcase,
+    },
+    {
+      key: 'dashboard.partner.developerInquiry',
+      href: '/dashboard/partner/developer-inquiry',
+      icon: HelpCircle,
+    },
+    {
       key: 'dashboard.partner.profile',
       href: '/dashboard/partner/profile',
       icon: UserCircle,
@@ -155,12 +168,15 @@ const navigationConfig = {
 export default function Sidebar({ role = 'admin' }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { locale, changeLanguage } = useLanguage(); // Use LanguageContext
+  const { locale, changeLanguage } = useLanguage();
   const { t } = useTranslation(locale);
+  const router = useRouter();
+  // const { t } = useMemo(() => useTranslation(locale), [locale]);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Memoize navigation items to prevent unnecessary re-renders
   const navigationItems = useMemo(() => navigationConfig[role] || [], [role]);
@@ -182,6 +198,23 @@ export default function Sidebar({ role = 'admin' }) {
       document.body.style.overflow = 'unset';
     };
   }, [isMobileMenuOpen]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowLangDropdown(false);
+      }
+    };
+
+    if (showLangDropdown) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showLangDropdown]);
 
   /**
    * Check if link is active
@@ -206,8 +239,8 @@ export default function Sidebar({ role = 'admin' }) {
    * Professional approach: instant UI update using React Context
    */
   const handleLanguageChange = (newLocale) => {
-    changeLanguage(newLocale); // This updates state + URL without reload ✨
-    setShowLangDropdown(false); // Close dropdown after selection
+    changeLanguage(newLocale);
+    setShowLangDropdown(false);
   };
 
   /**
@@ -244,16 +277,17 @@ export default function Sidebar({ role = 'admin' }) {
   const renderSidebarContent = () => (
     <div className='flex h-full flex-col'>
       {/* Logo Section */}
-      <div className='flex h-20 items-center gap-3 border-b border-gray-700/50 px-6'>
-        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-[#E6B325]'>
-          <Home className='h-6 w-6 text-[#0F1B2E]' />
-        </div>
-        <div className='flex-1 min-w-0'>
-          <h1 className='text-lg font-semibold text-white'>Q Global Living</h1>
-          <p className='text-xs text-gray-400 capitalize'>
+      <div className='flex  items-center justify-between lg:justify-center gap-1 mt-1  border-b border-gray-700/50 px-6'>
+        <Link className='flex items-center ' href={`/${locale}`}>
+          <div className='flex items-center justify-center rounded-full -my-3'>
+            <img src='/logo.png' alt='Logo' className='w-[85px] h-[85px]' />
+          </div>
+          {/* <div className='flex-1 min-w-0'>
+          <p className='text-base font-semibold text-gray-400 capitalize'>
             {t(`dashboard.${role}.title`)}
           </p>
-        </div>
+        </div> */}
+        </Link>
         {/* Close button for mobile */}
         <button
           onClick={() => setIsMobileMenuOpen(false)}
@@ -305,10 +339,10 @@ export default function Sidebar({ role = 'admin' }) {
       </nav>
 
       {/* User Section */}
-      <div className='border-t border-gray-700/50 p-4'>
+      <div className='p-4'>
         {/* User Info with Dropdown */}
-        <div className='relative'>
-          <button
+        <div className='relative z-50' ref={dropdownRef}>
+          {/* <button
             onClick={() => setShowLangDropdown(!showLangDropdown)}
             className='mb-3 flex w-full items-center gap-3 rounded-lg bg-[#1A2B42] px-3 py-2.5 hover:bg-[#1E3A5F] transition-colors'
           >
@@ -328,11 +362,11 @@ export default function Sidebar({ role = 'admin' }) {
                 showLangDropdown ? 'rotate-180' : ''
               }`}
             />
-          </button>
+          </button> */}
 
           {/* Language Dropdown */}
-          {showLangDropdown && (
-            <div className='absolute bottom-full left-0 right-0 mb-2 bg-[#1A2B42] rounded-lg shadow-lg border border-gray-700/50 overflow-hidden'>
+          {/* {showLangDropdown && (
+            <div className='absolute bottom-full left-0 right-0 mb-2 bg-[#1A2B42] rounded-lg shadow-xl border border-gray-700/50 z-50'>
               <button
                 onClick={() => handleLanguageChange('en')}
                 className={`flex w-full items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
@@ -362,18 +396,18 @@ export default function Sidebar({ role = 'admin' }) {
                 )}
               </button>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Logout Button */}
-        <button
+        {/* <button
           onClick={handleLogout}
           className='flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-300 transition-all duration-200 hover:bg-[#1A2B42] hover:text-white'
           aria-label='Logout'
         >
           <LogOut className='h-5 w-5 shrink-0 text-gray-400' />
           <span>{t('dashboard.logout')}</span>
-        </button>
+        </button> */}
       </div>
     </div>
   );
@@ -399,7 +433,7 @@ export default function Sidebar({ role = 'admin' }) {
       )}
 
       {/* Desktop Sidebar - Hidden on mobile, visible on lg+ */}
-      <aside className='hidden lg:block fixed left-0 top-0 z-40 h-screen w-64 bg-[#0F1B2E]'>
+      <aside className='hidden lg:block fixed left-0 top-0 z-40 h-screen w-64 bg-[#0F1B2E] overflow-visible'>
         {renderSidebarContent()}
       </aside>
 

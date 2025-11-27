@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft, Loader } from 'lucide-react';
 import FormInput from './FormInput';
 import SocialButton from './SocialButton';
 import Divider from './Divider';
@@ -94,22 +95,6 @@ const SignInForm = () => {
     }
   };
 
-  const handleQuickLogin = async (email, password) => {
-    setFormData({ emailOrUsername: email, password });
-    setErrors({});
-    setIsLoading(true);
-
-    try {
-      await login(email, password);
-    } catch (error) {
-      setErrors({
-        general: error.message || t('auth.login.errors.loginFailed'),
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className='flex w-full flex-col items-center justify-center gap-4 rounded-xl bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm p-6 sm:p-8 shadow-2xl'>
       <div className='flex flex-col items-center gap-2 pb-4'>
@@ -127,7 +112,7 @@ const SignInForm = () => {
           className='w-full p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm flex items-center gap-2'
           role='alert'
         >
-          <span className='material-symbols-outlined text-base'>error</span>
+          <span className='material-symbols-outlined text-base'>error</span> 
           {errors.general}
         </div>
       )}
@@ -142,7 +127,7 @@ const SignInForm = () => {
           type='text'
           name='emailOrUsername'
           placeholder={t('auth.login.emailPlaceholder')}
-          icon='person'
+          icon='User'
           value={formData.emailOrUsername}
           onChange={handleChange}
           error={errors.emailOrUsername}
@@ -156,7 +141,7 @@ const SignInForm = () => {
           type='password'
           name='password'
           placeholder={t('auth.login.passwordPlaceholder')}
-          icon='lock'
+          icon='Lock'
           value={formData.password}
           onChange={handleChange}
           error={errors.password}
@@ -182,76 +167,14 @@ const SignInForm = () => {
         >
           {isLoading ? (
             <>
-              <span className='material-symbols-outlined animate-spin mr-2'>
-                progress_activity
-              </span>
-              {t('auth.login.signingIn')}
+              <Loader className='animate-spin mr-2 h-4 w-4' />
+              {t('auth.login.loginButton')}
             </>
           ) : (
             t('auth.login.loginButton')
           )}
         </button>
       </form>
-
-      <Divider text={t('auth.login.orDivider')} />
-
-      <div className='flex w-full flex-col gap-3'>
-        <SocialButton
-          provider='google'
-          onClick={() => handleSocialLogin('google')}
-          disabled={isLoading}
-        >
-          {t('auth.login.continueWithGoogle')}
-        </SocialButton>
-
-        <SocialButton
-          provider='facebook'
-          onClick={() => handleSocialLogin('facebook')}
-          disabled={isLoading}
-        >
-          {t('auth.login.continueWithFacebook')}
-        </SocialButton>
-      </div>
-
-      {/* Quick Login Demo Section */}
-      <div className='w-full mt-4'>
-        <Divider text={t('auth.login.quickLogin')} />
-        <div className='grid gap-2 mt-4'>
-          <button
-            type='button'
-            onClick={() => handleQuickLogin('admin@gmail.com', '123@123')}
-            disabled={isLoading}
-            className='flex items-center justify-between rounded-lg bg-blue-500 hover:bg-blue-600 p-3 text-white transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50'
-          >
-            <span className='text-sm font-medium'>
-              {t('auth.login.loginAsAdmin')}
-            </span>
-            <span className='text-xs opacity-75'>admin@gmail.com</span>
-          </button>
-          <button
-            type='button'
-            onClick={() => handleQuickLogin('user@gmail.com', '123@123')}
-            disabled={isLoading}
-            className='flex items-center justify-between rounded-lg bg-green-500 hover:bg-green-600 p-3 text-white transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50'
-          >
-            <span className='text-sm font-medium'>
-              {t('auth.login.loginAsClient')}
-            </span>
-            <span className='text-xs opacity-75'>user@gmail.com</span>
-          </button>
-          <button
-            type='button'
-            onClick={() => handleQuickLogin('partner@gmail.com', '123@123')}
-            disabled={isLoading}
-            className='flex items-center justify-between rounded-lg bg-purple-500 hover:bg-purple-600 p-3 text-white transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50'
-          >
-            <span className='text-sm font-medium'>
-              {t('auth.login.loginAsPartner')}
-            </span>
-            <span className='text-xs opacity-75'>partner@gmail.com</span>
-          </button>
-        </div>
-      </div>
 
       <div className='pt-4 text-center'>
         <p className='text-charcoal-500 dark:text-charcoal-300 text-sm font-normal'>
@@ -272,9 +195,7 @@ const SignInForm = () => {
           className='text-charcoal-500 dark:text-charcoal-300 text-sm font-normal hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded inline-flex items-center gap-1'
           tabIndex={isLoading ? -1 : 0}
         >
-          <span className='material-symbols-outlined text-base'>
-            arrow_back
-          </span>
+          <ArrowLeft className='h-4 w-4' />
           {t('auth.login.backToHome')}
         </Link>
       </div>

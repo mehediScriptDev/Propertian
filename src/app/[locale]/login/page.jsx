@@ -1,6 +1,8 @@
 import { Suspense } from 'react';
 import Image from 'next/image';
 import SignInForm from '@/components/auth/SignInForm';
+// DevPartnerLogin is a client component (has "use client") and can be imported directly
+import DevPartnerLogin from '@/components/auth/DevPartnerLogin';
 
 export const metadata = {
   title: "Sign In | Q Homes - Your Gateway to Côte d'Ivoire Real Estate",
@@ -37,7 +39,7 @@ export default function LoginPage() {
         aria-label="Luxurious home in Côte d'Ivoire"
       >
         <Image
-          src='https://lh3.googleusercontent.com/aida-public/AB6AXuB2RYaCRA7poFljSM_JwoPSJlEEqOxYDqB8cHJL_NxZrZilTRqZO8b15yOJyq5E_l8dmrXMDspudSzvzSRMQof-5lf4bGPZrUj9fCXQnxdPp91ZOlFDHMLU2O_Nu58LvAjEqZo1fpskQ6Fcbfmol8D6e5PIkDtF5XD0eSdK2QNudYh7sKJ1u_6qnnqAyhYrzegFUpWbyi-nLjZVBzB7-jPfR-tNRBdzx7sDMY7fq6Kxx9ucGDkFBd9ex00Hmg3yuMJXP91EQM2iKrc'
+          src='https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80'
           alt="Modern luxurious home in Côte d'Ivoire at dusk"
           fill
           priority
@@ -52,6 +54,7 @@ export default function LoginPage() {
         <div className='flex flex-col w-full max-w-md flex-1 items-center justify-center'>
           <Suspense fallback={<FormSkeleton />}>
             <SignInForm />
+            <DevPartnerLogin />
           </Suspense>
         </div>
       </div>

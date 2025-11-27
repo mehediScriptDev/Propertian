@@ -19,11 +19,13 @@ export default function RentalFilters({ onFilterChange, initialFilters = {} }) {
   const [openDropdowns, setOpenDropdowns] = useState({
     city: false,
     bedrooms: false,
+    bathrooms: false,
     duration: false,
   });
   const [filters, setFilters] = useState({
     city: initialFilters.city || 'abidjan',
     bedrooms: initialFilters.bedrooms || 'any',
+    bathrooms: initialFilters.bathrooms || 'any',
     duration: initialFilters.duration || 'any',
     priceRange: initialFilters.priceRange || 50,
     verifiedOnly: initialFilters.verifiedOnly ?? true,
@@ -54,11 +56,11 @@ export default function RentalFilters({ onFilterChange, initialFilters = {} }) {
   return (
     <>
       {/* Mobile & Desktop Unified Filter */}
-      <div className='p-4 rounded-xl bg-white dark:bg-card-dark shadow-sm border border-gray-200 dark:border-border-dark'>
+      <div className='p-4 rounded-xl bg-white/50 dark:bg-card-dark shadow-sm border border-gray-200 dark:border-border-dark'>
         {/* Mobile: Stacked Layout */}
         <div className='flex flex-col gap-3 lg:hidden'>
-          {/* Row 1: City, Bedrooms, Duration */}
-          <div className='grid grid-cols-3 gap-2'>
+          {/* Row 1: City, Bedrooms, Bathrooms, Duration */}
+          <div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
             {/* City */}
             <div className='flex flex-col'>
               <label
@@ -142,6 +144,52 @@ export default function RentalFilters({ onFilterChange, initialFilters = {} }) {
                   <svg
                     className={`w-3 h-3 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
                       openDropdowns.bedrooms ? 'rotate-180' : ''
+                    }`}
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M19 9l-7 7-7-7'
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Bathrooms */}
+            <div className='flex flex-col'>
+              <label
+                htmlFor='bathrooms-mobile'
+                className='text-[10px] font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1'
+              >
+                {t('rent.filters.bathroomsLabel', 'Bathrooms')}
+              </label>
+              <div className='relative'>
+                <select
+                  id='bathrooms-mobile'
+                  value={filters.bathrooms}
+                  onChange={(e) => {
+                    handleFilterChange('bathrooms', e.target.value);
+                    applyFilters();
+                  }}
+                  onFocus={() => handleDropdownFocus('bathrooms')}
+                  onBlur={() => handleDropdownBlur('bathrooms')}
+                  className='w-full h-9 px-2 pr-7 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-xs appearance-none cursor-pointer'
+                  aria-label='Select number of bathrooms'
+                >
+                  <option value='any'>{t('rent.filters.bathrooms.any', 'Any')}</option>
+                  <option value='1'>{t('rent.filters.bathrooms.one', '1')}</option>
+                  <option value='2'>{t('rent.filters.bathrooms.two', '2')}</option>
+                  <option value='3+'>{t('rent.filters.bathrooms.threePlus', '3+')}</option>
+                </select>
+                <div className='absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none'>
+                  <svg
+                    className={`w-3 h-3 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
+                      openDropdowns.bathrooms ? 'rotate-180' : ''
                     }`}
                     fill='none'
                     stroke='currentColor'
@@ -281,7 +329,7 @@ export default function RentalFilters({ onFilterChange, initialFilters = {} }) {
                 onChange={(e) => handleFilterChange('city', e.target.value)}
                 onFocus={() => handleDropdownFocus('city')}
                 onBlur={() => handleDropdownBlur('city')}
-                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer'
+                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer outline-none'
                 aria-label='Select city'
               >
                 <option value='abidjan'>
@@ -329,7 +377,7 @@ export default function RentalFilters({ onFilterChange, initialFilters = {} }) {
                 onChange={(e) => handleFilterChange('bedrooms', e.target.value)}
                 onFocus={() => handleDropdownFocus('bedrooms')}
                 onBlur={() => handleDropdownBlur('bedrooms')}
-                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer'
+                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer'
                 aria-label='Select number of bedrooms'
               >
                 <option value='any'>{t('rent.filters.bedrooms.any')}</option>
@@ -343,6 +391,49 @@ export default function RentalFilters({ onFilterChange, initialFilters = {} }) {
                 <svg
                   className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
                     openDropdowns.bedrooms ? 'rotate-180' : ''
+                  }`}
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M19 9l-7 7-7-7'
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Bathrooms */}
+          <div className='shrink-0 w-[140px]'>
+            <label
+              htmlFor='bathrooms-desktop'
+              className='text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 block mb-2'
+            >
+              {t('rent.filters.bathroomsLabel', 'Bathrooms')}
+            </label>
+            <div className='relative'>
+              <select
+                id='bathrooms-desktop'
+                value={filters.bathrooms}
+                onChange={(e) => handleFilterChange('bathrooms', e.target.value)}
+                onFocus={() => handleDropdownFocus('bathrooms')}
+                onBlur={() => handleDropdownBlur('bathrooms')}
+                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer'
+                aria-label='Select number of bathrooms'
+              >
+                <option value='any'>{t('rent.filters.bathrooms.any', 'Any')}</option>
+                <option value='1'>{t('rent.filters.bathrooms.one', '1')}</option>
+                <option value='2'>{t('rent.filters.bathrooms.two', '2')}</option>
+                <option value='3+'>{t('rent.filters.bathrooms.threePlus', '3+')}</option>
+              </select>
+              <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none'>
+                <svg
+                  className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
+                    openDropdowns.bathrooms ? 'rotate-180' : ''
                   }`}
                   fill='none'
                   stroke='currentColor'
@@ -374,7 +465,7 @@ export default function RentalFilters({ onFilterChange, initialFilters = {} }) {
                 onChange={(e) => handleFilterChange('duration', e.target.value)}
                 onFocus={() => handleDropdownFocus('duration')}
                 onBlur={() => handleDropdownBlur('duration')}
-                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer'
+                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1 outline-none focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer'
                 aria-label='Select rental duration'
               >
                 <option value='any'>{t('rent.filters.duration.any')}</option>
@@ -406,7 +497,7 @@ export default function RentalFilters({ onFilterChange, initialFilters = {} }) {
           </div>
 
           {/* Price Range */}
-          <div className='flex-1 min-w-[200px]'>
+          <div className='flex-1 min-w-[150px]'>
             <label
               htmlFor='price-desktop'
               className='text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 block mb-2'

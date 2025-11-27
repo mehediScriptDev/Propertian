@@ -1,9 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 import Image from 'next/image';
 import Link from 'next/link';
+import { AiOutlineHeart } from 'react-icons/ai';
+import { GoHeartFill } from "react-icons/go";
 
 /**
  * RentalPropertyCard Component
@@ -31,6 +34,8 @@ export default function RentalPropertyCard({ property }) {
     bathrooms,
   } = property;
 
+  const [isFavorite, setIsFavorite] = useState(false);
+
   // Format price with thousand separators
   const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR').format(price);
@@ -50,12 +55,12 @@ export default function RentalPropertyCard({ property }) {
 
   return (
     <article
-      className='flex flex-col gap-3 rounded-xl bg-white dark:bg-card-dark shadow-md border border-gray-100 dark:border-border-dark overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1'
+      className='flex flex-col gap-3 rounded-xl bg-white/50 dark:bg-card-dark shadow-md border border-[#f6efcb] dark:border-border-dark overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1'
       aria-label={`${title} rental property`}
     >
       {/* Property Image */}
-      <div className='relative w-full aspect-4/3 bg-gray-200 dark:bg-gray-700 overflow-hidden'>
-        <Image
+      <div className='relative w-full aspect-5/3 bg-gray-200 dark:bg-gray-700 overflow-hidden'>
+        <Image 
           src={image}
           alt={imageAlt || title}
           fill
@@ -111,7 +116,7 @@ export default function RentalPropertyCard({ property }) {
         </div>
 
         {/* Badge - Top Right */}
-        <div className='absolute top-3 right-3'>
+        <div className='absolute top-3 hidden lg:block right-3'>
           <span
             className='flex items-center gap-1 bg-gray-700/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md'
             aria-label={isFurnished ? 'Furnished' : 'Unfurnished'}
@@ -136,18 +141,32 @@ export default function RentalPropertyCard({ property }) {
       {/* Property Details */}
       <div className='p-4 flex flex-col grow'>
         {/* Location */}
-        <p className='text-gray-500 dark:text-gray-400 text-sm font-normal line-clamp-1'>
+        <div className='flex justify-between'>
+          <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
           {location}
         </p>
+        <button
+          title={isFavorite ? 'Remove favourite' : 'Add favourite'}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsFavorite((v) => !v);
+          }}
+          aria-pressed={isFavorite}
+          className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
+        >
+          {isFavorite ? <GoHeartFill /> : <AiOutlineHeart />}
+        </button>
+        </div>
 
         {/* Title */}
-        <h3 className='text-lg font-bold leading-normal mt-1 line-clamp-2 text-gray-900 dark:text-white'>
+        <h3 className='text-xl lg:text-2xl font-bold leading-snug mt-1 line-clamp-1 text-gray-900 dark:text-white'>
           {title}
         </h3>
 
         {/* Property Features */}
         {(bedrooms || bathrooms) && (
-          <div className='flex items-center gap-3 mt-2 text-sm text-gray-600 dark:text-gray-300'>
+          <div className='flex items-center gap-2 sm:gap-3 mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300'>
             {bedrooms && (
               <div className='flex items-center gap-1'>
                 <svg
@@ -186,38 +205,38 @@ export default function RentalPropertyCard({ property }) {
         )}
 
         {/* Price */}
-        <div className='mt-3'>
-          <p className='text-[#D4AF37] text-2xl font-bold'>
+        <div className='mt-2 sm:mt-3'>
+          <p className='text-[#D4AF37] text-xl font-bold'>
             {formatPrice(priceXOF)} XOF{' '}
             <span className='text-gray-500 dark:text-gray-400 text-sm font-normal'>
-              / {t('rent.propertyCard.perMonth')}
+              {t('rent.propertyCard.perMonth')}
             </span>
           </p>
-          <p className='text-gray-500 dark:text-gray-400 text-sm font-normal'>
+          <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal'>
             {t('rent.propertyCard.approx')} ${formatPrice(priceUSD)}{' '}
             {t('rent.propertyCard.usd')}
           </p>
         </div>
 
         {/* Action Buttons */}
-        <div className='mt-4 pt-4 border-t border-gray-100 dark:border-border-dark grid grid-cols-3 gap-2'>
+        <div className='mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-border-dark grid grid-cols-3 gap-1.5 sm:gap-2'>
           <Link
-            href={`/rent/${id}`}
-            className='text-sm font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+            href={`/${locale}/rent/${id}`}
+            className='text-xs sm:text-sm lg:text-base font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 whitespace-nowrap'
             aria-label={`View details for ${title}`}
           >
             {t('rent.propertyCard.viewDetails')}
           </Link>
           <Link
-            href={`/book-visit?property=${id}`}
-            className='text-sm font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+            href={`/${locale}/book-visit?property=${id}&type=rent`}
+            className='text-xs sm:text-sm lg:text-base font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 whitespace-nowrap'
             aria-label={`Book viewing for ${title}`}
           >
             {t('rent.propertyCard.bookViewing')}
           </Link>
           <button
             onClick={handleWhatsAppClick}
-            className='text-sm font-semibold p-2 rounded-lg text-[#25D366] hover:bg-[#25D366]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2'
+            className='text-xs sm:text-sm lg:text-base font-semibold p-2 rounded-lg text-[#25D366] hover:bg-[#25D366]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 truncate'
             aria-label={`Contact via WhatsApp about ${title}`}
           >
             {t('rent.propertyCard.whatsapp')}

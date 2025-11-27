@@ -25,7 +25,7 @@ const ContactHero = React.memo(
         {/* Background Image with Overlay */}
         <div className='relative h-[480px] w-full'>
           <Image
-            src='https://lh3.googleusercontent.com/aida-public/AB6AXuCLZd09M03iRNTJCCiTI5lbOihoGgxJcuDkeDXDTQohuxF5IeQlWhTA1BJxb3HhV6CTRR03dITAZ2KwXWzLSi6PzbFxuwGW47zXZtfMwwi9dabhatM8aIZJQG5kNJpNewkMrEFZgB7DDSEPiddU3DN1zhxSdzjXiK3tiAZnbk9D_sU9eWwiVp7GJc7MwHNnkKtnAqIMOR189kP5MG808MeLZvKafvJPE9rPLFUg5lbralXWBvpn1FFFR8ixlhiF1jWi-ofxiX3_f48'
+            src='https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80'
             alt={subtitle}
             fill
             priority
@@ -45,7 +45,7 @@ const ContactHero = React.memo(
             <div className='max-w-3xl space-y-4'>
               <h1
                 id='contact-hero-title'
-                className='text-[28px] font-black leading-[1.2] tracking-[-0.015em] text-white sm:text-[36px] md:text-[48px] lg:text-[64px]'
+                className='font-black leading-[1.2] tracking-[-0.015em] text-white text-2xl sm:text-3xl lg:text-5xl'
               >
                 {title}
               </h1>

@@ -26,7 +26,9 @@ export default function UsersTable({
       suspended: 'bg-red-50 text-red-700 border-red-200',
       pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
     };
-    return styles[status.toLowerCase()] || styles.active;
+    if (!status && status !== false) return styles.active;
+    const key = typeof status === 'string' ? status.toLowerCase() : String(status);
+    return styles[key] || styles.active;
   };
 
   const getStatusDot = (status) => {
@@ -36,12 +38,47 @@ export default function UsersTable({
       suspended: 'bg-red-500',
       pending: 'bg-yellow-500',
     };
-    return colors[status.toLowerCase()] || colors.active;
+    if (!status && status !== false) return colors.active;
+    const key = typeof status === 'string' ? status.toLowerCase() : String(status);
+    return colors[key] || colors.active;
   };
 
   const toggleMenu = (userId) => {
     setActiveMenu(activeMenu === userId ? null : userId);
   };
+
+  // Normalize incoming user objects (support both API raw users and already-mapped rows)
+  const displayUsers = users.map((u) => {
+    // if it's already in the display shape, return as-is
+    if (u.userId && (u.name || u.firstName)) return u;
+
+    const status = u.status
+      ? u.status
+      : typeof u.isActive === 'boolean'
+      ? u.isActive
+        ? 'active'
+        : 'inactive'
+      : u.status || 'inactive';
+
+    return {
+      id: u.id || u.userId,
+      userId: u.userId || u.id,
+      name: u.name || `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
+      email: u.email,
+      role: u.role || u.roleName,
+      roleLabel:
+        (translations && translations.roles && translations.roles[u.role]) ||
+        u.role ||
+        u.roleLabel ||
+        '',
+      registrationDate: u.registrationDate || u.createdAt || u.created_at || '-',
+      status: status,
+      statusLabel:
+        (translations && translations.statuses && translations.statuses[status]) ||
+        (status === 'active' || status === true ? 'Active' : 'Inactive'),
+      _raw: u,
+    };
+  });
 
   return (
     <div className='overflow-hidden'>
@@ -59,9 +96,9 @@ export default function UsersTable({
               <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
                 {translations.table.email}
               </th>
-              <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
+              {/* <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
                 {translations.table.role}
-              </th>
+              </th> */}
               <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
                 {translations.table.registrationDate}
               </th>
@@ -74,7 +111,7 @@ export default function UsersTable({
             </tr>
           </thead>
           <tbody className='divide-y divide-gray-100 bg-white'>
-            {users.map((user) => (
+            {displayUsers.map((user) => (
               <tr key={user.id} className='transition-colors hover:bg-gray-50'>
                 {/* User ID */}
                 <td className='px-6 py-4'>
@@ -96,11 +133,11 @@ export default function UsersTable({
                 </td>
 
                 {/* Role */}
-                <td className='px-6 py-4'>
+                {/* <td className='px-6 py-4'>
                   <span className='text-sm font-medium text-gray-700'>
                     {user.roleLabel}
                   </span>
-                </td>
+                </td> */}
 
                 {/* Registration Date */}
                 <td className='px-6 py-4'>
@@ -130,7 +167,7 @@ export default function UsersTable({
                 <td className='px-6 py-4'>
                   <div className='relative'>
                     <button
-                      onClick={() => toggleMenu(user.id)}
+                      onClick={() => toggleMenu(user.id || user.userId)}
                       className='
                         flex h-8 w-8 items-center justify-center rounded-lg
                         text-gray-400 transition-colors
@@ -154,7 +191,7 @@ export default function UsersTable({
                         <div className='absolute right-0 top-10 z-20 w-48 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-lg'>
                           <button
                             onClick={() => {
-                              onActionClick?.('view', user);
+                              onActionClick?.('view', user._raw || user);
                               setActiveMenu(null);
                             }}
                             className='w-full px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50'
@@ -163,7 +200,7 @@ export default function UsersTable({
                           </button>
                           <button
                             onClick={() => {
-                              onActionClick?.('edit', user);
+                              onActionClick?.('edit', user._raw || user);
                               setActiveMenu(null);
                             }}
                             className='w-full px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50'
@@ -173,22 +210,20 @@ export default function UsersTable({
                           <button
                             onClick={() => {
                               onActionClick?.(
-                                user.status === 'active'
-                                  ? 'suspend'
-                                  : 'activate',
-                                user
+                                (user.status === 'active' || user.status === true) ? 'suspend' : 'activate',
+                                user._raw || user
                               );
                               setActiveMenu(null);
                             }}
                             className='w-full px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50'
                           >
-                            {user.status === 'active'
+                            {user.status === 'active' || user.status === true
                               ? translations.actions.suspend
                               : translations.actions.activate}
                           </button>
                           <button
                             onClick={() => {
-                              onActionClick?.('delete', user);
+                              onActionClick?.('delete', user._raw || user);
                               setActiveMenu(null);
                             }}
                             className='w-full px-4 py-2.5 text-left text-sm text-red-600 transition-colors hover:bg-red-50'
