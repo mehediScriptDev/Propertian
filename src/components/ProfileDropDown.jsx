@@ -32,6 +32,18 @@ const ProfileDropDown = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // profile icon maker
+  
+    if(user){
+      const nameFirstLetter = user.firstName ? user.firstName.charAt(0).toUpperCase() : '';
+      const nameSecondLetter = user.lastName ? user.lastName.charAt(1).toUpperCase() : '';
+      const fullName = user.fullName;
+      const logo2 = fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+      // user.profileIcon = nameFirstLetter + nameSecondLetter || logo2 || 'US';
+    }
+
+  
+
   return (
     <div
       className='relative flex items-end justify-center gap-1.5'
@@ -42,6 +54,7 @@ const ProfileDropDown = () => {
         onClick={() => setOpen((prev) => !prev)}
         className='relative flex items-center justify-center sm:w-11 w-8 h-8 sm:h-11 rounded-full overflow-hidden border-2 border-[#C5A572] dark:border-gray-700 hover:border-[#C5A572] dark:hover:border-[#C5A572] transition-all duration-200 group bg-gray-100 dark:bg-gray-800'
       >
+        {/* {user&& <span>{logo2}</span>} */}
         <UserCircle className='w-full h-full text-gray-400 dark:text-gray-500 group-hover:text-[#C5A572] transition-colors duration-200' />
       </button>
       {/* user info - shown first on desktop */}

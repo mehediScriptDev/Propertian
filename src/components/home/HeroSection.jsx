@@ -30,7 +30,7 @@ export default function HeroSection({ locale }) {
       try {
         video.load(); // Force reload the video
         await video.play();
-        console.log("✅ Video playing");
+        // console.log("✅ Video playing");
         setIsVideoVisible(true);
       } catch (err) {
         console.warn(
