@@ -17,8 +17,8 @@ const PartnersFilters = memo(
       <div className='rounded-lg bg-white p-4 sm:p-6 shadow-sm'>
         <div className='flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between'>
           {/* Search Input */}
-          <div className='relative w-full sm:flex-1 sm:max-w-md'>
-            <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
+         <div className='relative flex-1 min-w-[300px]'>
+            <Search className='absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
             <input
               type='text'
               placeholder={translations.searchPlaceholder}

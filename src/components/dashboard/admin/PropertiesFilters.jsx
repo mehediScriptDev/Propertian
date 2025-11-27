@@ -19,11 +19,8 @@ const PropertiesFilters = memo(
       <div className='bg-white border border-gray-200 rounded-lg p-4 sm:p-6'>
         <div className='flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between'>
           {/* Search */}
-          <div className='relative flex-1 max-w-md'>
-            <Search
-              className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
-              size={18}
-            />
+          <div className='relative flex-1 min-w-[300px]'>
+            <Search className='absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
             <input
               type='text'
               placeholder={translations.searchPlaceholder}
