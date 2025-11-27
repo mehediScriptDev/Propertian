@@ -25,7 +25,7 @@ const ConciergeRequestsFilters = memo(
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={translations.searchPlaceholder}
-                className='w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
+                className='w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-transparent'
               />
             </div>
           </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import {
   Mail,
   Phone,
@@ -11,10 +11,23 @@ import {
   Clock,
   AlertCircle,
   Calendar,
+  X,
   User,
 } from 'lucide-react';
 
 const ConciergeRequestsTable = memo(({ requests, translations }) => {
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewRequest = (request) => {
+    setSelectedRequest(request);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseRequest = () => {
+    setIsModalOpen(false);
+    setSelectedRequest(null);
+  };
   const getStatusBadge = (status) => {
     const badges = {
       pending: {
@@ -192,6 +205,7 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
                 <td className='px-6 py-4 whitespace-nowrap'>
                   <div className='flex items-center gap-2'>
                     <button
+                      onClick={() => handleViewRequest(request)}
                       className='p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
                       title={translations.table.view}
                     >
@@ -262,7 +276,7 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
                 <Calendar className='h-3.5 w-3.5' />
                 {formatDate(request.created_at)}
               </div>
-              <button className='px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5'>
+              <button onClick={() => handleViewRequest(request)} className='px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5'>
                 <Eye className='h-4 w-4' />
                 {translations.table.view}
               </button>
@@ -270,6 +284,73 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
           </div>
         ))}
       </div>
+
+      {/* Request Details Modal */}
+      {isModalOpen && selectedRequest && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center'>
+          <div className='absolute inset-0 bg-black/40' onClick={handleCloseRequest} />
+
+          <div className='relative bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto'>
+            <div className='flex items-center justify-between px-6 py-4 border-b'>
+              <div className='flex items-center gap-4'>
+                <span className='inline-flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 text-amber-700'>
+                  <Calendar className='h-5 w-5' />
+                </span>
+                <div>
+                  <h3 className='text-lg font-semibold text-gray-900'>Request #{selectedRequest.id}</h3>
+                  <div className='text-sm text-gray-500'>
+                    {selectedRequest.service_type} • {formatDate(selectedRequest.created_at)}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <button onClick={handleCloseRequest} className='p-2 rounded-full hover:bg-gray-100'>
+                  <X className='h-5 w-5 text-gray-700' />
+                </button>
+              </div>
+            </div>
+
+            <div className='p-6 space-y-4'>
+              <div className='grid grid-cols-1 gap-3'>
+                <div className='flex justify-between'>
+                  <div className='text-sm text-gray-500'>Client</div>
+                  <div className='font-medium text-gray-900'>{selectedRequest.client_name}</div>
+                </div>
+
+                <div className='flex justify-between'>
+                  <div className='text-sm text-gray-500'>Email</div>
+                  <div className='font-medium text-gray-900'>{selectedRequest.client_email}</div>
+                </div>
+
+                <div className='flex justify-between'>
+                  <div className='text-sm text-gray-500'>Phone</div>
+                  <div className='font-medium text-gray-900'>{selectedRequest.client_phone || '—'}</div>
+                </div>
+
+                <div className='flex justify-between'>
+                  <div className='text-sm text-gray-500'>Service</div>
+                  <div className='font-medium text-gray-900'>{selectedRequest.service_type}</div>
+                </div>
+
+                <div className='flex justify-between'>
+                  <div className='text-sm text-gray-500'>Property</div>
+                  <div className='font-medium text-gray-900'>{selectedRequest.property_address || '—'}</div>
+                </div>
+
+                <div className='flex justify-between items-center gap-4'>
+                  <div className='text-sm text-gray-500'>Priority</div>
+                  <div>{getPriorityBadge(selectedRequest.priority)}</div>
+                </div>
+
+                <div className='flex justify-between items-center gap-4'>
+                  <div className='text-sm text-gray-500'>Status</div>
+                  <div>{getStatusBadge(selectedRequest.status)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 });

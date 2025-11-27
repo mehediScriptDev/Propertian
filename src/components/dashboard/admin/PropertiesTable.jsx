@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+
 import Image from 'next/image';
-import { Plus, Eye, X } from 'lucide-react';
+import { Plus, Eye, X, Home } from 'lucide-react';
 
 /**
  * PropertiesTable Component
@@ -218,13 +218,27 @@ export default function PropertiesTable({
 
           {/* Modal */}
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
-            {/* Close button */}
-            <button
-              onClick={handleCloseModal}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full cursor-pointer transition-all duration-200 hover:scale-110"
-            >
-              <X className="h-5 w-5 text-gray-700" />
-            </button>
+            {/* Header (icon + title) similar to provided screenshot */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-4">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 text-amber-700">
+                  <Home className="h-5 w-5" />
+                </span>
+                <h3 className="text-lg font-semibold text-gray-900">Property Details</h3>
+              </div>
+
+              {/* keep close button visually aligned in header area for accessibility */}
+              <div className="ml-4">
+                <button
+                  onClick={handleCloseModal}
+                  className="p-2 rounded-full cursor-pointer transition-all duration-200 hover:scale-110"
+                  aria-label="Close"
+                >
+                  <X className="h-5 w-5 text-gray-700" />
+                </button>
+              </div>
+            </div>
+
 
             {/* Image */}
             {selectedProperty.image && (
