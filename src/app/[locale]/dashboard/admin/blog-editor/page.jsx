@@ -7,6 +7,8 @@ import BlogContentEditor from '@/components/dashboard/admin/BlogContentEditor';
 import SEOMetadata from '@/components/dashboard/admin/SEOMetadata';
 import BlogPublishSidebar from '@/components/dashboard/admin/BlogPublishSidebar';
 import FeaturedImageUpload from '@/components/dashboard/admin/FeaturedImageUpload';
+import { post } from '@/lib/api';
+import Toast, { showToast } from '@/components/Toast';
 
 export default function BlogEditor({ params }) {
   const { locale } = use(params);
@@ -23,6 +25,8 @@ export default function BlogEditor({ params }) {
   const [tags, setTags] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [altText, setAltText] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishError, setPublishError] = useState(null);
 
   // Memoized translations
   const blogEditorTranslations = useMemo(
@@ -169,30 +173,70 @@ export default function BlogEditor({ params }) {
     }
   }, []);
 
-  const handlePublish = useCallback(() => {
-    console.log('Publishing...', {
-      title,
-      content,
-      metaTitle,
-      metaDescription,
-      urlSlug,
-      status: 'published',
-      category,
-      tags,
-      imageUrl,
-      altText,
-    });
-  }, [
-    title,
-    content,
-    metaTitle,
-    metaDescription,
-    urlSlug,
-    category,
-    tags,
-    imageUrl,
-    altText,
-  ]);
+  const handlePublish = useCallback(async () => {
+    try {
+      setIsPublishing(true);
+      setPublishError(null);
+
+      // Validate required fields
+      if (!title || !title.trim()) {
+        showToast('Please enter a title for your blog post.', 'error');
+        setIsPublishing(false);
+        return;
+      }
+
+      if (!content || !content.trim()) {
+        showToast('Please enter content for your blog post.', 'error');
+        setIsPublishing(false);
+        return;
+      }
+
+      // Create FormData for multipart/form-data upload
+      const formData = new FormData();
+      formData.append('title', title.trim());
+      formData.append('excerpt', metaDescription?.trim() || title.substring(0, 150));
+      formData.append('content', content.trim());
+      formData.append('author', 'Admin User'); // You may want to get this from auth context
+      formData.append('tags', tags?.trim() || '');
+      formData.append('status', 'PUBLISHED');
+
+      // If there's an image file, append it; otherwise skip
+      if (imageUrl instanceof File) {
+        formData.append('featuredImage', imageUrl);
+      }
+
+      const response = await post('/blog', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.success) {
+        const successMessage = response.message;
+        showToast(successMessage, 'success');
+        // Reset form
+        setTitle('');
+        setContent('');
+        setMetaTitle('');
+        setMetaDescription('');
+        setUrlSlug('');
+        setStatus('draft');
+        setCategory('');
+        setTags('');
+        setImageUrl('');
+        setAltText('');
+      } else {
+        throw new Error(response.message || 'Failed to publish blog post');
+      }
+    } catch (err) {
+      console.error('Error publishing blog post:', err);
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to publish blog post';
+      setPublishError(errorMsg);
+      showToast(`Failed to publish: ${errorMsg}`, 'error');
+    } finally {
+      setIsPublishing(false);
+    }
+  }, [title, content, metaDescription, tags, imageUrl]);
 
   const handlePreview = useCallback(() => {
     console.log('Opening preview...', { title, content });
@@ -201,30 +245,22 @@ export default function BlogEditor({ params }) {
   return (
     <div className='space-y-4 md:space-y-6'>
       {/* Header */}
-      <div className='bg-linear-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-4 sm:p-6 md:p-8 shadow-lg'>
+      <div className=''>
         <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
-          <h1 className='text-xl sm:text-2xl md:text-3xl font-bold text-white'>
+          <h1 className='text-4xl font-bold text-gray-900'>
             {blogEditorTranslations.title}
           </h1>
           <div className='flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto'>
-            <button
-              onClick={handlePreview}
-              type='button'
-              className='flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg flex items-center justify-center gap-2 text-sm sm:text-base font-medium transition-all duration-200 border border-white/20'
-            >
-              <Eye size={16} className='sm:w-[18px] sm:h-[18px]' />
-              <span className='whitespace-nowrap'>
-                {blogEditorTranslations.preview}
-              </span>
-            </button>
+
             <button
               onClick={handlePublish}
               type='button'
-              className='flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 bg-[#d4af37] hover:bg-[#c19b2a] text-[#1e3a5f] rounded-lg flex items-center justify-center gap-2 text-sm sm:text-base font-semibold transition-all duration-200 shadow-lg hover:shadow-xl'
+              disabled={isPublishing}
+              className="inline-flex items-center rounded-md bg-accent px-5 py-2 text-base font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send size={16} className='sm:w-[18px] sm:h-[18px]' />
               <span className='whitespace-nowrap'>
-                {blogEditorTranslations.publish}
+                {isPublishing ? 'Publishing...' : blogEditorTranslations.publish}
               </span>
             </button>
           </div>
@@ -284,6 +320,7 @@ export default function BlogEditor({ params }) {
           />
         </div>
       </div>
+      <Toast />
     </div>
   );
 }

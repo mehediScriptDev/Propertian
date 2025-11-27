@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import {
   Mail,
   Phone,
@@ -11,9 +11,22 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  X,
 } from 'lucide-react';
 
 const PartnersTable = memo(({ partners, translations }) => {
+  const [selectedPartner, setSelectedPartner] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleView = (partner) => {
+    setSelectedPartner(partner);
+    setIsModalOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+    setSelectedPartner(null);
+  };
   const getVerificationBadge = (status) => {
     const badges = {
       verified: {
@@ -79,29 +92,73 @@ const PartnersTable = memo(({ partners, translations }) => {
     );
   };
 
+  // Helper to make object keys readable
+  const prettyLabel = (key) =>
+    String(key)
+      .replace(/_/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const formatValue = (val) => {
+    if (val === null || val === undefined) return '—';
+    if (Array.isArray(val)) return val.length ? val.join(', ') : '—';
+    if (typeof val === 'boolean') return val ? 'Yes' : 'No';
+    if (typeof val === 'object') return JSON.stringify(val);
+    // Detect ISO-like date strings and format as YYYY-MM-DD
+    if (typeof val === 'string') {
+      const isoDate = /^\d{4}-\d{2}-\d{2}(T|$)/;
+      if (isoDate.test(val)) {
+        const d = new Date(val);
+        if (!isNaN(d)) {
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          return `${yyyy}-${mm}-${dd}`;
+        }
+      }
+    }
+    return String(val);
+  };
+
+  const formatDate = (v) => {
+    if (!v) return '—';
+    const d = new Date(v);
+    if (isNaN(d)) return '—';
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   return (
     <div>
+      <div className='px-6 py-5'>
+        <div className='flex items-center justify-between'>
+          <h2 className='text-xl font-bold text-gray-900'>All Partners</h2>
+        </div>
+      </div>
+
       {/* Desktop Table */}
       <div className='hidden lg:block overflow-x-auto'>
-        <table className='w-full'>
-          <thead className='bg-gray-50 border-b border-gray-200'>
+        <table className='w-full min-w-[800px]'>
+          <thead className='bg-gray-100 text-gray-900'>
             <tr>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.company}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.contact}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.projects}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.verification}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.payment}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.actions}
               </th>
             </tr>
@@ -119,7 +176,7 @@ const PartnersTable = memo(({ partners, translations }) => {
                     </div>
                     <div className='text-sm text-gray-500'>
                       {translations.table.joined}{' '}
-                      {new Date(partner.created_at).toLocaleDateString()}
+                      {formatDate(partner.created_at)}
                     </div>
                   </div>
                 </td>
@@ -158,9 +215,10 @@ const PartnersTable = memo(({ partners, translations }) => {
                 <td className='px-6 py-4'>
                   {getPaymentBadge(partner.is_paid ? 'paid' : 'unpaid')}
                 </td>
-                <td className='px-6 py-4'>
+                <td className='pl-2 py-4'>
                   <div className='flex items-center gap-2'>
                     <button
+                      onClick={() => handleView(partner)}
                       className='rounded p-1.5 hover:bg-gray-100 transition-colors'
                       title={translations.table.view}
                     >
@@ -201,11 +259,12 @@ const PartnersTable = memo(({ partners, translations }) => {
                 </h3>
                 <p className='text-xs text-gray-500 mt-1'>
                   {translations.table.joined}{' '}
-                  {new Date(partner.created_at).toLocaleDateString()}
+                  {formatDate(partner.created_at)}
                 </p>
               </div>
               <div className='flex items-center gap-1 ml-2'>
                 <button
+                  onClick={() => handleView(partner)}
                   className='rounded p-1.5 hover:bg-gray-100 transition-colors'
                   title={translations.table.view}
                 >
@@ -269,6 +328,45 @@ const PartnersTable = memo(({ partners, translations }) => {
         <div className='text-center py-12 text-gray-500'>
           <FolderOpen className='h-12 w-12 mx-auto mb-3 text-gray-300' />
           <p className='text-sm'>No partners found</p>
+        </div>
+      )}
+      {/* Partner Details Modal */}
+      {isModalOpen && selectedPartner && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center'>
+          <div className='absolute inset-0 bg-black/40' onClick={handleClose} />
+
+          <div className='relative bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto'>
+            <div className='flex items-center justify-between px-6 py-4 border-b border-gray-200'>
+              <div className='flex items-center gap-3'>
+                <span className='inline-flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 text-primary'>
+                  <FolderOpen className='h-5 w-5' />
+                </span>
+                <div>
+                  <h3 className='text-lg font-semibold text-gray-900'>{selectedPartner.company_name}</h3>
+                  <div className='text-base text-gray-500'>{selectedPartner.contact_person}</div>
+                </div>
+              </div>
+
+              <div>
+                <button onClick={handleClose} className='p-2 rounded-full hover:bg-gray-100'>
+                  <X className='h-5 w-5 text-gray-700' />
+                </button>
+              </div>
+            </div>
+
+            <div className='p-6'>
+              <dl className='space-y-3'>
+                {Object.entries(selectedPartner).map(([key, value]) => (
+                  <div key={key} className='flex items-start justify-between gap-4'>
+                    <dt className='text-base text-gray-500'>{prettyLabel(key)}</dt>
+                    <dd className='text-base font-medium text-gray-900'>
+                      {formatValue(value)}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
         </div>
       )}
     </div>

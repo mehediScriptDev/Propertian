@@ -70,10 +70,10 @@ const generateMockPartners = () => {
       index % 3 === 0
         ? null
         : `+225 ${String(index + 10).padStart(2, '0')} ${String(
-            index + 20
-          ).padStart(2, '0')} ${String(index + 30).padStart(2, '0')} ${String(
-            index + 40
-          ).padStart(2, '0')}`,
+          index + 20
+        ).padStart(2, '0')} ${String(index + 30).padStart(2, '0')} ${String(
+          index + 40
+        ).padStart(2, '0')}`,
     project_names: projects[index],
     package:
       index % 4 === 0 ? 'premium' : index % 3 === 0 ? 'standard' : 'basic',
@@ -164,35 +164,35 @@ export default function AdminPartnersPage({ params }) {
 
     return [
       {
-        label: partnersTranslations.stats.totalPartners,
-        value: String(partners.length),
+        title: 'Total',
+        value: partners.length,
         trend: '+8.3%',
         icon: Users,
         variant: 'primary',
       },
       {
-        label: partnersTranslations.stats.verified,
-        value: String(verifiedCount),
-        trend: '+12.5%',
-        icon: CheckCircle,
-        variant: 'success',
-      },
-      {
-        label: partnersTranslations.stats.pending,
-        value: String(pendingCount),
+        title: 'Pending',
+        value: pendingCount,
         trend: '-5.2%',
         icon: Clock,
         variant: 'warning',
       },
       {
-        label: partnersTranslations.stats.activeProjects,
-        value: String(totalProjects),
-        trend: '+15.8%',
+        title: 'Under Review',
+        value: verifiedCount,
+        trend: '+12.5%',
         icon: FolderOpen,
         variant: 'info',
       },
+      {
+        title: 'Approved',
+        value: totalProjects,
+        trend: '+15.8%',
+        icon: CheckCircle,
+        variant: 'success',
+      },
     ];
-  }, [partners, partnersTranslations]);
+  }, [partners]);
 
   // Filter partners
   const filteredPartners = useMemo(() => {
@@ -263,11 +263,11 @@ export default function AdminPartnersPage({ params }) {
   return (
     <div className='space-y-4 md:space-y-6'>
       {/* Header */}
-      <div className='bg-linear-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-4 sm:p-6 md:p-8 shadow-lg'>
-        <h1 className='text-2xl sm:text-3xl font-bold text-white mb-2'>
+      <div className=''>
+        <h1 className='text-4xl font-bold text-gray-900 mb-2'>
           {partnersTranslations.title}
         </h1>
-        <p className='text-sm sm:text-base text-white/80'>
+        <p className='text-sm sm:text-base text-gray-700'>
           {partnersTranslations.subtitle}
         </p>
       </div>
@@ -277,7 +277,7 @@ export default function AdminPartnersPage({ params }) {
         {stats.map((stat, index) => (
           <StatsCard
             key={index}
-            label={stat.label}
+            title={stat.title}
             value={stat.value}
             trend={stat.trend}
             icon={stat.icon}

@@ -156,7 +156,7 @@ function Header({ locale }) {
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-solid border-primary/20 bg-background-light/95 backdrop-blur-md dark:bg-background-dark/95 shadow-sm"
+      className="sticky top-0 z-50 border-b border-solid border-primary/20 bg-white/50 backdrop-blur-md dark:bg-background-dark/95 shadow-sm"
       role="banner"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-20">

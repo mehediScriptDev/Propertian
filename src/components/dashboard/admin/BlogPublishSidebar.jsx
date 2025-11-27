@@ -37,7 +37,7 @@ const BlogPublishSidebar = memo(
                 id='status'
                 value={status}
                 onChange={(e) => onStatusChange(e.target.value)}
-                className='w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4af37] focus:border-transparent transition-all duration-200 text-sm sm:text-base text-gray-900 appearance-none cursor-pointer pr-10'
+                className='w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-0  focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-200 text-sm sm:text-base text-gray-900 appearance-none cursor-pointer pr-10'
               >
                 <option value='draft'>
                   {translations.publishSidebar.statusDraft}
@@ -114,7 +114,7 @@ const BlogPublishSidebar = memo(
                 id='category'
                 value={category}
                 onChange={(e) => onCategoryChange(e.target.value)}
-                className='w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4af37] focus:border-transparent transition-all duration-200 text-sm sm:text-base text-gray-900 appearance-none cursor-pointer pr-10'
+                className='w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-0  focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-200 text-sm sm:text-base text-gray-900 appearance-none cursor-pointer pr-10'
               >
                 <option value=''>
                   {translations.organization.selectCategory}
@@ -153,7 +153,7 @@ const BlogPublishSidebar = memo(
               value={tags}
               onChange={(e) => onTagsChange(e.target.value)}
               placeholder={translations.organization.tagsPlaceholder}
-              className='w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4af37] focus:border-transparent transition-all duration-200 text-sm sm:text-base text-gray-900 placeholder-gray-400'
+              className='w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-0  focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-200 text-sm sm:text-base text-gray-900 placeholder-gray-400'
             />
           </div>
         </div>
