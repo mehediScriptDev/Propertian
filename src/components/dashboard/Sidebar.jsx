@@ -112,6 +112,11 @@ const navigationConfig = {
     //   icon: RiQuestionnaireLine ,
     // },
     {
+      key: 'My Inquiries',
+      href: '/dashboard/client/inquiries',
+      icon: Mail,
+    },
+    {
       key: 'dashboard.client.appointments',
       href: '/dashboard/client/appointments',
       icon: Calendar,

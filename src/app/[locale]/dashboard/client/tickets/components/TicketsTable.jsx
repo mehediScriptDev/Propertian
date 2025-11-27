@@ -200,6 +200,45 @@ function TicketsTable({
 }) {
      const { locale } = useLanguage();
   const { t } = useTranslation(locale);
+
+    const renderStatusBadge = (status) => {
+      const key = String(status || '').toLowerCase();
+      switch (key) {
+        case 'open':
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-800">Open</span>
+          );
+        case 'in_progress':
+        case 'in-progress':
+        case 'inprogress':
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-800">In Progress</span>
+          );
+        case 'resolved':
+        case 'closed':
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-800">{key === 'closed' ? 'Closed' : 'Resolved'}</span>
+          );
+        default:
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-700">{String(status)}</span>
+          );
+      }
+    };
+
+    const renderPriorityBadge = (priority) => {
+      const key = String(priority || '').toLowerCase();
+      switch (key) {
+        case 'high':
+          return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700">High</span>;
+        case 'medium':
+          return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-800">Medium</span>;
+        case 'low':
+          return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700">Low</span>;
+        default:
+          return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-700">{String(priority)}</span>;
+      }
+    };
   return (
     <div className="bg-white/50 rounded-lg shadow-md overflow-hidden">
       {tickets.length > 0 ? (
@@ -221,13 +260,19 @@ function TicketsTable({
                   {t("dashboard.client.supportTicket.subject")}
                 </th>
                 <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
-                  {t("dashboard.client.supportTicket.property")}
+                  Category
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
+                {/* <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   {t("dashboard.client.supportTicket.replies")}
+                </th> */}
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
+                  Status
                 </th>
                 <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
-                  {t("dashboard.client.supportTicket.created")}
+                  Priority
+                </th>
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
+                  Last Updated
                 </th>
                 <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   {t("dashboard.client.supportTicket.Actions")}
@@ -268,9 +313,16 @@ function TicketsTable({
                       (ID: {ticket.property_id})
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 flex items-center gap-1">
+                  {/* <td className="px-6 py-4 text-sm text-gray-600 flex items-center gap-1">
                     <MessageSquare className="w-4 h-4" />
                     {ticket.replies_count}
+                  </td> */}
+                  
+                  <td className="px-6 py-4 text-xs">
+                    {renderStatusBadge(ticket.status)}
+                  </td>
+                  <td className="px-6 py-4 text-xs">
+                    {renderPriorityBadge(ticket.priority)}
                   </td>
                   <td className="px-6 py-4 text-xs text-gray-500">
                     {ticket.created_at}
@@ -330,6 +382,10 @@ function TicketsTable({
                     <span className="font-medium">Created:</span>{" "}
                     {ticket.created_at}
                   </p>
+                  <div className="mt-2 flex items-center gap-2">
+                    {renderStatusBadge(ticket.status)}
+                    {renderPriorityBadge(ticket.priority)}
+                  </div>
                 </div>
 
                 <div className="mt-3">
