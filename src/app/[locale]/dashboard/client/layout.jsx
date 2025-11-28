@@ -16,7 +16,7 @@ export default function ClientDashboardLayout({ children }) {
   const { t } = useTranslation(locale);
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'client')) {
+    if (!loading && (!user || user.role !== 'user')) {
       router.push(`/${locale}/login`);
     }
   }, [user, loading, router, locale]);
@@ -32,14 +32,14 @@ export default function ClientDashboardLayout({ children }) {
     );
   }
 
-  if (!user || user.role !== 'client') {
+  if (!user || user.role !== 'user') {
     return null;
   }
 
   return (
     <LanguageProvider initialLocale={locale}>
       <div className='flex h-screen bg-gray-50 overflow-hidden'>
-        <Sidebar role='client' />
+        <Sidebar role='user' />
         <div className='flex flex-1 flex-col lg:pl-64 overflow-hidden'>
           <DashboardHeader title={t('dashboard.client.title')} />
           <main className='flex-1 overflow-y-auto p-4 sm:p-6'>{children}</main>

@@ -100,15 +100,15 @@ const navigationConfig = {
     //   icon: Settings,
     // },
   ],
-  client: [
+  user: [
     {
       key: 'dashboard.client.profile',
-      href: '/dashboard/client',
+      href: '/dashboard/user',
       icon: UserCircle,
     },
     {
       key: 'dashboard.client.favorites',
-      href: '/dashboard/client/favorites',
+      href: '/dashboard/user/favorites',
       icon: Heart,
     },
     // {
@@ -118,17 +118,17 @@ const navigationConfig = {
     // },
     {
       key: 'My Inquiries',
-      href: '/dashboard/client/inquiries',
+      href: '/dashboard/user/inquiries',
       icon: Mail,
     },
     {
       key: 'dashboard.client.appointments',
-      href: '/dashboard/client/appointments',
+      href: '/dashboard/user/appointments',
       icon: Calendar,
     },
     {
       key: 'dashboard.client.tickets',
-      href: '/dashboard/client/tickets',
+      href: '/dashboard/user/tickets',
       icon: MessageSquare,
     },
     // {
@@ -266,11 +266,11 @@ export default function Sidebar({ role = 'admin' }) {
           .replace('Tableau de Bord ', '')
           .replace('Dashboard', '')
           .trim() || 'Admin',
-      client:
+      user:
         t('dashboard.client.title')
           .replace('Tableau de Bord ', '')
           .replace('Dashboard', '')
-          .trim() || 'Client',
+          .trim() || 'User',
       partner:
         t('dashboard.partner.title')
           .replace('Tableau de Bord ', '')
