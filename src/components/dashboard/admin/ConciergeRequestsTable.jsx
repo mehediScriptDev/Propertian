@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import {
   Mail,
   Phone,
@@ -11,10 +11,23 @@ import {
   Clock,
   AlertCircle,
   Calendar,
+  X,
   User,
 } from 'lucide-react';
 
 const ConciergeRequestsTable = memo(({ requests, translations }) => {
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewRequest = (request) => {
+    setSelectedRequest(request);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseRequest = () => {
+    setIsModalOpen(false);
+    setSelectedRequest(null);
+  };
   const getStatusBadge = (status) => {
     const badges = {
       pending: {
@@ -96,33 +109,38 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
 
   return (
     <div>
+      <div className='px-6 py-5'>
+        <div className='flex items-center justify-between'>
+          <h2 className='text-xl font-bold text-gray-900'>All Concierges</h2>
+        </div>
+      </div>
       {/* Desktop Table */}
       <div className='hidden lg:block overflow-x-auto'>
-        <table className='w-full'>
-          <thead className='bg-gray-50 border-b border-gray-200'>
+        <table className='w-full min-w-[800px]'>
+          <thead className='bg-gray-100 text-gray-900'>
             <tr>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.requestId}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.client}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.service}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.property}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.priority}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.status}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.requestDate}
               </th>
-              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.actions}
               </th>
             </tr>
@@ -185,8 +203,9 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
                   </div>
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap'>
-                  <div className='flex items-center gap-2'>
+                  <div className='flex items-center gap-2  pl-4'>
                     <button
+                      onClick={() => handleViewRequest(request)}
                       className='p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
                       title={translations.table.view}
                     >
@@ -257,7 +276,7 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
                 <Calendar className='h-3.5 w-3.5' />
                 {formatDate(request.created_at)}
               </div>
-              <button className='px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5'>
+              <button onClick={() => handleViewRequest(request)} className='px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5'>
                 <Eye className='h-4 w-4' />
                 {translations.table.view}
               </button>
@@ -265,6 +284,73 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
           </div>
         ))}
       </div>
+
+      {/* Request Details Modal */}
+      {isModalOpen && selectedRequest && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center'>
+          <div className='absolute inset-0 bg-black/40' onClick={handleCloseRequest} />
+
+          <div className='relative bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto'>
+            <div className='flex items-center justify-between px-6 py-4 border-b'>
+              <div className='flex items-center gap-4'>
+                <span className='inline-flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 text-amber-700'>
+                  <Calendar className='h-5 w-5' />
+                </span>
+                <div>
+                  <h3 className='text-lg font-semibold text-gray-900'>Request #{selectedRequest.id}</h3>
+                  <div className='text-sm text-gray-500'>
+                    {selectedRequest.service_type} • {formatDate(selectedRequest.created_at)}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <button onClick={handleCloseRequest} className='p-2 rounded-full hover:bg-gray-100'>
+                  <X className='h-5 w-5 text-gray-700' />
+                </button>
+              </div>
+            </div>
+
+            <div className='p-6 space-y-4'>
+              <div className='grid grid-cols-1 gap-3'>
+                <div className='flex justify-between'>
+                  <div className='text-sm text-gray-500'>Client</div>
+                  <div className='font-medium text-gray-900'>{selectedRequest.client_name}</div>
+                </div>
+
+                <div className='flex justify-between'>
+                  <div className='text-sm text-gray-500'>Email</div>
+                  <div className='font-medium text-gray-900'>{selectedRequest.client_email}</div>
+                </div>
+
+                <div className='flex justify-between'>
+                  <div className='text-sm text-gray-500'>Phone</div>
+                  <div className='font-medium text-gray-900'>{selectedRequest.client_phone || '—'}</div>
+                </div>
+
+                <div className='flex justify-between'>
+                  <div className='text-sm text-gray-500'>Service</div>
+                  <div className='font-medium text-gray-900'>{selectedRequest.service_type}</div>
+                </div>
+
+                <div className='flex justify-between'>
+                  <div className='text-sm text-gray-500'>Property</div>
+                  <div className='font-medium text-gray-900'>{selectedRequest.property_address || '—'}</div>
+                </div>
+
+                <div className='flex justify-between items-center gap-4'>
+                  <div className='text-sm text-gray-500'>Priority</div>
+                  <div>{getPriorityBadge(selectedRequest.priority)}</div>
+                </div>
+
+                <div className='flex justify-between items-center gap-4'>
+                  <div className='text-sm text-gray-500'>Status</div>
+                  <div>{getStatusBadge(selectedRequest.status)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 });

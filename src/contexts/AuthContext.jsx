@@ -40,19 +40,19 @@ export function AuthProvider({ children }) {
   /**
    * Map backend roles to frontend roles
    * Backend: user, SUPER_ADMIN, superAdmin, partner
-   * Frontend: client, admin, partner
+   * Frontend: user, admin, partner
    */
   const mapRoleToFrontend = (backendRole) => {
     // Normalize the role to lowercase for comparison
     const normalizedRole = backendRole?.toLowerCase().replace(/_/g, '');
 
     const roleMapping = {
-      user: 'client',
+      user: 'user',
       superadmin: 'admin',
       partner: 'partner',
     };
 
-    return roleMapping[normalizedRole] || 'client';
+    return roleMapping[normalizedRole] || 'user';
   };
 
   /**
@@ -135,7 +135,7 @@ export function AuthProvider({ children }) {
       const locale = pathname.split('/')[1] || 'en';
       const dashboardRoutes = {
         admin: `/${locale}/dashboard/admin`,
-        client: `/${locale}/dashboard/client`,
+        user: `/${locale}/dashboard/user`,
         partner: `/${locale}/dashboard/partner`,
       };
 

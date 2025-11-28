@@ -19,11 +19,13 @@ export default function UserFilters({
   onSearchChange,
   onStatusChange,
   onRoleChange,
+  onLastActivityChange,
   translations,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [lastActivityFilter, setLastActivityFilter] = useState('all');
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -43,8 +45,15 @@ export default function UserFilters({
     onRoleChange?.(value);
   };
 
+  const handleLastActivityChange = (e) => {
+    const value = e.target.value;
+    setLastActivityFilter(value);
+    onLastActivityChange?.(value);
+  };
+
   return (
-    <div className='flex flex-wrap items-center gap-4'>
+ <div className='bg-white border border-gray-200 rounded-lg p-4 sm:p-6'>
+     <div className='flex flex-wrap items-center gap-4'>
       {/* Search Input */}
       <div className='relative flex-1 min-w-[300px]'>
         <Search className='absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
@@ -61,7 +70,7 @@ export default function UserFilters({
       <div className='relative'>
         <select
           value={statusFilter}
-          onChange={handleStatusChange}
+          onChange={handleStatusChange} 
           className='h-12 appearance-none rounded-lg border border-gray-200 bg-white pl-4 pr-10 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer'
         >
           <option value='all'>
@@ -85,28 +94,29 @@ export default function UserFilters({
           <option value='all'>
             {translations.filters.role}: {translations.filters.roleAll}
           </option>
-          <option value='buyer'>{translations.roles.buyer}</option>
-          <option value='developer'>{translations.roles.developer}</option>
-          <option value='concierge'>{translations.roles.concierge}</option>
-          <option value='admin'>{translations.roles.admin}</option>
-          <option value='partner'>{translations.roles.partner}</option>
-          <option value='agent'>{translations.roles.agent}</option>
+          <option value='USER'>User</option>
+          <option value='PARTNER'>Partner</option>
+          <option value='AGENT'>Agent</option>
+          <option value='SUPER_ADMIN'>Super Admin</option>
         </select>
         <ChevronDown className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
       </div>
 
-      {/* Last Activity Filter (Optional) */}
+      {/* Last Activity Filter */}
       <div className='relative'>
         <select
+          value={lastActivityFilter}
+          onChange={handleLastActivityChange}
           className='h-12 appearance-none rounded-lg border border-gray-200 bg-white pl-4 pr-10 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer'
         >
-          <option>{translations.filters.lastActivity}</option>
-          <option>{translations.filters.last} 7 {translations.filters.days}</option>
-          <option>{translations.filters.last} 30 {translations.filters.days}</option>
-          <option>{translations.filters.last} 90 {translations.filters.days}</option>
+          <option value='all'>{translations.filters.lastActivity}</option>
+          <option value='7'>{translations.filters.last} 7 {translations.filters.days}</option>
+          <option value='30'>{translations.filters.last} 30 {translations.filters.days}</option>
+          <option value='90'>{translations.filters.last} 90 {translations.filters.days}</option>
         </select>
         <ChevronDown className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
       </div>
     </div>
+ </div>
   );
 }

@@ -20,7 +20,7 @@ const BlogContentEditor = memo(
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             placeholder={translations.postTitlePlaceholder}
-            className='w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4af37] focus:border-transparent transition-all duration-200 text-sm sm:text-base text-gray-900 placeholder-gray-400'
+            className='w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg focus:outline-0 focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-200 text-sm sm:text-base text-gray-900 placeholder-gray-400'
           />
         </div>
 
@@ -39,7 +39,7 @@ const BlogContentEditor = memo(
               onChange={(e) => onContentChange(e.target.value)}
               placeholder={translations.editorPlaceholder}
               rows={16}
-              className='w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4af37] focus:border-transparent transition-all duration-200 text-sm sm:text-base text-gray-900 placeholder-gray-400 resize-none font-normal'
+              className='w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg focus:outline-0 focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-200 text-sm sm:text-base text-gray-900 placeholder-gray-400 resize-none font-normal'
             />
 
             {/* Editor Toolbar Hint */}
