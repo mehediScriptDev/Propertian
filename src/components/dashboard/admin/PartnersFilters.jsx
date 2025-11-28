@@ -24,7 +24,7 @@ const PartnersFilters = memo(
               placeholder={translations.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className='w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 text-sm focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]/20 transition-shadow'
+              className='w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-shadow'
             />
           </div>
 

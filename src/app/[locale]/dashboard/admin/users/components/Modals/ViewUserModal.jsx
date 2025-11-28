@@ -32,7 +32,7 @@ export default function ViewUserModal({ isOpen, onClose, selectedUser, t, userTr
             {/* Header */}
             <div className='sticky top-0 z-10 flex items-center justify-between px-6 py-5 border-b border-gray-200 '>
               <div className='flex items-center gap-4'>
-                <div className='flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-br from-[#d4af37] to-[#c19b2f] text-white text-2xl font-bold shadow-lg'>
+                <div className='flex items-center justify-center h-12  w-12 rounded-full bg-gradient-to-br from-[#d4af37] to-[#c19b2f] text-white text-2xl font-bold shadow-lg'>
                   {(selectedUser.firstName || selectedUser.name || '?')
                     .toString()
                     .split(' ')
@@ -42,7 +42,7 @@ export default function ViewUserModal({ isOpen, onClose, selectedUser, t, userTr
                     .toUpperCase()}
                 </div>
                 <div>
-                  <h2 className='text-2xl font-bold text-gray-900'>
+                  <h2 className='text-xl font-semibold text-gray-900'>
                     {selectedUser.firstName || selectedUser.name || '-'} {selectedUser.lastName || ''}
                   </h2>
                   <p className='text-sm text-gray-600 flex items-center gap-2 mt-1'>

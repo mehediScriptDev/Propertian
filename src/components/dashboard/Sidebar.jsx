@@ -59,11 +59,11 @@ const navigationConfig = {
     //   href: '/dashboard/admin/media-library',
     //   icon: Image,
     // },
-    {
-      key: 'dashboard.admin.auditLogsLink',
-      href: '/dashboard/admin/audit-logs',
-      icon: ScrollText,
-    },
+    // {
+    //   key: 'dashboard.admin.auditLogsLink',
+    //   href: '/dashboard/admin/audit-logs',
+    //   icon: ScrollText,
+    // },
     // {
     //   key: 'dashboard.admin.seoManagement',
     //   href: '/dashboard/admin/seo-management',
@@ -88,6 +88,11 @@ const navigationConfig = {
       key: 'dashboard.admin.eventManagement',
       href: '/dashboard/admin/event-management',
       icon: Calendar,
+    },
+    {
+      key: 'Supports Requests',
+      href: '/dashboard/admin/supports',
+      icon: HelpCircle,
     },
     // {
     //   key: 'dashboard.admin.settings',
@@ -318,20 +323,18 @@ export default function Sidebar({ role = 'admin' }) {
                   className={`
                     group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
                     transition-all duration-200 ease-in-out
-                    ${
-                      isActive
-                        ? 'bg-[#1E3A5F] text-white shadow-sm'
-                        : 'text-gray-300 hover:bg-[#1A2B42] hover:text-white'
+                    ${isActive
+                      ? 'bg-[#1E3A5F] text-white shadow-sm'
+                      : 'text-gray-300 hover:bg-[#1A2B42] hover:text-white'
                     }
                   `}
                 >
                   <Icon
                     className={`
                       h-5 w-5 shrink-0 transition-colors
-                      ${
-                        isActive
-                          ? 'text-[#E6B325]'
-                          : 'text-gray-400 group-hover:text-gray-300'
+                      ${isActive
+                        ? 'text-[#E6B325]'
+                        : 'text-gray-400 group-hover:text-gray-300'
                       }
                     `}
                   />
