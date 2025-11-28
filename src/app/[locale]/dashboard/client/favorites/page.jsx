@@ -1,14 +1,20 @@
 "use client";
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import PropertyCard from '@/components/dashboard/client/PropertyCard';
 import { useTranslation } from '@/i18n';
+import axios from 'axios';
+import api from '@/lib/api';
 
 export default function SavedProperties() {
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
+
+  const [favProperties, setFavProperties] = useState([]);
+  console.log(favProperties);
+  
 
   const [savedProperties, setSavedProperties] = useState([
     {
@@ -60,6 +66,14 @@ export default function SavedProperties() {
       liked: false,
     },
   ]);
+  // get all favourite property
+  useEffect(()=>{
+    api.get('/properties/user/favorites')
+    .then(res=>setFavProperties(res.data.properties)
+    )
+    .catch(err=>console.log(err)
+    )
+  },[])
 
   const toggleLike = useCallback((id) => {
     setSavedProperties((prev) =>
@@ -128,7 +142,7 @@ export default function SavedProperties() {
           role="region"
           aria-label={t('dashboard.pages.savedProperties.propertiesRegion')}
         >
-          {filteredProperties.map((property) => (
+          {favProperties.map((property) => (
             <PropertyCard key={property.id} property={property} onToggleLike={toggleLike} />
           ))}
         </div>

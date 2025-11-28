@@ -70,7 +70,7 @@ export default function PropertyCard({
             <div className="relative aspect-video overflow-hidden bg-gray-100">
                 <Image
                     src={imgSrc}
-                    alt={property.name}
+                    alt={property.description}
                     fill
                     onError={() => setImgSrc('/noImage.png')}
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -83,7 +83,7 @@ export default function PropertyCard({
                 {/* Title + menu */}
                 <div className="mb-3 flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                        <h3 className="truncate text-base font-semibold text-gray-900">{property.name}</h3>
+                        <h3 className="truncate text-lg font-semibold text-gray-900">{property.description}</h3>
                         {property.type && (
                             <p className="mt-1 text-sm capitalize text-gray-500">{property.type}</p>
                         )}
@@ -145,7 +145,7 @@ export default function PropertyCard({
                 <div className="mb-4 space-y-2">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <MapPin className="h-4 w-4 shrink-0" />
-                        <span className="truncate">{property.location}</span>
+                        <span className="truncate">{property.city}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm">
@@ -163,7 +163,7 @@ export default function PropertyCard({
                             aria-label="View property"
                         >
                             <Bed className="h-4 w-4" />
-                            <span>{property.beds}</span>
+                            <span>{property.bathrooms}</span>
                         </button>
 
                         <button
@@ -173,7 +173,7 @@ export default function PropertyCard({
                             aria-label="Edit property"
                         >
                             <Bath className="h-4 w-4" />
-                            <span>{property.baths}</span>
+                            <span>{property.bedrooms}</span>
                         </button>
 
                         <button
@@ -183,7 +183,7 @@ export default function PropertyCard({
                             aria-label="Delete property"
                         >
                             <TriangleRight className="h-4 w-4" />
-                            <span>{property.area} m²</span>
+                            <span>{property.sqft} m²</span>
                         </button>
                     </div>
                 </div>
