@@ -13,72 +13,47 @@ export default function SavedProperties() {
   const { t } = useTranslation(locale);
 
   const [favProperties, setFavProperties] = useState([]);
-  console.log(favProperties);
-  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  // get all favourite properties
+  useEffect(() => {
+    let mounted = true;
+    const controller = new AbortController();
 
-  const [savedProperties, setSavedProperties] = useState([
-    {
-      id: 1,
-      name: 'Villa de Luxe',
-      location: 'Cocody, Abidjan',
-      price: '150,000,000',
-      beds: 4,
-      baths: 5,
-      area: 350,
-      image:
-        'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=350&fit=crop',
-      liked: false,
-    },
-    {
-      id: 2,
-      name: 'Appartement Moderne',
-      location: 'Plateau, Abidjan',
-      price: '85,000,000',
-      beds: 2,
-      baths: 2,
-      area: 120,
-      image:
-        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&h=350&fit=crop',
-      liked: false,
-    },
-    {
-      id: 3,
-      name: 'Maison Familiale',
-      location: 'Riviera Palmeroie, Abidjan',
-      price: '120,000,000',
-      beds: 5,
-      baths: 4,
-      area: 400,
-      image:
-        'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=350&fit=crop',
-      liked: false,
-    },
-    {
-      id: 4,
-      name: 'Maison Familiale',
-      location: 'Riviera Palmeroie, Abidjan',
-      price: '120,000,000',
-      beds: 5,
-      baths: 4,
-      area: 400,
-      image:
-        'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=350&fit=crop',
-      liked: false,
-    },
-  ]);
-  // get all favourite property
-  useEffect(()=>{
-    api.get('/properties/user/favorites')
-    .then(res=>setFavProperties(res.data.properties)
-    )
-    .catch(err=>console.log(err)
-    )
-  },[])
+    const fetchFavs = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await api.get('/properties/user/favorites', { signal: controller.signal });
+
+        // `api.get` returns the parsed response data. Different backends use different shapes.
+        // Handle common shapes: { data: { properties: [...] } }, { properties: [...] }, { data: [...] }
+        const data = res?.data || res;
+        let properties = data?.properties || data?.data?.properties || data?.favorites || data?.items || data || [];
+
+        // If properties is an object with nested fields, try to normalize to an array
+        if (!Array.isArray(properties) && typeof properties === 'object') {
+          properties = Object.values(properties);
+        }
+
+        if (mounted) setFavProperties(properties || []);
+      } catch (err) {
+        if (mounted) setError(err?.message || 'Failed to load favorites');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchFavs();
+
+    return () => {
+      mounted = false;
+      controller.abort();
+    };
+  }, []);
 
   const toggleLike = useCallback((id) => {
-    setSavedProperties((prev) =>
-      prev.map((prop) => (prop.id === id ? { ...prop, liked: !prop.liked } : prop))
-    );
+    setFavProperties((prev) => prev.map((prop) => (prop.id === id ? { ...prop, liked: !prop.liked } : prop)));
   }, []);
 
   // Toolbar search state
@@ -86,13 +61,13 @@ export default function SavedProperties() {
 
   const filteredProperties = useMemo(() => {
     const q = (search || '').trim().toLowerCase();
-    if (!q) return savedProperties;
-    return savedProperties.filter((p) =>
-      String(p.name || '').toLowerCase().includes(q) ||
-      String(p.location || '').toLowerCase().includes(q) ||
+    if (!q) return favProperties;
+    return favProperties.filter((p) =>
+      String(p.title || p.name || '').toLowerCase().includes(q) ||
+      String(p.address || p.location || '').toLowerCase().includes(q) ||
       String(p.price || '').toLowerCase().includes(q)
     );
-  }, [savedProperties, search]);
+  }, [favProperties, search]);
 
   return (
     <div className="min-h-screen  space-y-6">
@@ -142,9 +117,17 @@ export default function SavedProperties() {
           role="region"
           aria-label={t('dashboard.pages.savedProperties.propertiesRegion')}
         >
-          {favProperties.map((property) => (
-            <PropertyCard key={property.id} property={property} onToggleLike={toggleLike} />
-          ))}
+          {loading ? (
+            <div className="col-span-full p-6 text-center">Loading saved properties…</div>
+          ) : error ? (
+            <div className="col-span-full p-6 text-center text-red-600">{error}</div>
+          ) : filteredProperties.length === 0 ? (
+            <div className="col-span-full p-6 text-center">{t('dashboard.pages.savedProperties.noSaved') || 'No saved properties yet'}</div>
+          ) : (
+            filteredProperties.map((property) => (
+              <PropertyCard key={property.id} property={property} onToggleLike={toggleLike} />
+            ))
+          )}
         </div>
       </div>
     </div>

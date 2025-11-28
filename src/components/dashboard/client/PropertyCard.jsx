@@ -11,6 +11,9 @@ import {
     TriangleRight,
 } from 'lucide-react';
 import axios from 'axios';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 function getStatusStyle(status) {
     switch (status) {
@@ -39,6 +42,19 @@ export default function PropertyCard({
     const btnRef = useRef(null);
     const [imgSrc, setImgSrc] = useState(property.image || '/noImage.png');
     const [isFavorite, setIsFavorite] = useState([]);
+    const router = useRouter();
+    const pathname = usePathname();
+    const { locale } = useLanguage();
+
+    const defaultNavigateToDetails = (id) => {
+        const loc = locale || (pathname && pathname.split('/')[1]) || 'en';
+        router.push(`/${loc}/buy/${id}`);
+    };
+
+    const defaultNavigateToBook = (id) => {
+        const loc = locale || (pathname && pathname.split('/')[1]) || 'en';
+        router.push(`/${loc}/book-visit?property=${id}&type=buy`);
+    };
 
     useEffect(() => {
         function onDocClick(e) {
@@ -111,7 +127,7 @@ export default function PropertyCard({
                                     <li>
                                         <button
                                             type="button"
-                                            onClick={(ev) => { ev.stopPropagation(); setMenuOpen(false); onView && onView(property.id); }}
+                                            onClick={(ev) => { ev.stopPropagation(); setMenuOpen(false); if (onView) { onView(property.id); } else { defaultNavigateToDetails(property.id); } }}
                                             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             View Details
@@ -120,20 +136,21 @@ export default function PropertyCard({
                                     <li>
                                         <button
                                             type="button"
-                                            onClick={(ev) => { ev.stopPropagation(); setMenuOpen(false); onEdit && onEdit(property.id); }}
+                                            onClick={(ev) => { ev.stopPropagation(); setMenuOpen(false); if (onEdit) { onEdit(property.id); } else { defaultNavigateToBook(property.id); } }}
                                             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             Book a Viewing
                                         </button>
                                     </li>
                                     <li>
-                                        <button
+                                        <Link
+                                            href={'/'}
                                             type="button"
                                             onClick={(ev) => { ev.stopPropagation(); setMenuOpen(false); onDelete && onDelete(property.id); }}
-                                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                            className="w-full block text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                                         >
                                             Remove from Saved
-                                        </button>
+                                        </Link>
                                     </li>
                                 </ul>
                             </div>
@@ -158,7 +175,7 @@ export default function PropertyCard({
                     <div className="flex items-center gap-1">
                         <button
                             type="button"
-                            onClick={() => onView && onView(property.id)}
+                            onClick={() => { if (onView) { onView(property.id); } else { defaultNavigateToDetails(property.id); } }}
                             className="flex items-center gap-1.5 rounded p-1.5 text-gray-400 transition-colors"
                             aria-label="View property"
                         >
@@ -168,7 +185,7 @@ export default function PropertyCard({
 
                         <button
                             type="button"
-                            onClick={() => onEdit && onEdit(property.id)}
+                            onClick={() => { if (onEdit) { onEdit(property.id); } else { defaultNavigateToBook(property.id); } }}
                             className="flex items-center gap-1.5 rounded p-1.5 text-gray-400 transition-colors"
                             aria-label="Edit property"
                         >
@@ -178,7 +195,7 @@ export default function PropertyCard({
 
                         <button
                             type="button"
-                            onClick={() => onDelete && onDelete(property.id)}
+                            onClick={() => { if (onDelete) { onDelete(property.id); } }}
                             className="flex items-center gap-1.5 rounded p-1.5 text-gray-400 transition-colors"
                             aria-label="Delete property"
                         >

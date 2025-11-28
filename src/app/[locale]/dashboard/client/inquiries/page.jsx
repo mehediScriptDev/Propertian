@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import {
   Search,
@@ -18,6 +18,7 @@ import {
 import Modal from '@/components/Modal';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
+import api from '@/lib/api';
 
 const Pagination = dynamic(() => import("@/components/dashboard/Pagination"), {
   ssr: false,
@@ -33,44 +34,82 @@ export default function ClientInquiriesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  const inquiries = useMemo(() => [
-    {
-      id: 101,
-      name: "Kofi Mensah",
-      email: "kofi.mensah@example.com",
-      phone: "+225 07 11 22 33",
-      property: "2-Bedroom Apartment - Cocody",
-      subject: "Viewing request",
-      message: "I would like to schedule a viewing this Saturday morning.",
-      date: "2025-11-20",
-      status: "new",
-      priority: "medium",
-    },
-    {
-      id: 102,
-      name: "Awa Diallo",
-      email: "awa.diallo@example.com",
-      phone: "+225 01 02 03 04",
-      property: "3-Bedroom House - Marcory",
-      subject: "Price negotiation",
-      message: "Is the price negotiable for long-term tenants?",
-      date: "2025-11-18",
-      status: "pending",
-      priority: "high",
-    },
-    {
-      id: 103,
-      name: "Jean K",
-      email: "jean.k@example.com",
-      phone: "+225 05 06 07 08",
-      property: "Studio - Plateau",
-      subject: "Availability",
-      message: "Is the studio available from December 1st?",
-      date: "2025-11-10",
-      status: "resolved",
-      priority: "low",
-    },
-  ], []);
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    let mounted = true;
+    const controller = new AbortController();
+
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+      };
+      if (filterStatus && filterStatus !== 'all') params.status = filterStatus;
+      if (searchQuery) params.q = searchQuery;
+
+      // Use the canonical endpoint for user inquiries
+      try {
+        const res = await api.get('/inquiries/my-inquiries', { params, signal: controller.signal });
+        const payload = res;
+
+        const items = payload?.data?.inquiries || payload?.inquiries || payload?.data || payload || [];
+
+        const mapped = (Array.isArray(items) ? items : []).map((iq) => ({
+          id: iq.id || iq._id,
+          name: iq.user?.name || iq.name || '',
+          email: iq.user?.email || iq.email || '',
+          phone: iq.user?.phone || iq.phone || '',
+          property: iq.property ? (iq.property.title || iq.property.address || iq.property) : (iq.propertyId || ''),
+          subject: iq.subject || (iq.property?.title ? `Inquiry about ${iq.property.title}` : 'Property inquiry'),
+          message: iq.message || '',
+          date: iq.createdAt || iq.date || new Date().toISOString(),
+          status: (iq.status || '').toString().toLowerCase(),
+          priority: (iq.priority || 'medium').toString().toLowerCase(),
+        }));
+
+        if (!mounted) return;
+
+        setInquiries(mapped);
+
+        const pg = payload?.data?.pagination || payload?.pagination;
+        if (pg) {
+          setTotalItems(pg.totalItems || pg.total || mapped.length);
+          setTotalPages(pg.totalPages || Math.ceil((pg.totalItems || mapped.length) / itemsPerPage));
+        } else {
+          setTotalItems(mapped.length);
+          setTotalPages(Math.max(1, Math.ceil(mapped.length / itemsPerPage)));
+        }
+
+        setLoading(false);
+      } catch (err) {
+        // Better error messages for common cases
+        if (err?.status === 403) {
+          setError('Access denied. Insufficient permissions.');
+        } else if (err?.status === 404) {
+          setError('Resource not found: /inquiries/my-inquiries');
+        } else {
+          setError(err?.message || 'Failed to load inquiries');
+        }
+        setLoading(false);
+      }
+    };
+
+    const timer = setTimeout(fetchData, 250);
+
+    return () => {
+      mounted = false;
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [currentPage, filterStatus, searchQuery]);
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -101,23 +140,9 @@ export default function ClientInquiriesPage() {
     );
   };
 
-  const filtered = useMemo(() => {
-    return inquiries.filter((iq) => {
-      const matchesSearch =
-        searchQuery === "" ||
-        iq.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        iq.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        iq.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        iq.property.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = filterStatus === "all" || iq.status === filterStatus;
-      return matchesSearch && matchesStatus;
-    });
-  }, [inquiries, searchQuery, filterStatus]);
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const start = (currentPage - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  const pageItems = filtered.slice(start, end);
+  // We rely on server filtering/pagination. `inquiries` is already the current page items.
+  const filtered = useMemo(() => inquiries, [inquiries]);
+  const pageItems = filtered;
 
   return (
     <div className="space-y-3 lg:space-y-4.5">
@@ -170,7 +195,6 @@ export default function ClientInquiriesPage() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Contact</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Property</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Subject</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Date</th>
@@ -182,16 +206,6 @@ export default function ClientInquiriesPage() {
             <tbody className="divide-y divide-gray-200 bg-white/50">
               {pageItems.map((iq) => (
                 <tr key={iq.id} className="transition-colors hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedInquiry(iq)}>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-gray-400" />
-                        <span className="font-medium text-gray-900">{iq.name}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-gray-500"><Mail className="h-3 w-3" />{iq.email}</div>
-                      <div className="flex items-center gap-1 text-xs text-gray-500"><Phone className="h-3 w-3" />{iq.phone}</div>
-                    </div>
-                  </td>
                   <td className="px-6 py-4 truncate">
                     <div className="flex items-center gap-2"><Building2 className="h-4 w-4 text-gray-400" /><span className="text-sm text-gray-900">{iq.property}</span></div>
                   </td>
@@ -223,7 +237,6 @@ export default function ClientInquiriesPage() {
             <div key={iq.id} className="p-4 transition-colors hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedInquiry(iq)}>
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1"><User className="h-4 w-4 text-gray-400" /><h3 className="font-medium text-gray-900">{iq.name}</h3></div>
                   <p className="text-sm font-medium text-gray-700 mb-1">{iq.subject}</p>
                   <p className="text-xs text-gray-500">{iq.property}</p>
                 </div>
@@ -233,8 +246,6 @@ export default function ClientInquiriesPage() {
               </div>
 
               <div className="mb-3 space-y-2">
-                <div className="flex items-center gap-2 text-xs text-gray-600"><Mail className="h-3 w-3 text-gray-400" /><span className="truncate">{iq.email}</span></div>
-                <div className="flex items-center gap-2 text-xs text-gray-600"><Phone className="h-3 w-3 text-gray-400" />{iq.phone}</div>
                 <div className="flex items-center gap-2 text-xs text-gray-600"><Calendar className="h-3 w-3 text-gray-400" />{new Date(iq.date).toLocaleDateString()}</div>
               </div>
 
@@ -250,7 +261,12 @@ export default function ClientInquiriesPage() {
           ))}
         </div>
 
-        {filtered.length === 0 && (
+        {loading ? (
+          <div className="px-6 py-12 text-center">
+            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-4 border-gray-200 border-t-[#E6B325]"></div>
+            <p className="mt-1 text-sm text-gray-500">Loading inquiries…</p>
+          </div>
+        ) : filtered.length === 0 && (
           <div className="px-6 py-12 text-center">
             <Mail className="mx-auto h-12 w-12 text-gray-300" />
             <h3 className="mt-3 text-sm font-medium text-gray-900">{t("Developer_Inquiry.NoInquiriesFound") || 'No inquiries found'}</h3>
@@ -258,11 +274,11 @@ export default function ClientInquiriesPage() {
           </div>
         )}
 
-        {filtered.length > itemsPerPage && (
+        {totalItems > itemsPerPage && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            totalItems={filtered.length}
+            totalItems={totalItems}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
             translations={{
