@@ -119,6 +119,10 @@ export default function SavedProperties() {
         >
           {loading ? (
             <div className="col-span-full p-6 text-center">Loading saved properties…</div>
+
+
+
+            
           ) : error ? (
             <div className="col-span-full p-6 text-center text-red-600">{error}</div>
           ) : filteredProperties.length === 0 ? (
