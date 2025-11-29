@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 import { useState } from 'react';
+import ConciergeModal from '@/components/concierge/component/ConciergeModal';
 import COUNTRY_CODES from '@/utils/countryCodes';
 import Link from 'next/link';
 
@@ -62,6 +63,8 @@ export default function ConciergePage() {
     serviceNeeded: 'relocation',
   });
 
+  const [showModal, setShowModal] = useState(false);
+
   // Leave native select for country of residence to match form style; no custom component.
 
   const handleChange = (e) => {
@@ -73,9 +76,10 @@ export default function ConciergePage() {
     e.preventDefault();
     // Simple placeholder submission - wire to API later
     console.log('Concierge request', formState);
-    alert('Request submitted — check console for details.');
     // Keep minimal UX: reset optional fields
     setFormState((s) => ({ ...s, fullName: '', email: '', phone: '', moveTiming: '', planDetails: '' }));
+    // Open confirmation/modal after submit
+    setShowModal(true);
   };
 
   return (
@@ -445,6 +449,7 @@ export default function ConciergePage() {
                   id='fullName'
                   name='fullName'
                   value={formState.fullName}
+                  placeholder='Enter your full name'
                   onChange={handleChange}
                   className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
                   required
@@ -465,6 +470,7 @@ export default function ConciergePage() {
                   id='email'
                   name='email'
                   value={formState.email}
+                  placeholder='Enter your email address'
                   onChange={handleChange}
                   className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
                   required
@@ -485,6 +491,7 @@ export default function ConciergePage() {
                   id='phone'
                   name='phone'
                   value={formState.phone}
+                  placeholder='Enter your phone number'
                   onChange={handleChange}
                   className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
                   required
@@ -598,6 +605,7 @@ export default function ConciergePage() {
                   name='planDetails'
                   rows={4}
                   value={formState.planDetails}
+                  placeholder='Provide any additional details about your relocation plans'
                   onChange={handleChange}
                   className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[15px] transition-all duration-200'
                   required
@@ -617,6 +625,9 @@ export default function ConciergePage() {
           </form>
         </div>
       </section>
+        {showModal && (
+          <ConciergeModal initialOpen={true} onClose={() => setShowModal(false)} />
+        )}
       </div>
     </main>
   );

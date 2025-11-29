@@ -40,22 +40,22 @@ export default function PartnerMyListingsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-lg bg-white p-8 shadow-sm">
+    <div className="space-y-3 lg:space-y-4.5">
+      <div className="rounded-lg bg-white/50 p-8 shadow-sm border border-gray-200">
         <h2 className="mb-4 text-3xl font-bold text-gray-900">
           {t("Partner_my_listing.title")}
         </h2>
         <p className="text-gray-600">{t("Partner_my_listing.subtitle")}</p>
       </div>
 
-      <div className="rounded-lg bg-white p-6 shadow-sm">
+      <div className="rounded-lg bg-white/50 border border-gray-200 p-6 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900">
             {t("Partner_my_listing.subtitle")}
           </h3>
           <button
             onClick={handleAddNewClick}
-            className="rounded-lg bg-[#E6B325] px-4 py-2 text-sm font-medium text-[#0F1B2E] hover:bg-[#d4a520] transition-colors"
+            className="rounded-lg bg-[#E6B325] px-4 py-2 text-sm font-medium text-white hover:text-gray-100 transition-colors"
           >
             + {t("Partner_my_listing.addButton")}
           </button>

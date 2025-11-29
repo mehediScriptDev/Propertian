@@ -30,7 +30,7 @@ export default function HeroSection({ locale }) {
       try {
         video.load(); // Force reload the video
         await video.play();
-        console.log("✅ Video playing");
+        // console.log("✅ Video playing");
         setIsVideoVisible(true);
       } catch (err) {
         console.warn(
@@ -101,10 +101,11 @@ export default function HeroSection({ locale }) {
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto w-full px-4">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-white/80 font-extrabold leading-tight tracking-tight drop-shadow-lg">
-          {t("hero.title")}
+          Connecting the World to Côte d&apos;Ivoire&apos;s Real Estate
         </h1>
         <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl font-normal text-white/80 max-w-3xl mx-auto drop-shadow-md">
-          {t("hero.subtitle")}
+          Your trusted gateway to discovering, renting, and investing in Côte
+          d’Ivoire.{" "}
         </p>
 
         {/* CTA Buttons */}

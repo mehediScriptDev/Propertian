@@ -91,7 +91,7 @@ const Pagination = memo(
           <button
             onClick={handlePrevious}
             disabled={currentPage === 1}
-            className='flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors'
+            className='flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white/50 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors'
             aria-label={translations.previous}
           >
             <ChevronLeft className='h-4 w-4' />
@@ -122,9 +122,11 @@ const Pagination = memo(
                 <button
                   key={page}
                   onClick={() => handlePageClick(page)}
-                  className={`${shouldShowOnMobile ? 'inline-flex' : 'hidden sm:inline-flex'
-                    } items-center justify-center min-w-8 sm:min-w-9 h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-medium rounded-md transition-colors ${page === currentPage
-                      ? 'bg-[#E6B325] text-[#0F1B2E] font-semibold'
+                  className={`${
+                    shouldShowOnMobile ? 'inline-flex' : 'hidden sm:inline-flex'
+                  } items-center justify-center min-w-8 sm:min-w-9 h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-medium rounded-md transition-colors ${
+                    page === currentPage
+                      ? 'bg-[#E6B325] text-white font-semibold'
                       : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
                     }`}
                   aria-label={`Page ${page}`}

@@ -350,9 +350,9 @@ export default function DeveloperInquiryPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 lg:space-y-4.5">
       {/* Page Header */}
-      <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
+      <div className="rounded-lg bg-white/50 p-6 shadow-sm border border-gray-200">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -363,7 +363,7 @@ export default function DeveloperInquiryPage() {
             </p>
           </div>
           <button
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-[#0F1B2E] transition-colors hover:bg-[#d4a520] focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:ring-offset-2"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none cursor-pointer focus:ring-offset-2"
             aria-label="Compose new message"
           >
             <Mail className="h-4 w-4" aria-hidden="true" />
@@ -386,7 +386,7 @@ export default function DeveloperInquiryPage() {
       </div>
 
       {/* Inquiries Table */}
-      <div className="rounded-lg bg-white shadow-sm border border-gray-200">
+      <div className="rounded-lg bg-white/50 shadow-sm border border-gray-200">
         <div className="border-b border-gray-200 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold text-gray-900">
@@ -460,7 +460,7 @@ export default function DeveloperInquiryPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-y divide-gray-200 bg-white/50">
               {currentInquiries.map((inquiry) => (
                 <tr
                   key={inquiry.id}
@@ -485,7 +485,7 @@ export default function DeveloperInquiryPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 truncate">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-gray-400" />
                       <span className="text-sm text-gray-900">
@@ -493,12 +493,12 @@ export default function DeveloperInquiryPage() {
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 truncate">
                     <div className="text-sm font-medium text-gray-900">
                       {inquiry.subject}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 truncate">
                     <div className="flex items-center gap-1 text-sm text-gray-600">
                       <Calendar className="h-3.5 w-3.5 text-gray-400" />
                       {new Date(inquiry.date).toLocaleDateString()}
@@ -651,7 +651,7 @@ export default function DeveloperInquiryPage() {
             translations={{
               showing: t("common.showing"),
               to: t("common.to"),
-              of: t("common.of"),
+              of: "out of",
               results: t("common.results"),
               previous: t("common.previous"),
               next: t("common.next"),

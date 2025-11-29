@@ -107,6 +107,11 @@
 
 // export const bookingAPI = {
 //   // Get user bookings
+
+
+
+
+
 //   getUserBookings: async (userId) => {
 //     try {
 //       const response = await api.get(`/bookings/user/${userId}`);

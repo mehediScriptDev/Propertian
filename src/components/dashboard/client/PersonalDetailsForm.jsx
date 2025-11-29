@@ -48,7 +48,7 @@ export default function PersonalDetailsForm() {
     }, [email, t]);
 
     return (
-        <div className="rounded-lg bg-white shadow-sm">
+        <div className="rounded-lg bg-white/50 border border-gray-200 shadow-sm">
             <div className="border-b border-gray-300 px-4 sm:px-8 py-4">
                 <h2 className="text-2xl font-semibold text-slate-800">{t("dashboard.client.personalDetails.title")}</h2>
             </div>
@@ -113,7 +113,7 @@ export default function PersonalDetailsForm() {
                     type="submit"
                     form="personal-details-form"
                     disabled={saving}
-                    className="inline-flex items-center rounded-md bg-[#d4af37] hover:bg-[#c19b2a] px-5 py-2 text-base font-medium text-white hover:text-black cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-300 disabled:opacity-60"
+                    className="inline-flex items-center rounded-md bg-accent px-5 py-2 text-base font-medium text-white hover:text-gray-200 cursor-pointer focus:outline-none  disabled:opacity-60"
                 >
                     {saving ? t("dashboard.client.personalDetails.saving") : t("dashboard.client.personalDetails.saveButton")}
                 </button>

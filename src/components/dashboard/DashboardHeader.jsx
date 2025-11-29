@@ -16,7 +16,7 @@ export default function DashboardHeader({ title }) {
   const { t } = useTranslation(locale);
 
   return (
-    <header className='sticky top-0 z-30 border-b border-gray-200 bg-white shadow-sm'>
+    <header className='sticky top-0 z-30 border-b border-gray-200 bg-gray-50 shadow-sm'>
       <div className='flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8'>
         {/* Title - Add left margin on mobile for hamburger button */}
         <div className='flex-1 min-w-0 lg:ml-0 ml-16'>

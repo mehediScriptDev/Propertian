@@ -19,19 +19,20 @@ const mockCollections = [
   },
   {
     id: 3,
-    title: "New Developments",
-    imageUrl:
-      "/home/newDevelopment.png",
-    href: "/properties/residential",
-  },
-  {
-    id: 4,
     title: "Investment Units",
     imageUrl:
       "/home/invest.jpg",
     alt: "Investment townhouses",
     href: "/buy",
   },
+  {
+    id: 4,
+    title: "New Developments",
+    imageUrl:
+      "/home/newDevelopment.png",
+    href: "/properties/residential",
+  },
+  
 ];
 
 const mockTestimonials = [

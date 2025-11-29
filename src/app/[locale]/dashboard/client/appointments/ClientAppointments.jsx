@@ -1,9 +1,12 @@
 "use client";
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 import { Plus } from "lucide-react";
+import Modal from '@/components/Modal';
+import ConciergeForm from '@/components/concierge/ConciergeForm';
+import ConciergeModal from '@/components/concierge/component/ConciergeModal';
 
 // Lazy load heavier child components to split bundles
 const AppointmentsHeader = React.lazy(() => import('../../../../../components/dashboard/client/AppointmentsHeader'));
@@ -24,6 +27,8 @@ export default function ClientAppointments() {
     const [showNewModal, setShowNewModal] = useState(false);
     const [query, setQuery] = useState('');
     const [formData, setFormData] = useState({ full_name: '', email: '', phone: '', appointment_type: 'Property Visit', preferred_date: '', preferred_time: '', notes: '' });
+    const [showConciergeModal, setShowConciergeModal] = useState(false);
+    const [showConciergeSuccess, setShowConciergeSuccess] = useState(false);
 
     const getStatusColor = (status) => {
         const colors = { confirmed: 'bg-green-100 text-green-800', pending: 'bg-yellow-100 text-yellow-800', completed: 'bg-blue-100 text-blue-800', cancelled: 'bg-red-100 text-red-800' };
@@ -47,40 +52,89 @@ export default function ClientAppointments() {
  
     // prevent body scroll when any modal is open
     useEffect(() => {
-        const open = showModal || showNewModal;
+        const open = showModal || showNewModal || showConciergeModal || showConciergeSuccess;
         const body = typeof document !== 'undefined' ? document.body : null;
         if (body) {
             if (open) body.classList.add('overflow-hidden'); else body.classList.remove('overflow-hidden');
         }
         return () => { if (body) body.classList.remove('overflow-hidden'); };
-    }, [showModal, showNewModal]);
+    }, [showModal, showNewModal, showConciergeModal, showConciergeSuccess]);
 
     const { locale } = useLanguage();
     const { t } = useTranslation(locale);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    // close dropdown when clicking outside or pressing Escape
+    useEffect(() => {
+        function onDocClick(e) {
+            if (!dropdownRef.current) return;
+            if (!dropdownRef.current.contains(e.target)) setDropdownOpen(false);
+        }
+        function onKey(e) {
+            if (e.key === 'Escape') setDropdownOpen(false);
+        }
+        if (dropdownOpen) {
+            document.addEventListener('mousedown', onDocClick);
+            document.addEventListener('keydown', onKey);
+        }
+        return () => {
+            document.removeEventListener('mousedown', onDocClick);
+            document.removeEventListener('keydown', onKey);
+        };
+    }, [dropdownOpen]);
+
+    // (no autofocus) keep menu items unstyled until hover
 
     return (
-        <div className="min-h-screen bg-gray-50 space-y-6">
-            <div className='bg-linear-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-4 sm:p-6 md:p-8 shadow-sm mb-6'>
+        <div className="min-h-screen space-y-6">
+            <div className='bg-white/50 rounded-lg p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 mb-3 lg:mb-4.5'>
                 <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
-                    <h1 className='text-xl sm:text-2xl md:text-3xl font-bold text-white'>
-                        {t('dashboard.client.appointments') || 'All Appointments'}
-                    </h1>
+                    <div className='relative'>
+                        <button
+                            id='appointments-dropdown-btn'
+                            type='button'
+                            onClick={() => setDropdownOpen((s) => !s)}
+                            aria-expanded={dropdownOpen}
+                            aria-haspopup='true'
+                            className='text-xl sm:text-2xl md:text-3xl font-bold text-white flex items-center gap-2 focus:outline-none'
+                        >
+                            <span className='whitespace-nowrap text-black'>{t('dashboard.client.appointments') || 'All Appointments'}</span>
+                            <svg className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} viewBox='0 0 24 24' fill='none' stroke='currentColor'>
+                                <path strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7' />
+                            </svg>
+                        </button>
+                    </div>
                     <div className='flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto'>
 
-                        <button
+                        <div className='relative' ref={dropdownRef}>
+                            <button
+                                id='appointments-new-btn'
+                                type='button'
+                                onClick={() => setDropdownOpen((s) => !s)}
+                                aria-haspopup='true'
+                                aria-expanded={dropdownOpen}
+                                className='flex items-center gap-2 justify-between lg:w-44 h-10 px-3 rounded-lg bg-accent  text-black text-xs lg:text-sm font-semibold focus:outline-none'
+                            >
+                                <span className='truncate text-white hover:text-gray-100'>{t('dashboard.client.newAppointment') || '+ New Appointment'}</span>
+                                <svg className={`w-4 h-4 text-white hover:text-gray-100 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} viewBox='0 0 24 24' fill='none' stroke='currentColor'>
+                                    <path strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7' />
+                                </svg>
+                            </button>
 
-                            type='button'
-                            className='flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 bg-[#d4af37] hover:bg-[#c19b2a] text-[#1e3a5f] rounded-lg flex items-center justify-center gap-2 text-sm sm:text-base font-semibold transition-all duration-200 shadow-lg hover:shadow-xl'
-                        >
-                            <Plus size={16} className='sm:w-[18px] sm:h-[18px]' />
-                            <span className='whitespace-nowrap'>
-                                {t('dashboard.client.newAppointment') || '+ New Appointment'}
-                            </span>
-                        </button>
+                            {dropdownOpen && (
+                                <div id='appointments-dropdown-menu' className='absolute top-full right-0 mt-2 min-w-[180px] bg-white border border-gray-300 rounded-lg shadow-sm z-50 transform origin-top-right' role='menu' aria-labelledby='appointments-new-btn'>
+                                    <div className='py-1'>
+                                        <button className='w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#1e3a5f] hover:text-white focus:outline-none' onClick={() => setDropdownOpen(false)} role='menuitem'>Add property</button>
+                                        <button className='w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#1e3a5f] hover:text-white focus:outline-none' onClick={() => { setDropdownOpen(false); setShowConciergeModal(true); }} role='menuitem'>Consultation</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white/50 border border-gray-200 rounded-lg shadow p-6">
                 <Suspense fallback={<div className="py-6">Loading header…</div>}>
                     <AppointmentsHeader count={appointments.length} query={query} onQueryChange={(q) => setQuery(q)} />
                 </Suspense>
@@ -97,6 +151,15 @@ export default function ClientAppointments() {
             <Suspense fallback={null}>
                 <NewAppointmentModal show={showNewModal} onClose={() => setShowNewModal(false)} formData={formData} setFormData={setFormData} onCreate={handleCreateAppointment} />
             </Suspense>
+
+            {/* Concierge / Consultation modal (uses the same fields as the concierge page) */}
+            <Modal isOpen={showConciergeModal} onClose={() => setShowConciergeModal(false)} title={t('concierge.contact.title') || 'Book a Consultation'} maxWidth='max-w-3xl' showCloseButton={true}>
+                <ConciergeForm onClose={() => setShowConciergeModal(false)} onSuccess={() => setShowConciergeSuccess(true)} />
+            </Modal>
+
+            {showConciergeSuccess && (
+                <ConciergeModal initialOpen={true} onClose={() => setShowConciergeSuccess(false)} />
+            )}
         </div>
     );
 }

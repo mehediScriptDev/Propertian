@@ -8,7 +8,7 @@ import DevelopmentFilters from '@/components/property/DevelopmentFilters';
 import WhyInvestCard from '@/components/property/WhyInvestCard';
 import DeveloperCTA from '@/components/property/DeveloperCTA';
 import { X } from 'lucide-react';
-
+import { Shield } from 'lucide-react'; 
 /**
  * ResidentialPage - New Developments Page
  *
@@ -129,23 +129,33 @@ export default function ResidentialPage() {
   const investmentBenefits = [
     {
       icon: 'home_work',
-      title: t('newDevelopments.whyInvest.modernAmenities.title'),
-      description: t('newDevelopments.whyInvest.modernAmenities.description'),
+      title: ' Modern Amenities',
+      description: 'Experience elevated living with contemporary designs, smart home technology, recreational spaces, pools, gyms, and high-end lifestyle features built for today’s standards',
     },
     {
       icon: 'payments',
-      title: t('newDevelopments.whyInvest.flexiblePayment.title'),
-      description: t('newDevelopments.whyInvest.flexiblePayment.description'),
+      title: 'Flexible Payment Options',
+      description: 'Access developer-backed payment plans that make owning or investing easier, with structured schedules designed to fit different budgets. ',
     },
     {
       icon: 'trending_up',
-      title: t('newDevelopments.whyInvest.highAppreciation.title'),
-      description: t('newDevelopments.whyInvest.highAppreciation.description'),
+      title: 'High Appreciation Potential',
+      description: 'Secure your property early in emerging growth zones and benefit from strong long-term value increases and competitive returns.',
     },
     {
       icon: 'construction',
-      title: t('newDevelopments.whyInvest.qualityAssurance.title'),
-      description: t('newDevelopments.whyInvest.qualityAssurance.description'),
+      title: 'Quality Construction',
+      description: 'Enjoy peace of mind knowing your home meets the latest building codes, safety standards, and engineering practices—built to last with durability in mind. ',
+    },
+    {
+      icon: 'public',
+      title: 'Strong Market Demand',
+      description: 'Modern developments attract quality tenants and buyers, providing higher occupancy rates and better rental performance. ',
+    },
+    {
+      icon: <Shield />,
+      title: 'Lower Maintenance Costs',
+      description: 'With brand-new infrastructure and appliances, you reduce repair expenses and unexpected costs for years, improving overall cash flow.',
     },
   ];
 

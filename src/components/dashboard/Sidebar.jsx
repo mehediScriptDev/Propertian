@@ -32,6 +32,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@/i18n';
+import { RiQuestionnaireLine } from "react-icons/ri";
 
 /**
  * Navigation items configuration for each role - using translation keys
@@ -110,10 +111,15 @@ const navigationConfig = {
       href: '/dashboard/client/favorites',
       icon: Heart,
     },
+    // {
+    //   key: 'dashboard.client.savedSearches',
+    //   href: '/dashboard/client/saved-searches',
+    //   icon: RiQuestionnaireLine ,
+    // },
     {
-      key: 'dashboard.client.savedSearches',
-      href: '/dashboard/client/saved-searches',
-      icon: Search,
+      key: 'My Inquiries',
+      href: '/dashboard/client/inquiries',
+      icon: Mail,
     },
     {
       key: 'dashboard.client.appointments',
@@ -341,7 +347,7 @@ export default function Sidebar({ role = 'admin' }) {
       </nav>
 
       {/* User Section */}
-      <div className=' p-4'>
+      <div className='p-4'>
         {/* User Info with Dropdown */}
         <div className='relative z-50' ref={dropdownRef}>
           {/* <button
