@@ -1,6 +1,7 @@
 'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
+import { use, useState, useMemo, useCallback, useEffect } from 'react';
+import { get } from '@/lib/api';
 import { useTranslation } from '@/i18n';
 import { Bell, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
@@ -24,124 +25,7 @@ const SERVICE_TYPES = [
   'Furniture Rental',
 ];
 
-// Mock concierge requests - deterministic generation
-const generateMockRequests = () => {
-  const clients = [
-    {
-      name: 'Jean Kouassi',
-      email: 'jean.kouassi@email.com',
-      phone: '+225 07 45 67 89 01',
-    },
-    {
-      name: 'Marie Diabate',
-      email: 'marie.diabate@email.com',
-      phone: '+225 05 12 34 56 78',
-    },
-    {
-      name: 'Ibrahim Traore',
-      email: 'ibrahim.traore@email.com',
-      phone: null,
-    },
-    {
-      name: 'Sophie Mensah',
-      email: 'sophie.mensah@email.com',
-      phone: '+225 01 23 45 67 89',
-    },
-    {
-      name: "David N'Guessan",
-      email: 'david.nguessan@email.com',
-      phone: '+225 07 89 12 34 56',
-    },
-    {
-      name: 'Fatou Diallo',
-      email: 'fatou.diallo@email.com',
-      phone: null,
-    },
-    {
-      name: 'Eric Koffi',
-      email: 'eric.koffi@email.com',
-      phone: '+225 05 67 89 01 23',
-    },
-    {
-      name: 'Aminata Toure',
-      email: 'aminata.toure@email.com',
-      phone: '+225 01 34 56 78 90',
-    },
-    {
-      name: 'Laurent Yao',
-      email: 'laurent.yao@email.com',
-      phone: '+225 07 12 45 78 90',
-    },
-    {
-      name: 'Grace Ouattara',
-      email: 'grace.ouattara@email.com',
-      phone: null,
-    },
-    {
-      name: 'Michel Bamba',
-      email: 'michel.bamba@email.com',
-      phone: '+225 05 89 01 23 45',
-    },
-    {
-      name: 'Awa Sanogo',
-      email: 'awa.sanogo@email.com',
-      phone: '+225 01 56 78 90 12',
-    },
-    {
-      name: 'Pierre Coulibaly',
-      email: 'pierre.coulibaly@email.com',
-      phone: '+225 07 23 45 67 89',
-    },
-    {
-      name: 'Aisha Kone',
-      email: 'aisha.kone@email.com',
-      phone: null,
-    },
-    {
-      name: 'Christophe Soro',
-      email: 'christophe.soro@email.com',
-      phone: '+225 05 34 56 78 90',
-    },
-  ];
-
-  const properties = [
-    'Riviera Golf, Villa 3 chambres',
-    'Cocody Angré, Appartement 2 pièces',
-    'Plateau, Bureau 150m²',
-    null,
-    'Marcory Zone 4, Duplex 4 chambres',
-    'Yopougon, Maison 5 chambres',
-    'Grand-Bassam, Villa bord de mer',
-    'Abidjan Mall Area, Studio meublé',
-    null,
-    'Bingerville, Résidence sécurisée',
-    'Cocody Riviera, Penthouse',
-    null,
-    'Plateau Dokui, Local commercial',
-    'Abobo, Logement économique',
-    'Port-Bouët, Appartement vue mer',
-  ];
-
-  const statuses = ['pending', 'in-progress', 'completed', 'cancelled'];
-  const priorities = ['high', 'medium', 'low'];
-
-  return clients.map((client, index) => ({
-    id: index + 1,
-    client_name: client.name,
-    client_email: client.email,
-    client_phone: client.phone,
-    service_type: SERVICE_TYPES[index % SERVICE_TYPES.length],
-    property_address: properties[index],
-    priority: priorities[index % priorities.length],
-    status: statuses[index % statuses.length],
-    created_at: new Date(
-      Date.now() - index * 3 * 24 * 60 * 60 * 1000
-    ).toISOString(),
-    updated_at: new Date(
-      Date.now() - index * 1 * 24 * 60 * 60 * 1000
-    ).toISOString(),
-  }));
-};
+// NOTE: removed dummy/mock data — page now fetches live concierge requests from the API.
 
 export default function ConciergeRequestsPage({ params }) {
   const { locale } = use(params);
@@ -156,31 +40,72 @@ export default function ConciergeRequestsPage({ params }) {
   // Constants
   const ITEMS_PER_PAGE = 5;
 
-  // Generate mock data
-  const requestsData = useMemo(() => generateMockRequests(), []);
+  // Requests data (fetched from backend)
+  const [requestsData, setRequestsData] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Filter and search
-  const filteredRequests = useMemo(() => {
-    return requestsData.filter((request) => {
-      // Search filter
-      const searchLower = searchTerm.toLowerCase();
-      const matchesSearch =
-        !searchTerm ||
-        request.client_name.toLowerCase().includes(searchLower) ||
-        request.client_email.toLowerCase().includes(searchLower) ||
-        request.service_type.toLowerCase().includes(searchLower);
+  // Fetch concierge requests from API (server-driven pagination)
+  useEffect(() => {
+    const controller = new AbortController();
 
-      // Status filter
-      const matchesStatus =
-        statusFilter === 'all' || request.status === statusFilter;
+    async function loadRequests() {
+      setLoading(true);
+      setError(null);
+      try {
+        const params = {
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
+        };
+        if (statusFilter !== 'all') params.status = statusFilter.toUpperCase();
+        if (priorityFilter !== 'all') params.priority = priorityFilter.toUpperCase();
+        if (searchTerm) params.search = searchTerm;
 
-      // Priority filter
-      const matchesPriority =
-        priorityFilter === 'all' || request.priority === priorityFilter;
+        // use common API helper which wraps axios
+        const json = await get('/concierge/requests', { params });
 
-      return matchesSearch && matchesStatus && matchesPriority;
-    });
-  }, [requestsData, searchTerm, statusFilter, priorityFilter]);
+        // normalize response shape (api.get returns response.data)
+        const data = json?.data ?? json;
+        const list = data?.requests || data?.requests || data || [];
+
+        const apiRequests = (list || []).map((r) => ({
+          id: r.id || r._id || r.requestId,
+          client_name: r.clientName || r.client_name || r.client_name || '',
+          client_email: r.clientEmail || r.client_email || r.client_email || '',
+          client_phone: r.clientPhone || r.client_phone || r.client_phone || '',
+          service_type: r.serviceType || r.service_type || r.service || '',
+          property_address: r.propertyAddress || r.property_address || r.property || '',
+          // map any image-like fields into image_url
+          image_url:
+            r.image || r.imageUrl || r.image_url || r.propertyImage || r.property_image || r.thumbnail || r.cover || (r.attachments && r.attachments[0] && (r.attachments[0].url || r.attachments[0].src)) || null,
+          priority: (r.priority || '').toString().toLowerCase(),
+          status: (r.status || '').toString().toLowerCase(),
+          description: r.description || r.note || r.notes || '',
+          created_at: r.createdAt || r.created_at,
+          updated_at: r.updatedAt || r.updated_at,
+        }));
+
+        setRequestsData(apiRequests);
+
+        const total = data?.total ?? data?.meta?.total ?? json?.total ?? apiRequests.length;
+        setTotalItems(Number(total));
+      } catch (e) {
+        setError(e?.message || String(e));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadRequests();
+    return () => controller.abort();
+  }, [currentPage, statusFilter, priorityFilter, searchTerm]);
+
+  // When backend provides filtered/paginated data, use it directly.
+  // We still keep search/status/priority in the deps that trigger refetch.
+  const filteredRequests = useMemo(() => requestsData, [requestsData]);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -200,13 +125,11 @@ export default function ConciergeRequestsPage({ params }) {
     return { total, pending, inProgress, completedToday };
   }, [requestsData]);
 
-  // Pagination
-  const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
+  // Pagination (server-driven)
+  const totalPages = Math.ceil((totalItems || 0) / ITEMS_PER_PAGE);
 
-  const paginatedRequests = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredRequests.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredRequests, currentPage]);
+  // Server already returns page-limited items for currentPage, so use requestsData directly
+  const paginatedRequests = useMemo(() => requestsData, [requestsData]);
 
   // Handlers
   const handleSearchChange = useCallback((value) => {
@@ -353,7 +276,7 @@ export default function ConciergeRequestsPage({ params }) {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={filteredRequests.length}
+          totalItems={totalItems || paginatedRequests.length}
           itemsPerPage={ITEMS_PER_PAGE}
           onPageChange={handlePageChange}
           translations={paginationTranslations}
