@@ -13,15 +13,56 @@ import {
   Calendar,
   X,
   User,
+  Edit,
+  Trash2,
 } from 'lucide-react';
 
-const ConciergeRequestsTable = memo(({ requests, translations }) => {
+import RequestDetailsModal from './RequestDetailsModal';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
+
+const ConciergeRequestsTable = memo(({ requests, translations, onEdit, onDelete }) => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleViewRequest = (request) => {
     setSelectedRequest(request);
     setIsModalOpen(true);
+  };
+
+  const handleEditRequest = (request) => {
+    if (typeof onEdit === 'function') {
+      onEdit(request);
+      return;
+    }
+
+    setSelectedRequest(request);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteRequest = (request) => {
+    // Open a confirm modal instead of using window.confirm()
+    setDeleteTarget(request);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteTarget(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    if (typeof onDelete === 'function') {
+      onDelete(deleteTarget.id);
+    } else {
+      // eslint-disable-next-line no-alert
+      alert('Delete handler not provided. Implement `onDelete` prop to enable deletion.');
+    }
+
+    setDeleteTarget(null);
+    setIsDeleteModalOpen(false);
   };
 
   const handleCloseRequest = () => {
@@ -131,9 +172,9 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
               <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.property}
               </th>
-              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
+              {/* <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.priority}
-              </th>
+              </th> */}
               <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.status}
               </th>
@@ -190,9 +231,9 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
                     <span className='text-sm text-gray-400'>N/A</span>
                   )}
                 </td>
-                <td className='px-6 py-4 whitespace-nowrap'>
+                {/* <td className='px-6 py-4 whitespace-nowrap'>
                   {getPriorityBadge(request.priority)}
-                </td>
+                </td> */}
                 <td className='px-6 py-4 whitespace-nowrap'>
                   {getStatusBadge(request.status)}
                 </td>
@@ -210,6 +251,22 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
                       title={translations.table.view}
                     >
                       <Eye className='h-4 w-4' />
+                    </button>
+
+                    <button
+                      onClick={() => handleEditRequest(request)}
+                      className='p-1.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors'
+                      title={translations.table.edit || 'Edit'}
+                    >
+                      <Edit className='h-4 w-4' />
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteRequest(request)}
+                      className='p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
+                      title={translations.table.delete || 'Delete'}
+                    >
+                      <Trash2 className='h-4 w-4' />
                     </button>
                   </div>
                 </td>
@@ -276,81 +333,32 @@ const ConciergeRequestsTable = memo(({ requests, translations }) => {
                 <Calendar className='h-3.5 w-3.5' />
                 {formatDate(request.created_at)}
               </div>
-              <button onClick={() => handleViewRequest(request)} className='px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5'>
-                <Eye className='h-4 w-4' />
-                {translations.table.view}
-              </button>
+              <div className='flex items-center gap-2'>
+                <button onClick={() => handleViewRequest(request)} className='px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5'>
+                  <Eye className='h-4 w-4' />
+                  {translations.table.view}
+                </button>
+
+                <button onClick={() => handleEditRequest(request)} className='p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors' title={translations.table.edit || 'Edit'}>
+                  <Edit className='h-4 w-4' />
+                </button>
+
+                <button onClick={() => handleDeleteRequest(request)} className='p-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors' title={translations.table.delete || 'Delete'}>
+                  <Trash2 className='h-4 w-4' />
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Request Details Modal */}
-      {isModalOpen && selectedRequest && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center'>
-          <div className='absolute inset-0 bg-black/40' onClick={handleCloseRequest} />
-
-          <div className='relative bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto'>
-            <div className='flex items-center justify-between px-6 py-4 border-b'>
-              <div className='flex items-center gap-4'>
-                <span className='inline-flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 text-amber-700'>
-                  <Calendar className='h-5 w-5' />
-                </span>
-                <div>
-                  <h3 className='text-lg font-semibold text-gray-900'>Request #{selectedRequest.id}</h3>
-                  <div className='text-sm text-gray-500'>
-                    {selectedRequest.service_type} • {formatDate(selectedRequest.created_at)}
-                  </div>
-                </div>
-              </div>
-              <div>
-                <button onClick={handleCloseRequest} className='p-2 rounded-full hover:bg-gray-100'>
-                  <X className='h-5 w-5 text-gray-700' />
-                </button>
-              </div>
-            </div>
-
-            <div className='p-6 space-y-4'>
-              <div className='grid grid-cols-1 gap-3'>
-                <div className='flex justify-between'>
-                  <div className='text-sm text-gray-500'>Client</div>
-                  <div className='font-medium text-gray-900'>{selectedRequest.client_name}</div>
-                </div>
-
-                <div className='flex justify-between'>
-                  <div className='text-sm text-gray-500'>Email</div>
-                  <div className='font-medium text-gray-900'>{selectedRequest.client_email}</div>
-                </div>
-
-                <div className='flex justify-between'>
-                  <div className='text-sm text-gray-500'>Phone</div>
-                  <div className='font-medium text-gray-900'>{selectedRequest.client_phone || '—'}</div>
-                </div>
-
-                <div className='flex justify-between'>
-                  <div className='text-sm text-gray-500'>Service</div>
-                  <div className='font-medium text-gray-900'>{selectedRequest.service_type}</div>
-                </div>
-
-                <div className='flex justify-between'>
-                  <div className='text-sm text-gray-500'>Property</div>
-                  <div className='font-medium text-gray-900'>{selectedRequest.property_address || '—'}</div>
-                </div>
-
-                <div className='flex justify-between items-center gap-4'>
-                  <div className='text-sm text-gray-500'>Priority</div>
-                  <div>{getPriorityBadge(selectedRequest.priority)}</div>
-                </div>
-
-                <div className='flex justify-between items-center gap-4'>
-                  <div className='text-sm text-gray-500'>Status</div>
-                  <div>{getStatusBadge(selectedRequest.status)}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <RequestDetailsModal open={isModalOpen} request={selectedRequest} onClose={handleCloseRequest} />
+      <ConfirmDeleteModal
+        open={isDeleteModalOpen}
+        message={'Are you sure you want to delete this request?'}
+        onCancel={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 });

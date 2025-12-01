@@ -1,7 +1,8 @@
 'use client';
 
 import { use, useState, useMemo, useCallback, useEffect } from 'react';
-import { get } from '@/lib/api';
+import { get, del, patch } from '@/lib/api';
+import RequestEditModal from '@/components/dashboard/admin/RequestEditModal';
 import { useTranslation } from '@/i18n';
 import { Bell, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
@@ -54,13 +55,57 @@ export default function ConciergeRequestsPage({ params }) {
       setLoading(true);
       setError(null);
       try {
+        // Detect if user is searching by an ID-like token (e.g. '#cmid03..' or long alphanumeric)
+        const rawQuery = (searchTerm || '').toString().trim();
+        const plainQuery = rawQuery.startsWith('#') ? rawQuery.slice(1) : rawQuery;
+        const isIdSearch = !!plainQuery && /^[a-z0-9_-]{6,}$/i.test(plainQuery);
+
+        if (isIdSearch) {
+          // Try fetching a single request by id. If the API exposes such endpoint,
+          // this will return the exact item even if server-side list search doesn't.
+          try {
+            const single = await get(`/concierge/requests/${encodeURIComponent(plainQuery)}`);
+            const singleData = single?.data ?? single;
+            const found = singleData?.request || singleData || null;
+            if (found) {
+              const mapped = {
+                id: found.id || found._id || found.requestId,
+                client_name: found.clientName || found.client_name || found.client_name || '',
+                client_email: found.clientEmail || found.client_email || found.client_email || '',
+                client_phone: found.clientPhone || found.client_phone || found.client_phone || '',
+                service_type: found.serviceType || found.service_type || found.service || '',
+                property_address: found.propertyAddress || found.property_address || found.property || '',
+                image_url:
+                  found.image || found.imageUrl || found.image_url || found.propertyImage || found.property_image || found.thumbnail || found.cover || (found.attachments && found.attachments[0] && (found.attachments[0].url || found.attachments[0].src)) || null,
+                priority: (found.priority || '').toString().toLowerCase().replace(/_/g, '-'),
+                status: (found.status || '').toString().toLowerCase().replace(/_/g, '-'),
+                description: found.description || found.note || found.notes || '',
+                created_at: found.createdAt || found.created_at,
+                updated_at: found.updatedAt || found.updated_at,
+              };
+
+              setRequestsData([mapped]);
+              setTotalItems(1);
+              setLoading(false);
+              return;
+            }
+          } catch (err) {
+            // If single-item endpoint doesn't exist or fails, fall back to list fetch below
+            // but don't stop — continue to the listing logic
+            // console.debug('single id fetch failed, falling back to list', err);
+          }
+        }
+
         const params = {
           page: currentPage,
           limit: ITEMS_PER_PAGE,
           sortBy: 'createdAt',
           sortOrder: 'desc',
         };
-        if (statusFilter !== 'all') params.status = statusFilter.toUpperCase();
+        if (statusFilter !== 'all') {
+          // API may expect underscores instead of dashes (IN_PROGRESS vs in-progress)
+          params.status = statusFilter.replace(/-/g, '_').toUpperCase();
+        }
         if (priorityFilter !== 'all') params.priority = priorityFilter.toUpperCase();
         if (searchTerm) params.search = searchTerm;
 
@@ -81,17 +126,65 @@ export default function ConciergeRequestsPage({ params }) {
           // map any image-like fields into image_url
           image_url:
             r.image || r.imageUrl || r.image_url || r.propertyImage || r.property_image || r.thumbnail || r.cover || (r.attachments && r.attachments[0] && (r.attachments[0].url || r.attachments[0].src)) || null,
-          priority: (r.priority || '').toString().toLowerCase(),
-          status: (r.status || '').toString().toLowerCase(),
+          // Normalize incoming status/priority to dashed lower-case to match UI values
+          priority: (r.priority || '').toString().toLowerCase().replace(/_/g, '-'),
+          status: (r.status || '').toString().toLowerCase().replace(/_/g, '-'),
           description: r.description || r.note || r.notes || '',
           created_at: r.createdAt || r.created_at,
           updated_at: r.updatedAt || r.updated_at,
         }));
 
-        setRequestsData(apiRequests);
+        // Apply client-side filtering/search so UI filters work even if API
+        // doesn't support those query params or returns page-limited results.
+        const applyClientFilters = (items) => {
+          let filtered = items;
 
-        const total = data?.total ?? data?.meta?.total ?? json?.total ?? apiRequests.length;
-        setTotalItems(Number(total));
+          if (statusFilter && statusFilter !== 'all') {
+            filtered = filtered.filter((it) => (it.status || '') === statusFilter);
+          }
+
+          if (priorityFilter && priorityFilter !== 'all') {
+            filtered = filtered.filter((it) => (it.priority || '') === priorityFilter);
+          }
+
+          if (searchTerm && searchTerm.trim() !== '') {
+            // allow searching by id (with or without leading '#') and other fields
+            let q = searchTerm.toLowerCase().trim();
+            // strip leading # if user pasted '#abcd1234'
+            if (q.startsWith('#')) q = q.slice(1);
+            filtered = filtered.filter((it) => {
+              const idStr = (it.id || '').toString().toLowerCase();
+              return (
+                idStr.includes(q) ||
+                (it.client_name || '').toLowerCase().includes(q) ||
+                (it.client_email || '').toLowerCase().includes(q) ||
+                (it.client_phone || '').toLowerCase().includes(q) ||
+                (it.service_type || '').toLowerCase().includes(q) ||
+                (it.property_address || '').toLowerCase().includes(q) ||
+                (it.description || '').toLowerCase().includes(q)
+              );
+            });
+          }
+
+          return filtered;
+        };
+
+        // Always keep raw API list; then decide what to show in state
+        const clientFiltered = applyClientFilters(apiRequests);
+
+        // If any filter/search is active, show clientFiltered so UI reflects filters immediately.
+        if (
+          (statusFilter && statusFilter !== 'all') ||
+          (priorityFilter && priorityFilter !== 'all') ||
+          (searchTerm && searchTerm.trim() !== '')
+        ) {
+          setRequestsData(clientFiltered);
+          setTotalItems(clientFiltered.length);
+        } else {
+          setRequestsData(apiRequests);
+          const total = data?.total ?? data?.meta?.total ?? json?.total ?? apiRequests.length;
+          setTotalItems(Number(total));
+        }
       } catch (e) {
         setError(e?.message || String(e));
       } finally {
@@ -149,6 +242,77 @@ export default function ConciergeRequestsPage({ params }) {
 
   const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
+  }, []);
+
+  // Delete handler: called from table via onDelete prop
+  const handleDelete = useCallback(async (id) => {
+    try {
+      setLoading(true);
+      await del(`/concierge/requests/${encodeURIComponent(id)}`);
+
+      // Remove from current list and adjust total
+      setRequestsData((prev) => prev.filter((r) => String(r.id) !== String(id)));
+      setTotalItems((prev) => Math.max(0, (Number(prev) || 0) - 1));
+    } catch (e) {
+      setError(e?.message || String(e));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Edit flow: open modal (table will call this via onEdit prop)
+  const [editTarget, setEditTarget] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleEdit = useCallback((request) => {
+    setEditTarget(request);
+    setIsEditModalOpen(true);
+  }, []);
+
+  const handleUpdate = useCallback(async (updated) => {
+    try {
+      setLoading(true);
+      const id = updated.id;
+
+      // Prepare payload for API — map keys back to API shape if needed
+      const payload = {
+        clientName: updated.client_name,
+        clientEmail: updated.client_email,
+        clientPhone: updated.client_phone,
+        serviceType: updated.service_type,
+        propertyAddress: updated.property_address,
+        priority: (updated.priority || '').toString().toUpperCase(),
+        status: (updated.status || '').toString().replace(/-/g, '_').toUpperCase(),
+        description: updated.description,
+      };
+
+      const res = await patch(`/concierge/requests/${encodeURIComponent(id)}`, payload);
+      const data = res?.data ?? res;
+      const updatedItem = data?.request || data || null;
+
+      // Map response to UI shape; fall back to `updated` values if API doesn't return full object
+      const mapped = {
+        id: updatedItem?.id || updatedItem?._id || id,
+        client_name: updatedItem?.clientName || updated.client_name,
+        client_email: updatedItem?.clientEmail || updated.client_email,
+        client_phone: updatedItem?.clientPhone || updated.client_phone,
+        service_type: updatedItem?.serviceType || updated.client_service || updated.service_type,
+        property_address: updatedItem?.propertyAddress || updated.property_address,
+        priority: (updatedItem?.priority || updated.priority || '').toString().toLowerCase().replace(/_/g, '-'),
+        status: (updatedItem?.status || updated.status || '').toString().toLowerCase().replace(/_/g, '-'),
+        description: updatedItem?.description || updated.description || '',
+        created_at: updatedItem?.createdAt || updated.created_at,
+        updated_at: updatedItem?.updatedAt || new Date().toISOString(),
+      };
+
+      setRequestsData((prev) => prev.map((it) => (String(it.id) === String(mapped.id) ? mapped : it)));
+      setIsEditModalOpen(false);
+      setEditTarget(null);
+    } catch (e) {
+      setError(e?.message || String(e));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   // Translations
@@ -272,6 +436,8 @@ export default function ConciergeRequestsPage({ params }) {
         <ConciergeRequestsTable
           requests={paginatedRequests}
           translations={conciergeTranslations}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
         />
         <Pagination
           currentPage={currentPage}
@@ -282,6 +448,7 @@ export default function ConciergeRequestsPage({ params }) {
           translations={paginationTranslations}
         />
       </div>
+      <RequestEditModal open={isEditModalOpen} request={editTarget} onClose={() => setIsEditModalOpen(false)} onSave={handleUpdate} />
     </div>
   );
 }
