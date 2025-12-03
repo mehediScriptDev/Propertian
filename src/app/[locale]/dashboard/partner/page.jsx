@@ -13,6 +13,8 @@ import {
   MessageSquare,
   Search,
   Filter,
+  Home,
+  TrendingUp,
 } from "lucide-react";
 
 // Lazy load Pagination component
@@ -36,24 +38,28 @@ export default function PartnerDashboardPage({ params }) {
       value: 12,
       trend: "+3 this month",
       variant: "primary",
+      icon: Home,
     },
     {
       title: t("Partner.statsData.totalViews") || "Total Views",
       value: 8,
       trend: "+2 this week",
       variant: "success",
+      icon: TrendingUp,
     },
     {
       title: t("Partner.statsData.totalViews") || "Total Views",
       value: 1247,
       trend: "+18.5%",
       variant: "info",
+      icon: Eye,
     },
     {
       title: t("Partner.statsData.newInquiries") || "New Inquiries",
       value: 5,
       trend: "+2 today",
       variant: "warning",
+      icon: MessageSquare,
     },
   ]);
 
@@ -211,6 +217,7 @@ export default function PartnerDashboardPage({ params }) {
             value={stat.value}
             trend={stat.trend}
             variant={stat.variant}
+            icon={stat.icon}
           />
         ))}
       </div>
@@ -325,8 +332,8 @@ export default function PartnerDashboardPage({ params }) {
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${property.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
                         }`}
                     >
                       {property.status === "active" ? "Active" : "Pending"}
@@ -367,8 +374,8 @@ export default function PartnerDashboardPage({ params }) {
               <div className="flex items-center justify-between">
                 <span
                   className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${property.status === "active"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-yellow-100 text-yellow-800"
                     }`}
                 >
                   {property.status === "active" ? "Active" : "Pending"}
