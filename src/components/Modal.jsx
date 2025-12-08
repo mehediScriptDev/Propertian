@@ -81,13 +81,15 @@ const Modal = ({
         )}
 
         {/* Modal Body */}
-          <div className='px-4 py-5 sm:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar text-gray-900'>
+        <div className='px-4 py-5 sm:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar text-gray-900'>
           {children}
         </div>
 
-        {/* Modal Footer (Optional) */}
+        {/* Modal Footer (Optional) - sticky and handles padding/border to avoid duplicates */}
         {footer && (
-          <div className='px-4 py-4 sm:px-6 sm:py-6 pt-0 border-t border-gray-100'>{footer}</div>
+          <div className='sticky bottom-0 bg-[#fffff8] px-4 py-4 sm:px-6 sm:py-6 pt-0 border-t border-gray-100 rounded-b-xl'>
+            {footer}
+          </div>
         )}
       </div>
 
