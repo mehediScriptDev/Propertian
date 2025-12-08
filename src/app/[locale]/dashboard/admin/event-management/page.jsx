@@ -3,6 +3,8 @@
 import { use, useState, useMemo } from 'react';
 import { useTranslation } from '@/i18n';
 import Image from 'next/image';
+import Modal from '@/components/Modal';
+import CreateEventForm from '@/components/event/CreateEventForm';
 import {
   Calendar,
   Plus,
@@ -24,6 +26,9 @@ export default function EventManagement({ params }) {
   // State for filters and search
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  // Modal state for creating events
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
 
   // Mock events data - In production, fetch from API
   const eventsData = useMemo(
@@ -108,6 +113,7 @@ export default function EventManagement({ params }) {
         </div>
         <button
           type='button'
+          onClick={() => setIsCreateOpen(true)}
           className="inline-flex items-center rounded-md bg-accent  px-5 py-2 text-base font-medium text-white cursor-pointer "
         >
           <Plus className='h-5 w-5' />
@@ -233,7 +239,6 @@ export default function EventManagement({ params }) {
                 >
                   {t(`dashboard.pages.eventManagement.status.${event.status}`)}
                 </span>
-
                 {/* Action Buttons */}
                 <div className='flex items-center gap-1'>
                   <button
@@ -287,6 +292,33 @@ export default function EventManagement({ params }) {
           </div>
         </div>
       )}
+      {/* Create Event Modal */}
+      <Modal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        title={t('dashboard.pages.eventManagement.createEvent')}
+        footer={
+          <div className='flex items-center justify-end gap-3'>
+            <button
+              type='button'
+              onClick={() => setIsCreateOpen(false)}
+              className='rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50'
+            >
+              Cancel
+            </button>
+            <button
+              type='submit'
+              form='create-event-form'
+              disabled={formSubmitting}
+              className={`rounded-md bg-[#E6B325] px-4 py-2 text-sm font-semibold text-[#0F1B2E] ${formSubmitting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#d4a520]'}`}
+            >
+              {formSubmitting ? 'Creating...' : 'Create'}
+            </button>
+          </div>
+        }
+      >
+        <CreateEventForm formId='create-event-form' onCancel={() => setIsCreateOpen(false)} onSubmittingChange={setFormSubmitting} />
+      </Modal>
     </div>
   );
 }
