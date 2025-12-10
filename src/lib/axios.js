@@ -64,18 +64,22 @@ axiosInstance.interceptors.response.use(
           break;
         case 403:
           // Forbidden - user doesn't have permission
-          console.error("Access forbidden:", data.message);
+          if (typeof window !== "undefined")
+            console.error("Access forbidden:", data.message);
           break;
         case 404:
           // Not found
-          console.error("Resource not found:", data.message);
+          if (typeof window !== "undefined")
+            console.error("Resource not found:", data.message);
           break;
         case 500:
           // Server error
-          console.error("Server error:", data.message);
+          if (typeof window !== "undefined")
+            console.error("Server error:", data.message);
           break;
         default:
-          console.error("API Error:", data.message);
+          if (typeof window !== "undefined")
+            console.error("API Error:", data.message);
       }
 
       // Return formatted error
@@ -86,32 +90,33 @@ axiosInstance.interceptors.response.use(
       });
     } else if (error.request) {
       // Request was made but no response received
-      console.error("No response received:", error.request);
+      if (typeof window !== "undefined")
+        console.error("No response received:", error.request);
       return Promise.reject({
         message: "Network error. Please check your connection.",
         status: null,
       });
     } else {
-        // Error in request setup or request was cancelled/aborted
-        const isCanceled =
-          error?.code === 'ERR_CANCELED' ||
-          error?.message === 'canceled' ||
-          (axios && axios.isCancel && axios.isCancel(error));
+      // Error in request setup or request was cancelled/aborted
+      const isCanceled =
+        error?.code === "ERR_CANCELED" ||
+        error?.message === "canceled" ||
+        (axios && axios.isCancel && axios.isCancel(error));
 
-        if (isCanceled) {
-          // Expected cancellation (component unmount, manual abort). Don't spam console.
-          return Promise.reject({
-            message: 'canceled',
-            status: null,
-            canceled: true,
-          });
-        }
-
-        console.error("Request error:", error.message);
+      if (isCanceled) {
+        // Expected cancellation (component unmount, manual abort). Don't spam console.
         return Promise.reject({
-          message: error.message || "An unexpected error occurred",
+          message: "canceled",
           status: null,
+          canceled: true,
         });
+      }
+      if (typeof window !== "undefined")
+        console.error("Request error:", error.message);
+      return Promise.reject({
+        message: error.message || "An unexpected error occurred",
+        status: null,
+      });
     }
   }
 );
