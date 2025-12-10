@@ -81,7 +81,7 @@ const Modal = ({
         )}
 
         {/* Modal Body */}
-        <div className='px-4 py-5 sm:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar text-gray-900'>
+        <div className='px-4 py-5 sm:p-6 max-h-[85vh]  text-gray-900'>
           {children}
         </div>
 

@@ -40,7 +40,9 @@ const PropertyDeveloperForm = ({ onSubmit, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-4'>
+    <form onSubmit={handleSubmit} className='space-y-4 max-h-[76vh] overflow-hidden flex flex-col'>
+      {/* Scrollable content - keep fields inside this container so footer stays visible */}
+      <div className='overflow-y-auto pr-4 space-y-4'>
       {/* Name */}
       <div>
         <label className='block text-black text-sm font-medium mb-2'>
@@ -171,9 +173,9 @@ const PropertyDeveloperForm = ({ onSubmit, onCancel }) => {
           placeholder={t('PropertyDeveloperForm.paymentPlanPlaceholder', 'Enter payment plan details')}
         />
       </div>
-
-      {/* Action Buttons */}
-      <div className='flex justify-end gap-3 pt-4'>
+        </div>
+      {/* Action Buttons - sticky footer so buttons are always visible */}
+      <div className='mt-4 sticky bottom-0 bg-white/90 backdrop-blur-sm border-t border-gray-100 py-3 flex justify-end gap-3'>
         <button
           type='button'
           onClick={onCancel}
