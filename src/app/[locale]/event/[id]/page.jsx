@@ -23,7 +23,7 @@ export default function EventPage({ params }) {
     }),
     [t]
   );
- 
+
   const countdownTranslations = useMemo(
     () => ({
       days: t('event.countdown.days'),
