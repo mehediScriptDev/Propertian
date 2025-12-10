@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
  * Create a configured axios instance with base URL and interceptors
  */
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 30000, // 30 seconds
   headers: {
     "Content-Type": "application/json",
