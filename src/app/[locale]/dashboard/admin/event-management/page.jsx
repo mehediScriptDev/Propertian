@@ -33,7 +33,7 @@ export default function EventManagement({ params }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await axi-u8=ios.get('/events');
+      const res = await axios.get('/events');
       // assume API returns { success, data }
       const data = res?.data?.data ?? res?.data ?? [];
       setEvents(Array.isArray(data) ? data : []);
