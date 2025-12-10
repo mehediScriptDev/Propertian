@@ -48,7 +48,7 @@ export function proxy(request) {
       const locale = pathname.split('/')[1] || 'en';
       const dashboardRoutes = {
         admin: `/${locale}/dashboard/admin`,
-        client: `/${locale}/dashboard/client`,
+        user: `/${locale}/dashboard/user`,
         partner: `/${locale}/dashboard/partner`,
       };
       return NextResponse.redirect(
@@ -67,15 +67,15 @@ export function proxy(request) {
         ? 'admin'
         : pathname.includes('/dashboard/partner')
         ? 'partner'
-        : pathname.includes('/dashboard/client')
-        ? 'client'
+        : pathname.includes('/dashboard/user') || pathname.includes('/dashboard/client')
+        ? 'user'
         : null;
 
       if (requiredRole && user.role !== requiredRole) {
         const locale = pathname.split('/')[1] || 'en';
         const dashboardRoutes = {
           admin: `/${locale}/dashboard/admin`,
-          client: `/${locale}/dashboard/client`,
+          user: `/${locale}/dashboard/user`,
           partner: `/${locale}/dashboard/partner`,
         };
         return NextResponse.redirect(

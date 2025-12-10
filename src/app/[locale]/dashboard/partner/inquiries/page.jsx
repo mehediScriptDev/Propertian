@@ -272,15 +272,15 @@ export default function PartnerInquiriesPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-lg bg-white p-8 shadow-sm">
+    <div className="space-y-3 lg:space-y-4.5">
+      <div className="rounded-lg bg-white/50 border border-gray-200 p-8 shadow-sm">
         <h2 className="mb-4 text-3xl font-bold text-gray-900">{t("InquiryDetails.title")}</h2>
         <p className="text-gray-600">
           {t("InquiryDetails.subtitle")}
         </p>
       </div>
 
-      <div className="rounded-lg bg-white p-6 shadow-sm">
+      <div className="rounded-lg bg-white/50 border border-gray-200 p-6 shadow-sm">
         {/* Search and Filter */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1 max-w-md">
@@ -301,7 +301,7 @@ export default function PartnerInquiriesPage() {
               onChange={handleFilterChange}
               onFocus={() => setIsFilterOpen(true)}
               onBlur={() => setIsFilterOpen(false)}
-              className="appearance-none w-full sm:w-auto rounded-md border border-gray-300 bg-white pl-9 pr-10 py-2 text-sm text-gray-700 font-medium hover:border-gray-400 focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]/20 cursor-pointer transition-colors"
+              className="appearance-none w-full sm:w-auto rounded-md border border-gray-300 bg-white/50 pl-9 pr-10 py-2 text-sm text-gray-700 font-medium hover:border-gray-400 focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]/20 cursor-pointer transition-colors"
             >
               <option value="all">{t("InquiryDetails.AllStatus")}</option>
               <option value="pending">{t("InquiryDetails.Pending")}</option>

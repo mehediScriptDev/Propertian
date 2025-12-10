@@ -3,6 +3,7 @@
 import React from 'react';
 import { Shield, ArrowRight } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Verification Badge Section
@@ -11,11 +12,19 @@ import { useRouter, usePathname } from 'next/navigation';
 export default function VerificationSection() {
   const router = useRouter();
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
 
   function handleLearn() {
     // pathname is like: /en/... -> first segment is the locale
     const segments = (pathname || '').split('/').filter(Boolean);
     const locale = segments[0] || 'en';
+    // If user is not authenticated, redirect to login with a return URL
+    if (!isAuthenticated) {
+      const currentPath = pathname || `/${locale}`;
+      router.push(`/${locale}/login?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+
     router.push(`/${locale}/verification`);
   }
   return (
@@ -25,8 +34,7 @@ export default function VerificationSection() {
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-6 gap-3.5 items-center">
-        <div className="bg-white/50 rounded-xl p-6
-         lg:p-12 border border-gray-200 flex items-center justify-center">
+        <div className="bg-white/50 rounded-xl p-6 lg:p-12 border border-gray-200 flex items-center justify-center">
           <div className="inline-flex items-center gap-3 px-4 py-2 lg:px-8 lg:py-4 border border-primary rounded-full">
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
               <Shield className="w-5 h-5 text-charcoal" strokeWidth={1.5} />

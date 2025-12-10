@@ -42,20 +42,15 @@ const Modal = ({
         role='dialog'
         aria-modal='true'
         aria-labelledby='modal-title'
-        className={`relative w-full ${maxWidth} rounded-2xl transform-gpu transition-all duration-200 ease-out scale-100`}
-        style={{
-          background: '#ffffff',
-          boxShadow: '0px 12px 48px rgba(2,6,23,0.08), inset 0px 1px 1px rgba(0,0,0,0.02)',
-          border: '1px solid rgba(0,0,0,0.06)',
-        }}
+        className={`relative w-full ${maxWidth} rounded-xl transform-gpu transition-all duration-200 ease-out scale-100 shadow-2xl bg-[#fffff8] max-h-[90vh] overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        {/* {title && (
-          <div className='flex items-center justify-between px-4 py-4 sm:p-6 border-b border-gray-100'>
+        {title && (
+          <div className='sticky top-0 bg-[#fffff8] border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl'>
             <div className='flex items-start gap-4'>
               <div className='flex flex-col'>
-                <h3 id='modal-title' className="text-gray-900 text-lg md:text-2xl lg:text-3xl font-semibold font-['Poppins']">
+                <h3 id='modal-title' className="text-gray-900 text-lg md:text-2xl lg:text-3xl font-bold">
                   {title}
                 </h3>
               </div>
@@ -65,10 +60,10 @@ const Modal = ({
               <button
                 onClick={onClose}
                 aria-label='Close'
-                className='w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-0 transition-colors'
+                className='w-9 h-9 flex items-center justify-center bg-gray-200 rounded-full shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary'
               >
                 <svg
-                  className='w-5 h-5 text-gray-600'
+                  className='w-5 h-5 text-gray-500'
                   fill='none'
                   stroke='currentColor'
                   viewBox='0 0 24 24'
@@ -83,16 +78,18 @@ const Modal = ({
               </button>
             )}
           </div>
-        )} */}
+        )}
 
         {/* Modal Body */}
-          <div className='px-4 py-5 sm:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar text-gray-900'>
+        <div className='px-4 py-5 sm:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar text-gray-900'>
           {children}
         </div>
 
-        {/* Modal Footer (Optional) */}
+        {/* Modal Footer (Optional) - sticky and handles padding/border to avoid duplicates */}
         {footer && (
-          <div className='px-4 py-4 sm:px-6 sm:py-6 pt-0 border-t border-gray-100'>{footer}</div>
+          <div className='sticky bottom-0 bg-[#fffff8] px-4 py-4 sm:px-6 sm:py-6 pt-0 border-t border-gray-100 rounded-b-xl'>
+            {footer}
+          </div>
         )}
       </div>
 

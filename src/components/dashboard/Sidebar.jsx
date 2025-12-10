@@ -32,6 +32,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@/i18n';
+import { RiQuestionnaireLine } from "react-icons/ri";
 
 /**
  * Navigation items configuration for each role - using translation keys
@@ -58,11 +59,11 @@ const navigationConfig = {
     //   href: '/dashboard/admin/media-library',
     //   icon: Image,
     // },
-    {
-      key: 'dashboard.admin.auditLogsLink',
-      href: '/dashboard/admin/audit-logs',
-      icon: ScrollText,
-    },
+    // {
+    //   key: 'dashboard.admin.auditLogsLink',
+    //   href: '/dashboard/admin/audit-logs',
+    //   icon: ScrollText,
+    // },
     // {
     //   key: 'dashboard.admin.seoManagement',
     //   href: '/dashboard/admin/seo-management',
@@ -88,36 +89,46 @@ const navigationConfig = {
       href: '/dashboard/admin/event-management',
       icon: Calendar,
     },
+    {
+      key: 'Supports Requests',
+      href: '/dashboard/admin/supports',
+      icon: HelpCircle,
+    },
     // {
     //   key: 'dashboard.admin.settings',
     //   href: '/dashboard/admin/settings',
     //   icon: Settings,
     // },
   ],
-  client: [
+  user: [
     {
       key: 'dashboard.client.profile',
-      href: '/dashboard/client',
+      href: '/dashboard/user',
       icon: UserCircle,
     },
     {
       key: 'dashboard.client.favorites',
-      href: '/dashboard/client/favorites',
+      href: '/dashboard/user/favorites',
       icon: Heart,
     },
+    // {
+    //   key: 'dashboard.client.savedSearches',
+    //   href: '/dashboard/client/saved-searches',
+    //   icon: RiQuestionnaireLine ,
+    // },
     {
-      key: 'dashboard.client.savedSearches',
-      href: '/dashboard/client/saved-searches',
-      icon: Search,
+      key: 'My Inquiries',
+      href: '/dashboard/user/inquiries',
+      icon: Mail,
     },
     {
       key: 'dashboard.client.appointments',
-      href: '/dashboard/client/appointments',
+      href: '/dashboard/user/appointments',
       icon: Calendar,
     },
     {
       key: 'dashboard.client.tickets',
-      href: '/dashboard/client/tickets',
+      href: '/dashboard/user/tickets',
       icon: MessageSquare,
     },
     // {
@@ -255,11 +266,11 @@ export default function Sidebar({ role = 'admin' }) {
           .replace('Tableau de Bord ', '')
           .replace('Dashboard', '')
           .trim() || 'Admin',
-      client:
+      user:
         t('dashboard.client.title')
           .replace('Tableau de Bord ', '')
           .replace('Dashboard', '')
-          .trim() || 'Client',
+          .trim() || 'User',
       partner:
         t('dashboard.partner.title')
           .replace('Tableau de Bord ', '')
@@ -312,20 +323,18 @@ export default function Sidebar({ role = 'admin' }) {
                   className={`
                     group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
                     transition-all duration-200 ease-in-out
-                    ${
-                      isActive
-                        ? 'bg-[#1E3A5F] text-white shadow-sm'
-                        : 'text-gray-300 hover:bg-[#1A2B42] hover:text-white'
+                    ${isActive
+                      ? 'bg-[#1E3A5F] text-white shadow-sm'
+                      : 'text-gray-300 hover:bg-[#1A2B42] hover:text-white'
                     }
                   `}
                 >
                   <Icon
                     className={`
                       h-5 w-5 shrink-0 transition-colors
-                      ${
-                        isActive
-                          ? 'text-[#E6B325]'
-                          : 'text-gray-400 group-hover:text-gray-300'
+                      ${isActive
+                        ? 'text-[#E6B325]'
+                        : 'text-gray-400 group-hover:text-gray-300'
                       }
                     `}
                   />
@@ -338,10 +347,10 @@ export default function Sidebar({ role = 'admin' }) {
       </nav>
 
       {/* User Section */}
-      <div className='border-t border-gray-700/50 p-4'>
+      <div className='p-4'>
         {/* User Info with Dropdown */}
         <div className='relative z-50' ref={dropdownRef}>
-          <button
+          {/* <button
             onClick={() => setShowLangDropdown(!showLangDropdown)}
             className='mb-3 flex w-full items-center gap-3 rounded-lg bg-[#1A2B42] px-3 py-2.5 hover:bg-[#1E3A5F] transition-colors'
           >
@@ -361,10 +370,10 @@ export default function Sidebar({ role = 'admin' }) {
                 showLangDropdown ? 'rotate-180' : ''
               }`}
             />
-          </button>
+          </button> */}
 
           {/* Language Dropdown */}
-          {showLangDropdown && (
+          {/* {showLangDropdown && (
             <div className='absolute bottom-full left-0 right-0 mb-2 bg-[#1A2B42] rounded-lg shadow-xl border border-gray-700/50 z-50'>
               <button
                 onClick={() => handleLanguageChange('en')}
@@ -395,18 +404,18 @@ export default function Sidebar({ role = 'admin' }) {
                 )}
               </button>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Logout Button */}
-        <button
+        {/* <button
           onClick={handleLogout}
           className='flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-300 transition-all duration-200 hover:bg-[#1A2B42] hover:text-white'
           aria-label='Logout'
         >
           <LogOut className='h-5 w-5 shrink-0 text-gray-400' />
           <span>{t('dashboard.logout')}</span>
-        </button>
+        </button> */}
       </div>
     </div>
   );

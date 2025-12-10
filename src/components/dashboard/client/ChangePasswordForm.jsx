@@ -54,7 +54,7 @@ export default function ChangePasswordForm() {
     }, [currentPassword, newPassword, confirmPassword, t]);
 
     return (
-        <div className="rounded-lg bg-white shadow-sm mt-6">
+        <div className="rounded-lg bg-white/50 border border-gray-200 shadow-sm">
             <div className="border-b px-4 sm:px-8 border-gray-300 py-6">
                 <h2 className="text-xl font-semibold text-slate-800">{t("dashboard.client.password.title")}</h2>
             </div>
@@ -65,6 +65,7 @@ export default function ChangePasswordForm() {
                         id={idCurrent}
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
+                        placeholder="Enter your current Password"
                         type="password"
                         className="w-full rounded-md border border-slate-200 px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
                     />
@@ -108,7 +109,7 @@ export default function ChangePasswordForm() {
                     type="submit"
                     form="change-password-form"
                     disabled={saving}
-                    className="inline-flex items-center rounded-md bg-[#d4af37] hover:bg-[#c19b2a] px-5 py-2 text-base font-medium text-white cursor-pointer hover:text-black focus:outline-none focus:ring-2 focus:ring-amber-300 disabled:opacity-60"
+                    className="inline-flex items-center rounded-md bg-accent  px-5 py-2 text-base font-medium text-white cursor-pointer hover:text-gray-200 focus:outline-none  disabled:opacity-60"
                 >
                     {saving ? t("dashboard.client.password.saving") : t("dashboard.client.password.updateButton")}
                 </button>

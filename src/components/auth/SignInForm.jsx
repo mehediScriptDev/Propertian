@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader } from 'lucide-react';
 import FormInput from './FormInput';
 import SocialButton from './SocialButton';
 import Divider from './Divider';
@@ -112,7 +112,7 @@ const SignInForm = () => {
           className='w-full p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm flex items-center gap-2'
           role='alert'
         >
-          <span className='material-symbols-outlined text-base'>error</span>
+          <span className='material-symbols-outlined text-base'>error</span> 
           {errors.general}
         </div>
       )}
@@ -167,36 +167,14 @@ const SignInForm = () => {
         >
           {isLoading ? (
             <>
-              <span className='material-symbols-outlined animate-spin mr-2'>
-                progress_activity
-              </span>
-              {t('auth.login.signingIn')}
+              <Loader className='animate-spin mr-2 h-4 w-4' />
+              {t('auth.login.loginButton')}
             </>
           ) : (
             t('auth.login.loginButton')
           )}
         </button>
       </form>
-
-      {/* <Divider text={t('auth.login.orDivider')} />
-
-      <div className='flex w-full flex-col gap-3'>
-        <SocialButton
-          provider='google'
-          onClick={() => handleSocialLogin('google')}
-          disabled={isLoading}
-        >
-          {t('auth.login.continueWithGoogle')}
-        </SocialButton>
-
-        <SocialButton
-          provider='facebook'
-          onClick={() => handleSocialLogin('facebook')}
-          disabled={isLoading}
-        >
-          {t('auth.login.continueWithFacebook')}
-        </SocialButton>
-      </div> */}
 
       <div className='pt-4 text-center'>
         <p className='text-charcoal-500 dark:text-charcoal-300 text-sm font-normal'>

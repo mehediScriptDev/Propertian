@@ -3,6 +3,7 @@
 import { useState, memo, useCallback } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
+import Link from 'next/link';
 
 /**
  * ContactActions Component - Optimized
@@ -47,8 +48,8 @@ function ContactActions({ propertyId, propertyTitle }) {
   return (
     <div className='space-y-3'>
       {/* Book a Viewing Button */}
-      <button
-        onClick={handleBookViewing}
+      <Link
+        href={`/${locale}/book-visit?property=${propertyId}&type=buy`}
         className='w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold text-sm xl:text-base py-3.5 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 shadow-sm'
         aria-label={t('buy.property.bookViewing')}
       >
@@ -66,7 +67,7 @@ function ContactActions({ propertyId, propertyTitle }) {
           />
         </svg>
         <span>{t('buy.property.bookViewing')}</span>
-      </button>
+      </Link>
 
       {/* Chat on WhatsApp Button */}
       <button

@@ -169,12 +169,13 @@
 
 
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { MessageSquare } from "lucide-react";
 import ActionButtons from "./ActionButtons";
 import Pagination from "@/components/dashboard/Pagination";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
+import SupportTicketViewModal from '@/components/dashboard/client/SupportTicketViewModal';
 
 function TicketsTable({
   tickets,
@@ -200,8 +201,55 @@ function TicketsTable({
 }) {
      const { locale } = useLanguage();
   const { t } = useTranslation(locale);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [showView, setShowView] = useState(false);
+
+  const handleView = (ticket) => {
+    setSelectedTicket(ticket);
+    setShowView(true);
+  };
+
+    const renderStatusBadge = (status) => {
+      const key = String(status || '').toLowerCase();
+      switch (key) {
+        case 'open':
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-800">Open</span>
+          );
+        case 'in_progress':
+        case 'in-progress':
+        case 'inprogress':
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-800">In Progress</span>
+          );
+        case 'resolved':
+        case 'closed':
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-800">{key === 'closed' ? 'Closed' : 'Resolved'}</span>
+          );
+        default:
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-700">{String(status)}</span>
+          );
+      }
+    };
+
+    const renderPriorityBadge = (priority) => {
+      const key = String(priority || '').toLowerCase();
+      switch (key) {
+        case 'high':
+          return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700">High</span>;
+        case 'medium':
+          return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-800">Medium</span>;
+        case 'low':
+          return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700">Low</span>;
+        default:
+          return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-700">{String(priority)}</span>;
+      }
+    };
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <>
+    <div className="bg-white/50 rounded-lg shadow-md overflow-hidden">
       {tickets.length > 0 ? (
         <div className="overflow-x-auto">
           {/* ✅ Desktop Table */}
@@ -213,23 +261,29 @@ function TicketsTable({
             <caption className="sr-only">List of support tickets</caption>
             <thead className="bg-gray-100 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   
                   {t("dashboard.client.supportTicket.id")}
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   {t("dashboard.client.supportTicket.subject")}
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
-                  {t("dashboard.client.supportTicket.property")}
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
+                  Category
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
+                {/* <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   {t("dashboard.client.supportTicket.replies")}
+                </th> */}
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
+                  Status
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
-                  {t("dashboard.client.supportTicket.created")}
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
+                  Priority
                 </th>
-                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700">
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
+                  Last Updated
+                </th>
+                <th className="px-6 py-4 text-left text-base font-semibold text-gray-700 truncate">
                   {t("dashboard.client.supportTicket.Actions")}
                 </th>
               </tr>
@@ -246,12 +300,12 @@ function TicketsTable({
                     }
                   }}
                   tabIndex={0}
-                  className="hover:bg-gray-50 cursor-pointer transition border-b border-gray-100"
+                  className="hover:bg-gray-50 bg-white/50 cursor-pointer transition border-b border-gray-100"
                 >
                   <td className="px-6 py-4 text-sm text-gray-700 font-medium">
                     {ticket.id}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 truncate">
                     <div className="flex items-center gap-2">
                       {getStatusIcon && getStatusIcon(ticket.status)}
                       <span className="text-gray-900 font-medium">
@@ -262,22 +316,29 @@ function TicketsTable({
                       {ticket.description}
                     </p>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-gray-600 truncate">
                     {ticket.property_name} <br />
                     <span className="text-xs text-gray-400">
                       (ID: {ticket.property_id})
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 flex items-center gap-1">
+                  {/* <td className="px-6 py-4 text-sm text-gray-600 flex items-center gap-1">
                     <MessageSquare className="w-4 h-4" />
                     {ticket.replies_count}
+                  </td> */}
+                  
+                  <td className="px-6 py-4 text-xs">
+                    {renderStatusBadge(ticket.status)}
+                  </td>
+                  <td className="px-6 py-4 text-xs">
+                    {renderPriorityBadge(ticket.priority)}
                   </td>
                   <td className="px-6 py-4 text-xs text-gray-500">
                     {ticket.created_at}
                   </td>
                   <td className="px-6 py-4">
                     <ActionButtons
-                      onView={() => onView && onView(ticket)}
+                      onView={() => handleView(ticket)}
                       onEdit={() => onEdit && onEdit(ticket)}
                       onDelete={() => onDelete && onDelete(ticket.id)}
                     />
@@ -330,11 +391,15 @@ function TicketsTable({
                     <span className="font-medium">Created:</span>{" "}
                     {ticket.created_at}
                   </p>
+                  <div className="mt-2 flex items-center gap-2">
+                    {renderStatusBadge(ticket.status)}
+                    {renderPriorityBadge(ticket.priority)}
+                  </div>
                 </div>
 
                 <div className="mt-3">
                   <ActionButtons
-                    onView={() => onView && onView(ticket)}
+                    onView={() => handleView(ticket)}
                     onEdit={() => onEdit && onEdit(ticket)}
                     onDelete={() => onDelete && onDelete(ticket.id)}
                   />
@@ -361,6 +426,9 @@ function TicketsTable({
         />
       )}
     </div>
+    {/* Support Ticket View Modal (controlled) */}
+    <SupportTicketViewModal show={showView} ticket={selectedTicket} onClose={() => setShowView(false)} />
+    </>
   );
 }
 

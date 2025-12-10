@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslation } from '@/i18n';
@@ -10,83 +10,100 @@ import PropertyFeatures from '@/components/property/PropertyFeatures';
 import ContactActions from '@/components/property/ContactActions';
 import PropertyTabs from '@/components/property/PropertyTabs';
 import RentalOverview from '@/components/property/RentalOverview';
-import { getBuyPropertyById } from '@/lib/buyProperties';
+import axios from 'axios';
 
 export default function BuyDetailsPage() {
+  const [property, setProperty] = useState(null);
+  console.log(property)
+  
   const params = useParams();
   const locale = params?.locale || 'en';
   const id = params?.id;
   const { t } = useTranslation(locale);
+  useEffect(() => {
+    if (!id) return;
 
-  // Get the selected property from shared dataset
-  const base = getBuyPropertyById(id);
+    const apiUrl =
+      (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')) ||
+      'https://quiahgroup1backend.mtscorporate.com/api';
 
-  // If not found, render a simple fallback
-  if (!base) {
+    axios
+      .get(`${apiUrl}/properties/${id}`)
+      .then((res) => {
+        // support different response shapes: { data: { property } } or { data: property } or { property }
+        const payload =
+          res?.data?.data?.property ?? res?.data?.data ?? res?.data ?? res;
+        setProperty(payload);
+      })
+      .catch((err) => console.error('Fetch property error', err));
+  }, [id]);
+
+  // While loading show a simple placeholder
+  if (property === null) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <div className="max-w-3xl mx-auto px-4 py-16 text-center text-gray-700">
-          <h1 className="text-2xl font-semibold mb-2">{t('buy.noResults')}</h1>
-          <Link href={`/${locale}/buy`} className="text-primary underline">{t('common.back')}</Link>
+      <main className='min-h-screen bg-gray-50'>
+        <div className='max-w-3xl mx-auto px-4 py-16 text-center text-gray-700'>
+          <h1 className='text-2xl font-semibold mb-2'>{t('common.loading') || 'Loading...'}</h1>
         </div>
       </main>
     );
   }
 
-  const mockProperty = {
-    id: base.id,
-    title: base.title,
-    location: base.location,
-    price: base.priceXOF,
-    priceUSD: base.priceUSD,
-    developer: 'KOF Builders',
-    status: base.isVerified ? t('buy.property.status') : undefined,
-    images: [
-      base.image,
-      '/buy-rent/khet.jpg',
-      '/buy-rent/villa.jpg',
-      '/buy-rent/homne.jpg',
-      '/buy-rent/night.jpg',
-      '/buy-rent/dogWoman.jpg',
-    ],
+  if (!property || !property.id) {
+    return (
+      <main className='min-h-screen bg-gray-50'>
+        <div className='max-w-3xl mx-auto px-4 py-16 text-center text-gray-700'>
+          <h1 className='text-2xl font-semibold mb-2'>{t('buy.noResults')}</h1>
+          <Link href={`/${locale}/buy`} className='text-primary underline'>
+            {t('common.back')}
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  // Build UI-friendly property object from API payload
+  const apiOrigin =
+    (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/?$/, '')) ||
+    'https://quiahgroup1backend.mtscorporate.com';
+
+  const images = (property.images || []).map((img) =>
+    typeof img === 'string' && !img.startsWith('http') ? `${apiOrigin}${img}` : img
+  );
+
+  const uiProperty = {
+    id: property.id,
+    title: property.title,
+    description: property.description,
+    images,
     features: {
-      bedrooms: base.bedrooms,
-      bathrooms: base.bathrooms,
-      area: base.area,
-      garages: 2,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      area: property.sqft || property.area || 0,
+      garages: property.garages || 0,
     },
-    description: t('buy.property.description'),
-    highlights: [
-      t('buy.property.highlights.pool'),
-      t('buy.property.highlights.living'),
-      t('buy.property.highlights.kitchen'),
-      t('buy.property.highlights.master'),
-      t('buy.property.highlights.security'),
-      t('buy.property.highlights.proximity'),
-    ],
-    interiorFeatures: [
-      t('buy.property.interior.kitchen'),
-      t('buy.property.interior.ac'),
-      t('buy.property.interior.wardrobes'),
-      t('buy.property.interior.flooring'),
-      t('buy.property.interior.internet'),
-      t('buy.property.interior.generator'),
-    ],
-    exteriorFeatures: [
-      t('buy.property.exterior.pool'),
-      t('buy.property.exterior.garden'),
-      t('buy.property.exterior.gated'),
-      t('buy.property.exterior.parking'),
-      t('buy.property.exterior.entertainment'),
-      t('buy.property.exterior.cctv'),
-    ],
-    locationDescription: t('buy.property.locationDesc'),
-    developerDescription: t('buy.property.developerDesc'),
+    interiorFeatures: property.interiorFeatures,
+    exteriorFeatures: property.exteriorFeatures,
+    developer: property.developerName || (property.owner ? `${property.owner.firstName} ${property.owner.lastName}` : undefined),
+    developerDescription: property.developerInfo,
     rental: {
-      duration: t('buy.property.rental.duration'),
-      furnishing: t('buy.property.rental.furnishing'),
-      deposit: t('buy.property.rental.deposit'),
+      duration: property.rentalDuration,
+      furnishing: property.furnishing,
+      deposit: property.rentalTerms,
     },
+    location: property.city ? `${property.city}${property.state ? ', ' + property.state : ''}` : property.address,
+    price: Number(property.price) || 0,
+    // Compute an approximate USD value when backend doesn't provide one.
+    // You can override the conversion rate with NEXT_PUBLIC_XOF_TO_USD (client-safe env var).
+    priceUSD:
+      property.priceUSD && !Number.isNaN(Number(property.priceUSD))
+        ? Number(property.priceUSD)
+        : (() => {
+            const rate = Number(process.env.NEXT_PUBLIC_XOF_TO_USD) || 600; // XOF per USD
+            const xof = Number(property.price) || 0;
+            return rate > 0 ? Math.round(xof / rate) : undefined;
+          })(),
+    status: property.status || (property.featured ? 'Featured' : undefined),
   };
 
   return (
@@ -103,14 +120,14 @@ export default function BuyDetailsPage() {
               }
             >
               <ImageGallery
-                images={mockProperty.images}
-                alt={mockProperty.title}
+                images={uiProperty.images}
+                alt={uiProperty.title}
               />
             </Suspense>
 
             {/* Tabbed Content */}
             <section className='bg-white/50 rounded-lg shadow-sm p-6'>
-              <PropertyTabs property={mockProperty} />
+              <PropertyTabs property={uiProperty} />
             </section>
           </div>
 
@@ -121,26 +138,26 @@ export default function BuyDetailsPage() {
               {/* Combined Property Header and Contact Actions Card */}
               <div className='bg-white/50 border border-[#f6efcb] rounded-lg shadow-sm p-6'>
                 <PropertyHeader
-                  title={mockProperty.title}
-                  location={mockProperty.location}
-                  price={mockProperty.price}
-                  priceUSD={mockProperty.priceUSD}
-                  developer={mockProperty.developer}
-                  status={mockProperty.status}
+                  title={uiProperty.title}
+                  location={uiProperty.location}
+                  price={uiProperty.price}
+                  priceUSD={uiProperty.priceUSD}
+                  developer={uiProperty.developer}
+                  status={uiProperty.status}
                 />
 
                 {/* Divider */}
                 <div className='my-6 border-t border-gray-200'></div>
 
                 <ContactActions
-                  propertyId={mockProperty.id}
-                  propertyTitle={mockProperty.title}
+                  propertyId={uiProperty.id}
+                  propertyTitle={uiProperty.title}
                 />
               </div>
 
               {/* Rental Overview */}
-              {mockProperty.rental && (
-                <RentalOverview rental={mockProperty.rental} />
+              {uiProperty.rental && (
+                <RentalOverview rental={uiProperty.rental} />
               )}
             </div>
           </div>
@@ -178,7 +195,7 @@ export default function BuyDetailsPage() {
               </svg>
             </li>
             <li className='text-gray-900 font-medium truncate max-w-xs'>
-              {mockProperty.title}
+              {uiProperty.title}
             </li>
           </ol>
         </nav>

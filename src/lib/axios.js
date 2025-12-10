@@ -92,12 +92,26 @@ axiosInstance.interceptors.response.use(
         status: null,
       });
     } else {
-      // Error in request setup
-      console.error("Request error:", error.message);
-      return Promise.reject({
-        message: error.message || "An unexpected error occurred",
-        status: null,
-      });
+        // Error in request setup or request was cancelled/aborted
+        const isCanceled =
+          error?.code === 'ERR_CANCELED' ||
+          error?.message === 'canceled' ||
+          (axios && axios.isCancel && axios.isCancel(error));
+
+        if (isCanceled) {
+          // Expected cancellation (component unmount, manual abort). Don't spam console.
+          return Promise.reject({
+            message: 'canceled',
+            status: null,
+            canceled: true,
+          });
+        }
+
+        console.error("Request error:", error.message);
+        return Promise.reject({
+          message: error.message || "An unexpected error occurred",
+          status: null,
+        });
     }
   }
 );

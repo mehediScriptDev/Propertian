@@ -10,7 +10,7 @@ export default function AppointmentsHeader({ count = 0, query = '', onQueryChang
 
     return (
         <div className="mb-6">
-            <div className="flex flex-col lg:flex-row items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
                 {/* Left: title & count */}
                 <div className="shrink-0">
                     <p className="text-xl md:text-2xl font-bold text-gray-900">
@@ -19,7 +19,7 @@ export default function AppointmentsHeader({ count = 0, query = '', onQueryChang
                 </div>
 
                 {/* Right: compact search input with icon (matches image) */}
-                <div className="ml-auto w-full max-w-xs">
+                <div className="ml-auto w-full sm:max-w-xs">
                     <div className="relative">
                         <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
                             <Search className="h-4 w-4" />

@@ -27,10 +27,10 @@ export default function AddPropertyPage({ params }) {
 
   return (
     <div className='space-y-4 md:space-y-6'>
-      <div className='bg-linear-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-4 sm:p-6 md:p-8 shadow-lg'>
-        <h1 className='text-2xl sm:text-3xl font-bold text-white mb-2'>{translations.title}</h1>
-        <p className='text-sm sm:text-base text-white/80'>{translations.subtitle}</p>
-      </div>
+    
+        <h1 className='text-4xl font-bold text-gray-900 mb-2'>{translations.title}</h1>
+        <p className='text-base text-gray-600'>{translations.subtitle}</p>
+      
 
       <div className='rounded-lg bg-white shadow-sm overflow-hidden p-4 sm:p-6'>
         <AddPropertyForm translations={translations} locale={locale} />

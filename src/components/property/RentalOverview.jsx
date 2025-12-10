@@ -1,6 +1,7 @@
 'use client';
 
 import { memo } from 'react';
+import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 
@@ -55,7 +56,11 @@ function RentalOverview({ rental }) {
       </div>
 
       {/* Talk to Concierge Button */}
-      <button className='mt-6 w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-2.5 px-4 text-sm xl:text-base rounded-lg transition-colors flex items-center justify-center gap-2'>
+      <Link
+        href={`/${locale}/concierge`}
+        className='mt-6 w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-2.5 px-4 text-sm xl:text-base rounded-lg transition-colors flex items-center justify-center gap-2'
+        aria-label={t('buy.property.talkConcierge')}
+      >
         <svg
           className='w-5 h-5'
           fill='none'
@@ -70,7 +75,7 @@ function RentalOverview({ rental }) {
           />
         </svg>
         <span>{t('buy.property.talkConcierge')}</span>
-      </button>
+      </Link>
     </div>
   );
 }

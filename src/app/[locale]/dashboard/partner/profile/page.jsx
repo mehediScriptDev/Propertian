@@ -78,9 +78,9 @@ export default function PartnerProfilePage() {
   }, [formData.package]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 lg:space-y-4.5">
       {/* Header */}
-      <div className="rounded-lg bg-white p-4 sm:p-6 lg:p-8 shadow-sm">
+      <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 lg:p-8 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex-1">
             <h2 className="mb-2 text-2xl sm:text-3xl font-bold text-gray-900">
@@ -93,7 +93,7 @@ export default function PartnerProfilePage() {
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2 text-sm font-medium text-[#0F1B2E] hover:bg-[#d4a520] transition-colors whitespace-nowrap"
+              className="flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2 text-sm font-medium text-white hover:text-gray-100 transition-colors whitespace-nowrap"
               aria-label="Edit profile"
             >
               <Edit2 className="h-4 w-4" />
@@ -112,7 +112,7 @@ export default function PartnerProfilePage() {
               </button>
               <button
                 onClick={handleSave}
-                className="flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-3 sm:px-4 py-2 text-sm font-medium text-[#0F1B2E] hover:bg-[#d4a520] transition-colors"
+                className="flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-3 sm:px-4 py-2 text-sm font-medium text-white hover:bg-[#d4a520] transition-colors"
                 aria-label="Save changes"
               >
                 <Save className="h-4 w-4" />
@@ -125,7 +125,7 @@ export default function PartnerProfilePage() {
 
       {/* Verification Status Cards */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg bg-white p-4 sm:p-6 shadow-sm">
+        <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-3">
             {formData.is_verified ? (
               <CheckCircle
@@ -149,7 +149,7 @@ export default function PartnerProfilePage() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-white p-4 sm:p-6 shadow-sm">
+        <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-3">
             {formData.is_paid ? (
               <CheckCircle
@@ -173,7 +173,7 @@ export default function PartnerProfilePage() {
       </div>
 
       {/* Profile Information */}
-      <div className="rounded-lg bg-white p-4 sm:p-6 shadow-sm">
+      <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">
         <h3 className="mb-4 sm:mb-6 text-base sm:text-lg font-semibold text-gray-900">
           {t("PertnerProfile.CompanyInformation")}
         </h3>
@@ -295,7 +295,7 @@ export default function PartnerProfilePage() {
       </div>
 
       {/* Project Names */}
-      <div className="rounded-lg bg-white p-4 sm:p-6 shadow-sm">
+      <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900">
           <FileText className="h-5 w-5 text-gray-400 shrink-0" />
           {t("PertnerProfile.ProjectNames")}
@@ -320,7 +320,7 @@ export default function PartnerProfilePage() {
       </div>
 
       {/* Documents */}
-      <div className="rounded-lg bg-white p-4 sm:p-6 shadow-sm">
+      <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900">
           <FileText className="h-5 w-5 text-gray-400 shrink-0" />
           {t("PertnerProfile.UploadedDocuments")}
@@ -349,7 +349,7 @@ export default function PartnerProfilePage() {
       </div>
 
       {/* Account Timestamps */}
-      <div className="rounded-lg bg-white p-4 sm:p-6 shadow-sm">
+      <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900">
           <Calendar className="h-5 w-5 text-gray-400 shrink-0" />
           {t("PertnerProfile.AccountInformation")}

@@ -1,9 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
+import { useAuth } from '@/contexts/AuthContext';
+import axios from '@/lib/axios';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FaHeart } from 'react-icons/fa';
+import { AiOutlineHeart } from "react-icons/ai";
 
 /**
  * BuyPropertyCard Component
@@ -18,22 +24,66 @@ export default function BuyPropertyCard({ property }) {
 
   const {
     id,
-    image,
-    imageAlt,
-    location,
-    title,
-    priceXOF,
-    priceUSD,
-    isVerified = false,
-    propertyType = 'house',
-    bedrooms,
+    city,
+    address,
     bathrooms,
-    area,
+    bedrooms,
+    description,
+    title,
+    country,
+    developerInfo,
+    developerName,
+    furnishing,
+    images,
+    propertyType,
+    // 1. Rename API fields to match component variables
+    featured: isVerified = false, // API has 'featured', you want 'isVerified'
+    price: priceXOF,              // API has 'price', you want 'priceXOF'
+    sqft: area,                   // API has 'sqft', you want 'area'
+    state,                        // Need this to build 'location'
   } = property;
+
+  // 2. Create derived / calculated fields
+  const location = state ? `${city}, ${state}` : city || '';
+  const priceUSD = priceXOF ? Math.round(Number(priceXOF) / 610) : 0; // Calculate USD from XOF
+  const imageAlt = title; // Use title as alt text
+  // Prefer first image from images array, fall back to any single-image field or a local placeholder
+  const image = (images && images.length && images[0]) || property.image || '/buy-rent/thumb.png';
+  console.log(property)
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [isFavorite, setIsFavorite] = useState(Boolean(property.isFavorite));
 
   // Format price with thousand separators
   const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR').format(price);
+  };
+
+  // Map property type keys to English labels (avoid translation keys showing)
+  const mapPropertyType = (pt) => {
+    if (!pt) return '';
+    const key = String(pt).toLowerCase();
+    switch (key) {
+      case 'villa':
+      case 'villas':
+      case 'vlla':
+        return 'Villa';
+      case 'apartment':
+      case 'apartments':
+        return 'Apartment';
+      case 'house':
+      case 'homes':
+        return 'House';
+      case 'land':
+        return 'Land';
+      case 'studio':
+        return 'Studio';
+      case 'commercial':
+        return 'Commercial';
+      default:
+        // Fallback: capitalize the first letter
+        return key.charAt(0).toUpperCase() + key.slice(1);
+    }
   };
 
   // WhatsApp message handler
@@ -48,6 +98,34 @@ export default function BuyPropertyCard({ property }) {
     );
   };
 
+  // Toggle favorite - requires authentication
+  const handleToggleFavorite = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      // redirect to login page (preserve locale)
+      const locale = (typeof window !== 'undefined' && window.location.pathname.split('/')[1]) || 'en';
+      router.push(`/${locale}/login`);
+      return;
+    }
+
+    // optimistic UI
+    const prev = isFavorite;
+    setIsFavorite(!prev);
+
+    try {
+      const res = await axios.post(`/properties/${id}/favorite`);
+      // axios wrapper returns response; we don't strictly need to use res.data here
+      // but could check success if backend returns structured response
+      return res;
+    } catch (err) {
+      console.error('Favorite request failed', err);
+      // revert optimistic update
+      setIsFavorite(prev);
+    }
+  };
+
   return (
     <article
       className='flex flex-col gap-3 rounded-xl bg-white/50 dark:bg-card-dark shadow-md border border-[#f6efcb] dark:border-border-dark overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1'
@@ -56,7 +134,7 @@ export default function BuyPropertyCard({ property }) {
       {/* Property Image */}
       <div className='relative w-full aspect-5/3 bg-gray-200 dark:bg-gray-700 overflow-hidden'>
         <Image
-          src={image}
+          src={'/noImage.png'}
           alt={imageAlt || title}
           fill
           sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
@@ -91,8 +169,8 @@ export default function BuyPropertyCard({ property }) {
         {/* Property Type Badge - Top Right */}
         <div className='absolute top-3 right-3'>
           <span
-            className='flex items-center gap-1 bg-gray-700/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md capitalize'
-            aria-label={`${propertyType} property`}
+            className='flex items-center gap-1 bg-gray-700/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md'
+            aria-label={`${mapPropertyType(propertyType)} property`}
           >
             <svg
               className='w-3.5 h-3.5'
@@ -102,7 +180,7 @@ export default function BuyPropertyCard({ property }) {
             >
               <path d='M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z' />
             </svg>
-            <span>{t(`buy.propertyTypes.${propertyType}`, propertyType)}</span>
+            <span>{mapPropertyType(propertyType)}</span>
           </span>
         </div>
       </div>
@@ -110,9 +188,19 @@ export default function BuyPropertyCard({ property }) {
       {/* Property Details */}
       <div className='p-4 flex flex-col grow'>
         {/* Location */}
-        <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
+        <div className='flex justify-between'>
+          <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
           {location}
         </p>
+        <button
+          title={isFavorite ? 'Remove favourite' : 'Add favourite'}
+          onClick={handleToggleFavorite}
+          aria-pressed={isFavorite}
+          className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
+        >
+          {isFavorite ? <FaHeart /> : <AiOutlineHeart />}
+        </button>
+        </div>
 
         {/* Title */}
         <h3 className='text-xl lg:text-2xl font-bold leading-snug mt-1 line-clamp-1 text-gray-900 dark:text-white'>
@@ -193,7 +281,7 @@ export default function BuyPropertyCard({ property }) {
             {t('buy.propertyCard.viewDetails', 'View Details')}
           </Link>
           <Link
-            href={`/${locale}/book-visit?property=${id}`}
+            href={`/${locale}/book-visit?property=${id}&type=buy`}
             className='text-xs sm:text-sm lg:text-base font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 whitespace-nowrap'
             aria-label={`Book viewing for ${title}`}
           >

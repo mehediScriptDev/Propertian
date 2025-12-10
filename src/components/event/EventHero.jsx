@@ -38,7 +38,19 @@ const EventHero = memo(({ translations, countdownTranslations }) => {
           </div>
 
           {/* CTA Button */}
-          <button className='bg-[#E6B325] hover:bg-[#d4a420] text-[#0F1B2E] font-semibold px-8 sm:px-10 py-3 sm:py-4 rounded-lg text-sm lg:text-base transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'>
+          <button
+            onClick={() => {
+              try {
+                const el = document.getElementById('event-registration');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                else window.location.hash = '#event-registration';
+              } catch (e) {
+                // fallback: navigate to hash
+                window.location.hash = '#event-registration';
+              }
+            }}
+            className='bg-[#E6B325] hover:bg-[#d4a420] text-[#0F1B2E] font-semibold px-8 sm:px-10 py-3 sm:py-4 rounded-lg text-sm lg:text-base transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'
+          >
             {translations.cta}
           </button>
         </div>

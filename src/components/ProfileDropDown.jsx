@@ -17,10 +17,8 @@ const ProfileDropDown = () => {
 
   const logOutHandler = async () => {
     await logout();
-    // Redirect to localized login/home after logout
-    router.push(`/${locale}/login`);
-    // reload to ensure client state resets
-    window.location.reload();
+    // Force full navigation to localized login to ensure cookies/middleware are re-evaluated
+    window.location.href = `/${locale}/login`;
   };
 
   // click outside close dropdown
@@ -34,6 +32,30 @@ const ProfileDropDown = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // profile icon maker
+  // compute initials for avatar (First name first letter + Last name first letter)
+  const initials = (() => {
+    if (!user) return '';
+    const first = (user.firstName || user.givenName || '').trim();
+    const last = (user.lastName || user.familyName || '').trim();
+
+    if (first && last) {
+      return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
+    }
+
+    // fallback: try to derive from fullName
+    const full = (user.fullName || '').trim();
+    if (full) {
+      const parts = full.split(/\s+/).filter(Boolean);
+      if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
+    return '';
+  })();
+
+  
+
   return (
     <div
       className='relative flex items-end justify-center gap-1.5'
@@ -42,9 +64,15 @@ const ProfileDropDown = () => {
       {/* avatar button */}
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className='relative flex items-center justify-center sm:w-11 w-8 h-8 sm:h-11 rounded-full overflow-hidden border-2 border-[#C5A572] dark:border-gray-700 hover:border-[#C5A572] dark:hover:border-[#C5A572] transition-all duration-200 group bg-gray-100 dark:bg-gray-800'
+        className='relative flex items-center cursor-pointer justify-center sm:w-11 w-8 h-8 sm:h-11 rounded-full overflow-hidden border-2 border-[#C5A572] dark:border-gray-700 hover:border-[#C5A572] dark:hover:border-[#C5A572] transition-all duration-200 group bg-gray-100 dark:bg-gray-800'
       >
-        <UserCircle className='w-full h-full text-gray-400 dark:text-gray-500 group-hover:text-[#C5A572] transition-colors duration-200' />
+        {initials ? (
+          <span className="flex items-center justify-center w-full h-full text-sm font-extrabold dark:text-white text-[#C5A572]">
+            {initials}
+          </span>
+        ) : (
+          <UserCircle className='w-full h-full text-gray-400 dark:text-gray-500 group-hover:text-[#C5A572] transition-colors duration-200' />
+        )}
       </button>
       {/* user info - shown first on desktop */}
       <div className='hidden lg:flex flex-col items-start'>

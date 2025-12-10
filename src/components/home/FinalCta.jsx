@@ -19,10 +19,10 @@ export default function FinalCta({ locale }) {
     <section className='border-t border-primary/20 py-8 pb-10 lg:pb-12  px-4 sm:px-6'>
       <div className='mx-auto max-w-4xl text-center'>
         <h2 className='text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-charcoal dark:text-white'>
-          {t('finalCta.title')}
+          Find Your Dream Home in Côte d’Ivoire
         </h2>
         <p className='mx-auto mt-4 lg:mt-6 max-w-2xl text-sm sm:text-base text-charcoal/80 dark:text-soft-grey/80'>
-          {t('finalCta.subtitle')}
+          Discover verified, high-quality properties for sale across Abidjan and beyond.
         </p>
 
         {/* CTA Buttons */}

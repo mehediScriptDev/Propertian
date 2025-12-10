@@ -1,252 +1,280 @@
 'use client';
 
-import { MoreVertical } from 'lucide-react';
+import { Eye, Edit, User2, X } from 'lucide-react';
 import { useState } from 'react';
 
 /**
  * UsersTable Component
- * Displays user data with status badges, role badges, and actions menu
+ * Displays recent users with role badges and actions
  *
  * @param {Object} props
+ * @param {string} props.title - Table title
  * @param {Array} props.users - User data array
- * @param {Object} props.translations - i18n translations
- * @param {Function} props.onActionClick - Action handler
+ * @param {Function} props.onActionClick - Action click handler
  */
-export default function UsersTable({
-  users = [],
-  translations,
-  onActionClick,
-}) {
-  const [activeMenu, setActiveMenu] = useState(null);
+export default function UsersTable({ title, users = [], onActionClick }) {
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const getStatusStyles = (status) => {
+  const handleViewDetails = (user) => {
+    if (onActionClick) {
+      onActionClick('view', user);
+    } else {
+      setSelectedUser(user);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleEditClick = (user, e) => {
+    e.stopPropagation();
+    if (onActionClick) {
+      onActionClick('edit', user);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const getRoleStyles = (role) => {
     const styles = {
-      active: 'bg-green-50 text-green-700 border-green-200',
-      inactive: 'bg-gray-50 text-gray-700 border-gray-200',
-      suspended: 'bg-red-50 text-red-700 border-red-200',
-      pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+      user: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+      partner: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
+      agent: 'bg-green-500/10 text-green-600 border-green-500/20',
+      super_admin: 'bg-red-500/10 text-red-600 border-red-500/20',
     };
-    if (!status && status !== false) return styles.active;
-    const key = typeof status === 'string' ? status.toLowerCase() : String(status);
-    return styles[key] || styles.active;
+    const key = typeof role === 'string' ? role.toLowerCase() : String(role);
+    return styles[key] || 'bg-gray-500/10 text-gray-600 border-gray-500/20';
   };
-
-  const getStatusDot = (status) => {
-    const colors = {
-      active: 'bg-green-500',
-      inactive: 'bg-gray-400',
-      suspended: 'bg-red-500',
-      pending: 'bg-yellow-500',
-    };
-    if (!status && status !== false) return colors.active;
-    const key = typeof status === 'string' ? status.toLowerCase() : String(status);
-    return colors[key] || colors.active;
-  };
-
-  const toggleMenu = (userId) => {
-    setActiveMenu(activeMenu === userId ? null : userId);
-  };
-
-  // Normalize incoming user objects (support both API raw users and already-mapped rows)
-  const displayUsers = users.map((u) => {
-    // if it's already in the display shape, return as-is
-    if (u.userId && (u.name || u.firstName)) return u;
-
-    const status = u.status
-      ? u.status
-      : typeof u.isActive === 'boolean'
-      ? u.isActive
-        ? 'active'
-        : 'inactive'
-      : u.status || 'inactive';
-
-    return {
-      id: u.id || u.userId,
-      userId: u.userId || u.id,
-      name: u.name || `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
-      email: u.email,
-      role: u.role || u.roleName,
-      roleLabel:
-        (translations && translations.roles && translations.roles[u.role]) ||
-        u.role ||
-        u.roleLabel ||
-        '',
-      registrationDate: u.registrationDate || u.createdAt || u.created_at || '-',
-      status: status,
-      statusLabel:
-        (translations && translations.statuses && translations.statuses[status]) ||
-        (status === 'active' || status === true ? 'Active' : 'Inactive'),
-      _raw: u,
-    };
-  });
 
   return (
-    <div className='overflow-hidden'>
-      {/* Table */}
-      <div className='overflow-x-auto'>
-        <table className='w-full min-w-[1000px]'>
-          <thead className='bg-gray-50 border-b border-gray-100'>
+    <>
+      <div className='px-6 py-5'>
+        <div className='flex items-center justify-between'>
+          <h2 className='text-xl font-bold text-gray-900'>{title}</h2>
+        </div>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className='block md:hidden px-4 pb-4 space-y-4'>
+        {users.length === 0 ? (
+          <div className='text-center py-8 text-gray-500'>No users found</div>
+        ) : (
+          users.map((user) => (
+            <div
+              key={user.id}
+              className='bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow'
+            >
+              {/* User Header */}
+              <div className='flex items-start justify-between mb-3'>
+                <div className='flex-1'>
+                  <div className='text-xs font-medium text-gray-500 mb-1'>User ID: {user.id}</div>
+                  <h3 className='text-lg font-semibold text-gray-900'>{user.name}</h3>
+                  <p className='text-sm text-gray-600 mt-1'>{user.email}</p>
+                </div>
+              </div>
+
+              {/* User Details */}
+              <div className='space-y-2 mb-4'>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-gray-500'>Role:</span>
+                  <span
+                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getRoleStyles(
+                      user.role
+                    )}`}
+                  >
+                    {user.roleLabel}
+                  </span>
+                </div>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-gray-500'>Date Joined:</span>
+                  <span className='text-sm font-medium text-gray-900'>{user.dateJoined}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className='flex items-center gap-3 pt-3 border-t border-gray-200'>
+                <button
+                  onClick={() => handleViewDetails(user)}
+                  className='flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg font-medium text-sm transition-colors hover:bg-primary/20'
+                >
+                  <Eye className='h-4 w-4' />
+                  View
+                </button>
+                <button
+                  onClick={(e) => handleEditClick(user, e)}
+                  className='flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium text-sm transition-colors hover:bg-blue-100'
+                >
+                  <Edit className='h-4 w-4' />
+                  Edit
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className='hidden md:block overflow-x-auto'>
+        <table className='w-full min-w-[800px]'>
+          <thead className='bg-gray-100 text-gray-900'>
             <tr>
-              <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
-                {translations.table.userId}
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
+                User ID
               </th>
-              <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
-                {translations.table.name}
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
+                Name
               </th>
-              <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
-                {translations.table.email}
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
+                Email
               </th>
-              {/* <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
-                {translations.table.role}
-              </th> */}
-              <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
-                {translations.table.registrationDate}
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
+                Role
               </th>
-              <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
-                {translations.table.status}
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
+                Date Joined
               </th>
-              <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-600'>
-                {translations.table.actions}
+              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
+                Actions
               </th>
             </tr>
           </thead>
-          <tbody className='divide-y divide-gray-100 bg-white'>
-            {displayUsers.map((user) => (
-              <tr key={user.id} className='transition-colors hover:bg-gray-50'>
-                {/* User ID */}
-                <td className='px-6 py-4'>
-                  <p className='text-sm font-medium text-gray-900'>
-                    {user.userId}
-                  </p>
-                </td>
-
-                {/* Name */}
-                <td className='px-6 py-4'>
-                  <p className='text-sm font-semibold text-gray-900'>
-                    {user.name}
-                  </p>
-                </td>
-
-                {/* Email */}
-                <td className='px-6 py-4'>
-                  <p className='text-sm text-gray-600'>{user.email}</p>
-                </td>
-
-                {/* Role */}
-                {/* <td className='px-6 py-4'>
-                  <span className='text-sm font-medium text-gray-700'>
-                    {user.roleLabel}
-                  </span>
-                </td> */}
-
-                {/* Registration Date */}
-                <td className='px-6 py-4'>
-                  <p className='text-sm text-gray-600'>
-                    {user.registrationDate}
-                  </p>
-                </td>
-
-                {/* Status */}
-                <td className='px-6 py-4'>
-                  <span
-                    className={`
-                      inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium
-                      ${getStatusStyles(user.status)}
-                    `}
-                  >
-                    <span
-                      className={`h-2 w-2 rounded-full ${getStatusDot(
-                        user.status
-                      )}`}
-                    />
-                    {user.statusLabel}
-                  </span>
-                </td>
-
-                {/* Actions */}
-                <td className='px-6 py-4'>
-                  <div className='relative'>
-                    <button
-                      onClick={() => toggleMenu(user.id || user.userId)}
-                      className='
-                        flex h-8 w-8 items-center justify-center rounded-lg
-                        text-gray-400 transition-colors
-                        hover:bg-gray-100 hover:text-gray-600
-                      '
-                      aria-label='Actions menu'
-                    >
-                      <MoreVertical className='h-5 w-5' />
-                    </button>
-
-                    {/* Dropdown Menu */}
-                    {activeMenu === user.id && (
-                      <>
-                        {/* Backdrop */}
-                        <div
-                          className='fixed inset-0 z-10'
-                          onClick={() => setActiveMenu(null)}
-                        />
-
-                        {/* Menu */}
-                        <div className='absolute right-0 top-10 z-20 w-48 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-lg'>
-                          <button
-                            onClick={() => {
-                              onActionClick?.('view', user._raw || user);
-                              setActiveMenu(null);
-                            }}
-                            className='w-full px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50'
-                          >
-                            {translations.actions.view}
-                          </button>
-                          <button
-                            onClick={() => {
-                              onActionClick?.('edit', user._raw || user);
-                              setActiveMenu(null);
-                            }}
-                            className='w-full px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50'
-                          >
-                            {translations.actions.edit}
-                          </button>
-                          <button
-                            onClick={() => {
-                              onActionClick?.(
-                                (user.status === 'active' || user.status === true) ? 'suspend' : 'activate',
-                                user._raw || user
-                              );
-                              setActiveMenu(null);
-                            }}
-                            className='w-full px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50'
-                          >
-                            {user.status === 'active' || user.status === true
-                              ? translations.actions.suspend
-                              : translations.actions.activate}
-                          </button>
-                          <button
-                            onClick={() => {
-                              onActionClick?.('delete', user._raw || user);
-                              setActiveMenu(null);
-                            }}
-                            className='w-full px-4 py-2.5 text-left text-sm text-red-600 transition-colors hover:bg-red-50'
-                          >
-                            {translations.actions.delete}
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
+          <tbody className='divide-y divide-gray-200 bg-white'>
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan='6' className='px-6 py-8 text-center text-gray-500'>
+                  No users found
                 </td>
               </tr>
-            ))}
+            ) : (
+              users.map((user) => (
+                <tr key={user.id} className='hover:bg-gray-50 transition-colors'>
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='text-sm font-mono text-gray-600'>{user.id}</div>
+                  </td>
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='text-sm font-medium text-gray-900'>{user.name}</div>
+                  </td>
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='text-sm text-gray-700'>{user.email}</div>
+                  </td>
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <span
+                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getRoleStyles(
+                        user.role
+                      )}`}
+                    >
+                      {user.roleLabel}
+                    </span>
+                  </td>
+                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-700'>
+                    {user.dateJoined}
+                  </td>
+                  <td className='px-6 py-4'>
+                    <div className='flex items-center gap-4'>
+                      <button
+                        onClick={() => handleViewDetails(user)}
+                        className='inline-flex items-center gap-2 font-semibold text-primary transition-colors'
+                        title='View Details'
+                      >
+                        <Eye className='h-4 w-4' />
+                      </button>
+                      <button
+                        onClick={(e) => handleEditClick(user, e)}
+                        className='inline-flex items-center gap-2 font-semibold text-blue-400 transition-colors '
+                        title='Edit User'
+                      >
+                        <Edit className='h-4 w-4' />
+                      </button>
+                    </div>
+                  </td>
+
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* Empty State */}
-      {users.length === 0 && (
-        <div className='py-12 text-center'>
-          <p className='text-gray-500'>No users found</p>
+      {/* User Details Modal */}
+      {isModalOpen && selectedUser && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
+          {/* Backdrop */}
+          <div
+            className='absolute inset-0 bg-black/50 backdrop-blur-sm'
+            onClick={handleCloseModal}
+          />
+
+          {/* Modal Content */}
+          <div className='relative z-10 w-full max-w-2xl rounded-2xl bg-white shadow-2xl'>
+            {/* Header */}
+            <div className='flex items-center justify-between border-b border-gray-200 px-6 py-5'>
+              <div className='flex items-center gap-3'>
+                <div className='p-2 bg-[#d4af37]/10 rounded-lg'>
+                  <User2 className='h-5 w-5 text-[#d4af37]' />
+                </div>
+                <h3 className='text-2xl font-bold text-gray-900'>User Details</h3>
+              </div>
+
+              <button
+                onClick={handleCloseModal}
+                className='rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600'
+              >
+                <X className='h-5 w-5' />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className='px-6 py-6 space-y-6'>
+              {/* Details Grid */}
+              <div className='grid grid-cols-2 gap-6'>
+                <div className='bg-gray-50 rounded-lg p-4'>
+                  <div className='text-xs font-medium text-gray-500 uppercase tracking-wide mb-1'>
+                    Full Name
+                  </div>
+                  <div className='text-lg font-semibold text-gray-900'>{selectedUser.name}</div>
+                </div>
+
+                <div className='bg-gray-50 rounded-lg p-4'>
+                  <div className='text-xs font-medium text-gray-500 uppercase tracking-wide mb-1'>
+                    Email
+                  </div>
+                  <div className='text-lg font-semibold text-gray-900'>{selectedUser.email}</div>
+                </div>
+
+                <div className='bg-gray-50 rounded-lg p-4'>
+                  <div className='text-xs font-medium text-gray-500 uppercase tracking-wide mb-1'>
+                    Role
+                  </div>
+                  <div className='text-lg font-semibold text-gray-900'>
+                    {selectedUser.roleLabel}
+                  </div>
+                </div>
+
+                <div className='bg-gray-50 rounded-lg p-4'>
+                  <div className='text-xs font-medium text-gray-500 uppercase tracking-wide mb-1'>
+                    Date Joined
+                  </div>
+                  <div className='text-lg font-semibold text-gray-900'>
+                    {selectedUser.dateJoined}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            {/* <div className='flex justify-end gap-3 border-t border-gray-200 px-6 py-4'>
+              <button
+                onClick={handleCloseModal}
+                className='rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50'
+              >
+                Close
+              </button>
+            </div> */}
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
