@@ -1,7 +1,6 @@
 "use client";
 import BlogCard from "@/components/blog/BlogCard";
-import { useState } from "react";
-import initialData from "@/lib/blogData";
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 
@@ -9,10 +8,64 @@ export default function BlogPage() {
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
   const [searchQuery, setSearchQuery] = useState("");
+  const [initialData, setInitialData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setSearchQuery(e.target.value);
   };
+
+  useEffect(() => {
+    // Debounce search requests
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const base = (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")) || "http://localhost:8080/api";
+        const params = new URLSearchParams({
+          page: "1",
+          limit: "10",
+          status: "PUBLISHED",
+        });
+        if (searchQuery) params.set("search", searchQuery);
+
+        const res = await fetch(`${base}/blog?${params.toString()}`, { signal: controller.signal });
+        if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+        const json = await res.json();
+
+        const blogs = (json?.data?.blogs || []).map((b) => ({
+          id: b.id,
+          title: b.title,
+          // Format as Day Month Year (e.g. "10 December 2025") using current locale
+          date: (() => {
+            try {
+              const d = b.publishedAt ? new Date(b.publishedAt) : (b.createdAt ? new Date(b.createdAt) : null);
+              if (!d || Number.isNaN(d.getTime())) return (b.createdAt || "");
+              return d.toLocaleDateString(locale || undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+            } catch (e) {
+              return (b.createdAt || "");
+            }
+          })(),
+          image: b.featuredImage ? (b.featuredImage.startsWith("http") ? b.featuredImage : `${(process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")}${b.featuredImage}`) : "/home/placeholder-hero.jpg",
+          snippet: b.excerpt || b.snippet || "",
+          alt: b.title,
+        }));
+
+        setInitialData(blogs);
+      } catch (err) {
+        if (err.name !== "AbortError") setError(err.message || String(err));
+      } finally {
+        setLoading(false);
+      }
+    }, 400);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [searchQuery, locale]);
 
   return (
     <main className="min-h-screen bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
