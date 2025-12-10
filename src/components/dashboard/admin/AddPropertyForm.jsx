@@ -5,7 +5,7 @@ import { post } from "../../../lib/api";
 import { ChevronDown } from "lucide-react";
 
 export default function AddPropertyForm({ translations = {} }) {
-  const [form, setForm] = useState({
+  const initialForm = {
     title: "",
     description: "",
     location: "",
@@ -26,7 +26,9 @@ export default function AddPropertyForm({ translations = {} }) {
     rentalTerms: "",
     mainImage: null,
     gallery: [],
-  });
+  };
+
+  const [form, setForm] = useState(initialForm);
 
   const [galleryPreviews, setGalleryPreviews] = useState([]);
   const [mainPreview, setMainPreview] = useState(null);
@@ -35,6 +37,7 @@ export default function AddPropertyForm({ translations = {} }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const galleryRef = useRef(null);
+  const mainRef = useRef(null);
 
   const interiorOptions = [
     "Modern fitted kitchen",
@@ -178,6 +181,15 @@ export default function AddPropertyForm({ translations = {} }) {
       const result = await post("/properties", payload);
       setSuccess(result?.message || "Property saved");
       alert(result?.message || "Property saved");
+      // reset form and previews
+      setForm(initialForm);
+      setGalleryPreviews([]);
+      setMainPreview(null);
+      setInteriorFeatures([]);
+      setExteriorFeatures([]);
+      setErrors({});
+      if (galleryRef?.current) galleryRef.current.value = null;
+      if (mainRef?.current) mainRef.current.value = null;
       setTimeout(() => setSuccess(""), 4000);
     } catch (err) {
       console.error("submit error", err);
@@ -314,7 +326,7 @@ export default function AddPropertyForm({ translations = {} }) {
           <div>
             <label className="block text-sm font-medium mb-1">Main Cover Image (max 5MB)</label>
             <div className="border border-dashed border-gray-200 rounded-md p-3">
-              <input type="file" accept="image/*" onChange={handleMainImage} className="w-full" />
+              <input ref={mainRef} type="file" accept="image/*" onChange={handleMainImage} className="w-full" />
               {errors.mainImage && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.mainImage}</p>}
               {mainPreview && (
                 <div className="mt-3 w-full rounded-md overflow-hidden border">
