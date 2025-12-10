@@ -24,7 +24,7 @@ const EventRegistration = memo(({ translations }) => {
       console.log('Registration submitted:', formData);
       // Handle form submission
     },
-    [formData]
+    [formData] 
   );
 
   return (
