@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { post } from '@/lib/api';
+import axios from '@/lib/axios';
 
 // Inlined CreateEventForm (moved here so it's not a separate component file)
 function CreateEventForm({ onCancel, formId = 'create-event-form', onSubmittingChange }) {
@@ -77,18 +77,23 @@ function CreateEventForm({ onCancel, formId = 'create-event-form', onSubmittingC
         console.log('Submitting event payload:', payload);
 
         try {
-            const data = await post('/events', payload);
-            console.log('Response from backend:', data);
+            const response = await axios.post('/events', payload);
+            console.log('Response from backend:', response.data);
 
-            if (data?.success) {
-                alert(data.message);
-            }
-
+            const message = response.data?.message || 'Event created successfully';
+            alert(message);
             onCancel?.();
         } catch (err) {
             console.error('Create event error:', err);
-            const message = err?.response?.data?.message || err?.data?.message || err?.message || 'Error creating event';
-            alert(message);
+            console.error('Error response:', err?.response);
+            console.error('Error data:', err?.response?.data);
+            console.error('Error status:', err?.response?.status);
+            
+            const message = err?.response?.data?.message 
+                || err?.response?.data?.error
+                || err?.message 
+                || 'Failed to create event';
+            alert(`Error: ${message}\n\nCheck console for details.`);
         } finally {
             setSubmitting(false);
             onSubmittingChange?.(false);

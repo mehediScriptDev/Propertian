@@ -5,7 +5,7 @@ import { post } from "../../../lib/api";
 import { ChevronDown } from "lucide-react";
 
 export default function AddPropertyForm({ translations = {} }) {
-  const [form, setForm] = useState({
+  const initialForm = {
     title: "",
     description: "",
     location: "",
@@ -26,7 +26,9 @@ export default function AddPropertyForm({ translations = {} }) {
     rentalTerms: "",
     mainImage: null,
     gallery: [],
-  });
+  };
+
+  const [form, setForm] = useState(initialForm);
 
   const [galleryPreviews, setGalleryPreviews] = useState([]);
   const [mainPreview, setMainPreview] = useState(null);
@@ -35,6 +37,7 @@ export default function AddPropertyForm({ translations = {} }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const galleryRef = useRef(null);
+  const mainRef = useRef(null);
 
   const interiorOptions = [
     "Modern fitted kitchen",
@@ -68,7 +71,13 @@ export default function AddPropertyForm({ translations = {} }) {
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm((s) => ({ ...s, [name]: value }));
+    const numberFields = ["sqft", "bedrooms", "bathrooms"];
+    if (numberFields.includes(name)) {
+      const v = value === "" ? "" : Number(value);
+      setForm((s) => ({ ...s, [name]: v }));
+    } else {
+      setForm((s) => ({ ...s, [name]: value }));
+    }
   }
 
   function handleMainImage(e) {
@@ -119,11 +128,12 @@ export default function AddPropertyForm({ translations = {} }) {
     if (!form.propertyType) errs.propertyType = "Property type is required";
     if (!form.listingType) errs.listingType = "Listing type is required";
     if (!form.price) errs.price = "Price is required";
-    const numBedrooms = parseFloat(form.bedrooms);
-    if (isNaN(numBedrooms) || numBedrooms < 0) errs.bedrooms = "Enter number of bedrooms";
-    const numBathrooms = parseFloat(form.bathrooms);
-    if (isNaN(numBathrooms) || numBathrooms < 0) errs.bathrooms = "Enter number of bathrooms";
-    if (!form.sqft) errs.sqft = "Sqft is required";
+    const numBedrooms = Number(form.bedrooms);
+    if (form.bedrooms === "" || isNaN(numBedrooms) || numBedrooms < 0) errs.bedrooms = "Enter number of bedrooms";
+    const numBathrooms = Number(form.bathrooms);
+    if (form.bathrooms === "" || isNaN(numBathrooms) || numBathrooms < 0) errs.bathrooms = "Enter number of bathrooms";
+    const numSqft = Number(form.sqft);
+    if (form.sqft === "" || isNaN(numSqft) || numSqft <= 0) errs.sqft = "Sqft is required and must be a positive number";
     // Image validation removed - not required for JSON POST
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -171,6 +181,15 @@ export default function AddPropertyForm({ translations = {} }) {
       const result = await post("/properties", payload);
       setSuccess(result?.message || "Property saved");
       alert(result?.message || "Property saved");
+      // reset form and previews
+      setForm(initialForm);
+      setGalleryPreviews([]);
+      setMainPreview(null);
+      setInteriorFeatures([]);
+      setExteriorFeatures([]);
+      setErrors({});
+      if (galleryRef?.current) galleryRef.current.value = null;
+      if (mainRef?.current) mainRef.current.value = null;
       setTimeout(() => setSuccess(""), 4000);
     } catch (err) {
       console.error("submit error", err);
@@ -285,17 +304,17 @@ export default function AddPropertyForm({ translations = {} }) {
           </div>
           <div>
             <label className="block text-sm md:text-base font-medium mb-1">Sqft *</label>
-            <input name="sqft" value={form.sqft} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            <input type="number" name="sqft" value={form.sqft} onChange={handleChange} min="0" step="1" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
             {errors.sqft && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.sqft}</p>}
           </div>
           <div>
             <label className="block text-sm md:text-base font-medium mb-1">Bedrooms *</label>
-            <input name="bedrooms" value={form.bedrooms} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            <input type="number" name="bedrooms" value={form.bedrooms} onChange={handleChange} min="0" step="1" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
             {errors.bedrooms && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.bedrooms}</p>}
           </div>
           <div>
             <label className="block text-sm md:text-base font-medium mb-1">Bathrooms *</label>
-            <input name="bathrooms" value={form.bathrooms} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
+            <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} min="0" step="1" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
             {errors.bathrooms && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.bathrooms}</p>}
           </div>
         </div>
@@ -307,7 +326,7 @@ export default function AddPropertyForm({ translations = {} }) {
           <div>
             <label className="block text-sm font-medium mb-1">Main Cover Image (max 5MB)</label>
             <div className="border border-dashed border-gray-200 rounded-md p-3">
-              <input type="file" accept="image/*" onChange={handleMainImage} className="w-full" />
+              <input ref={mainRef} type="file" accept="image/*" onChange={handleMainImage} className="w-full" />
               {errors.mainImage && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.mainImage}</p>}
               {mainPreview && (
                 <div className="mt-3 w-full rounded-md overflow-hidden border">
