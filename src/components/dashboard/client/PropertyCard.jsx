@@ -10,8 +10,7 @@ import {
     MapPin,
     TriangleRight,
 } from 'lucide-react';
-import axios from 'axios';
-import Link from 'next/link';
+// axios not needed here; parent handles API calls
 import { useRouter, usePathname } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -143,14 +142,13 @@ export default function PropertyCard({
                                         </button>
                                     </li>
                                     <li>
-                                        <Link
-                                            href={'/'}
+                                        <button
                                             type="button"
                                             onClick={(ev) => { ev.stopPropagation(); setMenuOpen(false); onDelete && onDelete(property.id); }}
-                                            className="w-full block text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                                         >
                                             Remove from Saved
-                                        </Link>
+                                        </button>
                                     </li>
                                 </ul>
                             </div>

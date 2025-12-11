@@ -5,7 +5,6 @@ import { Search, Plus } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import PropertyCard from '@/components/dashboard/client/PropertyCard';
 import { useTranslation } from '@/i18n';
-import axios from 'axios';
 import api from '@/lib/api';
 
 export default function SavedProperties() {
@@ -54,6 +53,20 @@ export default function SavedProperties() {
 
   const toggleLike = useCallback((id) => {
     setFavProperties((prev) => prev.map((prop) => (prop.id === id ? { ...prop, liked: !prop.liked } : prop)));
+  }, []);
+
+  // Remove a property from favorites on the server then update local list
+  const removeFavorite = useCallback(async (propertyId) => {
+    try {
+      // call DELETE /properties/:id/favorite
+      await api.delete(`/properties/${propertyId}/favorite`);
+      // remove from local state so UI updates immediately
+      setFavProperties((prev) => prev.filter((p) => p.id !== propertyId));
+    } catch (err) {
+      console.error('Failed to remove favorite', err);
+      // Optionally: setError or show toast. For now, set error state so user sees something
+      setError(err?.message || 'Failed to remove favorite');
+    }
   }, []);
 
   // Toolbar search state
@@ -125,7 +138,7 @@ export default function SavedProperties() {
             <div className="col-span-full p-6 text-center">{t('dashboard.pages.savedProperties.noSaved') || 'No saved properties yet'}</div>
           ) : (
             filteredProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} onToggleLike={toggleLike} />
+              <PropertyCard key={property.id} property={property} onToggleLike={toggleLike} onDelete={removeFavorite} />
             ))
           )}
         </div>
