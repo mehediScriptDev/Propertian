@@ -48,9 +48,26 @@ const PropertyDetailPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Inquiry submitted:", { property: selectedProperty, ...formState });
-    alert("Thank you for your inquiry! The developer will contact you shortly.");
-    setIsModalOpen(false);
+    (async () => {
+      try {
+        const payload = {
+          propertyId: selectedProperty?.id || propertyData?.id || null,
+          propertyTitle: selectedProperty?.name || propertyData?.name || '',
+          message: formState.message,
+          // fullName: formState.fullName,
+          // email: formState.email,
+          // phone: formState.phone,
+        };
+
+        await api.post('/inquiries', payload);
+
+        alert("Thank you for your inquiry! The developer will contact you shortly.");
+        setIsModalOpen(false);
+      } catch (err) {
+        console.error('Failed to submit inquiry', err);
+        alert('Failed to send inquiry. Please try again later.');
+      }
+    })();
   };
 
   const openInquire = (prefillMessage) => {
@@ -628,6 +645,7 @@ const PropertyDetailPage = () => {
             {/* Modal Body */}
             <div className="p-6">
               <form onSubmit={handleSubmit} className="space-y-5">
+                {/*
                 <div>
                   <label htmlFor="fullName" className="block text-[14px] font-medium text-charcoal mb-1.5">Full Name</label>
                   <input
@@ -641,7 +659,9 @@ const PropertyDetailPage = () => {
                     required
                   />
                 </div>
+                */}
 
+                {/*
                 <div>
                   <label htmlFor="email" className="block text-[14px] font-medium text-charcoal mb-1.5">Email Address</label>
                   <input
@@ -655,7 +675,9 @@ const PropertyDetailPage = () => {
                     required
                   />
                 </div>
+                */}
 
+                {/*
                 <div>
                   <label htmlFor="phone" className="block text-[14px] font-medium text-charcoal mb-1.5">Phone / WhatsApp</label>
                   <input
@@ -669,6 +691,7 @@ const PropertyDetailPage = () => {
                     required
                   />
                 </div>
+                */}
 
                 <div>
                   <label htmlFor="message" className="block text-[14px] font-medium text-charcoal mb-1.5">Message</label>

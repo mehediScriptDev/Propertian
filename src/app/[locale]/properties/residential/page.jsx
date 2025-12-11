@@ -196,9 +196,26 @@ export default function ResidentialPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Inquiry submitted:', { development: selectedDevelopment, ...formState });
-    alert('Thank you for your inquiry! The developer will contact you shortly.');
-    setIsModalOpen(false);
+    (async () => {
+      try {
+        const payload = {
+          propertyId: selectedDevelopment?.id || null,
+          propertyTitle: selectedDevelopment?.title || selectedDevelopment?.name || '',
+          message: formState.message,
+          // fullName: formState.fullName,
+          // email: formState.email,
+          // phone: formState.phone,
+        };
+
+        await api.post('/inquiries', payload);
+
+        alert('Thank you for your inquiry! The developer will contact you shortly.');
+        setIsModalOpen(false);
+      } catch (err) {
+        console.error('Failed to submit inquiry', err);
+        alert('Failed to send inquiry. Please try again later.');
+      }
+    })();
   };
 
   const handleFilterChange = (newFilters) => {
@@ -322,6 +339,7 @@ export default function ResidentialPage() {
             {/* Modal Body */}
             <div className="p-6">
               <form onSubmit={handleSubmit} className="space-y-5">
+                {/*
                 <div>
                   <label
                     htmlFor="fullName"
@@ -340,7 +358,9 @@ export default function ResidentialPage() {
                     required
                   />
                 </div>
+                */}
 
+                {/*
                 <div>
                   <label
                     htmlFor="email"
@@ -359,7 +379,9 @@ export default function ResidentialPage() {
                     required
                   />
                 </div>
+                */}
 
+                {/*
                 <div>
                   <label
                     htmlFor="phone"
@@ -378,6 +400,7 @@ export default function ResidentialPage() {
                     required
                   />
                 </div>
+                */}
 
                 <div>
                   <label
