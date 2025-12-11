@@ -143,11 +143,11 @@ const navigationConfig = {
       href: '/dashboard/partner',
       icon: Building2,
     },
-    {
-      key: 'dashboard.partner.myListings',
-      href: '/dashboard/partner/my-listings',
-      icon: List,
-    },
+    // {
+    //   key: 'dashboard.partner.myListings',
+    //   href: '/dashboard/partner/my-listings',
+    //   icon: List,
+    // },
     {
       key: 'dashboard.partner.inquiries',
       href: '/dashboard/partner/inquiries',

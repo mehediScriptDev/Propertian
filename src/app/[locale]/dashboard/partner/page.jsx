@@ -4,7 +4,7 @@ import { use, useMemo, useState } from "react";
 import { useTranslation } from "@/i18n";
 import dynamic from "next/dynamic";
 import StatsCard from "@/components/dashboard/admin/StatsCard";
-import AddPropertyModal from "@/components/dashboard/partner/AddPropertyModal";
+import Link from 'next/link';
 import {
   Eye,
   MapPin,
@@ -29,7 +29,7 @@ export default function PartnerDashboardPage({ params }) {
   const itemsPerPage = 5;
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  
 
   // Stats data matching admin dashboard style with SAME colors
   const [statsData, setStatsData] = useState([
@@ -201,10 +201,10 @@ export default function PartnerDashboardPage({ params }) {
             </h1>
             <p className="mt-2 text-sm text-gray-600">{t("Partner.title")}</p>
           </div>
-          <button onClick={() => setIsAddModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none focus:ring-offset-2">
+          <Link href={`/${locale}/dashboard/partner/properties/add`} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none focus:ring-offset-2">
             <Plus className="h-4 w-4" aria-hidden="true" />
             {t("Partner.addButton")}
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -424,7 +424,7 @@ export default function PartnerDashboardPage({ params }) {
             }}
           />
         )}
-        <AddPropertyModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+        {/* AddPropertyModal removed - partner uses full page add flow now */}
       </div>
     </div>
   );

@@ -282,6 +282,7 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { post } from "../../../lib/api";
 
 export default function AddPropertyModal({ isOpen, onClose }) {
     const [title, setTitle] = useState("");
@@ -298,6 +299,8 @@ export default function AddPropertyModal({ isOpen, onClose }) {
     const [editImages, setEditImages] = useState(false);
     const [ownership, setOwnership] = useState(null);
     const [logo, setLogo] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState(null);
 
     if (!isOpen) return null;
 
@@ -330,8 +333,19 @@ export default function AddPropertyModal({ isOpen, onClose }) {
         setLogo(e.target.files[0] || null);
     };
 
-    const handleSubmit = (e) => {
+    // When backend is ready: replace the local dev submission with a real API call.
+    // Current behavior: sends a JSON payload including `isVerified: false` to the `post` helper.
+    // Integration checklist:
+    //  - Confirm the real partner endpoint with backend (e.g. '/partner/properties' or '/properties?role=partner').
+    //  - If files must be uploaded, use `uploadFile('/upload', formData)` first and include returned URLs in payload.
+    //  - If backend accepts multipart create, build FormData, append files + JSON fields and POST directly.
+    //  - Handle validation errors from server (`err.response.data.errors`) and show them to the user.
+    //  - Prefer server-side role enforcement for `isVerified` (do not trust client flags for security).
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        setSubmitError(null);
         const payload = {
             title,
             type,
@@ -347,10 +361,21 @@ export default function AddPropertyModal({ isOpen, onClose }) {
             editImages,
             ownership,
             logoName: logo?.name || null,
+            isVerified: false,
         };
-        console.log("AddProperty payload:", payload);
-        alert("Property saved locally (dev). Check console for payload.");
-        onClose();
+
+        try {
+            const res = await post("/properties", payload);
+            const msg = res?.message || "Property saved successfully";
+            alert(msg);
+            onClose();
+        } catch (err) {
+            console.error("Partner AddProperty error", err);
+            const serverMsg = err?.response?.data?.message || err?.message || "Save failed";
+            setSubmitError(serverMsg);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -609,6 +634,9 @@ export default function AddPropertyModal({ isOpen, onClose }) {
                     </div>
 
                     {/* Footer */}
+                    {submitError && (
+                        <div className="p-4 text-sm text-red-600">{submitError}</div>
+                    )}
                     <div className="sticky bottom-0 flex flex-col gap-2 border-t bg-white p-4 sm:flex-row sm:justify-end">
                         <button
                             type="button"
@@ -619,9 +647,10 @@ export default function AddPropertyModal({ isOpen, onClose }) {
                         </button>
                         <button
                             type="submit"
-                            className="rounded bg-[#E6B325] px-4 py-2 text-sm font-semibold text-black"
+                            disabled={isSubmitting}
+                            className="rounded bg-[#E6B325] px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
                         >
-                            Save Property
+                            {isSubmitting ? "Saving..." : "Save Property"}
                         </button>
                     </div>
                 </form>
