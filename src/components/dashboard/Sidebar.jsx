@@ -158,11 +158,11 @@ const navigationConfig = {
     //   href: '/dashboard/partner/developer-portal',
     //   icon: Briefcase,
     // },
-    {
-      key: 'dashboard.partner.developerInquiry',
-      href: '/dashboard/partner/developer-inquiry',
-      icon: HelpCircle,
-    },
+    // {
+    //   key: 'dashboard.partner.developerInquiry',
+    //   href: '/dashboard/partner/developer-inquiry',
+    //   icon: HelpCircle,
+    // },
     {
       key: 'dashboard.partner.profile',
       href: '/dashboard/partner/profile',
