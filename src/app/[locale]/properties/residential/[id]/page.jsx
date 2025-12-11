@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import api from '@/lib/api';
+import PropertyDetailSkeleton from '@/components/property/PropertyDetailSkeleton';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/i18n";
 
@@ -175,9 +176,7 @@ const PropertyDetailPage = () => {
 
   // Handle property not found / loading
   if (loadingProperty) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">Loading property…</div>
-    );
+    return <PropertyDetailSkeleton />;
   }
 
   if (!propertyData) {
