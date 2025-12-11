@@ -2,16 +2,18 @@
 
 import { useTranslation } from "@/i18n";
 import { usePathname } from "next/navigation";
-import { useCallback, useId, useState } from "react";
+import { useCallback, useId, useState, useEffect } from "react";
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function PersonalDetailsForm() {
     const pathname = usePathname();
     const locale = pathname.split('/')[1] || 'en';
     const { t } = useTranslation(locale);
-    const [firstName, setFirstName] = useState("Amelia");
-    const [lastName, setLastName] = useState("Lawson");
-    const [email, setEmail] = useState("amelia.lawson@email.com");
-    const [phone, setPhone] = useState("+225 00 00 00 00 00");
+    // default empty values — will be populated from AuthContext if user is logged in
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("info"); // 'info' | 'success' | 'error'
@@ -20,6 +22,18 @@ export default function PersonalDetailsForm() {
     const idLast = useId();
     const idEmail = useId();
     const idPhone = useId();
+
+    const { user } = useAuth();
+
+    // When the authenticated user becomes available, populate the form fields
+    useEffect(() => {
+        if (user) {
+            if (user.firstName) setFirstName(user.firstName);
+            if (user.lastName) setLastName(user.lastName);
+            if (user.email) setEmail(user.email);
+            if (user.phone) setPhone(user.phone);
+        }
+    }, [user]);
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
