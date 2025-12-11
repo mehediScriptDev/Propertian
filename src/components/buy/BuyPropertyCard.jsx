@@ -134,7 +134,7 @@ export default function BuyPropertyCard({ property }) {
       {/* Property Image */}
       <div className='relative w-full aspect-5/3 bg-gray-200 dark:bg-gray-700 overflow-hidden'>
         <Image
-          src={'/noImage.png'}
+          src={image}
           alt={imageAlt || title}
           fill
           sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
@@ -190,16 +190,16 @@ export default function BuyPropertyCard({ property }) {
         {/* Location */}
         <div className='flex justify-between'>
           <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
-          {location}
-        </p>
-        <button
-          title={isFavorite ? 'Remove favourite' : 'Add favourite'}
-          onClick={handleToggleFavorite}
-          aria-pressed={isFavorite}
-          className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
-        >
-          {isFavorite ? <FaHeart /> : <AiOutlineHeart />}
-        </button>
+            {location}
+          </p>
+          <button
+            title={isFavorite ? 'Remove favourite' : 'Add favourite'}
+            onClick={handleToggleFavorite}
+            aria-pressed={isFavorite}
+            className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
+          >
+            {isFavorite ? <FaHeart /> : <AiOutlineHeart />}
+          </button>
         </div>
 
         {/* Title */}

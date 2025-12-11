@@ -50,9 +50,9 @@ export default function FinancialInstitutions({ filteredPartners }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {partnersToDisplay.map((partner) => (
+        {partnersToDisplay.map((partner, idx) => (
           <div
-            key={partner.name}
+            key={partner.id ?? `${partner.category}-${partner.name}-${idx}`}
             className="bg-white/50 dark:bg-primary/30 rounded-xl  overflow-hidden flex flex-col p-6 border border-primary/10 dark:border-accent/10"
           >
             <div className="flex items-center gap-4 mb-4">

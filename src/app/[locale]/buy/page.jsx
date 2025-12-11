@@ -6,9 +6,8 @@ import { useTranslation } from '@/i18n';
 import BuyHero from '@/components/buy/BuyHero';
 import BuyFilters from '@/components/buy/BuyFilters';
 import BuyPropertyCard from '@/components/buy/BuyPropertyCard';
-import { BUY_PROPERTIES } from '@/lib/buyProperties';
-import axios from 'axios';
 import api from '@/lib/api';
+// Use API `properties` as source of truth (fetched below)
 
 export default function BuyPage() {
   const { locale } = useLanguage();
@@ -60,20 +59,23 @@ export default function BuyPage() {
     };
   }, [locale]);
 
-  // Apply filters
+  // Apply filters — use fetched `properties` and only include SALE listings
   const filteredProperties = useMemo(() => {
-    return BUY_PROPERTIES.filter((property) => {
+    return properties.filter((property) => {
+      // only show SALE listings
+      if (property.listingType && property.listingType.toUpperCase() !== 'SALE') return false;
+
       // City filter
-      if (filters.city && property.city.toLowerCase() !== filters.city.toLowerCase()) {
+      if (filters.city && property.city && property.city.toLowerCase() !== filters.city.toLowerCase()) {
         return false;
       }
 
       // Bedrooms filter
       if (filters.bedrooms !== 'any') {
         if (filters.bedrooms === '5+') {
-          if (property.bedrooms < 5) return false;
+          if ((property.bedrooms || 0) < 5) return false;
         } else {
-          if (property.bedrooms !== parseInt(filters.bedrooms)) return false;
+          if ((property.bedrooms || 0) !== parseInt(filters.bedrooms)) return false;
         }
       }
 
@@ -82,14 +84,14 @@ export default function BuyPage() {
         return false;
       }
 
-      // Verified only filter
-      if (filters.verifiedOnly && !property.isVerified) {
+      // Verified only filter - API uses `featured` flag
+      if (filters.verifiedOnly && !property.featured) {
         return false;
       }
 
       return true;
     });
-  }, [filters]);
+  }, [filters, properties]);
 
   // Apply sorting
   const sortedProperties = useMemo(() => {
@@ -113,7 +115,7 @@ export default function BuyPage() {
   const displayedProperties = sortedProperties.slice(0, displayCount);
   const hasMore = displayCount < sortedProperties.length;
 
-  
+
 
   const handleLoadMore = () => {
     // Match rent behavior: show all remaining
@@ -128,13 +130,13 @@ export default function BuyPage() {
 
 
   // properties fetch
-useEffect(() => {
-  api.get(`/properties?listingType=SALE`)
-    .then(res => {
-      setProperties(res.data.properties); 
-    })
-    .catch(err => console.error(err));
-}, []);
+  useEffect(() => {
+    api.get(`/properties?listingType=SALE`)
+      .then(res => {
+        setProperties(res.data.properties);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   return (
     <main className='w-full'>
@@ -194,9 +196,8 @@ useEffect(() => {
                 </select>
                 <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none'>
                   <svg
-                    className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
-                      sortDropdownOpen ? 'rotate-180' : ''
-                    }`}
+                    className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${sortDropdownOpen ? 'rotate-180' : ''
+                      }`}
                     fill='none'
                     stroke='currentColor'
                     viewBox='0 0 24 24'
@@ -217,7 +218,7 @@ useEffect(() => {
           {properties.length > 0 ? (
             <>
               <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 xl:gap-6'>
-                {properties.map((property) => (
+                {displayedProperties.map((property) => (
                   <BuyPropertyCard key={property.id} property={property} />
                 ))}
               </div>

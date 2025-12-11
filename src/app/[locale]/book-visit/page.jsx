@@ -1,9 +1,11 @@
 "use client";
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Bed, Square, ParkingCircle } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { getRentPropertyById } from '@/lib/rentProperties';
 import { getResidentialPropertyById } from '@/lib/residentialProperties';
+import axios from '@/lib/axios';
 
 export default function HotelBooking() {
   const [category, setCategory] = useState(() => {
@@ -32,6 +34,9 @@ export default function HotelBooking() {
     }
   });
   const [message, setMessage] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [totalAmount, setTotalAmount] = useState('');
 
   // Room feature params: ?bedrooms=4&bathrooms=4&size=350&garages=2 - lazy init to avoid effect
   const [bedrooms, setBedrooms] = useState(() => {
@@ -75,8 +80,6 @@ export default function HotelBooking() {
     }
   });
 
-  // Read search params reactively (no setState inside effects) so client-side
-  // navigation updates preview immediately.
   const searchParams = useSearchParams();
   const typeParam = searchParams ? searchParams.get('type') : null;
   const propParam = searchParams ? searchParams.get('property') : null;
@@ -84,37 +87,119 @@ export default function HotelBooking() {
   const derivedCategory = typeParam ? (typeParam.toLowerCase() === 'rent' ? 'Rent' : 'Buy') : null;
   const derivedPropertyId = propParam ? decodeURIComponent(propParam) : null;
 
-  // Try to resolve property data from our mock libs.
-  let propertyData = null;
-  if (derivedPropertyId) {
-    if (derivedCategory && derivedCategory.toLowerCase() === 'rent') {
-      propertyData = getRentPropertyById(derivedPropertyId);
-    } else {
-      propertyData = getResidentialPropertyById(derivedPropertyId);
-    }
-  }
+  // Resolve property preview data. Prefer live API fetch, fall back to local mocks.
+  const [propertyData, setPropertyData] = useState(null);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    let mounted = true;
+    if (!derivedPropertyId) {
+      setPropertyData(null);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const fetchPreview = async () => {
+      try {
+        const res = await axios.get(`/properties/${derivedPropertyId}`, { signal: controller.signal });
+        const p = res?.data?.data?.property || res?.data?.data || res?.data?.property || res?.data || null;
+        if (!p) throw new Error('Property not found');
+
+        const normalized = {
+          id: p.id,
+          title: p.title || p.name,
+          image: (p.images && p.images.length && p.images[0]) || p.image || p.heroImage || null,
+          priceXOF: p.price || p.priceXOF || null,
+          priceUSD: p.priceUSD || null,
+          description: p.description || p.overview || null,
+          location: `${p.city || ''}${p.state ? ', ' + p.state : ''}` || null,
+          address: p.address || null,
+          bedrooms: p.bedrooms || (p.features && p.features.bedrooms) || null,
+          bathrooms: p.bathrooms || null,
+          sqft: p.sqft || p.area || null,
+        };
+
+        if (mounted) setPropertyData(normalized);
+      } catch (err) {
+        // fallback to local mock lookup if API fails or during dev
+        console.warn('Property preview fetch failed, falling back to local mock:', err?.message || err);
+        if (!mounted) return;
+        if (derivedCategory && derivedCategory.toLowerCase() === 'rent') {
+          const mock = getRentPropertyById(derivedPropertyId);
+          setPropertyData(mock || null);
+        } else {
+          const mock = getResidentialPropertyById(derivedPropertyId);
+          setPropertyData(mock || null);
+        }
+      }
+    };
+
+    fetchPreview();
+
+    return () => {
+      mounted = false;
+      try {
+        controller.abort();
+      } catch (e) { }
+    };
+  }, [derivedPropertyId, derivedCategory]);
+
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const propertyId = property || derivedPropertyId || '';
+    const propertyImage = propertyData?.image || propertyData?.heroImage || null;
+
+    // Build date values as YYYY-MM-DD. Prefer explicit start/end inputs,
+    // otherwise derive from preferredDateTime if available.
+    const derivedStart = startDate
+      ? startDate
+      : preferredDateTime
+        ? new Date(preferredDateTime).toISOString().slice(0, 10)
+        : null;
+    const derivedEnd = endDate
+      ? endDate
+      : preferredDateTime
+        ? new Date(preferredDateTime).toISOString().slice(0, 10)
+        : null;
 
     const payload = {
       fullName,
       email,
       phone,
       preferredDateTime,
-      property,
+      property: propertyId,
+      propertyId,
+      propertyImage,
+      propertyData: propertyData || undefined,
       message,
     };
 
-    // Replace with real submission later. For now provide simple feedback.
-    console.log('Book visit payload:', payload);
-    alert('Request submitted — check console for details.');
-    // optional: reset form except property
-    setFullName('');
-    setEmail('');
-    setPhone('');
-    setPreferredDateTime('');
-    setMessage('');
+    if (derivedStart) payload.startDate = derivedStart;
+    if (derivedEnd) payload.endDate = derivedEnd;
+    if (totalAmount) payload.totalAmount = Number(totalAmount);
+
+    try {
+      setSubmitting(true);
+      const res = await axios.post('/bookings', payload);
+      console.log('Booking response:', res);
+      alert('Request submitted successfully.');
+
+      // reset form except property
+      setFullName('');
+      setEmail('');
+      setPhone('');
+      setPreferredDateTime('');
+      setMessage('');
+    } catch (err) {
+      console.error('Booking error:', err);
+      const msg = err?.message || (err?.data && err.data.message) || 'Failed to submit request.';
+      alert(msg);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -195,16 +280,16 @@ export default function HotelBooking() {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold mb-2">
                   Preferred Date &amp; Time
                   <button
                     type="button"
-                    title="Required (message is optional)"
-                    aria-label="Required"
+                    title="Optional - used to prefill dates"
+                    aria-label="Optional"
                     className="ml-2 text-yellow-500 font-bold"
                   >
-                    *
+
                   </button>
                 </label>
                 <div className="relative">
@@ -216,6 +301,42 @@ export default function HotelBooking() {
                     className="w-full px-4 py-3 border bg-background-light outline-none border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f6efd1] focus:border-transparent"
                   />
                 </div>
+              </div> */}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Start Date</label>
+                  <input
+                    type="date"
+                    name="startDate"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full px-4 py-3 bg-background-light outline-none border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2">End Date</label>
+                  <input
+                    type="date"
+                    name="endDate"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-4 py-3 bg-background-light outline-none border border-gray-300 rounded-lg"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2">Estimated Total Amount (optional)</label>
+                <input
+                  type="number"
+                  name="totalAmount"
+                  value={totalAmount}
+                  onChange={(e) => setTotalAmount(e.target.value)}
+                  placeholder="e.g. 5000"
+                  className="w-full px-4 py-3 bg-background-light outline-none border border-gray-300 rounded-lg"
+                />
               </div>
 
               <div>
@@ -226,7 +347,7 @@ export default function HotelBooking() {
                     title="Required ()"
                     aria-label="Required"
                     className="ml-2 text-yellow-500 font-bold"
-                    
+
                   >
                     *
                   </button>
@@ -256,11 +377,13 @@ export default function HotelBooking() {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  className="w-full bg-accent text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                  disabled={submitting}
+                  aria-busy={submitting}
+                  className={`w-full py-3 rounded-lg font-semibold transition-colors ${submitting ? 'bg-gray-300 text-gray-700' : 'bg-accent text-white hover:bg-gray-800'}`}
                 >
-                  Request Visit
+                  {submitting ? 'Requesting…' : 'Request Visit'}
                 </button>
-                
+
               </div>
             </form>
           </div>
@@ -268,21 +391,31 @@ export default function HotelBooking() {
           {/* Right Column - Room / Property Details (kept as-is) */}
           <div>
             <div className="bg-white/50 rounded-lg shadow-sm overflow-hidden">
-              <img
-                src={propertyData?.image || propertyData?.heroImage || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&h=400&fit=crop'}
-                alt={propertyData?.title || propertyData?.name || 'Property'}
-                className="w-full h-56 object-cover"
-              />
+              <div className="w-full h-56 relative">
+                <Image
+                  src={propertyData?.image || propertyData?.heroImage || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&h=400&fit=crop'}
+                  alt={propertyData?.title || propertyData?.name || 'Property'}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 800px"
+                  className="object-cover rounded-t-lg"
+                  unoptimized={false}
+                />
+              </div>
 
               <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
                     <h2 className="text-2xl font-bold">{propertyData?.title || propertyData?.name || 'Property'}</h2>
-                    <span className="text-2xl font-bold">{propertyData?.priceUSD ? `$${propertyData.priceUSD}` : propertyData?.priceXOF ? `${propertyData.priceXOF} XOF` : '—'}</span>
+                    {propertyData?.location || propertyData?.address ? (
+                      <p className="text-sm text-gray-600">{propertyData?.location || propertyData?.address}</p>
+                    ) : null}
                   </div>
+                  <span className="text-2xl font-bold">{propertyData?.priceUSD ? `$${propertyData.priceUSD}` : propertyData?.priceXOF ? `${propertyData.priceXOF} XOF` : '—'}</span>
+                </div>
 
-                  <p className="text-gray-600 mb-6">
-                    {propertyData?.description || propertyData?.overview?.startingPrice || 'No additional details available.'}
-                  </p>
+                <p className="text-gray-600 mb-6">
+                  {propertyData?.description || propertyData?.overview?.startingPrice || 'No additional details available.'}
+                </p>
 
                 <h3 className="font-semibold mb-4">Room features</h3>
 
@@ -290,14 +423,14 @@ export default function HotelBooking() {
                   <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-2 text-primary">
                       <Bed className="w-5 h-5" />
-                      <span className="text-lg font-bold">{bedrooms ?? '—'}</span>
+                      <span className="text-lg font-bold">{propertyData?.bedrooms ?? bedrooms ?? '—'}</span>
                     </div>
                     <div className="text-sm text-gray-600">Bedrooms</div>
                   </div>
 
                   <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-2 text-primary">
-                      <span className="text-lg font-bold">{bathrooms ?? '—'}</span>
+                      <span className="text-lg font-bold">{propertyData?.bathrooms ?? bathrooms ?? '—'}</span>
                     </div>
                     <div className="text-sm text-gray-600">Bathrooms</div>
                   </div>
@@ -305,7 +438,7 @@ export default function HotelBooking() {
                   <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-2 text-primary">
                       <Square className="w-5 h-5" />
-                      <span className="text-lg font-bold">{size ? `${size} m²` : '—'}</span>
+                      <span className="text-lg font-bold">{propertyData?.sqft ? `${propertyData.sqft} m²` : size ? `${size} m²` : '—'}</span>
                     </div>
                     <div className="text-sm text-gray-600">Size</div>
                   </div>
@@ -314,7 +447,7 @@ export default function HotelBooking() {
                     <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-2 text-primary">
                         <ParkingCircle className="w-5 h-5" />
-                        <span className="text-lg font-bold">{garages}</span>
+                        <span className="text-lg font-bold">{propertyData?.garages ?? garages}</span>
                       </div>
                       <div className="text-sm text-gray-600">Garages</div>
                     </div>

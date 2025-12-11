@@ -15,7 +15,7 @@ import axios from 'axios';
 export default function BuyDetailsPage() {
   const [property, setProperty] = useState(null);
   console.log(property)
-  
+
   const params = useParams();
   const locale = params?.locale || 'en';
   const id = params?.id;
@@ -99,10 +99,10 @@ export default function BuyDetailsPage() {
       property.priceUSD && !Number.isNaN(Number(property.priceUSD))
         ? Number(property.priceUSD)
         : (() => {
-            const rate = Number(process.env.NEXT_PUBLIC_XOF_TO_USD) || 600; // XOF per USD
-            const xof = Number(property.price) || 0;
-            return rate > 0 ? Math.round(xof / rate) : undefined;
-          })(),
+          const rate = Number(process.env.NEXT_PUBLIC_XOF_TO_USD) || 600; // XOF per USD
+          const xof = Number(property.price) || 0;
+          return rate > 0 ? Math.round(xof / rate) : undefined;
+        })(),
     status: property.status || (property.featured ? 'Featured' : undefined),
   };
 
@@ -152,6 +152,7 @@ export default function BuyDetailsPage() {
                 <ContactActions
                   propertyId={uiProperty.id}
                   propertyTitle={uiProperty.title}
+                  listingType='buy'
                 />
               </div>
 

@@ -1,19 +1,16 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "@/i18n";
 import ImageGallery from "@/components/property/ImageGallery";
-import PropertyHeader from "@/components/property/PropertyHeader";
-import PropertyFeatures from "@/components/property/PropertyFeatures"; // (If used inside tabs component)
+import PropertyHeader from "@/components/property/PropertyHeader";// (If used inside tabs component)
 import ContactActions from "@/components/property/ContactActions";
 import PropertyTabs from "@/components/property/PropertyTabs";
 import RentalOverview from "@/components/property/RentalOverview";
-import { getRentPropertyById } from "@/lib/rentProperties";
+import axiosInstance from "@/lib/axios";
 
-// Rent Details Page
-// Mirrors the Buy details UI but uses rental-focused mock data & translation keys
 export default function RentDetailsPage() {
   // Extract locale & id from the route using useParams hook
   const params = useParams();
@@ -21,72 +18,87 @@ export default function RentDetailsPage() {
   const id = params?.id;
   const { t } = useTranslation(locale);
 
-  // Get the selected property from shared dataset
-  const base = getRentPropertyById(id);
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // If not found, render a simple fallback
-  if (!base) {
+  useEffect(() => {
+    let mounted = true;
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+
+    axiosInstance
+      .get(`/properties/${id}`)
+      .then((res) => {
+        
+        const p = res?.data?.data?.property || res?.data?.data || res?.data?.property || res?.data || null;
+        if (!p) throw new Error('Property not found');
+
+        const normalized = {
+          id: p.id,
+          title: p.title,
+          location: `${p.city || ''}${p.state ? ', ' + p.state : ''}`,
+          priceXOF: p.price || p.priceXOF,
+          priceUSD: p.priceUSD || null,
+          developer: t('rent.property.manager'),
+          status: p.featured || p.isVerified ? t('rent.property.status') : undefined,
+          images: (p.images && p.images.length ? p.images : p.image ? [p.image] : []),
+          features: {
+            bedrooms: p.bedrooms,
+            bathrooms: p.bathrooms,
+            area: p.sqft || p.area || null,
+            garages: p.garages || null,
+          },
+          description: p.description || t('rent.property.description'),
+          highlights: [],
+          interiorFeatures: p.interiorFeatures || [],
+          exteriorFeatures: p.exteriorFeatures || [],
+          locationDescription: p.locationDescription || t('rent.property.locationDesc'),
+          managerDescription: p.managerDescription || t('rent.property.managerDesc', 'Professionally managed for comfort and reliability.'),
+          rental: {
+            duration: p.duration || p.rentalDuration || null,
+            furnishing: p.isFurnished ? t('rent.property.rental.furnishing', 'Fully Furnished') : t('rent.propertyCard.unfurnished'),
+            deposit: t('rent.property.rental.deposit', '2 Months Deposit'),
+          },
+        };
+
+        if (mounted) setProperty(normalized);
+      })
+      .catch((err) => {
+        console.error('Failed to load property', err);
+        if (mounted) setError(err.message || 'Failed to load property');
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [id, t]);
+
+  if (loading) {
     return (
       <main className="min-h-screen bg-gray-50 dark:bg-neutral-900">
         <div className="max-w-3xl mx-auto px-4 py-16 text-center text-gray-700 dark:text-gray-300">
-          <h1 className="text-2xl font-semibold mb-2">{t('rent.listings.noResults')}</h1>
-          <Link href={`/${locale}/rent`} className="text-primary underline">{t('common.back')}</Link>
+          <p>{t('rent.listings.loading', 'Loading property...')}</p>
         </div>
       </main>
     );
   }
 
-  // Build the details object using the selected card's data
-  const mockProperty = {
-    id: base.id,
-    title: base.title,
-    location: base.location,
-    priceXOF: base.priceXOF,
-    priceUSD: base.priceUSD,
-    developer: t("rent.property.manager"),
-    status: base.isVerified ? t("rent.property.status") : undefined,
-    images: [
-      base.image,
-      // add a couple of safe fallbacks for the gallery
-      '/buy-rent/khet.jpg',
-      '/buy-rent/villa.jpg',
-      '/buy-rent/homne.jpg',
-      '/buy-rent/night.jpg',
-      '/buy-rent/dogWoman.jpg',
-    ],
-    features: {
-      bedrooms: base.bedrooms,
-      bathrooms: base.bathrooms,
-      area: 180,
-      garages: 1,
-    },
-    description: t("rent.property.description"),
-    highlights: [
-      t("rent.property.highlights.security"),
-      base.isFurnished ? t("rent.property.highlights.furnished") : t("rent.property.highlights.parking"),
-      t("rent.property.highlights.internet"),
-      t("rent.property.highlights.parking"),
-    ],
-    interiorFeatures: [
-      t("rent.property.interior.ac"),
-      t("rent.property.interior.kitchen"),
-      t("rent.property.interior.wardrobes"),
-      t("rent.property.interior.internet"),
-    ],
-    exteriorFeatures: [
-      t("rent.property.exterior.gated"),
-      t("rent.property.exterior.parking"),
-      t("rent.property.exterior.security"),
-      t("rent.property.exterior.entertainment"),
-    ],
-    locationDescription: t("rent.property.locationDesc"),
-    managerDescription: t("rent.property.managerDesc", "Professionally managed for comfort and reliability."),
-    rental: {
-      duration: base.duration === 'short-term' ? t("rent.property.rental.duration", "Short-term") : t("rent.property.rental.duration", "Long-term"),
-      furnishing: base.isFurnished ? t("rent.property.rental.furnishing", "Fully Furnished") : t("rent.propertyCard.unfurnished"),
-      deposit: t("rent.property.rental.deposit", "2 Months Deposit"),
-    },
-  };
+  if (error || !property) {
+    return (
+      <main className="min-h-screen bg-gray-50 dark:bg-neutral-900">
+        <div className="max-w-3xl mx-auto px-4 py-16 text-center text-gray-700 dark:text-gray-300">
+          <h1 className="text-2xl font-semibold mb-2">{t('rent.listings.noResults')}</h1>
+          <p className='text-sm text-gray-600 mb-4'>{error}</p>
+          <Link href={`/${locale}/rent`} className="text-primary underline">{t('common.back')}</Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background-light dark:bg-neutral-900">
@@ -98,12 +110,12 @@ export default function RentDetailsPage() {
             <Suspense
               fallback={<div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />}
             >
-              <ImageGallery images={mockProperty.images} alt={mockProperty.title} />
+              <ImageGallery images={property.images} alt={property.title} />
             </Suspense>
 
             {/* Tabs (Overview / Features / Location / etc.) */}
             <section className="bg-white/50 dark:bg-card-dark rounded-lg shadow-sm p-6">
-              <PropertyTabs property={mockProperty} />
+              <PropertyTabs property={property} />
             </section>
           </div>
 
@@ -112,22 +124,24 @@ export default function RentDetailsPage() {
             <div className="sticky top-22 lg:space-y-6 space-y-3.5">
               <div className="bg-white/50 border border-[#f6efcb] dark:bg-card-dark rounded-lg shadow-sm p-6">
                 <PropertyHeader
-                  title={mockProperty.title}
-                  location={mockProperty.location}
-                  price={mockProperty.priceXOF}
-                  priceUSD={mockProperty.priceUSD}
-                  developer={mockProperty.developer}
-                  status={mockProperty.status}
+                  title={property.title}
+                  location={property.location}
+                  price={property.priceXOF}
+                  priceUSD={property.priceUSD}
+                  developer={property.developer}
+                  status={property.status}
                 />
                 <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
                 <ContactActions
-                  propertyId={mockProperty.id}
-                  propertyTitle={mockProperty.title}
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  listingType='rent'
                 />
               </div>
 
               {/* Rental Overview */}
-              {mockProperty.rental && <RentalOverview rental={mockProperty.rental} />}
+
+              {property.rental && <RentalOverview rental={property.rental} />}
             </div>
           </div>
         </div>
@@ -164,7 +178,7 @@ export default function RentDetailsPage() {
               </svg>
             </li>
             <li className="text-gray-900 dark:text-gray-200 font-medium truncate max-w-xs">
-              {mockProperty.title}
+              {property.title}
             </li>
           </ol>
         </nav>

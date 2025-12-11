@@ -81,7 +81,7 @@ export default function ArticleHeader({ articleData }) {
                 setEditSubtitle(articleData?.subtitle || '');
                 setIsModalOpen(true);
               }}
-              className="inline-block px-3 py-1 text-sm rounded-md bg-accent text-white hover:bg-accent/90"
+              className="inline-block px-3 py-1 text-lg rounded-md bg-accent text-white hover:bg-accent/90"
               aria-label="Edit article"
             >
               Edit

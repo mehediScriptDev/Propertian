@@ -94,6 +94,11 @@ const navigationConfig = {
       href: '/dashboard/admin/supports',
       icon: HelpCircle,
     },
+    {
+      key: 'Partner Directory',
+      href: '/dashboard/admin/partner-directory',
+      icon: HelpCircle,
+    },
     // {
     //   key: 'dashboard.admin.settings',
     //   href: '/dashboard/admin/settings',

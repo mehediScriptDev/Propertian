@@ -7,208 +7,22 @@ import RentHero from '@/components/rent/RentHero';
 import RentalFilters from '@/components/rent/RentalFilters';
 import RentalPropertyCard from '@/components/rent/RentalPropertyCard';
 import { PartnerCTA, FinalCTA } from '@/components/rent/RentCTA';
-import { RENT_PROPERTIES } from '@/lib/rentProperties';
+import axiosInstance from '@/lib/axios';
 
-/**
- * RentPage Component
- * Main rental properties listing page with filters and search
- * Implements client-side filtering and sorting for optimal performance
- * SEO-optimized with proper semantic HTML and ARIA labels
- */
 
-// Mock rental properties data (in production, fetch from API)
-const MOCK_PROPERTIES = [
-  {
-    id: 1,
-    image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
-    imageAlt: 'Modern apartment exterior with balcony',
-    location: 'Abidjan, Cocody',
-    title: 'Modern Apartment in Cocody',
-    priceXOF: 1500000,
-    priceUSD: 2500,
-    isVerified: true,
-    duration: 'short-term',
-    isFurnished: true,
-    bedrooms: 2,
-    bathrooms: 2,
-    city: 'abidjan',
-  },
-  {
-    id: 2,
-    image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
-    imageAlt: 'Luxury seaside villa with swimming pool',
-    location: 'Assinie-Mafia',
-    title: 'Seaside Villa in Assinie',
-    priceXOF: 3000000,
-    priceUSD: 5000,
-    isVerified: true,
-    duration: 'long-term',
-    isFurnished: true,
-    bedrooms: 4,
-    bathrooms: 3,
-    city: 'assinie',
-  },
-  {
-    id: 3,
-    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800',
-    imageAlt: 'Chic loft apartment with high ceilings',
-    location: 'Abidjan, Plateau',
-    title: 'Chic Loft in Plateau',
-    priceXOF: 2000000,
-    priceUSD: 3300,
-    isVerified: false,
-    duration: 'long-term',
-    isFurnished: false,
-    bedrooms: 3,
-    bathrooms: 2,
-    city: 'abidjan',
-  },
-  {
-    id: 4,
-    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
-    imageAlt: 'Elegant apartment with modern finishes',
-    location: 'Yamoussoukro',
-    title: 'Elegant Residence in Yamoussoukro',
-    priceXOF: 1200000,
-    priceUSD: 2000,
-    isVerified: true,
-    duration: 'short-term',
-    isFurnished: true,
-    bedrooms: 3,
-    bathrooms: 2,
-    city: 'yamoussoukro',
-  },
-  {
-    id: 5,
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800',
-    imageAlt: 'Spacious family home with garden',
-    location: 'Abidjan, Marcory',
-    title: 'Family Home in Marcory',
-    priceXOF: 1800000,
-    priceUSD: 3000,
-    isVerified: true,
-    duration: 'long-term',
-    isFurnished: false,
-    bedrooms: 4,
-    bathrooms: 3,
-    city: 'abidjan',
-  },
-  {
-    id: 6,
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
-    imageAlt: 'Contemporary studio apartment',
-    location: 'Abidjan, Zone 4',
-    title: 'Contemporary Studio in Zone 4',
-    priceXOF: 800000,
-    priceUSD: 1300,
-    isVerified: false,
-    duration: 'short-term',
-    isFurnished: true,
-    bedrooms: 1,
-    bathrooms: 1,
-    city: 'abidjan',
-  },
-  {
-    id: 7,
-    image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800',
-    imageAlt: 'Luxury penthouse with city views',
-    location: 'Abidjan, Cocody',
-    title: 'Luxury Penthouse in Cocody',
-    priceXOF: 4500000,
-    priceUSD: 7500,
-    isVerified: true,
-    duration: 'long-term',
-    isFurnished: true,
-    bedrooms: 5,
-    bathrooms: 4,
-    city: 'abidjan',
-  },
-  {
-    id: 8,
-    image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800',
-    imageAlt: 'Cozy apartment near beach',
-    location: 'Assinie-Mafia',
-    title: 'Beachfront Apartment in Assinie',
-    priceXOF: 2500000,
-    priceUSD: 4200,
-    isVerified: true,
-    duration: 'short-term',
-    isFurnished: true,
-    bedrooms: 3,
-    bathrooms: 2,
-    city: 'assinie',
-  },
-  {
-    id: 9,
-    image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800',
-    imageAlt: 'Modern villa with garden',
-    location: 'Yamoussoukro',
-    title: 'Garden Villa in Yamoussoukro',
-    priceXOF: 1600000,
-    priceUSD: 2700,
-    isVerified: true,
-    duration: 'long-term',
-    isFurnished: false,
-    bedrooms: 4,
-    bathrooms: 3,
-    city: 'yamoussoukro',
-  },
-  {
-    id: 10,
-    image: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800',
-    imageAlt: 'Spacious townhouse',
-    location: 'Abidjan, Marcory',
-    title: 'Modern Townhouse in Marcory',
-    priceXOF: 2200000,
-    priceUSD: 3700,
-    isVerified: true,
-    duration: 'long-term',
-    isFurnished: true,
-    bedrooms: 4,
-    bathrooms: 3,
-    city: 'abidjan',
-  },
-  {
-    id: 11,
-    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800',
-    imageAlt: 'Charming bungalow',
-    location: 'Abidjan, Riviera',
-    title: 'Charming Bungalow in Riviera',
-    priceXOF: 1400000,
-    priceUSD: 2300,
-    isVerified: false,
-    duration: 'short-term',
-    isFurnished: true,
-    bedrooms: 2,
-    bathrooms: 2,
-    city: 'abidjan',
-  },
-  {
-    id: 12,
-    image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800',
-    imageAlt: 'Executive apartment',
-    location: 'Abidjan, Plateau',
-    title: 'Executive Suite in Plateau',
-    priceXOF: 3500000,
-    priceUSD: 5800,
-    isVerified: true,
-    duration: 'long-term',
-    isFurnished: true,
-    bedrooms: 3,
-    bathrooms: 3,
-    city: 'abidjan',
-  },
-];
 
 export default function RentPage() {
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     city: 'abidjan',
     bedrooms: 'any',
     duration: 'any',
     priceRange: 50,
-    verifiedOnly: true,
+    verifiedOnly: false,
   });
   const [sortBy, setSortBy] = useState('newest');
   const [displayCount, setDisplayCount] = useState(3);
@@ -254,48 +68,49 @@ export default function RentPage() {
     };
   }, [locale]);
 
-  // Filter and sort properties based on current filters
   const filteredAndSortedProperties = useMemo(() => {
-    let filtered = [...RENT_PROPERTIES];
+    let filtered = [...properties];
 
-    // Apply city filter
-    if (filters.city !== 'all') {
-      filtered = filtered.filter((property) => property.city === filters.city);
+    filtered = filtered.filter((p) => (p.listingType || '').toUpperCase() === 'RENT');
+
+  
+    if (filters.city && filters.city !== 'all') {
+      filtered = filtered.filter((property) => {
+        const propCity = property.city || '';
+        return propCity.toLowerCase() === String(filters.city).toLowerCase();
+      });
     }
-
-    // Apply bedrooms filter
-    if (filters.bedrooms !== 'any') {
+ if (filters.bedrooms !== 'any') {
       if (filters.bedrooms === '3+') {
-        filtered = filtered.filter((property) => property.bedrooms >= 3);
+        filtered = filtered.filter((property) => (property.bedrooms || 0) >= 3);
       } else {
         filtered = filtered.filter(
-          (property) => property.bedrooms === parseInt(filters.bedrooms)
+          (property) => (property.bedrooms || 0) === parseInt(filters.bedrooms)
         );
       }
     }
 
-    // Apply duration filter
+
     if (filters.duration !== 'any') {
-      filtered = filtered.filter(
-        (property) => property.duration === filters.duration
-      );
+      filtered = filtered.filter((property) => property.duration === filters.duration);
     }
 
-    // Apply verified filter
+ 
     if (filters.verifiedOnly) {
-      filtered = filtered.filter((property) => property.isVerified);
+      
+      filtered = filtered.filter((property) => property.isVerified || property.featured);
     }
 
     // Apply sorting
     switch (sortBy) {
       case 'priceLow':
-        filtered.sort((a, b) => a.priceXOF - b.priceXOF);
+        filtered.sort((a, b) => (a.priceXOF || 0) - (b.priceXOF || 0));
         break;
       case 'priceHigh':
-        filtered.sort((a, b) => b.priceXOF - a.priceXOF);
+        filtered.sort((a, b) => (b.priceXOF || 0) - (a.priceXOF || 0));
         break;
       case 'bedrooms':
-        filtered.sort((a, b) => b.bedrooms - a.bedrooms);
+        filtered.sort((a, b) => (b.bedrooms || 0) - (a.bedrooms || 0));
         break;
       case 'furnished':
         filtered = filtered.filter((property) => property.isFurnished);
@@ -309,7 +124,7 @@ export default function RentPage() {
     }
 
     return filtered;
-  }, [filters, sortBy]);
+  }, [filters, sortBy, properties]);
 
   // Handle filter changes
   const handleFilterChange = (newFilters) => {
@@ -333,6 +148,55 @@ export default function RentPage() {
     displayCount
   );
   const hasMore = displayCount < filteredAndSortedProperties.length;
+
+  // Fetch pro
+  //  come from API). We request RENT listings
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setError(null);
+
+    axiosInstance
+      .get(`/properties?listingType=RENT`)
+      .then((res) => {
+     
+        const props = res?.data?.data?.properties || res?.data?.properties || [];
+
+        const normalized = props.map((p) => {
+         
+          const rawPrice = p.price || p.priceXOF || 0;
+          const priceXOF = Number(rawPrice) || 0;
+
+          const priceUSD = p.priceUSD
+            ? Number(p.priceUSD) || 0
+            : priceXOF > 0
+              ? Math.round(priceXOF / 700)
+              : 0;
+
+          return {
+            ...p,
+            image: (p.images && p.images.length && p.images[0]) || p.image || '/noImage.png',
+            imageAlt: p.title || p.imageAlt || '',
+            priceXOF,
+            priceUSD,
+            isVerified: Boolean(p.isVerified || p.featured),
+          };
+        });
+
+        if (mounted) setProperties(normalized);
+      })
+      .catch((err) => {
+        console.error('Failed to fetch properties', err);
+        if (mounted) setError(err.message || 'Failed to load properties');
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <main className='w-full'>
@@ -401,9 +265,8 @@ export default function RentPage() {
                 </select>
                 <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none'>
                   <svg
-                    className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
-                      sortDropdownOpen ? 'rotate-180' : ''
-                    }`}
+                    className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${sortDropdownOpen ? 'rotate-180' : ''
+                      }`}
                     fill='none'
                     stroke='currentColor'
                     viewBox='0 0 24 24'
@@ -421,7 +284,22 @@ export default function RentPage() {
           </div>
 
           {/* Property Grid */}
-          {displayedProperties.length > 0 ? (
+          {loading ? (
+            <div className='text-center py-12'>
+              <div className='inline-flex items-center gap-3'>
+                <svg className='animate-spin h-6 w-6 text-gray-600' viewBox='0 0 24 24'>
+                  <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' fill='none'></circle>
+                  <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z'></path>
+                </svg>
+                <span className='text-gray-700'>{t('rent.listings.loading', 'Loading properties...')}</span>
+              </div>
+            </div>
+          ) : error ? (
+            <div className='text-center py-12'>
+              <h3 className='text-lg font-semibold text-red-600 mb-2'>{t('rent.listings.error', 'Failed to load properties')}</h3>
+              <p className='text-sm text-gray-600'>{error}</p>
+            </div>
+          ) : displayedProperties.length > 0 ? (
             <>
               <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 xl:gap-6'>
                 {displayedProperties.map((property) => (
