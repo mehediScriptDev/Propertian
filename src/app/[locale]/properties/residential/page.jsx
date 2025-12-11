@@ -176,7 +176,7 @@ export default function ResidentialPage() {
   };
 
   const handleInquire = (id) => {
-    const development = allDevelopments.find(dev => dev.id === id);
+    const development = developments.find((dev) => dev.id === id);
     if (development) {
       setSelectedDevelopment(development);
       setFormState({
