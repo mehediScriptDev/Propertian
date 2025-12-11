@@ -10,6 +10,7 @@ import DeveloperCTA from '@/components/property/DeveloperCTA';
 import { X } from 'lucide-react';
 import { Shield } from 'lucide-react'; 
 import api from '@/lib/api';
+import AlertModal from '@/components/ui/AlertModal';
 /**
  * ResidentialPage - New Developments Page
  *
@@ -35,6 +36,8 @@ export default function ResidentialPage() {
     phone: '',
     message: '',
   });
+
+  const [alertState, setAlertState] = useState({ open: false, type: 'success', title: '', message: '' });
 
   // live developments loaded from API
   const [developments, setDevelopments] = useState([]);
@@ -209,11 +212,11 @@ export default function ResidentialPage() {
 
         await api.post('/inquiries', payload);
 
-        alert('Thank you for your inquiry! The developer will contact you shortly.');
         setIsModalOpen(false);
+        setAlertState({ open: true, type: 'success', title: 'Inquiry Sent', message: 'Thank you — the developer will contact you shortly.' });
       } catch (err) {
         console.error('Failed to submit inquiry', err);
-        alert('Failed to send inquiry. Please try again later.');
+        setAlertState({ open: true, type: 'error', title: 'Request Failed', message: 'Failed to send inquiry. Please try again later.' });
       }
     })();
   };
@@ -441,6 +444,13 @@ export default function ResidentialPage() {
           </div>
         </div>
       )}
+      <AlertModal
+        open={alertState.open}
+        type={alertState.type}
+        title={alertState.title}
+        message={alertState.message}
+        onClose={() => setAlertState((s) => ({ ...s, open: false }))}
+      />
     </main>
   );
 }

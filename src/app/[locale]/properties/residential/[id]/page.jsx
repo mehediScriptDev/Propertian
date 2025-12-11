@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import api from '@/lib/api';
 import PropertyDetailSkeleton from '@/components/property/PropertyDetailSkeleton';
+import AlertModal from '@/components/ui/AlertModal';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/i18n";
 
@@ -40,6 +41,8 @@ const PropertyDetailPage = () => {
     phone: "",
     message: "",
   });
+
+  const [alertState, setAlertState] = useState({ open: false, type: 'success', title: '', message: '' });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,11 +64,11 @@ const PropertyDetailPage = () => {
 
         await api.post('/inquiries', payload);
 
-        alert("Thank you for your inquiry! The developer will contact you shortly.");
         setIsModalOpen(false);
+        setAlertState({ open: true, type: 'success', title: 'Inquiry Sent', message: 'Thank you — the developer will contact you shortly.' });
       } catch (err) {
         console.error('Failed to submit inquiry', err);
-        alert('Failed to send inquiry. Please try again later.');
+        setAlertState({ open: true, type: 'error', title: 'Request Failed', message: 'Failed to send inquiry. Please try again later.' });
       }
     })();
   };
@@ -726,6 +729,13 @@ const PropertyDetailPage = () => {
           </div>
         </div>
       )}
+      <AlertModal
+        open={alertState.open}
+        type={alertState.type}
+        title={alertState.title}
+        message={alertState.message}
+        onClose={() => setAlertState((s) => ({ ...s, open: false }))}
+      />
 
     </div>
   );
