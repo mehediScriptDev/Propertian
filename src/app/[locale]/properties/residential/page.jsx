@@ -304,7 +304,7 @@ export default function ResidentialPage() {
             <div className="sticky top-0 bg-[#fffff8] border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
               <div>
                 <h3 className="text-2xl font-bold text-charcoal">
-                  Inquire about {selectedDevelopment.title}
+                  Inquire about {selectedDevelopment.title ? selectedDevelopment.title.split(/\b-?\s*New Development\b/i)[0].replace(/\s*[-–—:\s]+$/,'').trim() : selectedDevelopment.title}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
                   Fill out the form below and the developer will contact you shortly.
