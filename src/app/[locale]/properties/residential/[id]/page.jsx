@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import {
@@ -21,7 +21,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { getResidentialPropertyById } from "@/lib/residentialProperties";
+import api from '@/lib/api';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/i18n";
 
@@ -75,10 +75,111 @@ const PropertyDetailPage = () => {
     return value || key;
   };
 
-  // Fetch property data based on ID
-  const propertyData = getResidentialPropertyById(propertyId);
+  // Fetch property data based on ID from API and normalize to UI shape
+  const [propertyData, setPropertyData] = useState(null);
+  const [loadingProperty, setLoadingProperty] = useState(true);
+  const [propertyError, setPropertyError] = useState(null);
 
-  // Handle property not found
+  useEffect(() => {
+    let mounted = true;
+    const controller = new AbortController();
+
+    const fetchProperty = async () => {
+      setLoadingProperty(true);
+      setPropertyError(null);
+      try {
+        const res = await api.get(`/properties/${propertyId}`, { signal: controller.signal });
+        const data = res?.data || res;
+        const p = data?.property || data?.data?.property || data?.data || data || null;
+
+        if (!p) {
+          if (mounted) setPropertyData(null);
+          return;
+        }
+
+        // normalize images
+        const image = (p.images && p.images[0]) || p.image || '/new-development/last.png';
+
+        // normalize amenities to { icon, name }
+        const amenityIconMap = {
+          Pool: Waves,
+          'Swimming Pool': Waves,
+          Garden: TreePine,
+          Parking: Building,
+          Security: Shield,
+          Generator: TrendingUp,
+          'Fitness Center': Dumbbell,
+        };
+        const amenities = (p.amenities || []).map((a) => ({ icon: amenityIconMap[a] || Home, name: a }));
+
+        // units: if API provides units use them, otherwise create one from main property
+        const units = (p.units && Array.isArray(p.units) && p.units.length)
+          ? p.units.map((u) => ({ name: u.name || u.title || 'Unit', size: u.size || (u.sqft ? `${u.sqft} m²` : ''), price: u.price || u.priceXOF || u.priceUSD || '', image: (u.images && u.images[0]) || u.image || image }))
+          : [{ name: p.title || p.name || 'Unit', size: p.sqft ? `${p.sqft} m²` : '', price: p.price || p.priceXOF || p.priceUSD || '', image }];
+
+        // paymentPlan: may be string, object, or array - normalize to array
+        let paymentPlanArr = [];
+        const rawPlan = p.paymentPlan;
+        if (Array.isArray(rawPlan)) {
+          paymentPlanArr = rawPlan.map((pl, idx) => (typeof pl === 'string' ? { step: idx + 1, title: '', detail: pl } : { step: pl.step ?? idx + 1, title: pl.title ?? '', detail: pl.detail ?? pl.description ?? JSON.stringify(pl) }));
+        } else if (typeof rawPlan === 'string') {
+          const parts = rawPlan.split(/\r?\n|,|;/).map(s => s.trim()).filter(Boolean);
+          paymentPlanArr = parts.map((part, idx) => ({ step: idx + 1, title: '', detail: part }));
+        } else if (rawPlan && typeof rawPlan === 'object') {
+          const vals = Object.values(rawPlan).filter(Boolean);
+          paymentPlanArr = vals.map((pl, idx) => (typeof pl === 'string' ? { step: idx + 1, title: '', detail: pl } : { step: pl.step ?? idx + 1, title: pl.title ?? '', detail: pl.detail ?? pl.description ?? JSON.stringify(pl) }));
+        }
+
+        const overview = {
+          unitTypes: p.propertyType || p.property_type || (p.overview && (p.overview.unitTypes || p.overview.unit_type)) || '',
+          startingPrice: (p.price || p.priceXOF) ? `XOF ${Number(p.price || p.priceXOF).toLocaleString()}` : '',
+          completion: p.completionDate || p.completion || (p.overview && (p.overview.completion || p.overview.completionDate)) || '',
+        };
+
+        const normalized = {
+          id: p.id,
+          name: p.title || p.name || p.description || '',
+          title: p.title || p.name || '',
+          developer: p.developerName || p.developer || (p.owner ? `${p.owner.firstName || ''} ${p.owner.lastName || ''}`.trim() : ''),
+          developerInfo: p.developerInfo || '',
+          location: p.address || `${p.city || ''}${p.state ? ', ' + p.state : ''}` || p.location || '',
+          propertyType: p.propertyType || '',
+          priceXOF: p.price || p.priceXOF || '',
+          priceUSD: p.priceUSD || '',
+          image,
+          heroImage: image,
+          verified: !!p.verified,
+          verifiedBy: p.verifiedBy || 'Q Homes',
+          escrowEligible: !!p.escrowEligible,
+          description: p.description || '',
+          units,
+          amenities,
+          paymentPlan: paymentPlanArr,
+          overview,
+          investmentHighlights: (p.investmentHighlights && Array.isArray(p.investmentHighlights)) ? p.investmentHighlights : [],
+          raw: p,
+        };
+
+        if (mounted) setPropertyData(normalized);
+      } catch (err) {
+        if (mounted) setPropertyError(err?.message || 'Failed to load property');
+      } finally {
+        if (mounted) setLoadingProperty(false);
+      }
+    };
+
+    fetchProperty();
+
+    return () => { mounted = false; controller.abort(); };
+  }, [propertyId]);
+
+  // Handle property not found / loading
+  if (loadingProperty) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">Loading property…</div>
+    );
+  }
+
   if (!propertyData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fffff7] dark:bg-gray-900">
@@ -416,7 +517,7 @@ const PropertyDetailPage = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        {plan.title}: {plan.detail}
+                        {plan.detail}
                       </h4>
                     </div>
                   </div>
