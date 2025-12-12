@@ -34,20 +34,20 @@ const Modal = ({
 
   return (
     <div
-      className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4'
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       onClick={onClose}
       aria-hidden={!isOpen}
     >
       <div
-        role='dialog'
-        aria-modal='true'
-        aria-labelledby='modal-title'
-        className={`relative w-full ${maxWidth} rounded-xl transform-gpu transition-all duration-200 ease-out scale-100 shadow-2xl bg-[#fffff8] max-h-[90vh] overflow-y-auto`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        className={`relative w-full sm:${maxWidth} sm:rounded-xl rounded-t-xl transform-gpu transition-all duration-200 ease-out scale-100 shadow-2xl bg-[#fffff8] max-h-[90vh] overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        {title && (
-          <div className='sticky top-0 bg-[#fffff8] border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl'>
+          {title && (
+          <div className='sticky top-0 bg-[#fffff8] border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between'>
             <div className='flex items-start gap-4'>
               <div className='flex flex-col'>
                 <h3 id='modal-title' className="text-gray-900 text-lg md:text-2xl lg:text-3xl font-bold">
@@ -59,8 +59,8 @@ const Modal = ({
             {showCloseButton && (
               <button
                 onClick={onClose}
-                aria-label='Close'
-                className='w-10 h-10 flex items-center justify-center  '
+                aria-label="Close"
+                className='w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm'
               >
                 <svg
                   className='w-5 h-5 text-gray-500'
@@ -81,7 +81,7 @@ const Modal = ({
         )}
 
         {/* Modal Body */}
-        <div className='px-4 py-5 sm:p-6 max-h-[85vh]  text-gray-900'>
+        <div className='px-4 py-4 sm:p-6 max-h-[85vh] text-gray-900'>
           {children}
         </div>
 

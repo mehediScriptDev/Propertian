@@ -370,7 +370,10 @@ export default function ClientInquiriesPage() {
                   <button
                     className="rounded p-1.5 transition-colors hover:bg-gray-100"
                     title="View"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedInquiry(iq);
+                    }}
                   >
                     <Eye className="h-4 w-4 text-gray-600" />
                   </button>
