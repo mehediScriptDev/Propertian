@@ -69,8 +69,7 @@ export default function AppointmentsTable({
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
-              {[t('dashboard.client.AppointmentTable.id'),
-              t('dashboard.client.AppointmentTable.Name'),
+              {[t('dashboard.client.AppointmentTable.Name'),
               t('dashboard.client.AppointmentTable.type'),
               t('dashboard.client.AppointmentTable.date'),
               t('dashboard.client.AppointmentTable.status'),
@@ -88,10 +87,6 @@ export default function AppointmentsTable({
             {pageItems.length > 0 ? (
               pageItems.map((apt) => (
                 <tr key={apt.id} className="transition-colors hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-medium text-gray-900">{apt.id}</p>
-                  </td>
-
                   <td className="px-6 py-4">
                     <p className="text-sm font-semibold text-gray-900 truncate">{apt.full_name}</p>
                   </td>
@@ -161,7 +156,7 @@ export default function AppointmentsTable({
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
                   No appointments found
                 </td>
               </tr>
