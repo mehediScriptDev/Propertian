@@ -125,7 +125,7 @@ export default function AppointmentsTable({
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => onView?.(apt.id)}
+                        onClick={() => onView?.(apt)}
                         className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors duration-200"
                         title={translations?.table?.view || 'View'}
                         aria-label={`${translations?.table?.view || 'View'} ${apt.full_name}`}
