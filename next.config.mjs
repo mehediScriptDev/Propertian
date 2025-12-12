@@ -34,6 +34,12 @@ const nextConfig = {
         hostname: "quiahgroup1backend.mtscorporate.com",
         pathname: "/api/uploads/**",
       },
+      // Allow example.com used in some external test images
+      {
+        protocol: "https",
+        hostname: "example.com",
+        pathname: "/**",
+      },
       // Allow images served from the public CDN host used by MTS
       {
         protocol: "https",
@@ -47,9 +53,9 @@ const nextConfig = {
         pathname: "/uploads/**",
       },
       {
-        protocol: 'https',
-        hostname: 'quiahgroup1backend.mtscorporate.com',
-        pathname: '/uploads/**',
+        protocol: "https",
+        hostname: "quiahgroup1backend.mtscorporate.com",
+        pathname: "/uploads/**",
       },
     ],
     formats: ["image/avif", "image/webp"],

@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { LayoutDashboard, LogOut, UserCircle, Home } from 'lucide-react';
+import { LayoutDashboard, LogOut, UserCircle, Home, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-const ProfileDropDown = () => {
+const ProfileDropDown = ({ showOnHover = false, useArrow = false }) => {
   const { user, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split('/')?.[1] || 'en';
   const [open, setOpen] = useState(false);
+  const closeTimeout = useRef(null);
   const dropdownRef = useRef(null);
 
   // Check if user is on dashboard route
@@ -25,6 +26,11 @@ const ProfileDropDown = () => {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        // clear any pending close timers and close immediately
+        if (closeTimeout.current) {
+          clearTimeout(closeTimeout.current);
+          closeTimeout.current = null;
+        }
         setOpen(false);
       }
     };
@@ -54,34 +60,58 @@ const ProfileDropDown = () => {
     return '';
   })();
 
-  
+
 
   return (
     <div
       className='relative flex items-end justify-center gap-1.5'
       ref={dropdownRef}
+      onMouseEnter={() => {
+        if (!showOnHover) return;
+        if (closeTimeout.current) {
+          clearTimeout(closeTimeout.current);
+          closeTimeout.current = null;
+        }
+        setOpen(true);
+      }}
+      onMouseLeave={() => {
+        if (!showOnHover) return;
+        if (closeTimeout.current) clearTimeout(closeTimeout.current);
+        closeTimeout.current = setTimeout(() => {
+          setOpen(false);
+          closeTimeout.current = null;
+        }, 150);
+      }}
     >
-      {/* avatar button */}
-      <button
-        onClick={() => setOpen((prev) => !prev)}
-        className='relative flex items-center cursor-pointer justify-center sm:w-11 w-8 h-8 sm:h-11 rounded-full overflow-hidden border-2 border-[#C5A572] dark:border-gray-700 hover:border-[#C5A572] dark:hover:border-[#C5A572] transition-all duration-200 group bg-gray-100 dark:bg-gray-800'
+      {/* trigger button (click or hover based on props) */}
+      <div
+        className='relative'
+        onMouseEnter={() => {
+          if (!showOnHover) return;
+          if (closeTimeout.current) {
+            clearTimeout(closeTimeout.current);
+            closeTimeout.current = null;
+          }
+          setOpen(true);
+        }}
+        onMouseLeave={() => {
+          if (!showOnHover) return;
+          if (closeTimeout.current) clearTimeout(closeTimeout.current);
+          closeTimeout.current = setTimeout(() => {
+            setOpen(false);
+            closeTimeout.current = null;
+          }, 150);
+        }}
       >
-        {initials ? (
-          <span className="flex items-center justify-center w-full h-full text-sm font-extrabold dark:text-white text-[#C5A572]">
-            {initials}
-          </span>
-        ) : (
-          <UserCircle className='w-full h-full text-gray-400 dark:text-gray-500 group-hover:text-[#C5A572] transition-colors duration-200' />
-        )}
-      </button>
-      {/* user info - shown first on desktop */}
-      <div className='hidden lg:flex flex-col items-start'>
-        <p className='text-gray-900 dark:text-white text-sm font-semibold leading-tight'>
-          {user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'User'}
-        </p>
-        <p className='text-gray-500 dark:text-gray-400 text-xs mt-0.5 capitalize'>
-          {user?.role || 'Member'}
-        </p>
+        <button
+          onClick={() => !showOnHover && setOpen((prev) => !prev)}
+          className='relative flex items-center cursor-pointer justify-center sm:w-11 w-8 h-8 sm:h-11 rounded-md px-2 py-1  dark:border-gray-700 hover:border-[#C5A572] dark:hover:border-[#C5A572] transition-all duration-200 group bg-transparent dark:bg-transparent hover:rotate-180'
+          aria-haspopup='true'
+          aria-expanded={open}
+        >
+          {/* Always show a small down arrow trigger (no avatar) */}
+          <ChevronDown className='w-8 h-8 text-gray-700 dark:text-gray-200' />
+        </button>
       </div>
 
       {/* dropdown menu with premium styling */}
@@ -91,19 +121,24 @@ const ProfileDropDown = () => {
             ? 'opacity-100 scale-100 translate-y-0'
             : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
           }`}
+        onMouseEnter={() => {
+          if (!showOnHover) return;
+          if (closeTimeout.current) {
+            clearTimeout(closeTimeout.current);
+            closeTimeout.current = null;
+          }
+          setOpen(true);
+        }}
+        onMouseLeave={() => {
+          if (!showOnHover) return;
+          if (closeTimeout.current) clearTimeout(closeTimeout.current);
+          closeTimeout.current = setTimeout(() => {
+            setOpen(false);
+            closeTimeout.current = null;
+          }, 150);
+        }}
       >
-        {/* User info header in dropdown */}
-        <div className='px-4 py-3 bg-linear-to-br from-gray-50 to-white dark:from-[#1A2B42] dark:to-[#0F1B2E] border-b border-[#ecd077]/30 dark:border-gray-700'>
-          <p className='text-sm font-semibold text-gray-900 dark:text-white truncate'>
-            {user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'User'}
-          </p>
-          <p className='text-xs text-gray-500 dark:text-gray-400 truncate mt-1'>
-            {user?.email || 'user@example.com'}
-          </p>
-          <p className='text-xs text-[#C5A572] dark:text-[#ecd077] font-medium truncate mt-0.5 capitalize'>
-            {user?.role || 'Member'}
-          </p>
-        </div>
+        {/* (Header removed) - keeping menu minimal per request */}
 
         {/* Menu items */}
         <div className='py-2 px-2'>

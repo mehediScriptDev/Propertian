@@ -23,9 +23,11 @@ const EventRegistration = memo(({ translations, event }) => {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
+      if (isSubmitting) return; // prevent double submit
+
       if (!event?.id) {
         console.warn('No event selected for registration');
-        alert('Event not selected. Please try again later.')
+        alert('Event not selected. Please wait a moment and try again.')
         return
       }
 
@@ -47,6 +49,7 @@ const EventRegistration = memo(({ translations, event }) => {
         const url = `/events/${event.id}/register`
         const res = await axios.post(url, payload)
         console.log('Registration response:', res)
+        // show a simple success message
         alert('Registration successful')
         setFormData({ fullName: '', email: '', phone: '' })
       } catch (err) {
@@ -125,10 +128,14 @@ const EventRegistration = memo(({ translations, event }) => {
 
         <button
           type='submit'
-          className='w-full bg-[#E6B325] hover:bg-[#d4a420] text-[#0F1B2E] font-semibold px-6 py-4 rounded-lg text-sm lg:text-lg transition-all duration-300 transform hover:scale-[1.02] shadow-md hover:shadow-lg'
+          disabled={isSubmitting || !event?.id}
+          className={`w-full font-semibold px-6 py-4 rounded-lg text-sm lg:text-lg transition-all duration-300 transform shadow-md disabled:opacity-60 disabled:cursor-not-allowed ${isSubmitting ? 'bg-gray-300 text-gray-700' : 'bg-[#E6B325] hover:bg-[#d4a420] text-[#0F1B2E] hover:scale-[1.02] hover:shadow-lg'}`}
         >
-          {translations.submit}
+          {isSubmitting ? (translations.submit + '...') : translations.submit}
         </button>
+        {!event?.id && (
+          <p className='text-xs text-gray-500 mt-2'>Please wait — loading event details before registration.</p>
+        )}
       </form>
 
       {/* Social Share */}

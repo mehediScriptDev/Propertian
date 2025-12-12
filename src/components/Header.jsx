@@ -170,9 +170,9 @@ function Header({ locale }) {
           <img
             src="/logo.png"
             alt="Q Global Living - Real Estate"
-            
+
             className="h-10 w-20 xl:w-26 object-contain"
-            
+
           />
         </Link>
 
@@ -186,11 +186,10 @@ function Header({ locale }) {
             return (
               <Link
                 key={link.href}
-                className={`text-sm font-medium hover:text-primary dark:hover:text-primary whitespace-nowrap rounded-md px-3 py-2 ${
-                  isActive
+                className={`text-sm font-medium hover:text-primary dark:hover:text-primary whitespace-nowrap rounded-md px-3 py-2 ${isActive
                     ? "border-2 rounded-md border-primary text-primary"
                     : "text-charcoal dark:text-soft-grey focus:outline-none border-transparent"
-                }`}
+                  }`}
                 href={link.href}
                 aria-label={link.ariaLabel}
               >
@@ -211,7 +210,7 @@ function Header({ locale }) {
             {t("nav.listYourProperty")}
           </Link>
           {user ? (
-            <ProfileDropDown />
+            <ProfileDropDown showOnHover={true} useArrow={true} />
           ) : (
             <Link
               href={`/${locale}/login`}
@@ -306,5 +305,4 @@ function Header({ locale }) {
   );
 }
 
-// Memoize component to prevent unnecessary re-renders
 export default memo(Header);
