@@ -285,11 +285,7 @@ export default function ClientInquiriesPage() {
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white/50">
               {pageItems.map((iq) => (
-                <tr
-                  key={iq.id}
-                  className="transition-colors hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setSelectedInquiry(iq)}
-                >
+                <tr key={iq.id} className="transition-colors hover:bg-gray-50">
                   <td className="px-6 py-4 truncate">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-gray-400" />
@@ -299,11 +295,7 @@ export default function ClientInquiriesPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 truncate w-72 max-w-[18rem]">
-                    <div
-                      className="text-sm font-medium text-gray-900 cursor-pointer"
-                      onClick={(e) => { e.stopPropagation(); setSelectedInquiry(iq); }}
-                      title={iq.message}
-                    >
+                    <div className="text-sm font-medium text-gray-900" title={iq.message}>
                       {truncateWords(iq.message, 5)}
                     </div>
                   </td>
@@ -344,11 +336,7 @@ export default function ClientInquiriesPage() {
 
         <div className="divide-y divide-gray-200 lg:hidden">
           {pageItems.map((iq) => (
-            <div
-              key={iq.id}
-              className="p-4 transition-colors hover:bg-gray-50 cursor-pointer"
-              onClick={() => setSelectedInquiry(iq)}
-            >
+            <div key={iq.id} className="p-4 transition-colors hover:bg-gray-50">
               {console.log(iq)}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
