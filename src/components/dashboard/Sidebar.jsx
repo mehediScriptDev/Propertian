@@ -90,6 +90,11 @@ const navigationConfig = {
       icon: Calendar,
     },
     {
+      key: 'All Bookings',
+      href: '/dashboard/admin/bookings',
+      icon: List,
+    },
+    {
       key: 'Supports Requests',
       href: '/dashboard/admin/supports',
       icon: HelpCircle,

@@ -1,29 +1,34 @@
-'use client';
+"use client";
 
-import { use, useMemo } from 'react';
+import { use, useMemo, useEffect, useState } from 'react';
+import axios from '@/lib/axios'
+import dynamic from 'next/dynamic'
 import { useTranslation } from '@/i18n';
 import {
-  EventHero,
   EventAbout,
   EventLearning,
   EventSpeakers,
   EventRegistration,
 } from '@/components/event';
 
+const EventHero = dynamic(() => import('@/components/event').then(m => m.EventHero), { ssr: false })
+
 export default function EventPage({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
+  const [firstEvent, setFirstEvent] = useState(null)
 
-  // Translations
+
+  // Translations (prefer API `firstEvent` values when available)
   const heroTranslations = useMemo(
     () => ({
-      title: t('event.hero.title'),
-      subtitle: t('event.hero.subtitle'),
+      title: firstEvent?.title || '',
+      subtitle: firstEvent?.description || t('event.hero.subtitle'),
       cta: t('event.hero.cta'),
     }),
-    [t]
+    [t, firstEvent]
   );
- 
+
   const countdownTranslations = useMemo(
     () => ({
       days: t('event.countdown.days'),
@@ -37,35 +42,35 @@ export default function EventPage({ params }) {
   const aboutTranslations = useMemo(
     () => ({
       title: t('event.about.title'),
-      description: t('event.about.description'),
+      description: firstEvent?.description || t('event.about.description'),
       dateTimeLabel: t('event.about.dateTimeLabel'),
-      dateTime: t('event.about.dateTime'),
+      dateTime: firstEvent ? `${new Date(firstEvent.eventDate).toLocaleString()} — ${new Date(firstEvent.endDate).toLocaleString()}` : t('event.about.dateTime'),
       locationLabel: t('event.about.locationLabel'),
-      location: t('event.about.location'),
+      location: firstEvent?.location || t('event.about.location'),
     }),
-    [t]
+    [t, firstEvent]
   );
 
   const learningTranslations = useMemo(
     () => ({
       title: t('event.learning.title'),
-      point1: t('event.learning.point1'),
-      point2: t('event.learning.point2'),
-      point3: t('event.learning.point3'),
-      point4: t('event.learning.point4'),
+      point1: firstEvent?.learningPoints?.[0]?.text || t('event.learning.point1'),
+      point2: firstEvent?.learningPoints?.[1]?.text || t('event.learning.point2'),
+      point3: firstEvent?.learningPoints?.[2]?.text || t('event.learning.point3'),
+      point4: firstEvent?.learningPoints?.[3]?.text || t('event.learning.point4'),
     }),
-    [t]
+    [t, firstEvent]
   );
 
   const speakersTranslations = useMemo(
     () => ({
       title: t('event.speakers.title'),
-      speaker1Name: t('event.speakers.speaker1Name'),
-      speaker1Role: t('event.speakers.speaker1Role'),
-      speaker2Name: t('event.speakers.speaker2Name'),
-      speaker2Role: t('event.speakers.speaker2Role'),
+      speaker1Name: firstEvent?.speakers?.[0]?.name || t('event.speakers.speaker1Name'),
+      speaker1Role: firstEvent?.speakers?.[0]?.role || t('event.speakers.speaker1Role'),
+      speaker2Name: firstEvent?.speakers?.[1]?.name || t('event.speakers.speaker2Name'),
+      speaker2Role: firstEvent?.speakers?.[1]?.role || t('event.speakers.speaker2Role'),
     }),
-    [t]
+    [t, firstEvent]
   );
 
   const registrationTranslations = useMemo(
@@ -83,13 +88,53 @@ export default function EventPage({ params }) {
     }),
     [t]
   );
+  useEffect(() => {
+    let mounted = true
+    const fetchFirst = async () => {
+      try {
+        const res = await axios.get('/events')
+        console.log('events API response:', res)
+        const list = res?.data?.data ?? res?.data
+        console.log('events list:', list)
+        if (Array.isArray(list) && list.length > 0 && mounted) {
+          // Choose the next upcoming event (closest event after now). If none found, pick the closest past event.
+          const now = Date.now()
+          const withDates = list.filter(e => e && e.eventDate)
+          const upcoming = withDates
+            .filter(e => new Date(e.eventDate).getTime() > now)
+            .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
 
+          let chosen = upcoming.length > 0 ? upcoming[0] : null;
+
+          if (!chosen) {
+            // No upcoming events: choose the event whose date is closest to now (past or future)
+            const byClosest = withDates.slice().sort((a, b) => Math.abs(new Date(a.eventDate).getTime() - now) - Math.abs(new Date(b.eventDate).getTime() - now));
+            chosen = byClosest[0] || list[0];
+          }
+
+          setFirstEvent(chosen)
+          console.log('firstEvent:', chosen)
+        }
+      } catch (e) {
+        console.warn('Failed to load events', e)
+      }
+    }
+    fetchFirst()
+    return () => { mounted = false }
+  }, [])
   return (
     <div className='min-h-screen bg-background-light'>
       <div className='max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8'>
+        {/* First event image from API (show only first) */}
+        {/* {firstEvent?.image && (
+          <div className='mb-6'>
+            <img src={firstEvent.image} alt={firstEvent.title || 'event image'} className='w-full h-64 object-cover rounded-md' loading='lazy' />
+          </div>
+        )} */}
         {/* Hero Section */}
         <div className='mb-8 sm:mb-12'>
           <EventHero
+            targetDate={firstEvent?.eventDate}
             translations={heroTranslations}
             countdownTranslations={countdownTranslations}
           />
@@ -107,12 +152,12 @@ export default function EventPage({ params }) {
           {/* Right Column - Registration Form (Sticky) */}
           <div className='lg:col-span-1'>
             <div id='event-registration' className='lg:sticky lg:top-24'>
-                <EventRegistration translations={registrationTranslations} />
-              </div>
+              <EventRegistration translations={registrationTranslations} event={firstEvent} />
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
- 
+

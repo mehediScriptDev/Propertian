@@ -9,7 +9,7 @@ export default function ConfirmModal({ open, title = 'Confirm', message = 'Are y
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/40" onClick={onCancel} />
             <div className="relative bg-white rounded-lg shadow-xl w-[min(92%,420px)] max-h-[90vh] overflow-auto z-10">
-                <div className="flex items-start justify-between gap-4 p-4 border-b">
+                <div className="flex items-start justify-between gap-4 p-4 border-b border-gray-300">
                     <div>
                         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
                     </div>

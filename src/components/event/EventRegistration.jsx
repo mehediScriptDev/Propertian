@@ -2,13 +2,15 @@
 
 import { memo, useState, useCallback } from 'react';
 import { Linkedin, Facebook, Twitter } from 'lucide-react';
+import axios from '@/lib/axios'
 
-const EventRegistration = memo(({ translations }) => {
+const EventRegistration = memo(({ translations, event }) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -19,12 +21,42 @@ const EventRegistration = memo(({ translations }) => {
   }, []);
 
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
-      console.log('Registration submitted:', formData);
-      // Handle form submission
+      if (!event?.id) {
+        console.warn('No event selected for registration');
+        alert('Event not selected. Please try again later.')
+        return
+      }
+
+      const payload = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        eventId: event.id,
+        // include image path and related fields from the event
+        image: event.image ?? null,
+        imageFields: {
+          title: event.title ?? null,
+          eventId: event.id ?? null,
+        },
+      }
+
+      try {
+        setIsSubmitting(true)
+        const url = `/events/${event.id}/register`
+        const res = await axios.post(url, payload)
+        console.log('Registration response:', res)
+        alert('Registration successful')
+        setFormData({ fullName: '', email: '', phone: '' })
+      } catch (err) {
+        console.error('Registration failed', err)
+        alert('Registration failed. Please try again.')
+      } finally {
+        setIsSubmitting(false)
+      }
     },
-    [formData] 
+    [formData, event]
   );
 
   return (
