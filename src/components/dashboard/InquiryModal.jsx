@@ -12,13 +12,24 @@ export default function InquiryModal({ isOpen, onClose, inquiry }) {
   const getStatusBadge = (status) => {
     const statusConfig = {
       new: { bg: "bg-blue-50", text: "text-blue-700", label: "New" },
-      pending: { bg: "bg-yellow-50", text: "text-yellow-700", label: "Pending" },
-      resolved: { bg: "bg-green-50", text: "text-green-700", label: "Resolved" },
+      pending: {
+        bg: "bg-yellow-50",
+        text: "text-yellow-700",
+        label: "Pending",
+      },
+      resolved: {
+        bg: "bg-green-50",
+        text: "text-green-700",
+        label: "Resolved",
+      },
       closed: { bg: "bg-gray-50", text: "text-gray-700", label: "Closed" },
     };
-    const cfg = statusConfig[(status || '').toString().toLowerCase()] || statusConfig.new;
+    const cfg =
+      statusConfig[(status || "").toString().toLowerCase()] || statusConfig.new;
     return (
-      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text}`}>
+      <span
+        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text}`}
+      >
         {cfg.label}
       </span>
     );
@@ -29,10 +40,16 @@ export default function InquiryModal({ isOpen, onClose, inquiry }) {
       high: { bg: "bg-red-50", text: "text-red-700", label: "High" },
       medium: { bg: "bg-orange-50", text: "text-orange-700", label: "Medium" },
       low: { bg: "bg-gray-50", text: "text-gray-700", label: "Low" },
-    }[(priority || '').toString().toLowerCase()] || { bg: "bg-gray-50", text: "text-gray-700", label: "Medium" };
+    }[(priority || "").toString().toLowerCase()] || {
+      bg: "bg-gray-50",
+      text: "text-gray-700",
+      label: "Medium",
+    };
 
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}
+      >
         {cfg.label}
       </span>
     );
@@ -40,7 +57,7 @@ export default function InquiryModal({ isOpen, onClose, inquiry }) {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(inquiry.message || '');
+      await navigator.clipboard.writeText(inquiry.message || "");
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch (e) {
@@ -49,14 +66,22 @@ export default function InquiryModal({ isOpen, onClose, inquiry }) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={inquiry.subject || inquiry.property || "Inquiry Details"} maxWidth="max-w-3xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={inquiry.subject || inquiry.property || "Inquiry Details"}
+      maxWidth="max-w-3xl"
+      showCloseButton={false}
+    >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Message</h3>
-                <p className="mt-2 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{inquiry.message}</p>
+                <p className="mt-2 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {inquiry.message}
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -66,7 +91,7 @@ export default function InquiryModal({ isOpen, onClose, inquiry }) {
                   className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
                 >
                   <Copy className="w-4 h-4" />
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                  <span>{copied ? "Copied" : "Copy"}</span>
                 </button>
               </div>
             </div>
@@ -102,30 +127,36 @@ export default function InquiryModal({ isOpen, onClose, inquiry }) {
           <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <h4 className="text-sm font-semibold text-gray-900 mb-3">Meta</h4>
             <div className="text-sm text-gray-700 space-y-2">
-              <div>Property: <span className="font-medium text-gray-900">{inquiry.property || '—'}</span></div>
-              <div>Date: <span className="font-medium text-gray-900">{new Date(inquiry.date).toLocaleDateString()}</span></div>
-              <div>Priority: <span className="font-medium text-gray-900">{(inquiry.priority || 'medium').toString()}</span></div>
+              <div>
+                Property:{" "}
+                <span className="font-medium text-gray-900">
+                  {inquiry.property || "—"}
+                </span>
+              </div>
+              <div>
+                Date:{" "}
+                <span className="font-medium text-gray-900">
+                  {new Date(inquiry.date).toLocaleDateString()}
+                </span>
+              </div>
+              <div>
+                Priority:{" "}
+                <span className="font-medium text-gray-900">
+                  {(inquiry.priority || "medium").toString()}
+                </span>
+              </div>
             </div>
           </div>
         </aside>
       </div>
 
       <div className="mt-6 sticky bottom-0 z-10 bg-transparent pt-4">
-        <div className="flex gap-3">
+        <div className="flex justify-end">
           <button
-            onClick={() => { /* TODO: reply action */ }}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-[#0A2540] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#081b30] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0A2540]"
-            aria-label="Reply to inquiry"
+            onClick={onClose}
+            className="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200"
           >
-            Reply
-          </button>
-
-          <button
-            onClick={() => { /* TODO: archive action */ }}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200"
-            aria-label="Archive inquiry"
-          >
-            Archive
+            Close
           </button>
         </div>
       </div>
