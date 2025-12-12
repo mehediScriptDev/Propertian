@@ -7,6 +7,7 @@ import { Plus } from "lucide-react";
 import Modal from '@/components/Modal';
 import ConciergeForm from '@/components/concierge/ConciergeForm';
 import ConciergeModal from '@/components/concierge/component/ConciergeModal';
+import api from '@/lib/api';
 
 // Lazy load heavier child components to split bundles
 const AppointmentsHeader = React.lazy(() => import('../../../../../components/dashboard/client/AppointmentsHeader'));
@@ -16,11 +17,13 @@ const NewAppointmentModal = React.lazy(() => import('../../../../../components/d
 
 export default function ClientAppointments() {
    
-    const [appointments, setAppointments] = useState([
-        { id: 1, full_name: 'Rahim Ahmed', email: 'rahim@example.com', phone: '01700000001', appointment_type: 'Property Visit', preferred_date: '2025-11-15', preferred_time: '10:00 AM', status: 'confirmed', notes: 'Interested in viewing the property' },
-        { id: 2, full_name: 'Fatema Khan', email: 'fatema@example.com', phone: '01800000002', appointment_type: 'Consultation', preferred_date: '2025-11-16', preferred_time: '02:00 PM', status: 'pending', notes: 'Wants to learn about loan facilities' },
-        { id: 3, full_name: 'Karim Saheb', email: 'karim@example.com', phone: '01900000003', appointment_type: 'Document Verification', preferred_date: '2025-11-10', preferred_time: '11:00 AM', status: 'completed', notes: 'Document verification completed' }
-    ]);
+    const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const itemsPerPage = 10;
 
     const [selectedAppointment, setSelectedAppointment] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -49,6 +52,71 @@ export default function ClientAppointments() {
         setFormData({ full_name: '', email: '', phone: '', appointment_type: 'Property Visit', preferred_date: '', preferred_time: '', notes: '' });
         setShowNewModal(false);
     };
+
+    // Fetch bookings from API
+    useEffect(() => {
+        let mounted = true;
+        const controller = new AbortController();
+
+        const fetchBookings = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const res = await api.get('/bookings/my-bookings', {
+                    params: { page: currentPage, limit: itemsPerPage },
+                    signal: controller.signal,
+                });
+
+                const payload = res?.data || res;
+                const bookings = payload?.bookings || [];
+
+                // Map bookings to appointments format
+                const mapped = bookings.map((booking) => ({
+                    id: booking.id,
+                    full_name: booking.property?.title || 'Property Booking',
+                    email: '',
+                    phone: '',
+                    appointment_type: 'Property Booking',
+                    preferred_date: booking.startDate ? new Date(booking.startDate).toLocaleDateString() : '',
+                    preferred_time: booking.startDate ? new Date(booking.startDate).toLocaleTimeString() : '',
+                    status: (booking.status || '').toLowerCase(),
+                    notes: booking.notes || '',
+                    // Additional booking details
+                    startDate: booking.startDate,
+                    endDate: booking.endDate,
+                    totalAmount: booking.totalAmount,
+                    property: booking.property,
+                }));
+
+                if (!mounted) return;
+
+                setAppointments(mapped);
+
+                const pagination = payload?.pagination;
+                if (pagination) {
+                    setTotalPages(pagination.totalPages || 1);
+                    setTotalItems(pagination.totalItems || mapped.length);
+                } else {
+                    setTotalPages(1);
+                    setTotalItems(mapped.length);
+                }
+
+                setLoading(false);
+            } catch (err) {
+                if (!mounted) return;
+                setError(err?.message || 'Failed to load appointments');
+                setLoading(false);
+            }
+        };
+
+        fetchBookings();
+
+        return () => {
+            mounted = false;
+            controller.abort();
+        };
+    }, [currentPage, itemsPerPage]);
  
     // prevent body scroll when any modal is open
     useEffect(() => {
@@ -105,7 +173,7 @@ export default function ClientAppointments() {
                             </svg>
                         </button>
                     </div>
-                    <div className='flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto'>
+                    {/* <div className='flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto'>
 
                         <div className='relative' ref={dropdownRef}>
                             <button
@@ -131,7 +199,7 @@ export default function ClientAppointments() {
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
             <div className="bg-white/50 border border-gray-200 rounded-lg shadow p-6">
@@ -139,9 +207,26 @@ export default function ClientAppointments() {
                     <AppointmentsHeader count={appointments.length} query={query} onQueryChange={(q) => setQuery(q)} />
                 </Suspense>
 
-                <Suspense fallback={<div className="py-6">Loading table…</div>}>
-                    <AppointmentsTable appointments={appointments} query={query} onQueryChange={(q) => setQuery(q)} onView={(apt) => { setSelectedAppointment(apt); setShowModal(true); }} onEdit={(id) => { }} onDelete={handleDelete} onStatusChange={handleStatusChange} />
-                </Suspense>
+                {loading ? (
+                    <div className="py-12 text-center">
+                        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-[#E6B325]"></div>
+                        <p className="text-sm text-gray-500">Loading appointments…</p>
+                    </div>
+                ) : error ? (
+                    <div className="py-12 text-center">
+                        <p className="text-sm text-red-600">{error}</p>
+                        <button 
+                            onClick={() => setCurrentPage(1)} 
+                            className="mt-4 px-4 py-2 bg-[#E6B325] text-white rounded-lg hover:bg-[#d4a520] transition-colors"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                ) : (
+                    <Suspense fallback={<div className="py-6">Loading table…</div>}>
+                        <AppointmentsTable appointments={appointments} query={query} onQueryChange={(q) => setQuery(q)} onView={(apt) => { setSelectedAppointment(apt); setShowModal(true); }} onEdit={(id) => { }} onDelete={handleDelete} onStatusChange={handleStatusChange} />
+                    </Suspense>
+                )}
             </div>
 
             {/* <Suspense fallback={null}>

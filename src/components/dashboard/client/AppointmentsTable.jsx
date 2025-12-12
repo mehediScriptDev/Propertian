@@ -43,7 +43,6 @@ export default function AppointmentsTable({
     if (!q) return appointments;
     return appointments.filter((apt) =>
       String(apt.full_name || '').toLowerCase().includes(q) ||
-      String(apt.email || '').toLowerCase().includes(q) ||
       String(apt.appointment_type || '').toLowerCase().includes(q) ||
       String(apt.preferred_date || '').toLowerCase().includes(q)
     );
@@ -72,7 +71,6 @@ export default function AppointmentsTable({
             <tr>
               {[t('dashboard.client.AppointmentTable.id'),
               t('dashboard.client.AppointmentTable.Name'),
-              t('dashboard.client.AppointmentTable.email'),
               t('dashboard.client.AppointmentTable.type'),
               t('dashboard.client.AppointmentTable.date'),
               t('dashboard.client.AppointmentTable.status'),
@@ -96,10 +94,6 @@ export default function AppointmentsTable({
 
                   <td className="px-6 py-4">
                     <p className="text-sm font-semibold text-gray-900 truncate">{apt.full_name}</p>
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <p className="text-sm text-gray-600">{apt.email}</p>
                   </td>
 
                   <td className="px-6 py-4 text-gray-700 truncate">{apt.appointment_type}</td>
@@ -143,7 +137,7 @@ export default function AppointmentsTable({
                       >
                         <Eye className="h-4 w-4 text-gray-600" />
                       </button>
-                      <button
+                      {/* <button
                         type="button"
                         onClick={() => onEdit?.(apt.id)}
                         className="p-1.5 rounded-lg hover:bg-blue-50 transition-colors duration-200"
@@ -160,14 +154,14 @@ export default function AppointmentsTable({
                         aria-label={`${translations?.table?.delete || 'Delete'} ${apt.full_name}`}
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
                   No appointments found
                 </td>
               </tr>
