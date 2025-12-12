@@ -162,8 +162,7 @@
         "one": "1",
         "two": "2",
         "threePlus": "3+"
-      }
-      ,
+      },
       "bathroomsLabel": "Salles de Bain",
       "bathrooms": {
         "any": "Tous",
@@ -524,21 +523,21 @@
           "apartment": "Appartement",
           "commercial": "Commercial",
           "house": "Maison"
-          },
-          "add": {
-            "title": "Ajouter une propriété",
-            "subtitle": "Créer une nouvelle annonce immobilière",
-            "basicInfo": "Informations de base",
-            "pricing": "Tarification",
-            "images": "Images",
-            "features": "Caractéristiques",
-            "interior": "Caractéristiques intérieures",
-            "exterior": "Caractéristiques extérieures",
-            "highlights": "Points forts",
-            "locationDescription": "Description de l'emplacement",
-            "developerDescription": "Description du promoteur",
-            "rental": "Informations sur la location (optionnel)"
-          }
+        },
+        "add": {
+          "title": "Ajouter une propriété",
+          "subtitle": "Créer une nouvelle annonce immobilière",
+          "basicInfo": "Informations de base",
+          "pricing": "Tarification",
+          "images": "Images",
+          "features": "Caractéristiques",
+          "interior": "Caractéristiques intérieures",
+          "exterior": "Caractéristiques extérieures",
+          "highlights": "Points forts",
+          "locationDescription": "Description de l'emplacement",
+          "developerDescription": "Description du promoteur",
+          "rental": "Informations sur la location (optionnel)"
+        }
       },
       "partners": {
         "title": "Gestion des Partenaires",
@@ -628,7 +627,7 @@
       "profile": "Détails du Profil",
       "favorites": "Propriétés Enregistrées",
       "savedSearches": "Recherches Enregistrées",
-      "appointments": "Rendez-vous",
+      "appointments": "Mes rendez-vous réservés",
       "messages": "Messages",
       "settings": "Paramètres",
       "firstName": "Prénom",

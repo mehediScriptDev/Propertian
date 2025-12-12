@@ -79,10 +79,10 @@ export default function PartnerMyListingsPage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-semibold text-lg mb-1">
+                <h4 className="font-semibold text-lg mb-1 text-black">
                   {t("Partner_my_listing_Modal.PropertyDeveloper")}
                 </h4>
-                <p className="text-sm text-white/70">
+                <p className="text-sm text-black">
                   {t("Partner_my_listing_Modal.Adddevelopmentprojectlisting")}
                 </p>
               </div>
@@ -108,10 +108,10 @@ export default function PartnerMyListingsPage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-semibold text-lg mb-1">
+                <h4 className="font-semibold text-lg mb-1 text-black">
                   {t("Partner_my_listing_Modal.PropertyBuySell")}
                 </h4>
-                <p className="text-sm text-white/70">
+                <p className="text-sm  text-black">
                   {t("Partner_my_listing_Modal.AddProperty")}
                 </p>
               </div>

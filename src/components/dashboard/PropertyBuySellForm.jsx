@@ -41,10 +41,13 @@ const PropertyBuySellForm = ({ onSubmit, onCancel }) => {
   const { t } = useTranslation(locale);
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-4'>
+    <form onSubmit={handleSubmit} className='space-y-4 max-h-[76vh] overflow-hidden flex flex-col'>
+      {/* Scrollable content - keep fields inside this container so footer stays visible */}
+      <div className='overflow-y-auto pr-4 space-y-4'>
+      <div className='max-w-3xl mx-auto space-y-4 p-2'>
       {/* User ID */}
       <div>
-        <label className='block text-white text-sm font-medium mb-2'>
+        <label className='block text-black text-sm font-medium mb-2'>
           {t('PropertyBuySellForm.userId', 'User ID')} <span className='text-red-400'>*</span>
         </label>
         <input
@@ -53,14 +56,14 @@ const PropertyBuySellForm = ({ onSubmit, onCancel }) => {
           value={formData.userId}
           onChange={handleChange}
           required
-          className='w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
+          className='w-full px-4 py-2 bg-white/5 border border-gray-200 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
           placeholder={t('PropertyBuySellForm.userIdPlaceholder', 'Enter user ID')}
         />
       </div>
 
       {/* Property ID */}
       <div>
-        <label className='block text-white text-sm font-medium mb-2'>
+        <label className='block text-black text-sm font-medium mb-2'>
           {t('PropertyBuySellForm.propertyId', 'Property ID')} <span className='text-red-400'>*</span>
         </label>
         <input
@@ -69,14 +72,14 @@ const PropertyBuySellForm = ({ onSubmit, onCancel }) => {
           value={formData.propertyId}
           onChange={handleChange}
           required
-          className='w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
+          className='w-full px-4 py-2 bg-white/5 border border-gray-200 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
           placeholder={t('PropertyBuySellForm.propertyIdPlaceholder', 'Enter property ID')}
         />
       </div>
 
       {/* Name */}
       <div>
-        <label className='block text-white text-sm font-medium mb-2'>
+        <label className='block text-black text-sm font-medium mb-2'>
           {t('PropertyBuySellForm.propertyName', 'Property Name')} <span className='text-red-400'>*</span>
         </label>
         <input
@@ -85,14 +88,14 @@ const PropertyBuySellForm = ({ onSubmit, onCancel }) => {
           value={formData.name}
           onChange={handleChange}
           required
-          className='w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
+          className='w-full px-4 py-2 bg-white/5 border border-gray-200 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
           placeholder={t('PropertyBuySellForm.propertyNamePlaceholder', 'Enter property name')}
         />
       </div>
 
       {/* Location */}
       <div>
-        <label className='block text-white text-sm font-medium mb-2'>
+        <label className='block text-black text-sm font-medium mb-2'>
           {t('PropertyBuySellForm.location', 'Location')} <span className='text-red-400'>*</span>
         </label>
         <input
@@ -101,14 +104,14 @@ const PropertyBuySellForm = ({ onSubmit, onCancel }) => {
           value={formData.location}
           onChange={handleChange}
           required
-          className='w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
+          className='w-full px-4 py-2 bg-white/5 border border-gray-200 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
           placeholder={t('PropertyBuySellForm.locationPlaceholder', 'Enter location')}
         />
       </div>
 
       {/* Overview */}
       <div>
-        <label className='block text-white text-sm font-medium mb-2'>
+        <label className='block text-black text-sm font-medium mb-2'>
           {t('PropertyBuySellForm.overview', 'Overview')} <span className='text-red-400'>*</span>
         </label>
         <textarea
@@ -117,14 +120,14 @@ const PropertyBuySellForm = ({ onSubmit, onCancel }) => {
           onChange={handleChange}
           required
           rows={4}
-          className='w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent resize-none'
+          className='w-full px-4 py-2 bg-white/5 border border-gray-200 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent resize-none'
           placeholder={t('PropertyBuySellForm.overviewPlaceholder', 'Enter property overview')}
         />
       </div>
 
       {/* Features */}
       <div>
-        <label className='block text-white text-sm font-medium mb-2'>
+        <label className='block text-black text-sm font-medium mb-2'>
           {t('PropertyBuySellForm.features', 'Features')} <span className='text-red-400'>*</span>
         </label>
         <textarea
@@ -133,14 +136,14 @@ const PropertyBuySellForm = ({ onSubmit, onCancel }) => {
           onChange={handleChange}
           required
           rows={3}
-          className='w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent resize-none'
+          className='w-full px-4 py-2 bg-white/5 border border-gray-200 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent resize-none'
           placeholder={t('PropertyBuySellForm.featuresPlaceholder', 'Enter features (comma-separated)')}
         />
       </div>
 
       {/* Pictures */}
       <div>
-        <label className='block text-white text-sm font-medium mb-2'>
+        <label className='block text-black text-sm font-medium mb-2'>
           {t('PropertyBuySellForm.pictures', 'Pictures URLs')}
         </label>
         <textarea
@@ -148,14 +151,14 @@ const PropertyBuySellForm = ({ onSubmit, onCancel }) => {
           value={formData.pictures}
           onChange={handleChange}
           rows={2}
-          className='w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent resize-none'
+          className='w-full px-4 py-2 bg-white/5 border border-gray-200 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent resize-none'
           placeholder={t('PropertyBuySellForm.picturesPlaceholder', 'Enter picture URLs (comma-separated)')}
         />
       </div>
 
       {/* Payment Plan */}
       <div>
-        <label className='block text-white text-sm font-medium mb-2'>
+        <label className='block text-black text-sm font-medium mb-2'>
           {t('PropertyBuySellForm.paymentPlan', 'Payment Plan')} <span className='text-red-400'>*</span>
         </label>
         <textarea
@@ -164,14 +167,14 @@ const PropertyBuySellForm = ({ onSubmit, onCancel }) => {
           onChange={handleChange}
           required
           rows={3}
-          className='w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent resize-none'
+          className='w-full px-4 py-2 bg-white/5 border border-gray-200 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent resize-none'
           placeholder={t('PropertyBuySellForm.paymentPlanPlaceholder', 'Enter payment plan details')}
         />
       </div>
 
       {/* Status */}
       <div>
-        <label className='block text-white text-sm font-medium mb-2'>
+        <label className='block text-black text-sm font-medium mb-2'>
           {t('PropertyBuySellForm.status', 'Status')} <span className='text-red-400'>*</span>
         </label>
         <select
@@ -179,26 +182,29 @@ const PropertyBuySellForm = ({ onSubmit, onCancel }) => {
           value={formData.status}
           onChange={handleChange}
           required
-          className='w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
+          className='w-full px-4 py-2 bg-white/5 border border-gray-200 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-[#E6B325] focus:border-transparent'
         >
-          <option value='available' className='bg-gray-800'>
+          <option value='available'>
             {t('PropertyBuySellForm.statusAvailable', 'Available')}
           </option>
-          <option value='sold' className='bg-gray-800'>
+          <option value='sold'>
             {t('PropertyBuySellForm.statusSold', 'Sold')}
           </option>
-          <option value='pending' className='bg-gray-800'>
+          <option value='pending'>
             {t('PropertyBuySellForm.statusPending', 'Pending')}
           </option>
         </select>
       </div>
 
-      {/* Action Buttons */}
-      <div className='flex justify-end gap-3 pt-4'>
+      </div>
+      </div>
+
+      {/* Action Buttons - sticky footer so buttons are always visible */}
+      <div className='mt-4 sticky bottom-0 bg-white/90 backdrop-blur-sm border-t border-gray-100 py-3 flex justify-end gap-3'>
         <button
           type='button'
           onClick={onCancel}
-          className='px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors'
+          className='px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg transition-colors'
         >
           {t('common.cancel', 'Cancel')}
         </button>

@@ -4,7 +4,46 @@ import { useState, useRef } from "react";
 import { post } from "../../../lib/api";
 import { ChevronDown } from "lucide-react";
 
-export default function AddPropertyForm({ translations = {} }) {
+/*
+  Backend integration notes (developer guide)
+
+  1) Endpoint configuration
+    - This component accepts an `apiEndpoint` prop (default: '/properties').
+    - For admin vs partner separation we pass different endpoints from the page-level:
+      Admin:  <AddPropertyForm apiEndpoint={'/admin/properties'} />
+      Partner: <AddPropertyForm apiEndpoint={'/partner/properties'} defaultVerified={false} />
+
+  2) Verification flag
+    - The component sets `payload.isVerified = defaultVerified` before POST.
+    - Server SHOULD enforce role-based verification. Treat this client flag as an intent only.
+
+  3) File uploads (images, video, logo)
+    - Currently this form collects files and previews them, but posts JSON payload with counts/names.
+    - Recommended flow when backend is ready:
+      a) Upload files first (use `uploadFile` helper in `src/lib/api.js` or a dedicated file-upload endpoint).
+      b) Collect returned file URLs/IDs from the upload responses.
+      c) Add those URLs/IDs into `payload` (e.g. `payload.mainImageUrl`, `payload.gallery = [url1, url2]`).
+      d) Finally `post(apiEndpoint, payload)` (JSON) so property creation is atomic with saved file refs.
+
+    - Alternatively, if backend accepts multipart/form-data for property creation, build a FormData,
+     append files and JSON fields, and POST directly (set no Content-Type header so browser sets the multipart boundary).
+
+  4) Headers, auth and error handling
+    - This project uses `axiosInstance` which injects auth token from cookies.
+    - If you need to bypass the global 401 auto-redirect for certain requests, add header `x-skip-auth-redirect: '1'`.
+    - Keep server validation errors and show them via `setErrors` when returned in `err.response.data.errors`.
+
+  5) Testing locally
+    - Use browser devtools Network tab to inspect the POST URL and JSON body to verify `isVerified` and endpoint.
+    - If files are required by backend, test the upload flow separately and confirm returned URLs.
+
+  6) Server-side note (strongly recommended)
+    - The backend must verify the authenticated user's role and set `isVerified` accordingly.
+    - Do not rely on the client-provided `isVerified` for security-critical behavior.
+
+*/
+
+export default function AddPropertyForm({ translations = {}, defaultVerified = true, apiEndpoint = '/properties' }) {
   const initialForm = {
     title: "",
     description: "",
@@ -177,8 +216,10 @@ export default function AddPropertyForm({ translations = {} }) {
       payload.exteriorFeatures = exteriorFeatures;
 
       console.log('Payload to send:', payload);
+      // Respect caller's default verified flag (admin vs partner)
+      payload.isVerified = defaultVerified;
 
-      const result = await post("/properties", payload);
+      const result = await post(apiEndpoint, payload);
       setSuccess(result?.message || "Property saved");
       alert(result?.message || "Property saved");
       // reset form and previews

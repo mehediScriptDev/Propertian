@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import {
@@ -21,7 +21,9 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { getResidentialPropertyById } from "@/lib/residentialProperties";
+import api from '@/lib/api';
+import PropertyDetailSkeleton from '@/components/property/PropertyDetailSkeleton';
+import AlertModal from '@/components/ui/AlertModal';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/i18n";
 
@@ -40,6 +42,8 @@ const PropertyDetailPage = () => {
     message: "",
   });
 
+  const [alertState, setAlertState] = useState({ open: false, type: 'success', title: '', message: '' });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState((s) => ({ ...s, [name]: value }));
@@ -47,9 +51,26 @@ const PropertyDetailPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Inquiry submitted:", { property: selectedProperty, ...formState });
-    alert("Thank you for your inquiry! The developer will contact you shortly.");
-    setIsModalOpen(false);
+    (async () => {
+      try {
+        const payload = {
+          propertyId: selectedProperty?.id || propertyData?.id || null,
+          propertyTitle: selectedProperty?.name || propertyData?.name || '',
+          message: formState.message,
+          // fullName: formState.fullName,
+          // email: formState.email,
+          // phone: formState.phone,
+        };
+
+        await api.post('/inquiries', payload);
+
+        setIsModalOpen(false);
+        setAlertState({ open: true, type: 'success', title: 'Inquiry Sent', message: 'Thank you — the developer will contact you shortly.' });
+      } catch (err) {
+        console.error('Failed to submit inquiry', err);
+        setAlertState({ open: true, type: 'error', title: 'Request Failed', message: 'Failed to send inquiry. Please try again later.' });
+      }
+    })();
   };
 
   const openInquire = (prefillMessage) => {
@@ -75,10 +96,109 @@ const PropertyDetailPage = () => {
     return value || key;
   };
 
-  // Fetch property data based on ID
-  const propertyData = getResidentialPropertyById(propertyId);
+  // Fetch property data based on ID from API and normalize to UI shape
+  const [propertyData, setPropertyData] = useState(null);
+  const [loadingProperty, setLoadingProperty] = useState(true);
+  const [propertyError, setPropertyError] = useState(null);
 
-  // Handle property not found
+  useEffect(() => {
+    let mounted = true;
+    const controller = new AbortController();
+
+    const fetchProperty = async () => {
+      setLoadingProperty(true);
+      setPropertyError(null);
+      try {
+        const res = await api.get(`/properties/${propertyId}`, { signal: controller.signal });
+        const data = res?.data || res;
+        const p = data?.property || data?.data?.property || data?.data || data || null;
+
+        if (!p) {
+          if (mounted) setPropertyData(null);
+          return;
+        }
+
+        // normalize images
+        const image = (p.images && p.images[0]) || p.image || '/new-development/last.png';
+
+        // normalize amenities to { icon, name }
+        const amenityIconMap = {
+          Pool: Waves,
+          'Swimming Pool': Waves,
+          Garden: TreePine,
+          Parking: Building,
+          Security: Shield,
+          Generator: TrendingUp,
+          'Fitness Center': Dumbbell,
+        };
+        const amenities = (p.amenities || []).map((a) => ({ icon: amenityIconMap[a] || Home, name: a }));
+
+        // units: if API provides units use them, otherwise create one from main property
+        const units = (p.units && Array.isArray(p.units) && p.units.length)
+          ? p.units.map((u) => ({ name: u.name || u.title || 'Unit', size: u.size || (u.sqft ? `${u.sqft} m²` : ''), price: u.price || u.priceXOF || u.priceUSD || '', image: (u.images && u.images[0]) || u.image || image }))
+          : [{ name: p.title || p.name || 'Unit', size: p.sqft ? `${p.sqft} m²` : '', price: p.price || p.priceXOF || p.priceUSD || '', image }];
+
+        // paymentPlan: may be string, object, or array - normalize to array
+        let paymentPlanArr = [];
+        const rawPlan = p.paymentPlan;
+        if (Array.isArray(rawPlan)) {
+          paymentPlanArr = rawPlan.map((pl, idx) => (typeof pl === 'string' ? { step: idx + 1, title: '', detail: pl } : { step: pl.step ?? idx + 1, title: pl.title ?? '', detail: pl.detail ?? pl.description ?? JSON.stringify(pl) }));
+        } else if (typeof rawPlan === 'string') {
+          const parts = rawPlan.split(/\r?\n|,|;/).map(s => s.trim()).filter(Boolean);
+          paymentPlanArr = parts.map((part, idx) => ({ step: idx + 1, title: '', detail: part }));
+        } else if (rawPlan && typeof rawPlan === 'object') {
+          const vals = Object.values(rawPlan).filter(Boolean);
+          paymentPlanArr = vals.map((pl, idx) => (typeof pl === 'string' ? { step: idx + 1, title: '', detail: pl } : { step: pl.step ?? idx + 1, title: pl.title ?? '', detail: pl.detail ?? pl.description ?? JSON.stringify(pl) }));
+        }
+
+        const overview = {
+          unitTypes: p.propertyType || p.property_type || (p.overview && (p.overview.unitTypes || p.overview.unit_type)) || '',
+          startingPrice: (p.price || p.priceXOF) ? `XOF ${Number(p.price || p.priceXOF).toLocaleString()}` : '',
+          completion: p.completionDate || p.completion || (p.overview && (p.overview.completion || p.overview.completionDate)) || '',
+        };
+
+        const normalized = {
+          id: p.id,
+          name: p.title || p.name || p.description || '',
+          title: p.title || p.name || '',
+          developer: p.developerName || p.developer || (p.owner ? `${p.owner.firstName || ''} ${p.owner.lastName || ''}`.trim() : ''),
+          developerInfo: p.developerInfo || '',
+          location: p.address || `${p.city || ''}${p.state ? ', ' + p.state : ''}` || p.location || '',
+          propertyType: p.propertyType || '',
+          priceXOF: p.price || p.priceXOF || '',
+          priceUSD: p.priceUSD || '',
+          image,
+          heroImage: image,
+          verified: !!p.verified,
+          verifiedBy: p.verifiedBy || 'Q Homes',
+          escrowEligible: !!p.escrowEligible,
+          description: p.description || '',
+          units,
+          amenities,
+          paymentPlan: paymentPlanArr,
+          overview,
+          investmentHighlights: (p.investmentHighlights && Array.isArray(p.investmentHighlights)) ? p.investmentHighlights : [],
+          raw: p,
+        };
+
+        if (mounted) setPropertyData(normalized);
+      } catch (err) {
+        if (mounted) setPropertyError(err?.message || 'Failed to load property');
+      } finally {
+        if (mounted) setLoadingProperty(false);
+      }
+    };
+
+    fetchProperty();
+
+    return () => { mounted = false; controller.abort(); };
+  }, [propertyId]);
+
+  // Handle property not found / loading
+  if (loadingProperty) {
+    return <PropertyDetailSkeleton />;
+  }
+
   if (!propertyData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fffff7] dark:bg-gray-900">
@@ -416,7 +536,7 @@ const PropertyDetailPage = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        {plan.title}: {plan.detail}
+                        {plan.detail}
                       </h4>
                     </div>
                   </div>
@@ -528,6 +648,7 @@ const PropertyDetailPage = () => {
             {/* Modal Body */}
             <div className="p-6">
               <form onSubmit={handleSubmit} className="space-y-5">
+                {/*
                 <div>
                   <label htmlFor="fullName" className="block text-[14px] font-medium text-charcoal mb-1.5">Full Name</label>
                   <input
@@ -541,7 +662,9 @@ const PropertyDetailPage = () => {
                     required
                   />
                 </div>
+                */}
 
+                {/*
                 <div>
                   <label htmlFor="email" className="block text-[14px] font-medium text-charcoal mb-1.5">Email Address</label>
                   <input
@@ -555,7 +678,9 @@ const PropertyDetailPage = () => {
                     required
                   />
                 </div>
+                */}
 
+                {/*
                 <div>
                   <label htmlFor="phone" className="block text-[14px] font-medium text-charcoal mb-1.5">Phone / WhatsApp</label>
                   <input
@@ -569,6 +694,7 @@ const PropertyDetailPage = () => {
                     required
                   />
                 </div>
+                */}
 
                 <div>
                   <label htmlFor="message" className="block text-[14px] font-medium text-charcoal mb-1.5">Message</label>
@@ -603,6 +729,13 @@ const PropertyDetailPage = () => {
           </div>
         </div>
       )}
+      <AlertModal
+        open={alertState.open}
+        type={alertState.type}
+        title={alertState.title}
+        message={alertState.message}
+        onClose={() => setAlertState((s) => ({ ...s, open: false }))}
+      />
 
     </div>
   );
