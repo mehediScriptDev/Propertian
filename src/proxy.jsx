@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 /**
  * Proxy for handling locale and authentication
@@ -10,41 +10,41 @@ export function proxy(request) {
   const searchParams = request.nextUrl.search;
 
   // Auth context
-  const token = request.cookies.get('token')?.value;
-  const userCookie = request.cookies.get('user');
+  const token = request.cookies.get("token")?.value;
+  const userCookie = request.cookies.get("user");
   const isAuthenticated = !!token || !!userCookie;
 
   // Check if there is any supported locale in the pathname
-  const pathnameIsMissingLocale = ['en', 'fr'].every(
+  const pathnameIsMissingLocale = ["en", "fr"].every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   );
 
   // Redirect if there is no locale
   if (pathnameIsMissingLocale) {
-    const locale = 'en'; // Default locale
+    const locale = "en"; // Default locale
     return NextResponse.redirect(
       new URL(`/${locale}${pathname}${searchParams}`, request.url)
     );
   }
 
   // Locale for downstream redirects
-  const localeFromPath = pathname.split('/')[1] || 'en';
+  const localeFromPath = pathname.split("/")[1] || "en";
 
   // Get user from cookie (for SSR) - In production, use JWT tokens
 
   // Protected dashboard routes
-  const isDashboardRoute = pathname.includes('/dashboard');
-  const isVerificationRoute = pathname.includes('/verification');
+  const isDashboardRoute = pathname.includes("/dashboard");
+  const isVerificationRoute = pathname.includes("/verification");
   const isProtectedRoute = isDashboardRoute || isVerificationRoute;
 
   // Login and register routes
   const isAuthRoute =
-    pathname.includes('/login') || pathname.includes('/register');
+    pathname.includes("/login") || pathname.includes("/register");
 
   // Redirect unauthenticated users to login
   if (isProtectedRoute && !isAuthenticated) {
     const loginUrl = new URL(`/${localeFromPath}/login`, request.url);
-    loginUrl.searchParams.set('redirect', `${pathname}${searchParams || ''}`);
+    loginUrl.searchParams.set("redirect", `${pathname}${searchParams || ""}`);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -71,14 +71,14 @@ export function proxy(request) {
   if (isDashboardRoute && isAuthenticated) {
     try {
       const user = userCookie ? JSON.parse(userCookie.value) : null;
-      const requiredRole = pathname.includes('/dashboard/admin')
-        ? 'admin'
-        : pathname.includes('/dashboard/partner')
-        ? 'partner'
-        : pathname.includes('/dashboard/user')
-        ? 'user'
-        : pathname.includes('/dashboard/client')
-        ? 'client'
+      const requiredRole = pathname.includes("/dashboard/admin")
+        ? "admin"
+        : pathname.includes("/dashboard/partner")
+        ? "partner"
+        : pathname.includes("/dashboard/user")
+        ? "user"
+        : pathname.includes("/dashboard/client")
+        ? "client"
         : null;
 
       if (requiredRole && user.role !== requiredRole) {
@@ -106,6 +106,6 @@ export function proxy(request) {
 export const config = {
   matcher: [
     // Skip all internal paths (_next, api, static files)
-    '/((?!_next|api|favicon.ico|.*\\..*).*)',
+    "/((?!_next|api|favicon.ico|.*\\..*).*)",
   ],
 };
