@@ -25,6 +25,11 @@ export default function AddPropertyPage({ params }) {
     rental: t('dashboard.admin.properties.add.rental') || 'Rental Information',
   };
 
+  // NOTE for integrators:
+  // This page passes `apiEndpoint={'/admin/properties'}` to the shared `AddPropertyForm`.
+  // When the backend is ready, ensure the admin create endpoint exists and accepts the same payload shape
+  // (or adapt the `apiEndpoint` and payload mapping here). Also verify role-based enforcement server-side.
+
   return (
     <div className='space-y-4 md:space-y-6'>
     
@@ -33,7 +38,7 @@ export default function AddPropertyPage({ params }) {
       
 
       <div className='rounded-lg bg-white shadow-sm overflow-hidden p-4 sm:p-6'>
-        <AddPropertyForm translations={translations} locale={locale} />
+        <AddPropertyForm translations={translations} locale={locale} apiEndpoint={'/admin/properties'} />
       </div>
     </div>
   );

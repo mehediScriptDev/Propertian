@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 import DevelopmentCard from '@/components/property/DevelopmentCard';
@@ -9,6 +9,8 @@ import WhyInvestCard from '@/components/property/WhyInvestCard';
 import DeveloperCTA from '@/components/property/DeveloperCTA';
 import { X } from 'lucide-react';
 import { Shield } from 'lucide-react'; 
+import api from '@/lib/api';
+import AlertModal from '@/components/ui/AlertModal';
 /**
  * ResidentialPage - New Developments Page
  *
@@ -35,58 +37,69 @@ export default function ResidentialPage() {
     message: '',
   });
 
-  // Mock data for developments - Replace with API call in production
-  const allDevelopments = useMemo(() => [
-    {
-      id: '1',
-      title: 'Azure Residences',
-      developer: 'Riviera Developers',
-      location: 'Abidjan, Riviera',
-      city: 'abidjan',
-      propertyType: 'apartment',
-      stage: 'construction',
-      priceXOF: 85000000,
-      priceUSD: 140000,
-      image:
-        '/new-development/azura.jpg',
-      verified: true,
-      escrowEligible: true,
-    },
-    {
-      id: '2',
-      title: 'The Pearl of Cocody',
-      developer: 'Prestige Homes',
-      location: 'Abidjan, Cocody',
-      city: 'abidjan',
-      propertyType: 'penthouse',
-      stage: 'completion',
-      priceXOF: 120000000,
-      priceUSD: 197000,
-      image:
-        '/new-development/pearl.jpg',
-      verified: true,
-      escrowEligible: false,
-    },
-    {
-      id: '3',
-      title: 'Baie des Milliardaires Villas',
-      developer: 'Assinie Luxury',
-      location: 'Assinie-Mafia',
-      city: 'assinie',
-      propertyType: 'villa',
-      stage: 'planning',
-      priceXOF: 350000000,
-      priceUSD: 575000,
-      image:
-        '/new-development/last.png',
-      verified: true,
-      escrowEligible: true,
-    },
-  ], []);
+  const [alertState, setAlertState] = useState({ open: false, type: 'success', title: '', message: '' });
+
+  // live developments loaded from API
+  const [developments, setDevelopments] = useState([]);
+  const [loadingDevelopments, setLoadingDevelopments] = useState(false);
+  const [devError, setDevError] = useState(null);
+
+  // Fetch NEW_DEVELOPMENT properties from API and normalize shape
+  useEffect(() => {
+    let mounted = true;
+    const controller = new AbortController();
+
+    const fetchDevelopments = async () => {
+      setLoadingDevelopments(true);
+      setDevError(null);
+      try {
+        const res = await api.get('/properties?propertyType=NEW_DEVELOPMENT', { signal: controller.signal });
+        // api.get returns response.data from axios; backend may nest under `data`
+        const data = res?.data || res;
+        let props = data?.properties || data?.data?.properties || data?.data || data?.items || [];
+
+        if (!Array.isArray(props) && typeof props === 'object') {
+          props = Object.values(props);
+        }
+
+        // Normalize fields so the rest of the page can use the same keys as the mock
+        const normalized = (props || []).map((p) => ({
+          id: p.id,
+          title: p.title || p.name || '',
+          developer: p.developerName || p.developer || (p.owner ? `${p.owner.firstName || ''} ${p.owner.lastName || ''}`.trim() : ''),
+          location: p.address || p.location || '',
+          city: (p.city || '').toLowerCase(),
+          propertyType: p.propertyType || '',
+          stage: p.stage || (p.isNewDevelopment ? 'planning' : ''),
+          priceXOF: p.price || p.priceXOF || '',
+          priceUSD: p.priceUSD || '',
+          image: (p.images && p.images[0]) || p.image || '/new-development/last.png',
+          verified: !!(p.verified || p.isVerified),
+          escrowEligible: !!p.escrowEligible,
+          completionDate: p.completionDate,
+          developerInfo: p.developerInfo || '',
+          raw: p,
+        }));
+
+        if (mounted) setDevelopments(normalized);
+      } catch (err) {
+        if (mounted) setDevError(err?.message || 'Failed to load developments');
+      } finally {
+        if (mounted) setLoadingDevelopments(false);
+      }
+    };
+
+    fetchDevelopments();
+
+    return () => {
+      mounted = false;
+      controller.abort();
+    };
+  }, []);
 
   // Filter developments based on selected filters
   const filteredDevelopments = useMemo(() => {
-    return allDevelopments.filter((dev) => {
+    return developments.filter((dev) => {
       // City filter
       if (filters.cityArea !== 'all' && dev.city !== filters.cityArea) {
         return false;
@@ -121,9 +134,9 @@ export default function ResidentialPage() {
         }
       }
 
-      return true;
+          return true;
     });
-  }, [filters, allDevelopments]);
+  }, [filters, developments]);
 
   // Investment benefits data
   const investmentBenefits = [
@@ -166,7 +179,7 @@ export default function ResidentialPage() {
   };
 
   const handleInquire = (id) => {
-    const development = allDevelopments.find(dev => dev.id === id);
+    const development = developments.find((dev) => dev.id === id);
     if (development) {
       setSelectedDevelopment(development);
       setFormState({
@@ -186,9 +199,26 @@ export default function ResidentialPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Inquiry submitted:', { development: selectedDevelopment, ...formState });
-    alert('Thank you for your inquiry! The developer will contact you shortly.');
-    setIsModalOpen(false);
+    (async () => {
+      try {
+        const payload = {
+          propertyId: selectedDevelopment?.id || null,
+          propertyTitle: selectedDevelopment?.title || selectedDevelopment?.name || '',
+          message: formState.message,
+          // fullName: formState.fullName,
+          // email: formState.email,
+          // phone: formState.phone,
+        };
+
+        await api.post('/inquiries', payload);
+
+        setIsModalOpen(false);
+        setAlertState({ open: true, type: 'success', title: 'Inquiry Sent', message: 'Thank you — the developer will contact you shortly.' });
+      } catch (err) {
+        console.error('Failed to submit inquiry', err);
+        setAlertState({ open: true, type: 'error', title: 'Request Failed', message: 'Failed to send inquiry. Please try again later.' });
+      }
+    })();
   };
 
   const handleFilterChange = (newFilters) => {
@@ -236,7 +266,11 @@ export default function ResidentialPage() {
 
         {/* Development Cards Grid */}
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 xl:gap-6 my-1.5'>
-          {filteredDevelopments.length > 0 ? (
+          {loadingDevelopments ? (
+            <div className='col-span-full text-center py-12'>Loading developments…</div>
+          ) : devError ? (
+            <div className='col-span-full text-center py-12 text-red-600'>{devError}</div>
+          ) : filteredDevelopments.length > 0 ? (
             filteredDevelopments.map((development) => (
               <DevelopmentCard
                 key={development.id}
@@ -290,7 +324,7 @@ export default function ResidentialPage() {
             <div className="sticky top-0 bg-[#fffff8] border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
               <div>
                 <h3 className="text-2xl font-bold text-charcoal">
-                  Inquire about {selectedDevelopment.title}
+                  Inquire about {selectedDevelopment.title ? selectedDevelopment.title.split(/\b-?\s*New Development\b/i)[0].replace(/\s*[-–—:\s]+$/,'').trim() : selectedDevelopment.title}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
                   Fill out the form below and the developer will contact you shortly.
@@ -308,6 +342,7 @@ export default function ResidentialPage() {
             {/* Modal Body */}
             <div className="p-6">
               <form onSubmit={handleSubmit} className="space-y-5">
+                {/*
                 <div>
                   <label
                     htmlFor="fullName"
@@ -326,7 +361,9 @@ export default function ResidentialPage() {
                     required
                   />
                 </div>
+                */}
 
+                {/*
                 <div>
                   <label
                     htmlFor="email"
@@ -345,7 +382,9 @@ export default function ResidentialPage() {
                     required
                   />
                 </div>
+                */}
 
+                {/*
                 <div>
                   <label
                     htmlFor="phone"
@@ -364,6 +403,7 @@ export default function ResidentialPage() {
                     required
                   />
                 </div>
+                */}
 
                 <div>
                   <label
@@ -404,6 +444,13 @@ export default function ResidentialPage() {
           </div>
         </div>
       )}
+      <AlertModal
+        open={alertState.open}
+        type={alertState.type}
+        title={alertState.title}
+        message={alertState.message}
+        onClose={() => setAlertState((s) => ({ ...s, open: false }))}
+      />
     </main>
   );
 }

@@ -161,7 +161,7 @@ export default function PartnerDirectoryPage() {
           <div className="flex justify-end mt-4">
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center gap-2 bg-primary text-charcoal font-semibold px-4 py-2 rounded-lg hover:opacity-95"
+              className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:opacity-95"
             >
               Add Partner
             </button>

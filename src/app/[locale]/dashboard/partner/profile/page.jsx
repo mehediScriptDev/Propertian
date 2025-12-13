@@ -76,7 +76,7 @@ export default function PartnerProfilePage() {
         return "bg-gray-100 text-gray-800";
     }
   }, [formData.package]);
-
+  
   return (
     <div className="space-y-3 lg:space-y-4.5">
       {/* Header */}
@@ -143,7 +143,9 @@ export default function PartnerProfilePage() {
                 {t("PertnerProfile.VerificationStatus")}
               </p>
               <p className="text-base sm:text-lg font-semibold text-gray-900 truncate">
-                {formData.is_verified ? t("PertnerProfile.Verified") : t("PertnerProfile.NotVerified")}
+                {formData.is_verified
+                  ? t("PertnerProfile.Verified")
+                  : t("PertnerProfile.NotVerified")}
               </p>
             </div>
           </div>
@@ -163,9 +165,13 @@ export default function PartnerProfilePage() {
               />
             )}
             <div className="min-w-0">
-              <p className="text-xs sm:text-sm text-gray-600">{t("PertnerProfile.PaymentStatus")}</p>
+              <p className="text-xs sm:text-sm text-gray-600">
+                {t("PertnerProfile.PaymentStatus")}
+              </p>
               <p className="text-base sm:text-lg font-semibold text-gray-900 truncate">
-                {formData.is_paid ? t("PertnerProfile.Paid") : t("PertnerProfile.Unpaid")}
+                {formData.is_paid
+                  ? t("PertnerProfile.Paid")
+                  : t("PertnerProfile.Unpaid")}
               </p>
             </div>
           </div>
@@ -341,7 +347,9 @@ export default function PartnerProfilePage() {
                 <p className="truncate text-xs sm:text-sm font-medium text-gray-900">
                   {doc}
                 </p>
-                <p className="text-xs text-gray-500">{t("PertnerProfile.PDFDocuments")}</p>
+                <p className="text-xs text-gray-500">
+                  {t("PertnerProfile.PDFDocuments")}
+                </p>
               </div>
             </div>
           ))}
