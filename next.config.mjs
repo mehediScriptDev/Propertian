@@ -47,9 +47,9 @@ const nextConfig = {
         pathname: "/uploads/**",
       },
       {
-        protocol: 'https',
-        hostname: 'quiahgroup1backend.mtscorporate.com',
-        pathname: '/uploads/**',
+        protocol: "https",
+        hostname: "quiahgroup1backend.mtscorporate.com",
+        pathname: "/uploads/**",
       },
     ],
     formats: ["image/avif", "image/webp"],
