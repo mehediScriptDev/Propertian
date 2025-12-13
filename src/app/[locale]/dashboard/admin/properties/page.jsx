@@ -51,19 +51,22 @@ export default function PropertiesManagementPage({ params }) {
             if (prop.status === 'AVAILABLE') statusDisplay = 'available';
             else if (prop.status === 'PENDING') statusDisplay = 'pending';
             else if (prop.status === 'SOLD' || prop.status === 'INACTIVE') statusDisplay = 'inactive';
+            const ownerName = prop.owner
+              ? `${prop.owner.firstName ?? ''} ${prop.owner.lastName ?? ''}`.trim()
+              : 'N/A';
 
             return {
               id: prop.id,
               title: prop.title,
-              location: `${prop.city}, ${prop.state}`,
-              price: parseFloat(prop.price),
-              priceUSD: parseFloat(prop.price),
+              location: `${prop.city || ''}, ${prop.state || ''}`.replace(/^, |, $/g, ''),
+              price: Number(prop.price) || 0,
+              priceUSD: Number(prop.price) || 0,
               status: statusDisplay,
               type: prop.propertyType,
               bedrooms: prop.bedrooms,
               area: prop.sqft,
               views: 0, // API doesn't provide views yet
-              partner: `${prop.owner.firstName} ${prop.owner.lastName}`,
+              partner: ownerName,
               image: resolveImageUrl(prop.images?.[0]),
             };
           });
@@ -210,18 +213,22 @@ export default function PropertiesManagementPage({ params }) {
           else if (prop.status === 'PENDING') statusDisplay = 'pending';
           else if (prop.status === 'SOLD' || prop.status === 'INACTIVE') statusDisplay = 'inactive';
 
+          const ownerName = prop.owner
+            ? `${prop.owner.firstName ?? ''} ${prop.owner.lastName ?? ''}`.trim()
+            : 'N/A';
+
           return {
             id: prop.id,
             title: prop.title,
-            location: `${prop.city}, ${prop.state}`,
-            price: parseFloat(prop.price),
-            priceUSD: parseFloat(prop.price),
+            location: `${prop.city || ''}, ${prop.state || ''}`.replace(/^, |, $/g, ''),
+            price: Number(prop.price) || 0,
+            priceUSD: Number(prop.price) || 0,
             status: statusDisplay,
             type: prop.propertyType,
             bedrooms: prop.bedrooms,
             area: prop.sqft,
             views: 0,
-            partner: `${prop.owner.firstName} ${prop.owner.lastName}`,
+            partner: ownerName,
             image: resolveImageUrl(prop.images?.[0]),
           };
         });
@@ -285,7 +292,7 @@ export default function PropertiesManagementPage({ params }) {
         </p>
       </div>
 
-    
+
 
       {/* Filters */}
       <PropertiesFilters
