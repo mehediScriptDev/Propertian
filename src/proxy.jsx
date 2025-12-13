@@ -9,6 +9,11 @@ export function proxy(request) {
   const pathname = request.nextUrl.pathname;
   const searchParams = request.nextUrl.search;
 
+  // Auth context
+  const token = request.cookies.get('token')?.value;
+  const userCookie = request.cookies.get('user');
+  const isAuthenticated = !!token || !!userCookie;
+
   // Check if there is any supported locale in the pathname
   const pathnameIsMissingLocale = ['en', 'fr'].every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
@@ -22,34 +27,37 @@ export function proxy(request) {
     );
   }
 
+  // Locale for downstream redirects
+  const localeFromPath = pathname.split('/')[1] || 'en';
+
   // Get user from cookie (for SSR) - In production, use JWT tokens
-  const userCookie = request.cookies.get('user');
-  const isAuthenticated = !!userCookie;
 
   // Protected dashboard routes
-  const isDashboardRoute = pathname.includes('/dashboard/');
+  const isDashboardRoute = pathname.includes('/dashboard');
+  const isVerificationRoute = pathname.includes('/verification');
+  const isProtectedRoute = isDashboardRoute || isVerificationRoute;
 
   // Login and register routes
   const isAuthRoute =
     pathname.includes('/login') || pathname.includes('/register');
 
   // Redirect unauthenticated users to login
-  if (isDashboardRoute && !isAuthenticated) {
-    const locale = pathname.split('/')[1] || 'en';
-    const loginUrl = new URL(`/${locale}/login`, request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+  if (isProtectedRoute && !isAuthenticated) {
+    const loginUrl = new URL(`/${localeFromPath}/login`, request.url);
+    loginUrl.searchParams.set('redirect', `${pathname}${searchParams || ''}`);
     return NextResponse.redirect(loginUrl);
   }
 
   // Redirect authenticated users away from login/register
   if (isAuthRoute && isAuthenticated) {
     try {
-      const user = JSON.parse(userCookie.value);
-      const locale = pathname.split('/')[1] || 'en';
+      const user = userCookie ? JSON.parse(userCookie.value) : null;
+      const locale = localeFromPath;
       const dashboardRoutes = {
         admin: `/${locale}/dashboard/admin`,
         user: `/${locale}/dashboard/user`,
         partner: `/${locale}/dashboard/partner`,
+        client: `/${locale}/dashboard/client`,
       };
       return NextResponse.redirect(
         new URL(dashboardRoutes[user.role] || `/${locale}`, request.url)
@@ -62,21 +70,24 @@ export function proxy(request) {
   // Role-based access control for dashboard routes
   if (isDashboardRoute && isAuthenticated) {
     try {
-      const user = JSON.parse(userCookie.value);
+      const user = userCookie ? JSON.parse(userCookie.value) : null;
       const requiredRole = pathname.includes('/dashboard/admin')
         ? 'admin'
         : pathname.includes('/dashboard/partner')
         ? 'partner'
-        : pathname.includes('/dashboard/user') || pathname.includes('/dashboard/client')
+        : pathname.includes('/dashboard/user')
         ? 'user'
+        : pathname.includes('/dashboard/client')
+        ? 'client'
         : null;
 
       if (requiredRole && user.role !== requiredRole) {
-        const locale = pathname.split('/')[1] || 'en';
+        const locale = localeFromPath;
         const dashboardRoutes = {
           admin: `/${locale}/dashboard/admin`,
           user: `/${locale}/dashboard/user`,
           partner: `/${locale}/dashboard/partner`,
+          client: `/${locale}/dashboard/client`,
         };
         return NextResponse.redirect(
           new URL(dashboardRoutes[user.role] || `/${locale}`, request.url)
@@ -84,7 +95,7 @@ export function proxy(request) {
       }
     } catch (error) {
       // Invalid cookie, redirect to login
-      const locale = pathname.split('/')[1] || 'en';
+      const locale = localeFromPath;
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
     }
   }
