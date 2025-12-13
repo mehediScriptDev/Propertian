@@ -67,7 +67,8 @@ const nextConfig = {
   generateEtags: true,
 
   // Performance optimization
-  swcMinify: true,
+  // NOTE: `swcMinify` is no longer recognized in Next.js 16; Next uses
+  // its own default minifier. Remove this option to avoid invalid config warnings.
 
   // Experimental features for better performance
   experimental: {
