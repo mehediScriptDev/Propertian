@@ -244,6 +244,21 @@ export function AuthProvider({ children }) {
   };
 
   /**
+   * Update user data in state and cookies
+   */
+  const updateUserData = (updates) => {
+    setUser(prev => {
+      const updatedUser = { ...prev, ...updates };
+      // Update cookie without token
+      const userDataWithoutToken = { ...updatedUser };
+      delete userDataWithoutToken.token;
+      delete userDataWithoutToken.refreshToken;
+      Cookies.set('user', JSON.stringify(userDataWithoutToken), { expires: 1, sameSite: 'Lax', path: '/' });
+      return updatedUser;
+    });
+  };
+
+  /**
    * Check if user has required role
    * @param {string} requiredRole - Required role for access
    * @returns {boolean}
@@ -254,6 +269,8 @@ export function AuthProvider({ children }) {
 
   const value = {
     user,
+    setUser,
+    updateUserData,
     login,
     logout,
     register,

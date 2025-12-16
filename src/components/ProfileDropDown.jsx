@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { LayoutDashboard, LogOut, UserCircle, Home, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, LogOut, UserCircle, Home, ChevronDown, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -105,12 +105,12 @@ const ProfileDropDown = ({ showOnHover = false, useArrow = false }) => {
       >
         <button
           onClick={() => !showOnHover && setOpen((prev) => !prev)}
-          className='relative flex items-center cursor-pointer justify-center sm:w-11 w-8 h-8 sm:h-11 rounded-md px-2 py-1  dark:border-gray-700 hover:border-[#C5A572] dark:hover:border-[#C5A572] transition-all duration-200 group bg-transparent dark:bg-transparent hover:rotate-180'
+          className='relative flex items-center cursor-pointer justify-center sm:w-11 w-8 h-8 sm:h-11 rounded-md px-2 py-1  dark:border-gray-700 hover:border-[#C5A572] dark:hover:border-[#C5A572] transition-all duration-200 group bg-transparent dark:bg-transparent '
           aria-haspopup='true'
           aria-expanded={open}
         >
           {/* Always show a small down arrow trigger (no avatar) */}
-          <ChevronDown className='w-8 h-8 text-gray-700 dark:text-gray-200' />
+          <User className='w-8 h-8 text-gray-700 dark:text-gray-200' />
         </button>
       </div>
 

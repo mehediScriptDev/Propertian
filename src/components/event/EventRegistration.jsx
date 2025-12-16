@@ -53,8 +53,11 @@ const EventRegistration = memo(({ translations, event }) => {
         alert('Registration successful')
         setFormData({ fullName: '', email: '', phone: '' })
       } catch (err) {
+        // axiosInstance rejects with an object containing { message, status, data }
         console.error('Registration failed', err)
-        alert('Registration failed. Please try again.')
+        const serverMessage =
+          err?.message || err?.data?.message || err?.response?.data?.message || 'Registration failed. Please try again.'
+        alert(serverMessage)
       } finally {
         setIsSubmitting(false)
       }
