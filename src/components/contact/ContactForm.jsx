@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import ComponentTitle from '@/components/shared/ComponentTitle';
 import COUNTRY_CODES from '@/utils/countryCodes';
 import axios from '@/lib/axios';
+import { ChevronDown } from 'lucide-react';
 
 const ContactForm = React.memo(
   ({ title, subtitle, labels, privacyNote, submitButton }) => {
@@ -170,14 +171,7 @@ const ContactForm = React.memo(
                           </option>
                         ))}
                       </select>
-                      <svg
-                        className='absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none w-3 h-3 text-navy dark:text-[#FFFFF0] rotate-90'
-                        viewBox='0 0 20 20'
-                        fill='currentColor'
-                        aria-hidden='true'
-                      >
-                        <path d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z' />
-                      </svg>
+                      <ChevronDown className='absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none w-3 h-3 text-navy dark:text-[#FFFFF0]' aria-hidden='true' />
                     </div>
 
                     <input
