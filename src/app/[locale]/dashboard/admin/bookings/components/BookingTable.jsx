@@ -1,6 +1,7 @@
 "use client"
 
 import React from 'react'
+import Image from 'next/image'
 import { Eye, Edit3, Trash2, Edit } from 'lucide-react'
 
 const statusClasses = (status) => {
@@ -20,6 +21,7 @@ export default function BookingTable({ bookings = [], className = '', onView, on
                 <table className='w-full min-w-[800px]'>
                     <thead className='bg-gray-100 text-gray-900'>
                         <tr className='text-xs text-gray-500 bg-gray-50'>
+                           
                             <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>ID</th>
                             <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>NAME</th>
                             <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>EMAIL</th>
@@ -32,14 +34,18 @@ export default function BookingTable({ bookings = [], className = '', onView, on
                     <tbody>
                         {bookings.map((b, i) => {
                             const id = b?.id || ''
-                            const name = `${b?.user?.firstName || ''} ${b?.user?.lastName || ''}`.trim() || b?.name || '—'
-                            const email = b?.user?.email || b?.email || '—'
-                            const phone = b?.user?.phone || b?.phone || '—'
-                            const prop = b?.property?.title || b?.property?.address || '—'
+                            const userObj = b?.user || b?.users || {}
+                            const propObj = b?.property || b?.properties || {}
+                            const name = `${userObj?.firstName || ''} ${userObj?.lastName || ''}`.trim() || b?.name || '—'
+                            const email = userObj?.email || b?.email || '—'
+                            const phone = userObj?.phone || b?.phone || '—'
+                            const prop = propObj?.title || propObj?.address || '—'
                             const status = b?.status || '—'
+                            const img = (Array.isArray(propObj?.images) && propObj.images[0]) || propObj?.image || '/buy-rent/thumb.png'
 
                             return (
                                 <tr key={id || i} className='hover:bg-gray-50 transition-colors border-b border-gray-300'>
+                               
                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{id}</td>
                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{name}</td>
                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{email}</td>
@@ -80,15 +86,19 @@ export default function BookingTable({ bookings = [], className = '', onView, on
             <div className="md:hidden space-y-3">
                 {bookings.map((b, i) => {
                     const id = b?.id || ''
-                    const name = `${b?.user?.firstName || ''} ${b?.user?.lastName || ''}`.trim() || b?.name || '—'
-                    const email = b?.user?.email || b?.email || '—'
-                    const phone = b?.user?.phone || b?.phone || '—'
-                    const prop = b?.property?.title || b?.property?.address || '—'
+                    const userObj = b?.user || b?.users || {}
+                    const propObj = b?.property || b?.properties || {}
+                    const name = `${userObj?.firstName || ''} ${userObj?.lastName || ''}`.trim() || b?.name || '—'
+                    const email = userObj?.email || b?.email || '—'
+                    const phone = userObj?.phone || b?.phone || '—'
+                    const prop = propObj?.title || propObj?.address || '—'
                     const status = b?.status || '—'
+                    const img = (Array.isArray(propObj?.images) && propObj.images[0]) || propObj?.image || '/buy-rent/thumb.png'
 
                     return (
                         <div key={id || i} className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm'>
                             <div className='flex justify-between items-start gap-3'>
+                                 
                                 <div className='flex-1 min-w-0'>
                                     <div className='flex items-center justify-between gap-2'>
                                         <h3 className='text-sm font-semibold text-gray-900 truncate'>{name}</h3>
@@ -98,7 +108,7 @@ export default function BookingTable({ bookings = [], className = '', onView, on
                                     <p className='mt-2 text-xs text-gray-600'>{email} · {phone}</p>
                                     <p className='mt-2 text-xs text-gray-400 font-mono truncate text-ellipsis'>{id}</p>
                                 </div>
-                                <div className='flex-shrink-0 flex flex-col items-end gap-2'>
+                                <div className='shrink-0 flex flex-col items-end gap-2'>
                                     <button onClick={() => onView && onView(b)} title='View' className='p-2 rounded text-gray-600 hover:bg-gray-100'>
                                         <Eye className='h-4 w-4' />
                                     </button>

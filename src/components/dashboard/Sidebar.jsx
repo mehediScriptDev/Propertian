@@ -104,11 +104,11 @@ const navigationConfig = {
       href: '/dashboard/admin/partner-directory',
       icon: HelpCircle,
     },
-    // {
-    //   key: 'dashboard.admin.settings',
-    //   href: '/dashboard/admin/settings',
-    //   icon: Settings,
-    // },
+    {
+      key: 'Contacts',
+      href: '/dashboard/admin/contacts',
+      icon: Settings,
+    },
   ],
   user: [
     {

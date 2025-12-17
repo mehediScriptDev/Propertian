@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect } from 'react'
+import Image from 'next/image'
 
 function fmt(date) {
     try {
@@ -13,8 +14,6 @@ function fmt(date) {
 }
 
 export default function BookingDetailsModal({ isOpen, onClose, booking }) {
-    if (!booking || !isOpen) return null
-
     useEffect(() => {
         const onKey = (e) => {
             if (e.key === 'Escape') onClose?.()
@@ -23,8 +22,11 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }) {
         return () => document.removeEventListener('keydown', onKey)
     }, [isOpen, onClose])
 
-    const user = booking.user || {}
-    const prop = booking.property || {}
+    if (!booking || !isOpen) return null
+
+    const user = booking.user || booking.users || {}
+    const prop = booking.property || booking.properties || {}
+    const images = Array.isArray(prop?.images) ? prop.images : []
 
     return (
         <div
@@ -70,6 +72,25 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }) {
                                 <h4 className='text-xs text-gray-500 uppercase font-medium'>Property</h4>
                                 <p className='mt-1 font-semibold'>{prop.title || prop.address || '—'}</p>
                                 {prop.city && <p className='text-xs text-gray-600'>{prop.city}</p>}
+
+                                {/* Images: show up to two thumbnails if available */}
+                                {/* <div className='mt-3 flex items-start gap-2'>
+                                        {images[0] ? (
+                                            <div className='w-44 h-28 relative rounded overflow-hidden bg-gray-100'>
+                                                <Image src={images[0]} alt={prop.title || 'property image 1'} fill className='object-cover' />
+                                            </div>
+                                        ) : (
+                                            <div className='w-44 h-28 bg-gray-100 rounded' />
+                                        )}
+
+                                        {images[1] ? (
+                                            <div className='w-44 h-28 relative rounded overflow-hidden bg-gray-100'>
+                                                <Image src={images[1]} alt={prop.title || 'property image 2'} fill className='object-cover' />
+                                            </div>
+                                        ) : (
+                                            <div className='w-44 h-28 bg-gray-100 rounded opacity-40 flex items-center justify-center text-xs text-gray-500'>No 2nd image</div>
+                                        )}
+                                    </div> */}
                             </div>
                         </div>
 
@@ -96,8 +117,8 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }) {
                             <div>
                                 <h4 className='text-xs text-gray-500 uppercase font-medium'>Created</h4>
                                 <p className='mt-1'>{fmt(booking.createdAt || booking.created_at)}</p>
-                                <h4 className='text-xs text-gray-500 uppercase font-medium mt-3'>Updated</h4>
-                                <p className='mt-1'>{fmt(booking.updatedAt || booking.updated_at)}</p>
+                                {/* <h4 className='text-xs text-gray-500 uppercase font-medium mt-3'>Updated</h4>
+                                <p className='mt-1'>{fmt(booking.updatedAt || booking.updated_at)}</p> */}
                             </div>
                         </div>
 
