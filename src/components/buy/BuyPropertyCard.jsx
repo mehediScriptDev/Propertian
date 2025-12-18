@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FaHeart } from 'react-icons/fa';
 import { AiOutlineHeart } from "react-icons/ai";
+import { Check, Home, Bed, ShowerHead, Ruler } from 'lucide-react';
 
 /**
  * BuyPropertyCard Component
@@ -149,18 +150,7 @@ export default function BuyPropertyCard({ property }) {
               className='flex items-center gap-1 bg-[#D4AF37] text-white text-xs font-bold px-2.5 py-1.5 rounded-full shadow-md'
               aria-label='Verified property'
             >
-              <svg
-                className='w-3.5 h-3.5'
-                fill='currentColor'
-                viewBox='0 0 20 20'
-                aria-hidden='true'
-              >
-                <path
-                  fillRule='evenodd'
-                  d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                  clipRule='evenodd'
-                />
-              </svg>
+              <Check className='w-3.5 h-3.5' aria-hidden='true' />
               <span>{t('buy.propertyCard.verified', 'Verified')}</span>
             </span>
           )}
@@ -172,14 +162,7 @@ export default function BuyPropertyCard({ property }) {
             className='flex items-center gap-1 bg-gray-700/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md'
             aria-label={`${mapPropertyType(propertyType)} property`}
           >
-            <svg
-              className='w-3.5 h-3.5'
-              fill='currentColor'
-              viewBox='0 0 20 20'
-              aria-hidden='true'
-            >
-              <path d='M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z' />
-            </svg>
+            <Home className='w-3.5 h-3.5' aria-hidden='true' />
             <span>{mapPropertyType(propertyType)}</span>
           </span>
         </div>
@@ -212,14 +195,7 @@ export default function BuyPropertyCard({ property }) {
           <div className='flex items-center gap-2 sm:gap-3 mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300'>
             {bedrooms && (
               <div className='flex items-center gap-1'>
-                <svg
-                  className='w-4 h-4'
-                  fill='currentColor'
-                  viewBox='0 0 20 20'
-                  aria-hidden='true'
-                >
-                  <path d='M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z' />
-                </svg>
+                <Bed className='w-4 h-4' aria-hidden='true' />
                 <span>
                   {bedrooms} {bedrooms > 1 ? 'beds' : 'bed'}
                 </span>
@@ -227,18 +203,7 @@ export default function BuyPropertyCard({ property }) {
             )}
             {bathrooms && (
               <div className='flex items-center gap-1'>
-                <svg
-                  className='w-4 h-4'
-                  fill='currentColor'
-                  viewBox='0 0 20 20'
-                  aria-hidden='true'
-                >
-                  <path
-                    fillRule='evenodd'
-                    d='M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z'
-                    clipRule='evenodd'
-                  />
-                </svg>
+                <ShowerHead className='w-4 h-4' aria-hidden='true' />
                 <span>
                   {bathrooms} {bathrooms > 1 ? 'baths' : 'bath'}
                 </span>
@@ -246,14 +211,7 @@ export default function BuyPropertyCard({ property }) {
             )}
             {area && (
               <div className='flex items-center gap-1'>
-                <svg
-                  className='w-4 h-4'
-                  fill='currentColor'
-                  viewBox='0 0 20 20'
-                  aria-hidden='true'
-                >
-                  <path d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z' />
-                </svg>
+                <Ruler className='w-4 h-4' aria-hidden='true' />
                 <span>{area} m²</span>
               </div>
             )}

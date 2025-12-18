@@ -55,16 +55,16 @@ export default function SavedProperties() {
     setFavProperties((prev) => prev.map((prop) => (prop.id === id ? { ...prop, liked: !prop.liked } : prop)));
   }, []);
 
-  // Remove a property from favorites on the server then update local list
+  
   const removeFavorite = useCallback(async (propertyId) => {
     try {
-      // call DELETE /properties/:id/favorite
+     
       await api.delete(`/properties/${propertyId}/favorite`);
-      // remove from local state so UI updates immediately
+      
       setFavProperties((prev) => prev.filter((p) => p.id !== propertyId));
     } catch (err) {
       console.error('Failed to remove favorite', err);
-      // Optionally: setError or show toast. For now, set error state so user sees something
+      
       setError(err?.message || 'Failed to remove favorite');
     }
   }, []);
@@ -108,19 +108,6 @@ export default function SavedProperties() {
                 />
               </div>
             </div>
-
-            {/* <div className="ml-auto flex items-center gap-3">
-
-              <button
-                type="button"
-                aria-label={t('dashboard.actions.addProperty') || 'Add Property'}
-                className="bg-[#E6B325] text-white px-4 py-2 rounded shadow text-base flex items-center"
-              // TODO: wire add property action
-              >
-                <Plus className="h-6 text-white w-6 mr-2" aria-hidden="true" />
-                <span>{t('dashboard.client.addProperty')}</span>
-              </button>
-            </div> */}
           </div>
         </div>
 

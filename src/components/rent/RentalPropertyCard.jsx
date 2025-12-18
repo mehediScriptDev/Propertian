@@ -7,6 +7,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AiOutlineHeart } from 'react-icons/ai';
 import { GoHeartFill } from "react-icons/go";
+import { useAuth } from '@/contexts/AuthContext';
+import axios from '@/lib/axios';
+import { useRouter } from 'next/navigation';
 import { CheckCircle, Clock, Home, Bed, ShowerHead } from 'lucide-react';
 
 /**
@@ -35,7 +38,9 @@ export default function RentalPropertyCard({ property }) {
     bathrooms,
   } = property;
 
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [isFavorite, setIsFavorite] = useState(Boolean(property.isFavorite));
 
   // Format price with thousand separators
   const formatPrice = (price) => {
@@ -119,10 +124,25 @@ export default function RentalPropertyCard({ property }) {
           </p>
           <button
             title={isFavorite ? 'Remove favourite' : 'Add favourite'}
-            onClick={(e) => {
+            onClick={async (e) => {
               e.preventDefault();
               e.stopPropagation();
-              setIsFavorite((v) => !v);
+
+              if (!isAuthenticated) {
+                const locale = (typeof window !== 'undefined' && window.location.pathname.split('/')[1]) || 'en';
+                router.push(`/${locale}/login`);
+                return;
+              }
+
+              const prev = isFavorite;
+              setIsFavorite(!prev);
+
+              try {
+                await axios.post(`/properties/${id}/favorite`);
+              } catch (err) {
+                console.error('Favorite request failed', err);
+                setIsFavorite(prev);
+              }
             }}
             aria-pressed={isFavorite}
             className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
