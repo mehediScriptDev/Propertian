@@ -37,9 +37,10 @@ export default function ConciergeRequestsPage({ params }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Constants
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50, 100];
 
   // Requests data (fetched from backend)
   const [requestsData, setRequestsData] = useState([]);
@@ -98,7 +99,7 @@ export default function ConciergeRequestsPage({ params }) {
 
         const params = {
           page: currentPage,
-          limit: ITEMS_PER_PAGE,
+          limit: itemsPerPage,
           sortBy: 'createdAt',
           sortOrder: 'desc',
         };
@@ -170,21 +171,10 @@ export default function ConciergeRequestsPage({ params }) {
         };
 
         // Always keep raw API list; then decide what to show in state
-        const clientFiltered = applyClientFilters(apiRequests);
-
-        // If any filter/search is active, show clientFiltered so UI reflects filters immediately.
-        if (
-          (statusFilter && statusFilter !== 'all') ||
-          (priorityFilter && priorityFilter !== 'all') ||
-          (searchTerm && searchTerm.trim() !== '')
-        ) {
-          setRequestsData(clientFiltered);
-          setTotalItems(clientFiltered.length);
-        } else {
-          setRequestsData(apiRequests);
-          const total = data?.total ?? data?.meta?.total ?? json?.total ?? apiRequests.length;
-          setTotalItems(Number(total));
-        }
+        // Use server-returned list and paging metadata so pagination remains server-driven.
+        setRequestsData(apiRequests);
+        const total = data?.pagination?.total ?? data?.total ?? data?.meta?.total ?? json?.pagination?.total ?? json?.total ?? apiRequests.length;
+        setTotalItems(Number(total));
       } catch (e) {
         setError(e?.message || String(e));
       } finally {
@@ -194,7 +184,7 @@ export default function ConciergeRequestsPage({ params }) {
 
     loadRequests();
     return () => controller.abort();
-  }, [currentPage, statusFilter, priorityFilter, searchTerm]);
+  }, [currentPage, statusFilter, priorityFilter, searchTerm, itemsPerPage]);
 
   // When backend provides filtered/paginated data, use it directly.
   // We still keep search/status/priority in the deps that trigger refetch.
@@ -219,7 +209,7 @@ export default function ConciergeRequestsPage({ params }) {
   }, [requestsData]);
 
   // Pagination (server-driven)
-  const totalPages = Math.ceil((totalItems || 0) / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil((totalItems || 0) / itemsPerPage);
 
   // Server already returns page-limited items for currentPage, so use requestsData directly
   const paginatedRequests = useMemo(() => requestsData, [requestsData]);
@@ -242,6 +232,11 @@ export default function ConciergeRequestsPage({ params }) {
 
   const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
+  }, []);
+
+  const handleItemsPerPageChange = useCallback((value) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1);
   }, []);
 
   // Delete handler: called from table via onDelete prop
@@ -442,9 +437,12 @@ export default function ConciergeRequestsPage({ params }) {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={totalItems || paginatedRequests.length}
-          itemsPerPage={ITEMS_PER_PAGE}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          itemsPerPageOptions={ITEMS_PER_PAGE_OPTIONS}
+          showItemsPerPage={true}
           translations={paginationTranslations}
         />
       </div>

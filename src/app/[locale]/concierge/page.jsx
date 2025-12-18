@@ -8,6 +8,7 @@ import { useState } from 'react';
 import ConciergeModal from '@/components/concierge/component/ConciergeModal';
 import COUNTRY_CODES from '@/utils/countryCodes';
 import Link from 'next/link';
+import axios from '@/lib/axios';
 
 export default function ConciergePage() {
   const { locale } = useLanguage();
@@ -74,30 +75,74 @@ export default function ConciergePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Map frontend values to backend-expected values
+    const SERVICE_TYPE_MAP = {
+      relocation: 'RELOCATION_ASSISTANCE',
+      schoolSearch: 'SCHOOL_SEARCH',
+      neighborhoodSearch: 'NEIGHBORHOOD_SEARCH',
+      corporateRelocation: 'CORPORATE_RELOCATION',
+      lifestyleAssistance: 'LIFESTYLE_ASSISTANCE',
+    };
+
+    const MOVE_TIMEFRAME_MAP = {
+      asap: 'ASAP',
+      within_3_months: '3-6 months',
+      '3_to_6_months': '3-6 months',
+      '6_to_12_months': '6-12 months',
+      more_than_12_months: 'More than 12 months',
+      not_sure: 'Not sure',
+    };
+
+    // Convert iso2 country code to full country name if available
+    const countryObj = COUNTRY_CODES.find((c) => c.iso2 === formState.countryOfResidence);
+    const countryName = countryObj ? countryObj.name : formState.countryOfResidence;
+
+    // Convert datetime-local value to ISO string with Z (UTC)
+    let preferredDateISO = formState.moveDate || null;
+    if (preferredDateISO) {
+      // datetime-local gives 'YYYY-MM-DDTHH:mm' (no timezone). Parse as local then convert to UTC ISO.
+      const dt = new Date(preferredDateISO);
+      if (!isNaN(dt)) preferredDateISO = dt.toISOString();
+    }
+
+    // Format phone to E.164-like: remove non-digits, prefix with country dial code if missing
+    const rawPhone = formState.phone || '';
+    const onlyDigits = rawPhone.replace(/[^0-9+]/g, '');
+
+    // Normalize country dial code (e.g. '+225' or '+1-268') -> digits only
+    const countryDialDigits = countryObj ? (countryObj.dial_code || '').replace(/[^0-9]/g, '') : '';
+
+    let formattedPhone = onlyDigits;
+    if (formattedPhone.startsWith('+')) {
+      // keep + and digits only
+      formattedPhone = '+' + formattedPhone.replace(/[^0-9]/g, '');
+    } else if (formattedPhone.startsWith(countryDialDigits)) {
+      // user pasted number starting with country code (no +)
+      formattedPhone = '+' + formattedPhone.replace(/[^0-9]/g, '');
+    } else {
+      // local number: strip leading zero if present, then prefix country dial
+      const localDigits = formattedPhone.replace(/[^0-9]/g, '').replace(/^0+/, '');
+      if (countryDialDigits) formattedPhone = `+${countryDialDigits}${localDigits}`;
+      else formattedPhone = `+${localDigits}`;
+    }
+
+    const payload = {
+      clientName: formState.fullName,
+      clientEmail: formState.email,
+      clientPhone: formattedPhone,
+      serviceType: SERVICE_TYPE_MAP[formState.serviceNeeded] || formState.serviceNeeded,
+      countryOfResidence: countryName,
+      preferredDateTime: preferredDateISO,
+      moveTimeframe: MOVE_TIMEFRAME_MAP[formState.moveTiming] || formState.moveTiming,
+      description: formState.planDetails,
+    };
+
+    // Log final mapped payload to console for easy comparison with Postman
+    console.log('Submitting concierge payload (mapped):', payload);
 
     try {
-      const response = await fetch('/api/concierge/requests', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          clientName: formState.fullName,
-          clientEmail: formState.email,
-          clientPhone: formState.phone,
-          serviceType: formState.serviceNeeded,
-          countryOfResidence: formState.countryOfResidence,
-          preferredDateTime: formState.moveDate,
-          moveTimeframe: formState.moveTiming,
-          description: formState.planDetails,
-        }),
-      });
+      const { data } = await axios.post('/concierge/requests', payload);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
       console.log('Concierge request submitted successfully:', data);
 
       // Reset form fields
@@ -111,11 +156,28 @@ export default function ConciergePage() {
         moveDate: ''
       }));
 
-      // Open confirmation modal after successful submit
+      // Open confirmation modal
       setShowModal(true);
     } catch (error) {
+      // Enhanced error logging for both raw axios and wrapped axiosInstance errors
       console.error('Error submitting concierge request:', error);
-      alert('Failed to submit request. Please try again.');
+
+      // axiosInstance interceptor returns a formatted error object { message, status, data }
+      if (error && error.data) {
+        console.error('API error status:', error.status);
+        console.error('API error data:', error.data);
+        // If backend provides validation details under `errors`, log them specifically
+        if (error.data.errors) {
+          console.error('Validation errors:', error.data.errors);
+        }
+      } else if (error.response) {
+        // Fallback to raw axios error shape
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      }
+
+      const userMessage = (error && error.data && error.data.message) || error.message || 'Failed to submit request. Please try again.';
+      alert(userMessage);
     }
   };
 
@@ -254,8 +316,8 @@ export default function ConciergePage() {
                 <article
                   key={index}
                   className={`relative bg-white/50 rounded-lg transition-all duration-300 ${pkg.isPremium
-                      ? 'border-2 border-[#D1B156] shadow-md hover:shadow-lg md:scale-[1.02] mb-1'
-                      : 'border border-[#E5E7EB] hover:border-[#D1B156] hover:shadow-sm'
+                    ? 'border-2 border-[#D1B156] shadow-md hover:shadow-lg md:scale-[1.02] mb-1'
+                    : 'border border-[#E5E7EB] hover:border-[#D1B156] hover:shadow-sm'
                     }`}
                 >
                   {pkg.isPremium && (
@@ -302,8 +364,8 @@ export default function ConciergePage() {
                     <div className='mt-auto pt-4'>
                       <Link href={'#concierge-form'}
                         className={`w-full block text-center text-sm md:text-base font-medium px-5 py-2.5 md:py-3 rounded-lg transition-all duration-200 ${pkg.isPremium
-                            ? 'bg-[#D1B156] text-white hover:bg-[#C4A54D] shadow-sm'
-                            : 'bg-primary/20 text-charcoal hover:bg-primary/30'
+                          ? 'bg-[#D1B156] text-white hover:bg-[#C4A54D] shadow-sm'
+                          : 'bg-primary/20 text-charcoal hover:bg-primary/30'
                           }`}
                         aria-label={`Choose ${pkg.name} package`}
                       >
