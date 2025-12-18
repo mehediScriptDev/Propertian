@@ -39,15 +39,72 @@ export default function PropertyCard({
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const btnRef = useRef(null);
-    const [imgSrc, setImgSrc] = useState(property.image || '/noImage.png');
+    const pickImage = (p) => {
+        if (!p) return '/noImage.png';
+        // direct fields
+        if (p.image) return p.image;
+        if (p.imageUrl) return p.imageUrl;
+        if (p.thumbnail) return p.thumbnail;
+
+        // common array shapes
+        const tryArray = (arr) => {
+            if (!arr || !arr.length) return null;
+            const first = arr[0];
+            if (!first) return null;
+            if (typeof first === 'string') return first;
+            if (first.url) return first.url;
+            if (first.path) return first.path;
+            if (first.src) return first.src;
+            if (first.thumbnail) return first.thumbnail;
+            return null;
+        };
+
+        const fromImages = tryArray(p.images || p.photos || p.media || p.gallery || p.pictures);
+        if (fromImages) return fromImages;
+
+        // sometimes API nests image under data or attributes
+        if (p.data && p.data.image) return p.data.image;
+        if (p.attributes && p.attributes.image) return p.attributes.image;
+
+        return '/noImage.png';
+    };
+
+    const [imgSrc, setImgSrc] = useState(() => pickImage(property));
     const [isFavorite, setIsFavorite] = useState([]);
     const router = useRouter();
     const pathname = usePathname();
     const { locale } = useLanguage();
 
-    const defaultNavigateToDetails = (id) => {
+    const routeForProperty = (p) => {
+        if (!p) return 'buy';
+        const candidates = [
+            p.listingType,
+            p.listing_type,
+            p.transactionType,
+            p.transaction_type,
+            p.for,
+            p.type,
+            p.propertyType,
+            p.category,
+        ].filter(Boolean).map(String).join(' ').toLowerCase();
+
+        // common indicators for rent
+        if (candidates.includes('rent') || candidates.includes('rental') || candidates.includes('to-let') || candidates.includes('lease')) return 'rent';
+        // common indicators for sale/buy
+        if (candidates.includes('sale') || candidates.includes('buy') || candidates.includes('purchase')) return 'buy';
+
+        // fallback: if property has a slug or url that contains '/rent/'
+        const urlLike = (p.url || p.slug || p.path || '').toString().toLowerCase();
+        if (urlLike.includes('/rent/') || urlLike.includes('rent')) return 'rent';
+
+        return 'buy';
+    };
+
+    const defaultNavigateToDetails = (p) => {
         const loc = locale || (pathname && pathname.split('/')[1]) || 'en';
-        router.push(`/${loc}/buy/${id}`);
+        const base = routeForProperty(p);
+        const idOrSlug = p?.id || p?.slug || p?.uid || p?.reference || '';
+        router.push(`/${loc}/${base}/${idOrSlug}`);
     };
 
     const defaultNavigateToBook = (id) => {
@@ -80,7 +137,19 @@ export default function PropertyCard({
     // },[])
 
     return (
-        <article className="group overflow-hidden rounded-lg bg-white/50 border border-gray-200 shadow-sm transition-shadow hover:shadow-md">
+        <article
+            className="group overflow-hidden rounded-lg bg-white/50 border border-gray-200 shadow-sm transition-shadow hover:shadow-md cursor-pointer"
+            role="button"
+            tabIndex={0}
+            aria-label={`Open details for ${property.description || property.title || 'property'}`}
+            onClick={() => defaultNavigateToDetails(property)}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    defaultNavigateToDetails(property);
+                }
+            }}
+        >
             {/* Image */}
             <div className="relative aspect-video overflow-hidden bg-gray-100">
                 <Image
