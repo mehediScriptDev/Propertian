@@ -13,6 +13,9 @@ const Pagination = memo(
     translations,
     hideInfo = false,
     noBorder = false,
+    onItemsPerPageChange,
+    itemsPerPageOptions = [5, 10, 20, 50, 100],
+    showItemsPerPage = false,
   }) => {
     // Calculate range of items being displayed
     const startItem = (currentPage - 1) * itemsPerPage + 1;
@@ -77,16 +80,37 @@ const Pagination = memo(
 
     return (
       <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-3 bg-white${noBorder ? '' : ' border-t border-gray-200'}`}>
-        {/* Results Info (optional) */}
-        {!hideInfo && (
-          <div className='text-sm text-gray-700 order-2 sm:order-1'>
-            {translations.showing} {startItem} {translations.to} {endItem}{' '}
-            {translations.of} {totalItems} {translations.results}
-          </div>
-        )}
+        {/* Left Section: Results Info + Items Per Page */}
+        <div className='flex flex-col sm:flex-row items-center gap-3 sm:gap-6'>
+          {/* Results Info (optional) */}
+          {!hideInfo && (
+            <div className='text-sm text-gray-700'>
+              {translations.showing} {startItem} {translations.to} {endItem}{' '}
+              {translations.of} {totalItems} {translations.results}
+            </div>
+          )}
+
+          {/* Items Per Page Selector (optional) */}
+          {showItemsPerPage && onItemsPerPageChange && (
+            <div className='flex items-center gap-2 text-sm text-gray-700'>
+              <span>{translations.rowsPerPage || 'Rows per page'}:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+                className='border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent'
+              >
+                {itemsPerPageOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
 
         {/* Pagination Controls */}
-        <div className='flex items-center gap-1 sm:gap-2 order-1 sm:order-2'>
+        <div className='flex items-center gap-1 sm:gap-2'>
           {/* Previous Button */}
           <button
             onClick={handlePrevious}
@@ -122,10 +146,8 @@ const Pagination = memo(
                 <button
                   key={page}
                   onClick={() => handlePageClick(page)}
-                  className={`${
-                    shouldShowOnMobile ? 'inline-flex' : 'hidden sm:inline-flex'
-                  } items-center justify-center min-w-8 sm:min-w-9 h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-medium rounded-md transition-colors ${
-                    page === currentPage
+                  className={`${shouldShowOnMobile ? 'inline-flex' : 'hidden sm:inline-flex'
+                    } items-center justify-center min-w-8 sm:min-w-9 h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-medium rounded-md transition-colors ${page === currentPage
                       ? 'bg-[#E6B325] text-white font-semibold'
                       : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
                     }`}

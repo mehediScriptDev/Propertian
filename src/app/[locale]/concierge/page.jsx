@@ -8,6 +8,7 @@ import { useState } from 'react';
 import ConciergeModal from '@/components/concierge/component/ConciergeModal';
 import COUNTRY_CODES from '@/utils/countryCodes';
 import Link from 'next/link';
+import axios from '@/lib/axios';
 
 export default function ConciergePage() {
   const { locale } = useLanguage();
@@ -72,559 +73,617 @@ export default function ConciergePage() {
     setFormState((s) => ({ ...s, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simple placeholder submission - wire to API later
-    console.log('Concierge request', formState);
-    // Keep minimal UX: reset optional fields
-    setFormState((s) => ({ ...s, fullName: '', email: '', phone: '', moveTiming: '', planDetails: '' }));
-    // Open confirmation/modal after submit
-    setShowModal(true);
+    // Map frontend values to backend-expected values
+    const SERVICE_TYPE_MAP = {
+      relocation: 'RELOCATION_ASSISTANCE',
+      schoolSearch: 'SCHOOL_SEARCH',
+      neighborhoodSearch: 'NEIGHBORHOOD_SEARCH',
+      corporateRelocation: 'CORPORATE_RELOCATION',
+      lifestyleAssistance: 'LIFESTYLE_ASSISTANCE',
+    };
+
+    const MOVE_TIMEFRAME_MAP = {
+      asap: 'ASAP',
+      within_3_months: '3-6 months',
+      '3_to_6_months': '3-6 months',
+      '6_to_12_months': '6-12 months',
+      more_than_12_months: 'More than 12 months',
+      not_sure: 'Not sure',
+    };
+
+    // Convert iso2 country code to full country name if available
+    const countryObj = COUNTRY_CODES.find((c) => c.iso2 === formState.countryOfResidence);
+    const countryName = countryObj ? countryObj.name : formState.countryOfResidence;
+
+    // Convert datetime-local value to ISO string with Z (UTC)
+    let preferredDateISO = formState.moveDate || null;
+    if (preferredDateISO) {
+      // datetime-local gives 'YYYY-MM-DDTHH:mm' (no timezone). Parse as local then convert to UTC ISO.
+      const dt = new Date(preferredDateISO);
+      if (!isNaN(dt)) preferredDateISO = dt.toISOString();
+    }
+
+    // Format phone to E.164-like: remove non-digits, prefix with country dial code if missing
+    const rawPhone = formState.phone || '';
+    const onlyDigits = rawPhone.replace(/[^0-9+]/g, '');
+
+    // Normalize country dial code (e.g. '+225' or '+1-268') -> digits only
+    const countryDialDigits = countryObj ? (countryObj.dial_code || '').replace(/[^0-9]/g, '') : '';
+
+    let formattedPhone = onlyDigits;
+    if (formattedPhone.startsWith('+')) {
+      // keep + and digits only
+      formattedPhone = '+' + formattedPhone.replace(/[^0-9]/g, '');
+    } else if (formattedPhone.startsWith(countryDialDigits)) {
+      // user pasted number starting with country code (no +)
+      formattedPhone = '+' + formattedPhone.replace(/[^0-9]/g, '');
+    } else {
+      // local number: strip leading zero if present, then prefix country dial
+      const localDigits = formattedPhone.replace(/[^0-9]/g, '').replace(/^0+/, '');
+      if (countryDialDigits) formattedPhone = `+${countryDialDigits}${localDigits}`;
+      else formattedPhone = `+${localDigits}`;
+    }
+
+    const payload = {
+      clientName: formState.fullName,
+      clientEmail: formState.email,
+      clientPhone: formattedPhone,
+      serviceType: SERVICE_TYPE_MAP[formState.serviceNeeded] || formState.serviceNeeded,
+      countryOfResidence: countryName,
+      preferredDateTime: preferredDateISO,
+      moveTimeframe: MOVE_TIMEFRAME_MAP[formState.moveTiming] || formState.moveTiming,
+      description: formState.planDetails,
+    };
+
+    // Log final mapped payload to console for easy comparison with Postman
+    console.log('Submitting concierge payload (mapped):', payload);
+
+    try {
+      const { data } = await axios.post('/concierge/requests', payload);
+
+      console.log('Concierge request submitted successfully:', data);
+
+      // Reset form fields
+      setFormState((s) => ({
+        ...s,
+        fullName: '',
+        email: '',
+        phone: '',
+        moveTiming: '',
+        planDetails: '',
+        moveDate: ''
+      }));
+
+      // Open confirmation modal
+      setShowModal(true);
+    } catch (error) {
+      // Enhanced error logging for both raw axios and wrapped axiosInstance errors
+      console.error('Error submitting concierge request:', error);
+
+      // axiosInstance interceptor returns a formatted error object { message, status, data }
+      if (error && error.data) {
+        console.error('API error status:', error.status);
+        console.error('API error data:', error.data);
+        // If backend provides validation details under `errors`, log them specifically
+        if (error.data.errors) {
+          console.error('Validation errors:', error.data.errors);
+        }
+      } else if (error.response) {
+        // Fallback to raw axios error shape
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      }
+
+      const userMessage = (error && error.data && error.data.message) || error.message || 'Failed to submit request. Please try again.';
+      alert(userMessage);
+    }
   };
 
   return (
     <main className='flex flex-col items-center bg-background-light dark:bg-navy-light'>
       <div className='w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8 lg:space-y-16'>
 
-      {/* Hero Section */}
-      <section className='w-full' aria-labelledby='hero-title'>
-        <div
-          className='flex min-h-50 sm:min-h-60 lg:min-h-[480px] flex-col gap-5 md:gap-6 bg-cover bg-center bg-no-repeat rounded-xl md:rounded-2xl items-center justify-center p-6 md:p-8 lg:p-10 text-center'
-          style={{
-            backgroundImage: `linear-gradient(rgba(10, 25, 49, 0.35) 0%, rgba(10, 25, 49, 0.35) 100%), url("/concierge/ss.png")`,
-          }}
-          role='banner'
-        >
-          <div className='flex flex-col gap-4 md:gap-5 max-w-3xl w-full'>
-            <h1
-              id='hero-title'
-              className='text-white lg:text-5xl text-2xl sm:text-3xl font-black leading-tight tracking-[-0.033em]'
-            >
-              {t('concierge.hero.title')}
-            </h1>
-            <p className='text-gray-200 text-[15px] sm:text-base md:text-lg font-normal leading-relaxed max-w-2xl mx-auto'>
-              {t('concierge.hero.subtitle')}
-            </p>
-            <div className='flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-stretch sm:items-center mt-2'>
-              <Link href={'#concierge-form'}
-                className='w-full sm:w-auto bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 md:px-8 lg:px-10 py-3 md:py-3.5 rounded-lg transition-all duration-200 text-sm lg:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
-                aria-label='Book a consultation with our concierge team'
-              >
-                {t('concierge.hero.talkToConcierge')}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Personalized Support Section */}
-      <section
-        className=' bg-background-light rounded-xl md:rounded-2xl'
-        aria-labelledby='support-title'
-      >
-        <div className='text-center mb-6 px-4'>
-          <h2
-            id='support-title'
-            className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal leading-tight'
+        {/* Hero Section */}
+        <section className='w-full' aria-labelledby='hero-title'>
+          <div
+            className='flex min-h-50 sm:min-h-60 lg:min-h-[480px] flex-col gap-5 md:gap-6 bg-cover bg-center bg-no-repeat rounded-xl md:rounded-2xl items-center justify-center p-6 md:p-8 lg:p-10 text-center'
+            style={{
+              backgroundImage: `linear-gradient(rgba(10, 25, 49, 0.35) 0%, rgba(10, 25, 49, 0.35) 100%), url("/concierge/ss.png")`,
+            }}
+            role='banner'
           >
-            {t('concierge.support.title')}
-          </h2>
-          <p className='text-[15px] sm:text-base lg:mt-4 mt-2 text-gray-600 max-w-3xl mx-auto leading-relaxed'>
-            {t('concierge.support.subtitle')}
-          </p>
-        </div>
-
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-6 lg:px-4'>
-          {/* Property Matchmaking */}
-          <article className='text-center p-6 border bg-white/50 border-[#f6efcb] rounded-lg'>
-            <div
-              className='w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 md:mb-6 flex items-center justify-center'
-              aria-hidden='true'
-            >
-              <Key
-                className='w-8 h-8 sm:w-10 sm:h-10 text-primary'
-                strokeWidth={1.5}
-              />
+            <div className='flex flex-col gap-4 md:gap-5 max-w-3xl w-full'>
+              <h1
+                id='hero-title'
+                className='text-white lg:text-5xl text-2xl sm:text-3xl font-black leading-tight tracking-[-0.033em]'
+              >
+                {t('concierge.hero.title')}
+              </h1>
+              <p className='text-gray-200 text-[15px] sm:text-base md:text-lg font-normal leading-relaxed max-w-2xl mx-auto'>
+                {t('concierge.hero.subtitle')}
+              </p>
+              <div className='flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-stretch sm:items-center mt-2'>
+                <Link href={'#concierge-form'}
+                  className='w-full sm:w-auto bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 md:px-8 lg:px-10 py-3 md:py-3.5 rounded-lg transition-all duration-200 text-sm lg:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+                  aria-label='Book a consultation with our concierge team'
+                >
+                  {t('concierge.hero.talkToConcierge')}
+                </Link>
+              </div>
             </div>
-            <h3 className='text-lg sm:text-xl md:text-[20px] font-bold text-charcoal mb-2 md:mb-3'>
-              {t('concierge.support.propertyMatchmaking.title')}
-            </h3>
-            <p className='text-[15px] text-gray-500 leading-relaxed max-w-sm mx-auto'>
-              {t('concierge.support.propertyMatchmaking.description')}
-            </p>
-          </article>
+          </div>
+        </section>
 
-          {/* Relocation Planning */}
-          <article className='text-center p-6 border bg-white/50 border-[#f6efcb] rounded-lg'>
-            <div
-              className='w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 md:mb-6 flex items-center justify-center'
-              aria-hidden='true'
-            >
-              <Package
-                className='w-8 h-8 sm:w-10 sm:h-10 text-primary'
-                strokeWidth={1.5}
-              />
-            </div>
-            <h3 className='text-lg sm:text-xl md:text-[20px] font-bold text-charcoal mb-2 md:mb-3'>
-              {t('concierge.support.relocationPlanning.title')}
-            </h3>
-            <p className='text-[15px] text-gray-500 leading-relaxed max-w-sm mx-auto'>
-              {t('concierge.support.relocationPlanning.description')}
-            </p>
-          </article>
-
-          {/* Settling-In Services */}
-          <article className='text-center p-6 border bg-white/50 border-[#f6efcb] rounded-lg mb-0.5 sm:mb-0'>
-            <div
-              className='w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 md:mb-6 flex items-center justify-center'
-              aria-hidden='true'
-            >
-              <Sparkles
-                className='w-8 h-8 sm:w-10 sm:h-10 text-primary'
-                strokeWidth={1.5}
-              />
-            </div>
-            <h3 className='text-lg sm:text-xl md:text-[20px] font-bold text-charcoal mb-2 md:mb-3'>
-              {t('concierge.support.settlingServices.title')}
-            </h3>
-            <p className='text-[15px] text-gray-500 leading-relaxed max-w-sm mx-auto'>
-              {t('concierge.support.settlingServices.description')}
-            </p>
-          </article>
-        </div>
-      </section>
-
-      {/* Concierge Packages Section */}
-      <section
-        className='w-full'
-        aria-labelledby='packages-title'
-      >
-        <div className='max-w-7xl mx-auto'>
-          <div className='text-center mb-6'>
+        {/* Personalized Support Section */}
+        <section
+          className=' bg-background-light rounded-xl md:rounded-2xl'
+          aria-labelledby='support-title'
+        >
+          <div className='text-center mb-6 px-4'>
             <h2
-              id='packages-title'
-              className='text-2xl md:text-3xl lg:text-4xl font-bold text-charcoal mb-3 md:mb-4'
+              id='support-title'
+              className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal leading-tight'
             >
-              {t('concierge.packages.title')}
+              {t('concierge.support.title')}
             </h2>
-            <p className='text-base text-charcoal-600 max-w-2xl mx-auto'>
-              {t('concierge.packages.subtitle')}
+            <p className='text-[15px] sm:text-base lg:mt-4 mt-2 text-gray-600 max-w-3xl mx-auto leading-relaxed'>
+              {t('concierge.support.subtitle')}
             </p>
           </div>
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 xl:gap-6 px-2 lg:grid-cols-3'>
-            {packages.map((pkg, index) => (
-              <article
-                key={index}
-                className={`relative bg-white/50 rounded-lg transition-all duration-300 ${
-                  pkg.isPremium
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-6 lg:px-4'>
+            {/* Property Matchmaking */}
+            <article className='text-center p-6 border bg-white/50 border-[#f6efcb] rounded-lg'>
+              <div
+                className='w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 md:mb-6 flex items-center justify-center'
+                aria-hidden='true'
+              >
+                <Key
+                  className='w-8 h-8 sm:w-10 sm:h-10 text-primary'
+                  strokeWidth={1.5}
+                />
+              </div>
+              <h3 className='text-lg sm:text-xl md:text-[20px] font-bold text-charcoal mb-2 md:mb-3'>
+                {t('concierge.support.propertyMatchmaking.title')}
+              </h3>
+              <p className='text-[15px] text-gray-500 leading-relaxed max-w-sm mx-auto'>
+                {t('concierge.support.propertyMatchmaking.description')}
+              </p>
+            </article>
+
+            {/* Relocation Planning */}
+            <article className='text-center p-6 border bg-white/50 border-[#f6efcb] rounded-lg'>
+              <div
+                className='w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 md:mb-6 flex items-center justify-center'
+                aria-hidden='true'
+              >
+                <Package
+                  className='w-8 h-8 sm:w-10 sm:h-10 text-primary'
+                  strokeWidth={1.5}
+                />
+              </div>
+              <h3 className='text-lg sm:text-xl md:text-[20px] font-bold text-charcoal mb-2 md:mb-3'>
+                {t('concierge.support.relocationPlanning.title')}
+              </h3>
+              <p className='text-[15px] text-gray-500 leading-relaxed max-w-sm mx-auto'>
+                {t('concierge.support.relocationPlanning.description')}
+              </p>
+            </article>
+
+            {/* Settling-In Services */}
+            <article className='text-center p-6 border bg-white/50 border-[#f6efcb] rounded-lg mb-0.5 sm:mb-0'>
+              <div
+                className='w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 md:mb-6 flex items-center justify-center'
+                aria-hidden='true'
+              >
+                <Sparkles
+                  className='w-8 h-8 sm:w-10 sm:h-10 text-primary'
+                  strokeWidth={1.5}
+                />
+              </div>
+              <h3 className='text-lg sm:text-xl md:text-[20px] font-bold text-charcoal mb-2 md:mb-3'>
+                {t('concierge.support.settlingServices.title')}
+              </h3>
+              <p className='text-[15px] text-gray-500 leading-relaxed max-w-sm mx-auto'>
+                {t('concierge.support.settlingServices.description')}
+              </p>
+            </article>
+          </div>
+        </section>
+
+        {/* Concierge Packages Section */}
+        <section
+          className='w-full'
+          aria-labelledby='packages-title'
+        >
+          <div className='max-w-7xl mx-auto'>
+            <div className='text-center mb-6'>
+              <h2
+                id='packages-title'
+                className='text-2xl md:text-3xl lg:text-4xl font-bold text-charcoal mb-3 md:mb-4'
+              >
+                {t('concierge.packages.title')}
+              </h2>
+              <p className='text-base text-charcoal-600 max-w-2xl mx-auto'>
+                {t('concierge.packages.subtitle')}
+              </p>
+            </div>
+
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 xl:gap-6 px-2 lg:grid-cols-3'>
+              {packages.map((pkg, index) => (
+                <article
+                  key={index}
+                  className={`relative bg-white/50 rounded-lg transition-all duration-300 ${pkg.isPremium
                     ? 'border-2 border-[#D1B156] shadow-md hover:shadow-lg md:scale-[1.02] mb-1'
                     : 'border border-[#E5E7EB] hover:border-[#D1B156] hover:shadow-sm'
-                }`}
-              >
-                {pkg.isPremium && (
-                  <div
-                    className='absolute z-10 -top-2.5 left-1/2 transform -translate-x-1/2'
-                    aria-label='Most popular package'
-                  >
-                    <div className='relative'>
-                      <div className='bg-[#D1B156] px-3 sm:px-4 py-1 rounded-full shadow-sm'>
-                        <span className='text-[10px] font-bold text-white uppercase tracking-wider whitespace-nowrap'>
-                          Most Popular
-                        </span>
-                      </div>
-                      <div className='absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#D1B156] rotate-45'></div>
-                    </div>
-                  </div>
-                )}
-                <div className='p-6 sm:p-7 md:p-8 flex flex-col h-full'>
-                  <div className='grow'>
-                    <h3 className='text-lg md:text-xl font-bold text-charcoal mb-3'>
-                      {pkg.name}
-                    </h3>
-                    <p className='text-sm md:text-base text-charcoal-600 mb-6 min-h-[60px]'>
-                      {pkg.description}
-                    </p>
-                    <ul className='lg:space-y-3.5 sm:space-y-2 mb-8' role='list'>
-                      {pkg.features.map((feature, idx) => (
-                        <li
-                          key={idx}
-                          className='flex items-start gap-2.5 text-charcoal-600'
-                        >
-                          <Check
-                            className='w-4 h-4 text-[#D1B156] shrink-0 mt-1'
-                            strokeWidth={2.5}
-                            aria-hidden='true'
-                          />
-                          <span className='text-sm md:text-base leading-relaxed'>
-                            {feature}
+                    }`}
+                >
+                  {pkg.isPremium && (
+                    <div
+                      className='absolute z-10 -top-2.5 left-1/2 transform -translate-x-1/2'
+                      aria-label='Most popular package'
+                    >
+                      <div className='relative'>
+                        <div className='bg-[#D1B156] px-3 sm:px-4 py-1 rounded-full shadow-sm'>
+                          <span className='text-[10px] font-bold text-white uppercase tracking-wider whitespace-nowrap'>
+                            Most Popular
                           </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className='mt-auto pt-4'>
-                    <Link href={'#concierge-form'}
-                      className={`w-full block text-center text-sm md:text-base font-medium px-5 py-2.5 md:py-3 rounded-lg transition-all duration-200 ${
-                        pkg.isPremium
+                        </div>
+                        <div className='absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#D1B156] rotate-45'></div>
+                      </div>
+                    </div>
+                  )}
+                  <div className='p-6 sm:p-7 md:p-8 flex flex-col h-full'>
+                    <div className='grow'>
+                      <h3 className='text-lg md:text-xl font-bold text-charcoal mb-3'>
+                        {pkg.name}
+                      </h3>
+                      <p className='text-sm md:text-base text-charcoal-600 mb-6 min-h-[60px]'>
+                        {pkg.description}
+                      </p>
+                      <ul className='lg:space-y-3.5 sm:space-y-2 mb-8' role='list'>
+                        {pkg.features.map((feature, idx) => (
+                          <li
+                            key={idx}
+                            className='flex items-start gap-2.5 text-charcoal-600'
+                          >
+                            <Check
+                              className='w-4 h-4 text-[#D1B156] shrink-0 mt-1'
+                              strokeWidth={2.5}
+                              aria-hidden='true'
+                            />
+                            <span className='text-sm md:text-base leading-relaxed'>
+                              {feature}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className='mt-auto pt-4'>
+                      <Link href={'#concierge-form'}
+                        className={`w-full block text-center text-sm md:text-base font-medium px-5 py-2.5 md:py-3 rounded-lg transition-all duration-200 ${pkg.isPremium
                           ? 'bg-[#D1B156] text-white hover:bg-[#C4A54D] shadow-sm'
                           : 'bg-primary/20 text-charcoal hover:bg-primary/30'
-                      }`}
-                      aria-label={`Choose ${pkg.name} package`}
-                    >
-                      Choose Plan
-                    </Link>
+                          }`}
+                        aria-label={`Choose ${pkg.name} package`}
+                      >
+                        Choose Plan
+                      </Link>
+                    </div>
                   </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section
+          className=' bg-background-light rounded-xl md:rounded-2xl'
+          aria-labelledby='how-it-works-title'
+        >
+          <div className='text-center mb-10 md:mb-14 px-4'>
+            <h2
+              id='how-it-works-title'
+              className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-3 md:mb-4 leading-tight'
+            >
+              {t('concierge.howItWorks.title')}
+            </h2>
+            <p className='text-[15px] sm:text-base text-gray-600 max-w-3xl mx-auto leading-relaxed'>
+              {t('concierge.howItWorks.subtitle')}
+            </p>
+          </div>
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-8 px-4 md:px-6'>
+            {steps.map((step, index) => (
+              <article key={index} className='text-center relative'>
+                <div
+                  className='w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-4 md:mb-5 bg-primary rounded-full flex items-center justify-center shadow-md'
+                  aria-hidden='true'
+                >
+                  <span className='text-xl sm:text-2xl font-bold text-charcoal'>
+                    {step.number}
+                  </span>
                 </div>
+                <h3 className='text-lg sm:text-xl md:text-[20px] font-bold text-charcoal mb-2 md:mb-3'>
+                  {step.title}
+                </h3>
+                <p className='text-[15px] text-gray-500 leading-relaxed max-w-xs mx-auto'>
+                  {step.description}
+                </p>
+                {index < steps.length - 1 && (
+                  <div
+                    className='absolute top-6 left-1/2 w-1/2 h-px bg-gray-300 hidden lg:block'
+                    style={{ transform: 'translateX(50%)' }}
+                  />
+                )}
+                {index > 0 && (
+                  <div
+                    className='absolute top-6 right-1/2 w-1/2 h-px bg-gray-300 hidden lg:block'
+                    style={{ transform: 'translateX(-50%)' }}
+                  />
+                )}
               </article>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* How It Works Section */}
-      <section
-        className=' bg-background-light rounded-xl md:rounded-2xl'
-        aria-labelledby='how-it-works-title'
-      >
-        <div className='text-center mb-10 md:mb-14 px-4'>
-          <h2
-            id='how-it-works-title'
-            className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-3 md:mb-4 leading-tight'
-          >
-            {t('concierge.howItWorks.title')}
-          </h2>
-          <p className='text-[15px] sm:text-base text-gray-600 max-w-3xl mx-auto leading-relaxed'>
-            {t('concierge.howItWorks.subtitle')}
-          </p>
-        </div>
-
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-8 px-4 md:px-6'>
-          {steps.map((step, index) => (
-            <article key={index} className='text-center relative'>
-              <div
-                className='w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-4 md:mb-5 bg-primary rounded-full flex items-center justify-center shadow-md'
-                aria-hidden='true'
-              >
-                <span className='text-xl sm:text-2xl font-bold text-charcoal'>
-                  {step.number}
-                </span>
-              </div>
-              <h3 className='text-lg sm:text-xl md:text-[20px] font-bold text-charcoal mb-2 md:mb-3'>
-                {step.title}
-              </h3>
-              <p className='text-[15px] text-gray-500 leading-relaxed max-w-xs mx-auto'>
-                {step.description}
-              </p>
-              {index < steps.length - 1 && (
-                <div
-                  className='absolute top-6 left-1/2 w-1/2 h-px bg-gray-300 hidden lg:block'
-                  style={{ transform: 'translateX(50%)' }}
-                />
-              )}
-              {index > 0 && (
-                <div
-                  className='absolute top-6 right-1/2 w-1/2 h-px bg-gray-300 hidden lg:block'
-                  style={{ transform: 'translateX(-50%)' }}
-                />
-              )}
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* Concierge Add-Ons Section */}
-      <section
-        className='py-12  bg-[#f6efd1] border border-[#f6efcb] shadow-sm rounded-xl md:rounded-2xl'
-        aria-labelledby='add-ons-title'
-      >
-        <div className='text-center mb-10 px-4'>
-          <h2
-            id='add-ons-title'
-            className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-3 md:mb-4 leading-tight'
-          >
-            {t('concierge.addOns.title')}
-          </h2>
-          <p className='text-[15px] sm:text-base text-charcoal/80 max-w-3xl mx-auto leading-relaxed'>
-            {t('concierge.addOns.subtitle')}
-          </p>
-        </div>
-
-        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-8 px-4 md:px-6'>
-          {addOns.map((addOn, index) => {
-            const IconComponent = addOn.Icon;
-            return (
-              <article
-                key={addOn.label ?? index}
-                className='text-center'
-              >
-                <div
-                  className='w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-2 flex items-center justify-center rounded-full bg-[#D1B156] shadow'
-                  aria-hidden='true'
-                >
-                  <IconComponent
-                    className='w-7 h-7 sm:w-8 sm:h-8 text-white'
-                    strokeWidth={1.8}
-                  />
-                </div>
-                <p className='text-sm sm:text-[15px] font-semibold text-charcoal leading-snug px-1 mt-1'>
-                  {addOn.label}
-                </p>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-      
-      {/* <section
-        className='py-12 bg-[#f6efd1] border border-[#f6efcb] shadow-sm rounded-xl md:rounded-2xl'
-        aria-labelledby='add-ons-title'
-      >
-        <div className='text-center mb-10 px-4'>
-          <h2
-            id='add-ons-title'
-            className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-3 md:mb-4 leading-tight'
-          >
-            {t('concierge.addOns.title')}
-          </h2>
-          <p className='text-[15px] sm:text-base text-charcoal/80 max-w-3xl mx-auto leading-relaxed'>
-            {t('concierge.addOns.subtitle')}
-          </p>
-        </div>
-
-        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-8 px-4 md:px-6'>
-          {addOns.map((addOn, index) => {
-            const IconComponent = addOn.Icon;
-            return (
-              <article key={index} className='text-center border border-gray-300 p-4 rounded-md'>
-                <div
-                  className='w-16 h-16 sm:w-[72px] sm:h-[72px] mx-auto mb-3 md:mb-4 flex items-center justify-center'
-                  aria-hidden='true'
-                >
-                  
-                  <IconComponent
-                    className='w-10 h-10 sm:w-12 sm:h-12 text-primary' 
-                    strokeWidth={1} 
-                  />
-                </div>
-                <p className='text-sm sm:text-[15px] font-semibold text-charcoal leading-snug px-1'>
-                  {addOn.label}
-                </p>
-              </article>
-            );
-          })}
-        </div>
-      </section> */}
-
-      {/* Ready to Make Your Move Section */}
-      <section
-        id='concierge-form'
-        className='bg-background-light rounded-xl md:rounded-2xl lg:px-6 pt-6'
-        aria-labelledby='contact-title'
-      >
-        <div className='max-w-7xl mx-auto'>
-          <h2
-            id='contact-title'
-            className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-3 md:mb-4 leading-tight'
-          >
-            {t('concierge.contact.title')}
-          </h2>
-          <p className='text-[15px] sm:text-base text-gray-500 mb-6 md:mb-8 leading-relaxed'>
-            {t('concierge.contact.subtitle')}
-          </p>
-
-          <form onSubmit={handleSubmit} className='space-y-5' aria-label='Consultation booking form'>
-            {/* Two column grid for lg screens */}
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-5'>
-              {/* Column 1 - Left side */}
-              <div>
-                <label
-                  htmlFor='fullName'
-                  className='block text-[14px] font-medium text-charcoal mb-1.5'
-                >
-                  Full Name
-                </label>
-                <input
-                  type='text'
-                  id='fullName'
-                  name='fullName'
-                  value={formState.fullName}
-                  placeholder='Enter your full name'
-                  onChange={handleChange}
-                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
-                  required
-                  aria-required='true'
-                />
-              </div>
-
-              {/* Column 2 - Right side */}
-              <div>
-                <label
-                  htmlFor='email'
-                  className='block text-[14px] font-medium text-charcoal mb-1.5'
-                >
-                  Email
-                </label>
-                <input
-                  type='email'
-                  id='email'
-                  name='email'
-                  value={formState.email}
-                  placeholder='Enter your email address'
-                  onChange={handleChange}
-                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
-                  required
-                  aria-required='true'
-                />
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label
-                  htmlFor='phone'
-                  className='block text-[14px] font-medium text-charcoal mb-1.5'
-                >
-                  Phone / WhatsApp
-                </label>
-                <input
-                  type='tel'
-                  id='phone'
-                  name='phone'
-                  value={formState.phone}
-                  placeholder='Enter your phone number'
-                  onChange={handleChange}
-                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
-                  required
-                  aria-required='true'
-                />
-              </div>
-
-              {/* Country */}
-              <div>
-                <label
-                  htmlFor='countryOfResidence'
-                  className='block text-[14px] font-medium text-charcoal mb-1.5'
-                >
-                  Country of Residence
-                </label>
-                <select
-                  id='countryOfResidence'
-                  name='countryOfResidence'
-                  value={formState.countryOfResidence}
-                  onChange={handleChange}
-                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
-                >
-                  {COUNTRY_CODES.map((c) => (
-                    <option key={c.iso2} value={c.iso2}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Preferred Date */}
-              <div>
-                <label
-                  htmlFor='moveDate'
-                  className='block text-[14px] font-medium text-charcoal mb-1.5'
-                >
-                  Preferred Date & Time
-                </label>
-                <input
-                  type='datetime-local'
-                  id='moveDate'
-                  name='moveDate'
-                  value={formState.moveDate}
-                  onChange={handleChange}
-                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
-                  required
-                  aria-required='true'
-                />
-              </div>
-
-              {/* Service Needed */}
-              <div>
-                <label
-                  htmlFor='serviceNeeded'
-                  className='block text-[14px] font-medium text-charcoal mb-1.5'
-                >
-                  Service Needed
-                </label>
-                <select
-                  id='serviceNeeded'
-                  name='serviceNeeded'
-                  value={formState.serviceNeeded}
-                  onChange={handleChange}
-                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
-                  required
-                >
-                  <option value='relocation'>Relocation</option>
-                  <option value='schoolSearch'>School Search</option>
-                  <option value='neighborhoodSearch'>Neighborhood Search</option>
-                  <option value='corporateRelocation'>Corporate Relocation</option>
-                  <option value='lifestyleAssistance'>Lifestyle Assistance</option>
-                </select>
-              </div>
-
-              {/* Move Timing */}
-              <div>
-                <label
-                  htmlFor='moveTiming'
-                  className='block text-[14px] font-medium text-charcoal mb-1.5'
-                >
-                  When do you plan to move?
-                </label>
-                <select
-                  id='moveTiming'
-                  name='moveTiming'
-                  value={formState.moveTiming}
-                  onChange={handleChange}
-                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
-                  required
-                >
-                  <option value=''>Select time frame</option>
-                  <option value='asap'>ASAP</option>
-                  <option value='within_3_months'>Within 3 months</option>
-                  <option value='3_to_6_months'>3 - 6 months</option>
-                  <option value='6_to_12_months'>6 - 12 months</option>
-                  <option value='more_than_12_months'>More than 12 months</option>
-                  <option value='not_sure'>Not sure</option>
-                </select>
-              </div>
-
-              {/* Plan Details - Full width */}
-              <div className='lg:col-span-2'>
-                <label
-                  htmlFor='planDetails'
-                  className='block text-[14px] font-medium text-charcoal mb-1.5'
-                >
-                  Tell us briefly about your plans
-                </label>
-                <textarea
-                  id='planDetails'
-                  name='planDetails'
-                  rows={4}
-                  value={formState.planDetails}
-                  placeholder='Provide any additional details about your relocation plans'
-                  onChange={handleChange}
-                  className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[15px] transition-all duration-200'
-                  required
-                  aria-required='true'
-                />
-              </div>
-            </div>
-
-            {/* Submit Button - Full width */}
-            <button
-              type='submit'
-              className='w-full bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 py-3.5 rounded-lg transition-all duration-200 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
-              aria-label='Submit consultation booking form'
+        {/* Concierge Add-Ons Section */}
+        <section
+          className='py-12  bg-[#f6efd1] border border-[#f6efcb] shadow-sm rounded-xl md:rounded-2xl'
+          aria-labelledby='add-ons-title'
+        >
+          <div className='text-center mb-10 px-4'>
+            <h2
+              id='add-ons-title'
+              className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-3 md:mb-4 leading-tight'
             >
-              Submit
-            </button>
-          </form>
-        </div>
-      </section>
+              {t('concierge.addOns.title')}
+            </h2>
+            <p className='text-[15px] sm:text-base text-charcoal/80 max-w-3xl mx-auto leading-relaxed'>
+              {t('concierge.addOns.subtitle')}
+            </p>
+          </div>
+
+          <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-8 px-4 md:px-6'>
+            {addOns.map((addOn, index) => {
+              const IconComponent = addOn.Icon;
+              return (
+                <article
+                  key={addOn.label ?? index}
+                  className='text-center'
+                >
+                  <div
+                    className='w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-2 flex items-center justify-center rounded-full bg-[#D1B156] shadow'
+                    aria-hidden='true'
+                  >
+                    <IconComponent
+                      className='w-7 h-7 sm:w-8 sm:h-8 text-white'
+                      strokeWidth={1.8}
+                    />
+                  </div>
+                  <p className='text-sm sm:text-[15px] font-semibold text-charcoal leading-snug px-1 mt-1'>
+                    {addOn.label}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+
+
+        {/* Ready to Make Your Move Section */}
+        <section
+          id='concierge-form'
+          className='bg-background-light rounded-xl md:rounded-2xl lg:px-6 pt-6'
+          aria-labelledby='contact-title'
+        >
+          <div className='max-w-7xl mx-auto'>
+            <h2
+              id='contact-title'
+              className='text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] font-bold text-charcoal mb-3 md:mb-4 leading-tight'
+            >
+              {t('concierge.contact.title')}
+            </h2>
+            <p className='text-[15px] sm:text-base text-gray-500 mb-6 md:mb-8 leading-relaxed'>
+              {t('concierge.contact.subtitle')}
+            </p>
+
+            <form onSubmit={handleSubmit} className='space-y-5' aria-label='Consultation booking form'>
+              {/* Two column grid for lg screens */}
+              <div className='grid grid-cols-1 lg:grid-cols-2 gap-5'>
+                {/* Column 1 - Left side */}
+                <div>
+                  <label
+                    htmlFor='fullName'
+                    className='block text-[14px] font-medium text-charcoal mb-1.5'
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type='text'
+                    id='fullName'
+                    name='fullName'
+                    value={formState.fullName}
+                    placeholder='Enter your full name'
+                    onChange={handleChange}
+                    className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
+                    required
+                    aria-required='true'
+                  />
+                </div>
+
+                {/* Column 2 - Right side */}
+                <div>
+                  <label
+                    htmlFor='email'
+                    className='block text-[14px] font-medium text-charcoal mb-1.5'
+                  >
+                    Email
+                  </label>
+                  <input
+                    type='email'
+                    id='email'
+                    name='email'
+                    value={formState.email}
+                    placeholder='Enter your email address'
+                    onChange={handleChange}
+                    className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
+                    required
+                    aria-required='true'
+                  />
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label
+                    htmlFor='phone'
+                    className='block text-[14px] font-medium text-charcoal mb-1.5'
+                  >
+                    Phone / WhatsApp
+                  </label>
+                  <input
+                    type='tel'
+                    id='phone'
+                    name='phone'
+                    value={formState.phone}
+                    placeholder='Enter your phone number'
+                    onChange={handleChange}
+                    className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
+                    required
+                    aria-required='true'
+                  />
+                </div>
+
+                {/* Country */}
+                <div>
+                  <label
+                    htmlFor='countryOfResidence'
+                    className='block text-[14px] font-medium text-charcoal mb-1.5'
+                  >
+                    Country of Residence
+                  </label>
+                  <select
+                    id='countryOfResidence'
+                    name='countryOfResidence'
+                    value={formState.countryOfResidence}
+                    onChange={handleChange}
+                    className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
+                  >
+                    {COUNTRY_CODES.map((c) => (
+                      <option key={c.iso2} value={c.iso2}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Preferred Date */}
+                <div>
+                  <label
+                    htmlFor='moveDate'
+                    className='block text-[14px] font-medium text-charcoal mb-1.5'
+                  >
+                    Preferred Date & Time
+                  </label>
+                  <input
+                    type='datetime-local'
+                    id='moveDate'
+                    name='moveDate'
+                    value={formState.moveDate}
+                    onChange={handleChange}
+                    className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
+                    required
+                    aria-required='true'
+                  />
+                </div>
+
+                {/* Service Needed */}
+                <div>
+                  <label
+                    htmlFor='serviceNeeded'
+                    className='block text-[14px] font-medium text-charcoal mb-1.5'
+                  >
+                    Service Needed
+                  </label>
+                  <select
+                    id='serviceNeeded'
+                    name='serviceNeeded'
+                    value={formState.serviceNeeded}
+                    onChange={handleChange}
+                    className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
+                    required
+                  >
+                    <option value='relocation'>Relocation</option>
+                    <option value='schoolSearch'>School Search</option>
+                    <option value='neighborhoodSearch'>Neighborhood Search</option>
+                    <option value='corporateRelocation'>Corporate Relocation</option>
+                    <option value='lifestyleAssistance'>Lifestyle Assistance</option>
+                  </select>
+                </div>
+
+                {/* Move Timing */}
+                <div>
+                  <label
+                    htmlFor='moveTiming'
+                    className='block text-[14px] font-medium text-charcoal mb-1.5'
+                  >
+                    When do you plan to move?
+                  </label>
+                  <select
+                    id='moveTiming'
+                    name='moveTiming'
+                    value={formState.moveTiming}
+                    onChange={handleChange}
+                    className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[15px] transition-all duration-200'
+                    required
+                  >
+                    <option value=''>Select time frame</option>
+                    <option value='asap'>ASAP</option>
+                    <option value='within_3_months'>Within 3 months</option>
+                    <option value='3_to_6_months'>3 - 6 months</option>
+                    <option value='6_to_12_months'>6 - 12 months</option>
+                    <option value='more_than_12_months'>More than 12 months</option>
+                    <option value='not_sure'>Not sure</option>
+                  </select>
+                </div>
+
+                {/* Plan Details - Full width */}
+                <div className='lg:col-span-2'>
+                  <label
+                    htmlFor='planDetails'
+                    className='block text-[14px] font-medium text-charcoal mb-1.5'
+                  >
+                    Tell us briefly about your plans
+                  </label>
+                  <textarea
+                    id='planDetails'
+                    name='planDetails'
+                    rows={4}
+                    value={formState.planDetails}
+                    placeholder='Provide any additional details about your relocation plans'
+                    onChange={handleChange}
+                    className='w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[15px] transition-all duration-200'
+                    required
+                    aria-required='true'
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button - Full width */}
+              <button
+                type='submit'
+                className='w-full bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 py-3.5 rounded-lg transition-all duration-200 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+                aria-label='Submit consultation booking form'
+              >
+                Submit
+              </button>
+            </form>
+          </div>
+        </section>
         {showModal && (
           <ConciergeModal initialOpen={true} onClose={() => setShowModal(false)} />
         )}

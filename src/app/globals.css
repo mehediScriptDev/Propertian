@@ -100,7 +100,9 @@
 body {
   font-display: swap;
 }
-
+button{
+  cursor: pointer;
+}
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
   *,
