@@ -341,7 +341,7 @@ export default function PartnerProfilePage() {
       </div>
 
       {/* Project Names */}
-      <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">
+      {/* <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900">
           <FileText className="h-5 w-5 text-gray-400 shrink-0" />
           {t("PertnerProfile.ProjectNames")}
@@ -363,10 +363,10 @@ export default function PartnerProfilePage() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Documents */}
-      <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">
+      {/* <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900">
           <FileText className="h-5 w-5 text-gray-400 shrink-0" />
           {t("PertnerProfile.UploadedDocuments")}
@@ -394,7 +394,7 @@ export default function PartnerProfilePage() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Account Timestamps */}
       <div className="rounded-lg bg-white/50 border border-gray-200 p-4 sm:p-6 shadow-sm">

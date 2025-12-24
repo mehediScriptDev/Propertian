@@ -1807,10 +1807,10 @@
     "title": "Here's an overview of your property portfolio and recent activities",
     "addButton": "Add New Property",
     "statsData": {
-      "totalProperties": "Total Properties",
-      "totalViews": "Total Views",
+      "totalProperties": "Total Listings",
       "activeListings": "Active Listings",
-      "newInquiries": "Total Inquiries"
+      "inactiveListings": "Inactive Listings",
+      "totalInquiries": "Total Inquiries"
     },
     "AllInquiries": "All Inquiries",
     "SearchInquiries": "Search inquiries...",

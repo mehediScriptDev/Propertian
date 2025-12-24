@@ -42,34 +42,83 @@ export default function PartnerDashboardPage({ params }) {
   // Stats data matching admin dashboard style with SAME colors
   const [statsData, setStatsData] = useState([
     {
-      title: t("Partner.statsData.totalProperties") || "New Inquiries",
-      value: 12,
-      trend: "+3 this month",
+      title: t("Partner.statsData.totalProperties") || "Total Properties",
+      value: 0,
+      trend: "",
       variant: "primary",
       icon: Home,
     },
-    // {
-    //   title: t("Partner.statsData.totalViews") || "Total Views",
-    //   value: 8,
-    //   trend: "+2 this week",
-    //   variant: "success",
-    //   icon: TrendingUp,
-    // },
-    // {
-    //   title: t("Partner.statsData.totalViews") || "Recent Inquiries",
-    //   value: 1247,
-    //   trend: "+18.5%",
-    //   variant: "info",
-    //   icon: Eye,
-    // },
     {
-      title: t("Partner.statsData.newInquiries") || "Total Inquiries",
-      value: 5,
-      trend: "+2 today",
+      title: t("Partner.statsData.activeListings") || "Active Listings",
+      value: 0,
+      trend: "",
+      variant: "success",
+      icon: TrendingUp,
+    },
+    {
+      title: t("Partner.statsData.inactiveListings") || "Inactive Listings",
+      value: 0,
+      trend: "",
+      variant: "info",
+      icon: Eye,
+    },
+    {
+      title: t("Partner.statsData.totalInquiries") || "Total Inquiries",
+      value: 0,
+      trend: "",
       variant: "warning",
       icon: MessageSquare,
     },
   ]);
+
+  // Fetch partner dashboard stats and populate stat cards
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await get('/partner/dashboard/stats');
+        const payload = res?.data || res;
+        // API may return wrapped in { data: { properties, inquiries, ... } }
+        const statsRoot = payload?.data || payload;
+        const props = statsRoot?.properties || {};
+        const inquiries = statsRoot?.inquiries || {};
+
+        setStatsData([
+          {
+            title: t("Partner.statsData.totalProperties") || "Total Properties",
+            value: props.total ?? 0,
+            trend: "",
+            variant: "primary",
+            icon: Home,
+          },
+          {
+            title: t("Partner.statsData.activeListings") || "Active Listings",
+            value: props.active ?? 0,
+            trend: "",
+            variant: "success",
+            icon: TrendingUp,
+          },
+          {
+            title: t("Partner.statsData.inactiveListings") || "Inactive Listings",
+            value: props.inactive ?? 0,
+            trend: "",
+            variant: "info",
+            icon: Eye,
+          },
+          {
+            title: t("Partner.statsData.totalInquiries") || "Total Inquiries",
+            value: inquiries.total ?? 0,
+            trend: "",
+            variant: "warning",
+            icon: MessageSquare,
+          },
+        ]);
+      } catch (err) {
+        console.error('Fetch partner stats error', err);
+      }
+    };
+
+    fetchStats();
+  }, [locale]);
 
   // Fetch properties from server (server-driven pagination)
   useEffect(() => {

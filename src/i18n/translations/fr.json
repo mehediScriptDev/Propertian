@@ -1800,12 +1800,12 @@
     "welcome": "Bon retour, partenaire",
     "title": "Voici un aperçu de votre portefeuille immobilier et de vos activités récentes",
     "addButton": "Ajouter une nouvelle propriété",
-    "statsData": {
-      "totalProperties": "Total des propriétés",
-      "totalViews": "Nombre total de vues",
-      "activeListings": "Annonces actives",
-      "newInquiries": "Total des demandes"
-    },
+    "statsData":{
+  "totalProperties": "Total des annonces",
+  "activeListings": "Annonces actives",
+  "inactiveListings": "Annonces inactives",
+  "totalInquiries": "Total des demandes"
+},
     "AllInquiries": "Toutes les demandes",
     "SearchInquiries": "Rechercher des demandes...",
     "AllStatus": "Tous les statuts",
