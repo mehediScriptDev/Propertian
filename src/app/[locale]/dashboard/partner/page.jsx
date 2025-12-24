@@ -1,9 +1,11 @@
 "use client";
 
-import { use, useMemo, useState } from "react";
+import { use, useMemo, useState, useEffect } from "react";
 import { useTranslation } from "@/i18n";
 import dynamic from "next/dynamic";
+import { get } from "@/lib/api";
 import StatsCard from "@/components/dashboard/admin/StatsCard";
+import Modal from '@/components/Modal';
 import Link from 'next/link';
 import {
   Eye,
@@ -26,9 +28,15 @@ export default function PartnerDashboardPage({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const closeModal = () => setSelectedProperty(null);
   
 
   // Stats data matching admin dashboard style with SAME colors
@@ -40,22 +48,22 @@ export default function PartnerDashboardPage({ params }) {
       variant: "primary",
       icon: Home,
     },
+    // {
+    //   title: t("Partner.statsData.totalViews") || "Total Views",
+    //   value: 8,
+    //   trend: "+2 this week",
+    //   variant: "success",
+    //   icon: TrendingUp,
+    // },
+    // {
+    //   title: t("Partner.statsData.totalViews") || "Recent Inquiries",
+    //   value: 1247,
+    //   trend: "+18.5%",
+    //   variant: "info",
+    //   icon: Eye,
+    // },
     {
-      title: t("Partner.statsData.totalViews") || "Total Views",
-      value: 8,
-      trend: "+2 this week",
-      variant: "success",
-      icon: TrendingUp,
-    },
-    {
-      title: t("Partner.statsData.totalViews") || "Total Views",
-      value: 1247,
-      trend: "+18.5%",
-      variant: "info",
-      icon: Eye,
-    },
-    {
-      title: t("Partner.statsData.newInquiries") || "New Inquiries",
+      title: t("Partner.statsData.newInquiries") || "Total Inquiries",
       value: 5,
       trend: "+2 today",
       variant: "warning",
@@ -63,121 +71,44 @@ export default function PartnerDashboardPage({ params }) {
     },
   ]);
 
-  // Recent properties data - Extended for pagination
-  const recentProperties = useMemo(
-    () => [
-      {
-        id: 1,
-        title: "Luxury Villa in Cocody",
-        location: "Cocody, Abidjan",
-        price: "$450,000",
-        views: 234,
-        inquiries: 12,
-        status: "active",
-      },
-      {
-        id: 2,
-        title: "Modern Apartment",
-        location: "Plateau, Abidjan",
-        price: "$280,000",
-        views: 189,
-        inquiries: 8,
-        status: "active",
-      },
-      {
-        id: 3,
-        title: "Beachfront Property",
-        location: "Grand-Bassam",
-        price: "$620,000",
-        views: 312,
-        inquiries: 15,
-        status: "pending",
-      },
-      {
-        id: 4,
-        title: "Penthouse Suite",
-        location: "Marcory, Abidjan",
-        price: "$890,000",
-        views: 456,
-        inquiries: 23,
-        status: "active",
-      },
-      {
-        id: 5,
-        title: "Family Home",
-        location: "Yopougon, Abidjan",
-        price: "$320,000",
-        views: 178,
-        inquiries: 9,
-        status: "active",
-      },
-      {
-        id: 6,
-        title: "Studio Apartment",
-        location: "Treichville, Abidjan",
-        price: "$150,000",
-        views: 145,
-        inquiries: 6,
-        status: "active",
-      },
-      {
-        id: 7,
-        title: "Commercial Space",
-        location: "Plateau, Abidjan",
-        price: "$1,200,000",
-        views: 289,
-        inquiries: 18,
-        status: "pending",
-      },
-      {
-        id: 8,
-        title: "Garden Villa",
-        location: "Bingerville",
-        price: "$520,000",
-        views: 267,
-        inquiries: 14,
-        status: "active",
-      },
-      {
-        id: 9,
-        title: "Duplex Residence",
-        location: "Cocody, Abidjan",
-        price: "$680,000",
-        views: 334,
-        inquiries: 19,
-        status: "active",
-      },
-      {
-        id: 10,
-        title: "Waterfront Estate",
-        location: "Grand-Bassam",
-        price: "$950,000",
-        views: 412,
-        inquiries: 27,
-        status: "pending",
-      },
-    ],
-    []
-  );
+  // Fetch properties from server (server-driven pagination)
+  useEffect(() => {
+    const fetchProperties = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await get('/properties/user/my-properties', { params: { page: currentPage, limit: itemsPerPage } });
+        const data = res?.data || res;
+        setProperties(data?.properties || []);
+        setPagination(data?.pagination || { currentPage: 1, totalPages: 1, totalItems: data?.properties?.length || 0 });
+      } catch (err) {
+        console.error('Fetch properties error', err);
+        setError('Failed to load properties');
+        setProperties([]);
+        setPagination({ currentPage: 1, totalPages: 1, totalItems: 0 });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Filter properties based on search and status
+    fetchProperties();
+  }, [currentPage, itemsPerPage]);
+
+  // Filter properties based on search and status (client-side on returned page)
   const filteredProperties = useMemo(() => {
-    return recentProperties.filter((property) => {
+    return properties.filter((property) => {
       const matchesSearch =
         searchQuery === "" ||
-        property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        property.location.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus =
-        filterStatus === "all" || property.status === filterStatus;
+        (property.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ((property.address || "") + " " + (property.city || "")).toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = filterStatus === "all" || (property.status || "").toLowerCase() === filterStatus;
       return matchesSearch && matchesStatus;
     });
-  }, [recentProperties, searchQuery, filterStatus]);
+  }, [properties, searchQuery, filterStatus]);
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentProperties = filteredProperties.slice(startIndex, endIndex);
+  // For rendering use filteredProperties (server already paginates)
+  const currentProperties = filteredProperties;
+  const totalPages = pagination?.totalPages || 1;
 
   // Reset to page 1 when filters change
   const handleSearchChange = (value) => {
@@ -284,13 +215,10 @@ export default function PartnerDashboardPage({ params }) {
                   {t("Partner.Price")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  {t("Partner.Views")}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  {t("Partner.Inquiries")}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   {t("Partner.Status")}
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                  {t("Partner.Actions") || 'Actions'}
                 </th>
               </tr>
             </thead>
@@ -308,7 +236,7 @@ export default function PartnerDashboardPage({ params }) {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1 text-sm text-gray-600">
                       <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                      {property.location}
+                      {(property.address || "") + (property.city ? ", " + property.city : "")}
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -317,27 +245,21 @@ export default function PartnerDashboardPage({ params }) {
                       {property.price}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <Eye className="h-3.5 w-3.5 text-gray-400" />
-                      {property.views}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
-                      {property.inquiries}
-                    </div>
-                  </td>
+                  
                   <td className="px-6 py-4">
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${property.status === "active"
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${(property.status || "").toLowerCase() === "available"
                         ? "bg-green-100 text-green-800"
                         : "bg-yellow-100 text-yellow-800"
                         }`}
                     >
-                      {property.status === "active" ? "Active" : "Pending"}
+                      {(property.status || "").charAt(0).toUpperCase() + (property.status || "").slice(1).toLowerCase()}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button onClick={() => setSelectedProperty(property)} className="text-sm font-medium text-[#E6B325] hover:underline">
+                      {t("Partner.ViewDetails") || 'View details'}
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -356,7 +278,7 @@ export default function PartnerDashboardPage({ params }) {
                 <h3 className="font-medium text-gray-900">{property.title}</h3>
                 <div className="mt-1 flex items-center gap-1 text-sm text-gray-600">
                   <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                  {property.location}
+                  {(property.address || "") + (property.city ? ", " + property.city : "")}
                 </div>
               </div>
 
@@ -382,8 +304,13 @@ export default function PartnerDashboardPage({ params }) {
                 </span>
                 <div className="flex items-center gap-1 text-sm text-gray-600">
                   <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
-                  {property.inquiries} {t("Partner.inquiries")}
+                  {property._count?.inquiries ?? '-'} {t("Partner.inquiries")}
                 </div>
+              </div>
+              <div className="mt-3 flex items-center justify-end">
+                <button onClick={() => setSelectedProperty(property)} className="text-sm font-medium text-[#E6B325] hover:underline">
+                  {t("Partner.ViewDetails") || 'View details'}
+                </button>
               </div>
             </div>
           ))}
@@ -407,11 +334,11 @@ export default function PartnerDashboardPage({ params }) {
         )}
 
         {/* Pagination */}
-        {filteredProperties.length > itemsPerPage && (
+        {pagination?.totalItems > itemsPerPage && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            totalItems={filteredProperties.length}
+            totalItems={pagination?.totalItems}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
             translations={{
@@ -424,6 +351,49 @@ export default function PartnerDashboardPage({ params }) {
             }}
           />
         )}
+        {/* Property Details Modal (uses shared Modal component for consistent styling) */}
+        <Modal
+          isOpen={!!selectedProperty}
+          onClose={closeModal}
+          title={selectedProperty?.title}
+          maxWidth="max-w-3xl"
+          showCloseButton={false}
+          footer={selectedProperty && (
+            <div className="flex items-center justify-end gap-3">
+              <button onClick={closeModal} className="rounded-md border border-gray-200 px-4 py-2 text-sm bg-white">{t('common.close') || 'Close'}</button>
+            </div>
+          )}
+        >
+          {selectedProperty && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                {selectedProperty.images && selectedProperty.images.length > 0 ? (
+                  <img src={selectedProperty.images[0]} alt={selectedProperty.title} className="w-full h-56 md:h-64 object-cover rounded" />
+                ) : (
+                  <div className="w-full h-56 md:h-64 bg-gray-100 rounded flex items-center justify-center text-gray-400">{t('Partner.noImage') || 'No image'}</div>
+                )}
+              </div>
+              <div className="text-sm text-gray-700">
+                <p className="text-gray-800 mb-3">{selectedProperty.description}</p>
+                <div className="space-y-2">
+                  <div><strong>{t('Partner.Address') || 'Address'}:</strong> {(selectedProperty.address || '') + (selectedProperty.city ? ', ' + selectedProperty.city : '')}</div>
+                  <div><strong>{t('Partner.Price') || 'Price'}:</strong> {selectedProperty.price}</div>
+                  <div className="flex gap-4">
+                    <div><strong>{t('Partner.Bedrooms') || 'Bedrooms'}:</strong> {selectedProperty.bedrooms ?? '-'}</div>
+                    <div><strong>{t('Partner.Bathrooms') || 'Bathrooms'}:</strong> {selectedProperty.bathrooms ?? '-'}</div>
+                    <div><strong>{t('Partner.Sqft') || 'Sqft'}:</strong> {selectedProperty.sqft ?? '-'}</div>
+                  </div>
+                  <div>
+                    <strong>{t('Partner.Amenities') || 'Amenities'}:</strong>
+                    <ul className="list-disc ml-5 mt-1 text-sm">
+                      {(selectedProperty.amenities || []).map((a, i) => <li key={i}>{a}</li>)}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </Modal>
         {/* AddPropertyModal removed - partner uses full page add flow now */}
       </div>
     </div>

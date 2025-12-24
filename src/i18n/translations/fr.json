@@ -1804,7 +1804,7 @@
       "totalProperties": "Total des propriétés",
       "totalViews": "Nombre total de vues",
       "activeListings": "Annonces actives",
-      "newInquiries": "Nouvelles demandes"
+      "newInquiries": "Total des demandes"
     },
     "AllInquiries": "Toutes les demandes",
     "SearchInquiries": "Rechercher des demandes...",
@@ -1819,6 +1819,14 @@
     "Status": "Statut",
     "views": "vues",
     "inquiries": "demandes",
+    "Actions": "Actions",
+    "ViewDetails": "Voir les détails",
+    "noImage": "Pas d'image",
+    "Address": "Adresse",
+    "Bedrooms": "Chambres",
+    "Bathrooms": "Salles de bain",
+    "Sqft": "Superficie",
+    "Amenities": "Équipements",
     "NoPropertiesFound": "Aucune propriété trouvée",
     "TryAdjusting": "Essayez d’ajuster votre recherche ou vos filtres",
     "Next": "Suivant",

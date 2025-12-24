@@ -1809,7 +1809,7 @@
       "totalProperties": "Total Properties",
       "totalViews": "Total Views",
       "activeListings": "Active Listings",
-      "newInquiries": "New Inquiries"
+      "newInquiries": "Total Inquiries"
     },
     "AllInquiries": "All Inquiries",
     "SearchInquiries": "Search inquiries...",
@@ -1824,6 +1824,14 @@
     "Status": "Status",
     "views": "views",
     "inquiries": "inquiries",
+    "Actions": "Actions",
+    "ViewDetails": "View details",
+    "noImage": "No image",
+    "Address": "Address",
+    "Bedrooms": "Bedrooms",
+    "Bathrooms": "Bathrooms",
+    "Sqft": "Sqft",
+    "Amenities": "Amenities",
     "NoPropertiesFound": "No Properties Found",
     "TryAdjusting": "Try adjusting your search or filters",
     "Next": "Next",
