@@ -17,6 +17,8 @@ import {
   Filter,
   Home,
   TrendingUp,
+  EyeIcon,
+  EyeOff,
 } from "lucide-react";
 
 // Lazy load Pagination component
@@ -71,16 +73,22 @@ export default function PartnerDashboardPage({ params }) {
     },
   ]);
 
-  // Fetch partner dashboard stats and populate stat cards
+  // Fetch partner dashboard stats and inquiries count together and populate stat cards
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchStatsAndInquiries = async () => {
       try {
-        const res = await get('/partner/dashboard/stats');
-        const payload = res?.data || res;
-        // API may return wrapped in { data: { properties, inquiries, ... } }
-        const statsRoot = payload?.data || payload;
+        const [statsRes, inquiriesRes] = await Promise.all([
+          get('/partner/dashboard/stats'),
+          get('/inquiries/my-inquiries', { params: { page: 1, limit: 1 } }),
+        ]);
+
+        const statsPayload = statsRes?.data || statsRes;
+        const statsRoot = statsPayload?.data || statsPayload;
         const props = statsRoot?.properties || {};
-        const inquiries = statsRoot?.inquiries || {};
+
+        const inquiriesPayload = inquiriesRes?.data || inquiriesRes;
+        const inquiriesRoot = inquiriesPayload?.data || inquiriesPayload;
+        const inquiriesTotal = inquiriesRoot?.pagination?.totalItems ?? 0;
 
         setStatsData([
           {
@@ -95,29 +103,29 @@ export default function PartnerDashboardPage({ params }) {
             value: props.active ?? 0,
             trend: "",
             variant: "success",
-            icon: TrendingUp,
+            icon: EyeIcon,
           },
           {
             title: t("Partner.statsData.inactiveListings") || "Inactive Listings",
             value: props.inactive ?? 0,
             trend: "",
             variant: "info",
-            icon: Eye,
+            icon: EyeOff,
           },
           {
             title: t("Partner.statsData.totalInquiries") || "Total Inquiries",
-            value: inquiries.total ?? 0,
+            value: inquiriesTotal,
             trend: "",
             variant: "warning",
             icon: MessageSquare,
           },
         ]);
       } catch (err) {
-        console.error('Fetch partner stats error', err);
+        console.error('Fetch partner stats or inquiries error', err);
       }
     };
 
-    fetchStats();
+    fetchStatsAndInquiries();
   }, [locale]);
 
   // Fetch properties from server (server-driven pagination)
