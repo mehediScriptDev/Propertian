@@ -747,7 +747,8 @@
       "inquiries": "Inquiries",
       "developerPortal": "Developer Portal",
       "developerInquiry": "Developer Inquiry",
-      "profile": "Profile"
+      "profile": "Profile",
+      "Add Property": "Add Property"
     },
     "pages": {
       "adminDashboard": {

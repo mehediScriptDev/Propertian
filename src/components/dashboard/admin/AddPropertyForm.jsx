@@ -1,493 +1,415 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { post } from "../../../lib/api";
-import { ChevronDown } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { uploadFile } from "../../../lib/api";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-/*
-  Backend integration notes (developer guide)
-
-  1) Endpoint configuration
-    - This component accepts an `apiEndpoint` prop (default: '/properties').
-    - For admin vs partner separation we pass different endpoints from the page-level:
-      Admin:  <AddPropertyForm apiEndpoint={'/admin/properties'} />
-      Partner: <AddPropertyForm apiEndpoint={'/partner/properties'} defaultVerified={false} />
-
-  2) Verification flag
-    - The component sets `payload.isVerified = defaultVerified` before POST.
-    - Server SHOULD enforce role-based verification. Treat this client flag as an intent only.
-
-  3) File uploads (images, video, logo)
-    - Currently this form collects files and previews them, but posts JSON payload with counts/names.
-    - Recommended flow when backend is ready:
-      a) Upload files first (use `uploadFile` helper in `src/lib/api.js` or a dedicated file-upload endpoint).
-      b) Collect returned file URLs/IDs from the upload responses.
-      c) Add those URLs/IDs into `payload` (e.g. `payload.mainImageUrl`, `payload.gallery = [url1, url2]`).
-      d) Finally `post(apiEndpoint, payload)` (JSON) so property creation is atomic with saved file refs.
-
-    - Alternatively, if backend accepts multipart/form-data for property creation, build a FormData,
-     append files and JSON fields, and POST directly (set no Content-Type header so browser sets the multipart boundary).
-
-  4) Headers, auth and error handling
-    - This project uses `axiosInstance` which injects auth token from cookies.
-    - If you need to bypass the global 401 auto-redirect for certain requests, add header `x-skip-auth-redirect: '1'`.
-    - Keep server validation errors and show them via `setErrors` when returned in `err.response.data.errors`.
-
-  5) Testing locally
-    - Use browser devtools Network tab to inspect the POST URL and JSON body to verify `isVerified` and endpoint.
-    - If files are required by backend, test the upload flow separately and confirm returned URLs.
-
-  6) Server-side note (strongly recommended)
-    - The backend must verify the authenticated user's role and set `isVerified` accordingly.
-    - Do not rely on the client-provided `isVerified` for security-critical behavior.
-
-*/
+const initialState = {
+  title: "",
+  description: "",
+  address: "",
+  city: "",
+  state: "",
+  zipCode: "",
+  country: "",
+  propertyType: "NEW_DEVELOPMENT",
+  listingType: "SALE",
+  price: "",
+  bedrooms: "",
+  bathrooms: "",
+  sqft: "",
+  amenities: [],
+  interiorFeatures: "",
+  exteriorFeatures: "",
+  furnishing: "Unfurnished",
+  rentalDuration: "",
+  rentalTerms: "",
+  images: [],
+};
 
 export default function AddPropertyForm({ translations = {}, defaultVerified = true, apiEndpoint = '/properties' }) {
-  const initialForm = {
-    title: "",
-    description: "",
-    location: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "",
-    propertyType: "villa",
-    listingType: "SALE",
-    price: "",
-    bedrooms: "",
-    bathrooms: "",
-    sqft: "",
-    amenities: "",
-    rentalDuration: "12 Months (Minimum)",
-    furnishing: "Unfurnished",
-    rentalTerms: "",
-    mainImage: null,
-    gallery: [],
-  };
-
-  const [form, setForm] = useState(initialForm);
-
-  const [galleryPreviews, setGalleryPreviews] = useState([]);
-  const [mainPreview, setMainPreview] = useState(null);
-  const [success, setSuccess] = useState("");
+  const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [imagePreviews, setImagePreviews] = useState([]);
 
-  const galleryRef = useRef(null);
-  const mainRef = useRef(null);
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach((p) => URL.revokeObjectURL(p));
+    };
+  }, [imagePreviews]);
 
-  const interiorOptions = [
-    "Modern fitted kitchen",
-    "Air conditioning throughout",
-    "Built-in wardrobes in all bedrooms",
-    "Marble flooring",
-    "High-speed internet ready",
-    "Backup generator",
-  ];
-  const exteriorOptions = [
-    "Private swimming pool",
-    "Landscaped garden",
-    "Secure gated community",
-    "Covered parking for 2 vehicles",
-    "Outdoor entertainment area",
-  ];
-
-  const [interiorFeatures, setInteriorFeatures] = useState([]);
-  const [exteriorFeatures, setExteriorFeatures] = useState([]);
-
-  const [openDropdowns, setOpenDropdowns] = useState({
-    propertyType: false,
-    listingType: false,
-    rentalDuration: false,
-    furnishing: false,
-  });
-
-  const MAX_GALLERY = 8;
-  const MIN_GALLERY = 4;
-  const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-
-  function handleChange(e) {
+  function handleInputChange(e) {
     const { name, value } = e.target;
-    const numberFields = ["sqft", "bedrooms", "bathrooms"];
-    if (numberFields.includes(name)) {
-      const v = value === "" ? "" : Number(value);
-      setForm((s) => ({ ...s, [name]: v }));
-    } else {
-      setForm((s) => ({ ...s, [name]: value }));
-    }
+    setForm((s) => ({ ...s, [name]: value }));
   }
 
-  function handleMainImage(e) {
-    const file = e.target.files?.[0] || null;
-    if (file && file.size > MAX_IMAGE_BYTES) {
-      setErrors((prev) => ({ ...prev, mainImage: "Max image size is 5MB" }));
-      return;
-    }
-    setErrors((prev) => ({ ...prev, mainImage: undefined }));
-    setForm((s) => ({ ...s, mainImage: file }));
-    setMainPreview(file ? URL.createObjectURL(file) : null);
+  function handleNumberChange(e) {
+    const { name, value } = e.target;
+    const sanitized = value === "" ? "" : value.replace(/[^0-9]/g, "");
+    setForm((s) => ({ ...s, [name]: sanitized }));
   }
 
-  function handleGallery(e) {
+  function handleListingTypeChange(e) {
+    const val = e.target.value;
+    setForm((s) => ({ ...s, listingType: val }));
+    if (val !== "RENT") setForm((s) => ({ ...s, rentalDuration: "", rentalTerms: "" }));
+  }
+
+  function toggleAmenity(value) {
+    setForm((s) => {
+      const exists = s.amenities.includes(value);
+      const next = exists ? s.amenities.filter((a) => a !== value) : [...s.amenities, value];
+      return { ...s, amenities: next };
+    });
+  }
+
+  function handleImagesChange(e) {
     const files = Array.from(e.target.files || []);
-    const validFiles = [];
-    const previews = [];
-    const errs = [];
-    for (let i = 0; i < files.length && validFiles.length < MAX_GALLERY; i++) {
-      const f = files[i];
-      if (f.size > MAX_IMAGE_BYTES) {
-        errs.push(`${f.name} is larger than 5MB`);
-        continue;
-      }
-      validFiles.push(f);
-      previews.push(URL.createObjectURL(f));
-    }
-    if (files.length > MAX_GALLERY) errs.push(`Max ${MAX_GALLERY} images allowed`);
-    setForm((s) => ({ ...s, gallery: validFiles }));
-    setGalleryPreviews(previews);
-    setErrors((prev) => ({ ...prev, gallery: errs.length ? errs.join(", ") : undefined }));
+    setForm((s) => ({ ...s, images: files }));
+    const previews = files.map((f) => URL.createObjectURL(f));
+    imagePreviews.forEach((p) => URL.revokeObjectURL(p));
+    setImagePreviews(previews);
   }
 
-  function toggleSelection(value, setFn, state) {
-    if (state.includes(value)) setFn(state.filter((s) => s !== value));
-    else setFn([...state, value]);
+  function removeImageAt(index) {
+    setForm((s) => {
+      const next = [...s.images];
+      next.splice(index, 1);
+      return { ...s, images: next };
+    });
+    setImagePreviews((p) => {
+      const next = [...p];
+      const removed = next.splice(index, 1)[0];
+      if (removed) URL.revokeObjectURL(removed);
+      return next;
+    });
   }
 
   function validate() {
-    const errs = {};
-    if (!form.title) errs.title = "Title is required";
-    if (!form.description) errs.description = "Description is required";
-    if (!form.address) errs.address = "Address is required";
-    if (!form.city) errs.city = "City is required";
-    if (!form.state) errs.state = "State is required";
-    if (!form.zipCode) errs.zipCode = "Zip Code is required";
-    if (!form.country) errs.country = "Country is required";
-    if (!form.propertyType) errs.propertyType = "Property type is required";
-    if (!form.listingType) errs.listingType = "Listing type is required";
-    if (!form.price) errs.price = "Price is required";
-    const numBedrooms = Number(form.bedrooms);
-    if (form.bedrooms === "" || isNaN(numBedrooms) || numBedrooms < 0) errs.bedrooms = "Enter number of bedrooms";
-    const numBathrooms = Number(form.bathrooms);
-    if (form.bathrooms === "" || isNaN(numBathrooms) || numBathrooms < 0) errs.bathrooms = "Enter number of bathrooms";
-    const numSqft = Number(form.sqft);
-    if (form.sqft === "" || isNaN(numSqft) || numSqft <= 0) errs.sqft = "Sqft is required and must be a positive number";
-    // Image validation removed - not required for JSON POST
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
+    const err = {};
+    if (!form.title.trim()) err.title = "Title is required";
+    if (!form.description.trim()) err.description = "Description is required";
+    if (!form.address.trim()) err.address = "Address is required";
+    if (!form.city.trim()) err.city = "City is required";
+    if (!form.state.trim()) err.state = "State is required";
+    if (!form.zipCode.trim()) err.zipCode = "Zip code is required";
+    if (!form.country.trim()) err.country = "Country is required";
+    if (!String(form.price).trim()) err.price = "Price is required";
+    if (!String(form.bedrooms).trim()) err.bedrooms = "Bedrooms is required";
+    if (!String(form.bathrooms).trim()) err.bathrooms = "Bathrooms is required";
+    if (!String(form.sqft).trim()) err.sqft = "Sqft is required";
+
+    const numFields = ["price", "bedrooms", "bathrooms", "sqft"];
+    numFields.forEach((k) => {
+      const v = Number(form[k]);
+      if (form[k] !== "" && (isNaN(v) || v < 0)) err[k] = "Must be a valid non-negative number";
+    });
+
+    if (form.listingType === "RENT") {
+      if (!form.rentalDuration.trim()) err.rentalDuration = "Rental duration is required for rentals";
+      if (!form.rentalTerms.trim()) err.rentalTerms = "Rental terms are required for rentals";
+    }
+
+    setErrors(err);
+    return Object.keys(err).length === 0;
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setSuccessMsg("");
     if (!validate()) return;
-    setIsSubmitting(true);
+    setLoading(true);
     setErrors({});
     try {
-      console.log('Form data:', form);
+      const fd = new FormData();
+      fd.append("title", form.title);
+      fd.append("description", form.description);
+      fd.append("address", form.address);
+      fd.append("city", form.city);
+      fd.append("state", form.state);
+      fd.append("zipCode", form.zipCode);
+      fd.append("country", form.country);
+      fd.append("propertyType", form.propertyType);
+      fd.append("listingType", form.listingType);
+      fd.append("price", String(form.price));
+      fd.append("bedrooms", String(form.bedrooms));
+      fd.append("bathrooms", String(form.bathrooms));
+      fd.append("sqft", String(form.sqft));
+      fd.append("interiorFeatures", form.interiorFeatures || "");
+      fd.append("exteriorFeatures", form.exteriorFeatures || "");
+      fd.append("furnishing", form.furnishing || "");
+      if (form.listingType === "RENT") {
+        fd.append("rentalDuration", form.rentalDuration || "");
+        fd.append("rentalTerms", form.rentalTerms || "");
+      }
+      fd.append("amenities", (form.amenities || []).join(","));
+      if (form.images && form.images.length) {
+        form.images.forEach((file) => fd.append("images", file));
+      }
 
-      const allowed = [
-        "title",
-        "description",
-        "address",
-        "city",
-        "state",
-        "zipCode",
-        "country",
-        "propertyType",
-        "listingType",
-        "price",
-        "bedrooms",
-        "bathrooms",
-        "sqft",
-        "rentalDuration",
-        "furnishing",
-        "rentalTerms",
-      ];
+      // respect caller-provided apiEndpoint and optional NEXT_PUBLIC_BASE_URL
+      const base = process.env.NEXT_PUBLIC_BASE_URL || "";
+      let endpoint = apiEndpoint || "/properties";
+      if (!endpoint.startsWith("http") && endpoint.startsWith('/')) endpoint = `${base}${endpoint}`;
+      else if (!endpoint.startsWith("http") && !endpoint.startsWith('/')) endpoint = `${base}/${endpoint}`;
 
-      const payload = {};
-      allowed.forEach((k) => {
-        const v = form[k];
-        if (v !== undefined && v !== null && String(v) !== "") payload[k] = v;
-      });
+      // include defaultVerified flag to inform backend of caller intent
+      fd.append('isVerified', defaultVerified ? '1' : '0');
 
-      if (form.amenities) payload.amenities = form.amenities;
-      payload.interiorFeatures = interiorFeatures;
-      payload.exteriorFeatures = exteriorFeatures;
+      // use project's upload helper (axios) so auth token from cookies is attached
+      const json = await uploadFile(endpoint, fd);
 
-      console.log('Payload to send:', payload);
-      // Respect caller's default verified flag (admin vs partner)
-      payload.isVerified = defaultVerified;
-
-      const result = await post(apiEndpoint, payload);
-      setSuccess(result?.message || "Property saved");
-      alert(result?.message || "Property saved");
-      // reset form and previews
-      setForm(initialForm);
-      setGalleryPreviews([]);
-      setMainPreview(null);
-      setInteriorFeatures([]);
-      setExteriorFeatures([]);
-      setErrors({});
-      if (galleryRef?.current) galleryRef.current.value = null;
-      if (mainRef?.current) mainRef.current.value = null;
-      setTimeout(() => setSuccess(""), 4000);
+      const successMessage = json?.message || "Property created";
+      setSuccessMsg(successMessage);
+      toast.success(successMessage);
+      setForm(initialState);
+      imagePreviews.forEach((p) => URL.revokeObjectURL(p));
+      setImagePreviews([]);
     } catch (err) {
-      console.error("submit error", err);
-      const serverMsg = err?.response?.data?.message || "Save failed";
-      const serverErrors = err?.response?.data?.errors;
-      if (serverErrors) setErrors(serverErrors);
-      setErrors((prev) => ({ ...prev, submit: serverMsg }));
+      setErrors((p) => ({ ...p, submit: err.message || "Submission failed" }));
+      if (!err?.message) toast.error("Submission failed");
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   }
 
+  const amenityOptions = ["Pool", "Garage", "Gym", "Garden", "Air Conditioning", "Concierge", "Security"];
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <div>
-          <h2 className="text-lg md:text-2xl font-semibold">{translations.basicInfo || "Basic Information"}</h2>
-          <p className="text-base md:text-lg text-gray-500">Core property details</p>
-        </div>
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className=" mx-auto">
+        <h1 className="text-2xl font-bold mb-4">Create Property Listing</h1>
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
-            <label className="block text-sm md:text-base font-medium mb-1">Title *</label>
-            <input name="title" value={form.title} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.title && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.title}</p>}
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          <ToastContainer position="top-right" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <h2 className="text-lg font-semibold mb-2">Basic Information</h2>
+                <p className="text-sm text-gray-500 mb-4">Core details for the listing</p>
 
-          <div className="relative">
-            <label className="block text-sm md:text-base font-medium mb-1">Property Type</label>
-            <select
-              name="propertyType"
-              value={form.propertyType}
-              onChange={handleChange}
-              onFocus={() => setOpenDropdowns(prev => ({ ...prev, propertyType: true }))}
-              onBlur={() => setOpenDropdowns(prev => ({ ...prev, propertyType: false }))}
-              className="w-full px-3 py-2 border appearance-none border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]"
-            >
-              <option value="villa">Villa</option>
-              <option value="apartment">Apartment</option>
-              <option value="commercial">Commercial</option>
-              <option value="house">House</option>
-              <option value="land">Land</option>
-            </select>
-            <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 translate-y-1/2 text-gray-500 transition-transform duration-200 ${openDropdowns.propertyType ? 'rotate-180' : ''}`} />
-          </div>
-
-          <div className="md:col-span-1">
-            <label className="block text-sm md:text-base font-medium mb-1">Location</label>
-            <input name="location" value={form.location} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm md:text-base font-medium mb-1">Address *</label>
-            <input name="address" value={form.address} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.address && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.address}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">City *</label>
-            <input name="city" value={form.city} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.city && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.city}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">State *</label>
-            <input name="state" value={form.state} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.state && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.state}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Zip Code *</label>
-            <input name="zipCode" value={form.zipCode} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.zipCode && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.zipCode}</p>}
-          </div>
-
-          <div className="md:col-span-3">
-            <label className="block text-sm md:text-base font-medium mb-1">Country *</label>
-            <input name="country" value={form.country} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.country && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.country}</p>}
-          </div>
-
-          <div className="md:col-span-3">
-            <label className="block text-sm md:text-base font-medium mb-1">Description *</label>
-            <textarea name="description" value={form.description} onChange={handleChange} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.description && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.description}</p>}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <h3 className="text-md md:text-lg font-semibold mb-2">Pricing</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative">
-            <label className="block text-sm md:text-base font-medium mb-1">Listing Type</label>
-            <select
-              name="listingType"
-              value={form.listingType}
-              onChange={handleChange}
-              onFocus={() => setOpenDropdowns(prev => ({ ...prev, listingType: true }))}
-              onBlur={() => setOpenDropdowns(prev => ({ ...prev, listingType: false }))}
-              className="w-full px-3 py-2 border appearance-none border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]"
-            >
-              <option value="SALE">Sale</option>
-              <option value="RENT">Rent</option>
-            </select>
-            <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 translate-y-1/2 text-gray-500 transition-transform duration-200 ${openDropdowns.listingType ? 'rotate-180' : ''}`} />
-          </div>
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Price *</label>
-            <input name="price" value={form.price} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.price && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.price}</p>}
-          </div>
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Sqft *</label>
-            <input type="number" name="sqft" value={form.sqft} onChange={handleChange} min="0" step="1" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.sqft && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.sqft}</p>}
-          </div>
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Bedrooms *</label>
-            <input type="number" name="bedrooms" value={form.bedrooms} onChange={handleChange} min="0" step="1" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.bedrooms && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.bedrooms}</p>}
-          </div>
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Bathrooms *</label>
-            <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} min="0" step="1" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-            {errors.bathrooms && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.bathrooms}</p>}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <h3 className="text-md md:text-lg font-semibold mb-2">Images</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-          <div>
-            <label className="block text-sm font-medium mb-1">Main Cover Image (max 5MB)</label>
-            <div className="border border-dashed border-gray-200 rounded-md p-3">
-              <input ref={mainRef} type="file" accept="image/*" onChange={handleMainImage} className="w-full" />
-              {errors.mainImage && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.mainImage}</p>}
-              {mainPreview && (
-                <div className="mt-3 w-full rounded-md overflow-hidden border">
-                  <img src={mainPreview} alt="main" className="w-full h-48 object-cover" />
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-1">Gallery Images (min {MIN_GALLERY})</label>
-            <div className="border border-dashed border-gray-200 rounded-md p-3">
-              <input ref={galleryRef} type="file" accept="image/*" multiple onChange={handleGallery} className="w-full" />
-              {errors.gallery && <p className="text-xs md:text-sm text-red-600 mt-1">{errors.gallery}</p>}
-              <div className="mt-3 grid grid-cols-3 gap-3">
-                {galleryPreviews.map((src, i) => (
-                  <div key={i} className="w-full h-24 overflow-hidden rounded-md border">
-                    <img src={src} className="w-full h-full object-cover" alt={`gallery-${i}`} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title *</label>
+                    <input id="title" name="title" value={form.title} onChange={handleInputChange} placeholder="e.g. Modern 4-bedroom villa with pool" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.title && <p className="mt-1 text-xs text-red-600">{errors.title}</p>}
                   </div>
-                ))}
+
+                  <div className="md:col-span-2">
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description *</label>
+                    <textarea id="description" name="description" value={form.description} onChange={handleInputChange} placeholder="Add a detailed description of the property" rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.description && <p className="mt-1 text-xs text-red-600">{errors.description}</p>}
+                  </div>
+
+                  <div>
+                    <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address *</label>
+                    <input id="address" name="address" value={form.address} onChange={handleInputChange} placeholder="Street address" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address}</p>}
+                  </div>
+
+                  <div>
+                    <label htmlFor="city" className="block text-sm font-medium text-gray-700">City *</label>
+                    <input id="city" name="city" value={form.city} onChange={handleInputChange} placeholder="City" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.city && <p className="mt-1 text-xs text-red-600">{errors.city}</p>}
+                  </div>
+
+                  <div>
+                    <label htmlFor="state" className="block text-sm font-medium text-gray-700">State *</label>
+                    <input id="state" name="state" value={form.state} onChange={handleInputChange} placeholder="State / Region" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.state && <p className="mt-1 text-xs text-red-600">{errors.state}</p>}
+                  </div>
+
+                  <div>
+                    <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">Zip Code *</label>
+                    <input id="zipCode" name="zipCode" value={form.zipCode} onChange={handleInputChange} placeholder="Zip / Postal code" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.zipCode && <p className="mt-1 text-xs text-red-600">{errors.zipCode}</p>}
+                  </div>
+
+                  <div>
+                    <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country *</label>
+                    <input id="country" name="country" value={form.country} onChange={handleInputChange} placeholder="Country" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.country && <p className="mt-1 text-xs text-red-600">{errors.country}</p>}
+                  </div>
+                </div>
+              </section>
+
+              <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <h2 className="text-lg font-semibold mb-2">Pricing & Specs</h2>
+                <p className="text-sm text-gray-500 mb-4">Listing type, price and size</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="propertyType" className="block text-sm font-medium text-gray-700">Property Type</label>
+                    <select id="propertyType" name="propertyType" value={form.propertyType} onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2">
+                      <option value="HOUSE">House</option>
+                      <option value="APARTMENT">Apartment</option>
+                      <option value="CONDO">Condo</option>
+                      <option value="TOWNHOUSE">Townhouse</option>
+                      <option value="VILLA">Villa</option>
+                      <option value="LAND">Land</option>
+                      <option value="COMMERCIAL">Commercial</option>
+                      <option value="OFFICE">Office</option>
+                      <option value="RETAIL">Retail</option>
+                      <option value="WAREHOUSE">Warehouse</option>
+                      <option value="NEW_DEVELOPMENT">New Development</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="listingType" className="block text-sm font-medium text-gray-700">Listing Type</label>
+                    <select id="listingType" name="listingType" value={form.listingType} onChange={handleListingTypeChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:ring-2 focus:ring-[#d4af37]">
+                      <option value="SALE">SALE</option>
+                      <option value="RENT">RENT</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price *</label>
+                    <input id="price" name="price" type="text" inputMode="numeric" value={form.price} onChange={handleNumberChange} placeholder="e.g. 350000" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.price && <p className="mt-1 text-xs text-red-600">{errors.price}</p>}
+                  </div>
+
+                  <div>
+                    <label htmlFor="sqft" className="block text-sm font-medium text-gray-700">Sqft *</label>
+                    <input id="sqft" name="sqft" type="text" value={form.sqft} onChange={handleNumberChange} placeholder="e.g. 4500" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.sqft && <p className="mt-1 text-xs text-red-600">{errors.sqft}</p>}
+                  </div>
+
+                  <div>
+                    <label htmlFor="bedrooms" className="block text-sm font-medium text-gray-700">Bedrooms *</label>
+                    <input id="bedrooms" name="bedrooms" type="text" value={form.bedrooms} onChange={handleNumberChange} placeholder="e.g. 4" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.bedrooms && <p className="mt-1 text-xs text-red-600">{errors.bedrooms}</p>}
+                  </div>
+
+                  <div>
+                    <label htmlFor="bathrooms" className="block text-sm font-medium text-gray-700">Bathrooms *</label>
+                    <input id="bathrooms" name="bathrooms" type="text" value={form.bathrooms} onChange={handleNumberChange} placeholder="e.g. 3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    {errors.bathrooms && <p className="mt-1 text-xs text-red-600">{errors.bathrooms}</p>}
+                  </div>
+                </div>
+              </section>
+
+              <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <h2 className="text-lg font-semibold mb-2">Features</h2>
+                <p className="text-sm text-gray-500 mb-4">Amenities and feature lists</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Amenities</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {amenityOptions.map((opt) => (
+                        <label key={opt} className="inline-flex items-center space-x-2">
+                          <input type="checkbox" checked={form.amenities.includes(opt)} onChange={() => toggleAmenity(opt)} />
+                          <span className="text-sm">{opt}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="furnishing" className="block text-sm font-medium text-gray-700">Furnishing</label>
+                    <select id="furnishing" name="furnishing" value={form.furnishing} onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:ring-2 focus:ring-[#d4af37]">
+                      <option>Unfurnished</option>
+                      <option>Furnished</option>
+                      <option>Semi-Furnished</option>
+                    </select>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label htmlFor="interiorFeatures" className="block text-sm font-medium text-gray-700">Interior Features</label>
+                    <textarea id="interiorFeatures" name="interiorFeatures" value={form.interiorFeatures} onChange={handleInputChange} rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" placeholder="Comma separated or newline list" />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label htmlFor="exteriorFeatures" className="block text-sm font-medium text-gray-700">Exterior Features</label>
+                    <textarea id="exteriorFeatures" name="exteriorFeatures" value={form.exteriorFeatures} onChange={handleInputChange} rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" placeholder="Comma separated or newline list" />
+                  </div>
+
+                  {form.listingType === "RENT" && (
+                    <>
+                      <div>
+                        <label htmlFor="rentalDuration" className="block text-sm font-medium text-gray-700">Rental Duration *</label>
+                        <input id="rentalDuration" name="rentalDuration" value={form.rentalDuration} onChange={handleInputChange} placeholder="e.g. 12 Months (Minimum)" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                        {errors.rentalDuration && <p className="mt-1 text-xs text-red-600">{errors.rentalDuration}</p>}
+                      </div>
+
+                      <div>
+                        <label htmlFor="rentalTerms" className="block text-sm font-medium text-gray-700">Rental Terms *</label>
+                        <input id="rentalTerms" name="rentalTerms" value={form.rentalTerms} onChange={handleInputChange} placeholder="e.g. 2 Months Deposit" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                        {errors.rentalTerms && <p className="mt-1 text-xs text-red-600">{errors.rentalTerms}</p>}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </section>
+
+              <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <h2 className="text-lg font-semibold mb-2">Images</h2>
+                <p className="text-sm text-gray-500 mb-4">Upload images for the listing (multiple allowed)</p>
+
+                <div>
+                  <label htmlFor="images" className="block text-sm font-medium text-gray-700">Images</label>
+                  <input id="images" name="images" type="file" accept="image/*" multiple onChange={handleImagesChange} className="mt-1 block w-full" />
+                  <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    {imagePreviews.map((src, i) => (
+                      <div key={src} className="relative rounded-md overflow-hidden border">
+                        <img src={src} alt={`preview-${i}`} className="w-full h-24 object-cover" />
+                        <button type="button" onClick={() => removeImageAt(i)} className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm text-red-600">×</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              <div className="sticky bottom-6 bg-transparent pt-4 z-10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    {errors.submit && <p className="text-sm text-red-600">{errors.submit}</p>}
+                    {successMsg && <p className="text-sm text-green-700">{successMsg}</p>}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button type="button" onClick={() => { setForm(initialState); imagePreviews.forEach((p)=>URL.revokeObjectURL(p)); setImagePreviews([]); }} className="px-4 py-2 rounded-md border bg-white">Cancel</button>
+                    <button type="submit" disabled={loading} className={`px-5 py-2 rounded-md font-semibold ${loading ? "bg-gray-300 text-gray-700" : "bg-[#d4af37] text-white"}`}>
+                      {loading ? "Saving..." : "Save Property"}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <h3 className="text-md md:text-lg font-semibold mb-2">Features</h3>
-        <div className="mt-3">
-          <label className="block text-sm md:text-base font-medium mb-1">Amenities (comma separated)</label>
-          <input name="amenities" value={form.amenities} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-        </div>
+            <aside className="space-y-6">
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm sticky top-20">
+                <h3 className="text-lg font-semibold mb-3">Preview</h3>
+                <div className="w-full h-44 bg-gray-50 rounded overflow-hidden mb-3">
+                  {imagePreviews[0] ? <img src={imagePreviews[0]} alt="cover preview" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400">No cover</div>}
+                </div>
+                <div className="space-y-1">
+                  <div className="font-semibold text-gray-800">{form.title || "Property title"}</div>
+                  <div className="text-gray-600">{(form.address || "") + (form.city ? ", " + form.city : "")}</div>
+                  <div className="text-gray-800 mt-2">{form.price ? `$${form.price}` : "Price"}</div>
+                  <div className="text-gray-600">{form.bedrooms ? `${form.bedrooms} bd` : ""} {form.bathrooms ? `${form.bathrooms} ba` : ""}</div>
+                </div>
+              </div>
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="text-sm md:text-base font-semibold mb-2">Interior Features</h4>
-            <div className="grid grid-cols-1 gap-2">
-              {interiorOptions.map((opt) => (
-                <label key={opt} className="flex items-center space-x-2">
-                  <input type="checkbox" checked={interiorFeatures.includes(opt)} onChange={() => toggleSelection(opt, setInteriorFeatures, interiorFeatures)} className="w-4 h-4" />
-                  <span className="text-sm md:text-base">{opt}</span>
-                </label>
-              ))}
-            </div>
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <h3 className="text-lg font-semibold mb-3">Quick Info</h3>
+                <ul className="text-sm text-gray-700 space-y-2">
+                  <li><strong>Type:</strong> {form.propertyType}</li>
+                  <li><strong>Listing:</strong> {form.listingType}</li>
+                  <li><strong>Furnishing:</strong> {form.furnishing}</li>
+                  <li><strong>Amenities:</strong> {(form.amenities || []).join(", ") || "—"}</li>
+                </ul>
+              </div>
+            </aside>
           </div>
-
-          <div>
-            <h4 className="text-sm md:text-base font-semibold mb-2">Exterior Features</h4>
-            <div className="grid grid-cols-1 gap-2">
-              {exteriorOptions.map((opt) => (
-                <label key={opt} className="flex items-center space-x-2">
-                  <input type="checkbox" checked={exteriorFeatures.includes(opt)} onChange={() => toggleSelection(opt, setExteriorFeatures, exteriorFeatures)} className="w-4 h-4" />
-                  <span className="text-sm md:text-base">{opt}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <h3 className="text-md md:text-lg font-semibold mb-2">Rental Info</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <label className="block text-sm md:text-base font-medium mb-1">Rental Duration</label>
-            <select
-              name="rentalDuration"
-              value={form.rentalDuration}
-              onChange={handleChange}
-              onFocus={() => setOpenDropdowns(prev => ({ ...prev, rentalDuration: true }))}
-              onBlur={() => setOpenDropdowns(prev => ({ ...prev, rentalDuration: false }))}
-              className="w-full px-3 py-2 border appearance-none border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]"
-            >
-              <option>12 Months (Minimum)</option>
-              <option>6 Months</option>
-              <option>3 Months</option>
-              <option>Flexible</option>
-            </select>
-            <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 translate-y-1/2 text-gray-500 transition-transform duration-200 ${openDropdowns.rentalDuration ? 'rotate-180' : ''}`} />
-          </div>
-
-          <div className="relative">
-            <label className="block text-sm md:text-base font-medium mb-1">Furnishing</label>
-            <select
-              name="furnishing"
-              value={form.furnishing}
-              onChange={handleChange}
-              onFocus={() => setOpenDropdowns(prev => ({ ...prev, furnishing: true }))}
-              onBlur={() => setOpenDropdowns(prev => ({ ...prev, furnishing: false }))}
-              className="w-full px-3 py-2 border appearance-none border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]"
-            >
-              <option>Unfurnished</option>
-              <option>Partially Furnished</option>
-              <option>Furnished</option>
-            </select>
-            <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 translate-y-1/2 text-gray-500 transition-transform duration-200 ${openDropdowns.furnishing ? 'rotate-180' : ''}`} />
-          </div>
-
-          <div>
-            <label className="block text-sm md:text-base font-medium mb-1">Rental Terms</label>
-            <input name="rentalTerms" value={form.rentalTerms} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-0 focus:ring-2 focus:ring-[#d4af37]" />
-          </div>
-        </div>
-      </section>
-
-      <div className="sticky bottom-6 bg-transparent pt-4">
-        <div className="flex items-center justify-between">
-          <div>
-            {/* {success && <p className="text-sm md:text-base text-green-700">{success}</p>}
-            {errors.submit && <p className="text-sm md:text-base text-red-600">{errors.submit}</p>} */}
-          </div>
-          <div className="flex items-center space-x-3">
-            <button type="button" onClick={() => window.history.back()} className="px-4 py-2 rounded-md border border-gray-300 bg-white">{translations.cancel || "Cancel"}</button>
-            <button type="submit" disabled={isSubmitting} className={`inline-flex items-center px-5 py-2 rounded-md font-semibold ${isSubmitting ? "bg-gray-300 text-gray-700" : "bg-[#d4af37] text-[#FFFFFF] "}`}>
-              {isSubmitting ? "Saving..." : translations.submit || "Save Property"}
-            </button>
-          </div>
-        </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 }
+
 
 
