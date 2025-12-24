@@ -739,6 +739,7 @@
     "partner": {
       "title": "Tableau de Bord Partenaire",
       "properties": "Propriétés",
+      "AllProperties": "Toutes les Propriétés",
       "myListings": "Mes Annonces",
       "addListing": "Ajouter une Annonce",
       "editListing": "Modifier l'Annonce",
@@ -1888,6 +1889,7 @@
     "Responded": "Répondu",
     "ID": "ID",
     "ContactInfo": "Informations de contact",
+    "PropertyInfo": "Informations sur la propriété",
     "Type": "Type",
     "Subject": "Sujet",
     "Status": "Statut",

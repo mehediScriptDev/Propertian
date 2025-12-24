@@ -740,6 +740,7 @@
     "partner": {
       "title": "Partner Dashboard",
       "properties": "Properties",
+      "AllProperties": "All Properties",
       "myListings": "My Listings",
       "addListing": "Add Listing",
       "editListing": "Edit Listing",
@@ -1893,6 +1894,7 @@
     "Responded": "Responded",
     "ID": "ID",
     "ContactInfo": "Contact Info",
+    "PropertyInfo": "Property Info",
     "Type": "Type",
     "Subject": "Subject",
     "Status": "Status",

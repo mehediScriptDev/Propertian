@@ -228,7 +228,7 @@ export default function PartnerDashboardPage({ params }) {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">
-                {t("Partner.AllInquiries")}
+                {t("dashboard.partner.AllProperties")}
               </h2>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

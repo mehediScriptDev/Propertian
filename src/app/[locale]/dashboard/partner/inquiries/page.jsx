@@ -40,8 +40,9 @@ export default function PartnerInquiriesPage() {
         // Map API response fields to the shape used by the UI
         const mapped = apiInquiries.map((iq) => ({
           id: iq.id,
-          message: iq.message,
-          subject: iq.subject || (iq.message ? iq.message.slice(0, 80) : ""),
+          message: iq.message || "",
+          // keep subject separate; API may or may not provide it
+          subject: iq.subject || "",
           status: (iq.status || "").toLowerCase(),
           created_at: iq.createdAt || iq.created_at,
           updated_at: iq.updatedAt || iq.updated_at,
@@ -186,10 +187,7 @@ export default function PartnerInquiriesPage() {
                   {t("InquiryDetails.ID")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                  {t("InquiryDetails.ContactInfo")}
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                  {t("InquiryDetails.Type")}
+                  {t("InquiryDetails.PropertyInfo")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
                   {t("InquiryDetails.Subject")}
@@ -212,22 +210,19 @@ export default function PartnerInquiriesPage() {
 
                   <td className="px-4 py-4">
                     <div className="text-sm">
-                      <div className="font-medium text-gray-900">
-                        {inquiry.property?.title || "—"}
-                      </div>
+                      <div className="font-medium text-gray-900">{inquiry.property?.title || "—"}</div>
                       <div className="text-gray-500">{inquiry.property?.address || ""}</div>
-                      {inquiry.property?.city && (
-                        <div className="text-gray-500">{inquiry.property.city}</div>
-                      )}
+                      {inquiry.property?.city && <div className="text-gray-500">{inquiry.property.city}</div>}
                     </div>
                   </td>
 
-                  <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{inquiry.subject}</td>
+                  {/* Type column: message snippet */}
+
+                  {/* Subject column: show subject if provided */}
+                  <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{inquiry.subject || "—"}</td>
 
                   <td className="px-4 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(inquiry.status)}`}>
-                      {inquiry.status}
-                    </span>
+                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(inquiry.status)}`}>{inquiry.status}</span>
                   </td>
 
                   <td className="px-4 py-4 text-sm text-gray-500">{formatDate(inquiry.created_at)}</td>
@@ -421,14 +416,6 @@ export default function PartnerInquiriesPage() {
                       </div>
                     </div>
                   )}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Partner ID
-                    </label>
-                    <div className="text-gray-900">
-                      {selectedInquiry.partner_id}
-                    </div>
-                  </div>
                 </div>
               </div>
 
