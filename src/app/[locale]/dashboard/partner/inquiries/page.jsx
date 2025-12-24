@@ -1,9 +1,10 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Search, Filter, Eye, MessageSquare } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
+import { get } from "@/lib/api";
 
 const Pagination = dynamic(() => import("@/components/dashboard/Pagination"), {
   ssr: false,
@@ -18,229 +19,79 @@ export default function PartnerInquiriesPage() {
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const itemsPerPage = 5;
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalPagesState, setTotalPagesState] = useState(1);
+  const [totalItemsState, setTotalItemsState] = useState(0);
 
-  // Mock data based on database schema
-  const inquiries = useMemo(
-    () => [
-      {
-        id: 1,
-        user_id: "USR001",
-        property_id: "PROP101",
-        property_development_id: "DEV201",
-        partner_id: "PART301",
-        inquiry_type: "General",
-        full_name: "John Smith",
-        email: "john.smith@email.com",
-        phone: "+1-555-0101",
-        subject: "Property Investment Inquiry",
-        message:
-          "I am interested in investing in your luxury development project.",
-        status: "pending",
-        response: null,
-        responded_by: null,
-        responded_at: null,
-        created_at: "2024-11-08T10:30:00Z",
-        updated_at: "2024-11-08T10:30:00Z",
-      },
-      {
-        id: 2,
-        user_id: "USR002",
-        property_id: "PROP102",
-        property_development_id: null,
-        partner_id: "PART301",
-        inquiry_type: "Viewing",
-        full_name: "Sarah Johnson",
-        email: "sarah.j@email.com",
-        phone: "+1-555-0102",
-        subject: "Schedule Property Viewing",
-        message: "Would like to schedule a viewing for the downtown apartment.",
-        status: "responded",
-        response:
-          "Thank you for your interest. We have scheduled your viewing for next week.",
-        responded_by: "ADMIN001",
-        responded_at: "2024-11-07T14:20:00Z",
-        created_at: "2024-11-07T09:15:00Z",
-        updated_at: "2024-11-07T14:20:00Z",
-      },
-      {
-        id: 3,
-        user_id: "USR003",
-        property_id: null,
-        property_development_id: "DEV202",
-        partner_id: "PART301",
-        inquiry_type: "Pricing",
-        full_name: "Michael Chen",
-        email: "michael.chen@email.com",
-        phone: "+1-555-0103",
-        subject: "Payment Plan Details",
-        message: "Can you provide more details about the payment plan options?",
-        status: "pending",
-        response: null,
-        responded_by: null,
-        responded_at: null,
-        created_at: "2024-11-08T15:45:00Z",
-        updated_at: "2024-11-08T15:45:00Z",
-      },
-      {
-        id: 4,
-        user_id: "USR004",
-        property_id: "PROP103",
-        property_development_id: null,
-        partner_id: "PART301",
-        inquiry_type: "Documentation",
-        full_name: "Emily Davis",
-        email: "emily.davis@email.com",
-        phone: "+1-555-0104",
-        subject: "Property Documents Request",
-        message: "I need copies of the property title and survey documents.",
-        status: "in-progress",
-        response: "We are preparing the documents for you.",
-        responded_by: "ADMIN002",
-        responded_at: "2024-11-06T11:30:00Z",
-        created_at: "2024-11-06T08:20:00Z",
-        updated_at: "2024-11-06T11:30:00Z",
-      },
-      {
-        id: 5,
-        user_id: "USR005",
-        property_id: "PROP104",
-        property_development_id: "DEV203",
-        partner_id: "PART301",
-        inquiry_type: "General",
-        full_name: "Robert Wilson",
-        email: "robert.w@email.com",
-        phone: "+1-555-0105",
-        subject: "Investment Opportunity",
-        message: "Looking for investment opportunities in your projects.",
-        status: "responded",
-        response:
-          "Thank you for reaching out. Our team will contact you shortly with investment options.",
-        responded_by: "ADMIN001",
-        responded_at: "2024-11-05T16:00:00Z",
-        created_at: "2024-11-05T13:10:00Z",
-        updated_at: "2024-11-05T16:00:00Z",
-      },
-      {
-        id: 6,
-        user_id: "USR006",
-        property_id: "PROP105",
-        property_development_id: null,
-        partner_id: "PART301",
-        inquiry_type: "Viewing",
-        full_name: "Lisa Anderson",
-        email: "lisa.anderson@email.com",
-        phone: "+1-555-0106",
-        subject: "Weekend Viewing Request",
-        message: "Is it possible to schedule a viewing during the weekend?",
-        status: "pending",
-        response: null,
-        responded_by: null,
-        responded_at: null,
-        created_at: "2024-11-08T17:30:00Z",
-        updated_at: "2024-11-08T17:30:00Z",
-      },
-      {
-        id: 7,
-        user_id: "USR007",
-        property_id: null,
-        property_development_id: "DEV204",
-        partner_id: "PART301",
-        inquiry_type: "Pricing",
-        full_name: "David Martinez",
-        email: "david.m@email.com",
-        phone: "+1-555-0107",
-        subject: "Unit Pricing Information",
-        message: "What are the current prices for 2-bedroom units?",
-        status: "pending",
-        response: null,
-        responded_by: null,
-        responded_at: null,
-        created_at: "2024-11-08T12:00:00Z",
-        updated_at: "2024-11-08T12:00:00Z",
-      },
-      {
-        id: 8,
-        user_id: "USR008",
-        property_id: "PROP106",
-        property_development_id: null,
-        partner_id: "PART301",
-        inquiry_type: "General",
-        full_name: "Jennifer Lee",
-        email: "jennifer.lee@email.com",
-        phone: "+1-555-0108",
-        subject: "Property Features Question",
-        message: "Does the property include parking and storage facilities?",
-        status: "responded",
-        response:
-          "Yes, the property includes 2 parking spaces and a storage unit.",
-        responded_by: "ADMIN003",
-        responded_at: "2024-11-04T10:15:00Z",
-        created_at: "2024-11-04T09:00:00Z",
-        updated_at: "2024-11-04T10:15:00Z",
-      },
-      {
-        id: 9,
-        user_id: "USR009",
-        property_id: "PROP107",
-        property_development_id: "DEV205",
-        partner_id: "PART301",
-        inquiry_type: "Documentation",
-        full_name: "James Brown",
-        email: "james.brown@email.com",
-        phone: "+1-555-0109",
-        subject: "Legal Documentation",
-        message: "Need information about legal procedures for purchase.",
-        status: "in-progress",
-        response: "Our legal team is preparing the information for you.",
-        responded_by: "ADMIN002",
-        responded_at: "2024-11-03T14:30:00Z",
-        created_at: "2024-11-03T11:20:00Z",
-        updated_at: "2024-11-03T14:30:00Z",
-      },
-      {
-        id: 10,
-        user_id: "USR010",
-        property_id: "PROP108",
-        property_development_id: null,
-        partner_id: "PART301",
-        inquiry_type: "Viewing",
-        full_name: "Patricia Garcia",
-        email: "patricia.g@email.com",
-        phone: "+1-555-0110",
-        subject: "Virtual Tour Request",
-        message: "Can I get a virtual tour of the property?",
-        status: "pending",
-        response: null,
-        responded_by: null,
-        responded_at: null,
-        created_at: "2024-11-08T16:20:00Z",
-        updated_at: "2024-11-08T16:20:00Z",
-      },
-    ],
-    []
-  );
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchInquiries() {
+      setLoading(true);
+      try {
+        const res = await get("/inquiries/my-inquiries", {
+          params: { page: currentPage, perPage: itemsPerPage },
+        });
+
+        // API shape: { success, data: { inquiries: [...], pagination: { currentPage, totalPages, totalItems } } }
+        const apiInquiries = res?.data?.inquiries || [];
+        const pagination = res?.data?.pagination || {};
+
+        // Map API response fields to the shape used by the UI
+        const mapped = apiInquiries.map((iq) => ({
+          id: iq.id,
+          message: iq.message,
+          subject: iq.subject || (iq.message ? iq.message.slice(0, 80) : ""),
+          status: (iq.status || "").toLowerCase(),
+          created_at: iq.createdAt || iq.created_at,
+          updated_at: iq.updatedAt || iq.updated_at,
+          user_id: iq.userId || iq.user_id,
+          property_id: iq.propertyId || iq.property_id,
+          property: iq.properties || iq.property || null,
+          response: iq.response || null,
+          responded_by: iq.respondedBy || iq.responded_by || null,
+          responded_at: iq.respondedAt || iq.responded_at || null,
+        }));
+
+        if (isMounted) {
+          setInquiries(mapped);
+          setTotalPagesState(pagination.totalPages || 1);
+          setTotalItemsState(pagination.totalItems || mapped.length || 0);
+        }
+      } catch (err) {
+        console.error("Failed to fetch inquiries", err);
+        if (isMounted) setInquiries([]);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    fetchInquiries();
+    return () => {
+      isMounted = false;
+    };
+  }, [currentPage, itemsPerPage]);
 
   // Filter inquiries
   const filteredInquiries = useMemo(() => {
+    const q = (searchQuery || "").toString().toLowerCase();
     return inquiries.filter((inquiry) => {
       const matchesSearch =
-        inquiry.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inquiry.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inquiry.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inquiry.inquiry_type.toLowerCase().includes(searchQuery.toLowerCase());
+        (inquiry.property?.title || "").toString().toLowerCase().includes(q) ||
+        (inquiry.property?.address || "").toString().toLowerCase().includes(q) ||
+        (inquiry.message || "").toString().toLowerCase().includes(q) ||
+        (inquiry.user_id || "").toString().toLowerCase().includes(q) ||
+        (inquiry.subject || "").toString().toLowerCase().includes(q);
 
-      const matchesFilter =
-        filterStatus === "all" || inquiry.status === filterStatus;
+      const matchesFilter = filterStatus === "all" || inquiry.status === filterStatus;
 
       return matchesSearch && matchesFilter;
     });
   }, [inquiries, searchQuery, filterStatus]);
 
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredInquiries.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentInquiries = filteredInquiries.slice(startIndex, endIndex);
+  // Pagination: we rely on server pagination. `inquiries` already holds current page.
+  const totalPages = totalPagesState || Math.ceil((filteredInquiries.length || inquiries.length) / itemsPerPage);
+  const currentInquiries = inquiries;
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -357,45 +208,34 @@ export default function PartnerInquiriesPage() {
             <tbody className="divide-y divide-gray-200">
               {currentInquiries.map((inquiry) => (
                 <tr key={inquiry.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 text-sm text-gray-900">
-                    #{inquiry.id}
-                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-900">#{inquiry.id}</td>
+
                   <td className="px-4 py-4">
                     <div className="text-sm">
                       <div className="font-medium text-gray-900">
-                        {inquiry.full_name}
+                        {inquiry.property?.title || "—"}
                       </div>
-                      <div className="text-gray-500">{inquiry.email}</div>
-                      <div className="text-gray-500">{inquiry.phone}</div>
+                      <div className="text-gray-500">{inquiry.property?.address || ""}</div>
+                      {inquiry.property?.city && (
+                        <div className="text-gray-500">{inquiry.property.city}</div>
+                      )}
                     </div>
                   </td>
+
+                  <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{inquiry.subject}</td>
+
                   <td className="px-4 py-4">
-                    <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
-                      {inquiry.inquiry_type}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
-                    {inquiry.subject}
-                  </td>
-                  <td className="px-4 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(
-                        inquiry.status
-                      )}`}
-                    >
+                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(inquiry.status)}`}>
                       {inquiry.status}
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-500">
-                    {formatDate(inquiry.created_at)}
-                  </td>
+
+                  <td className="px-4 py-4 text-sm text-gray-500">{formatDate(inquiry.created_at)}</td>
+
                   <td className="px-4 py-4">
-                    <button
-                      onClick={() => setSelectedInquiry(inquiry)}
-                      className="inline-flex items-center gap-1 text-[#E6B325] hover:text-[#d4a520]"
-                    >
+                    <button onClick={() => setSelectedInquiry(inquiry)} className="inline-flex items-center gap-1 text-[#E6B325] hover:text-[#d4a520]">
                       <Eye className="h-4 w-4" />
-                      <span className="text-sm font-medium">View</span>
+                      <span className="text-sm font-medium">{t("InquiryDetails.ViewDetails") || "View"}</span>
                     </button>
                   </td>
                 </tr>
@@ -407,49 +247,23 @@ export default function PartnerInquiriesPage() {
         {/* Mobile Cards */}
         <div className="md:hidden space-y-4">
           {currentInquiries.map((inquiry) => (
-            <div
-              key={inquiry.id}
-              className="border border-gray-200 rounded-lg p-4 space-y-3"
-            >
+            <div key={inquiry.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
               <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-semibold text-gray-900">
-                    {inquiry.full_name}
-                  </div>
-                  <div className="text-sm text-gray-500">#{inquiry.id}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-gray-900 break-words whitespace-normal truncate">{inquiry.property?.title || `Inquiry #${inquiry.id}`}</div>
+                  <div className="text-sm text-gray-500 break-words whitespace-normal truncate">{inquiry.property?.address || ""}</div>
                 </div>
-                <span
-                  className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(
-                    inquiry.status
-                  )}`}
-                >
-                  {inquiry.status}
-                </span>
+                <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(inquiry.status)}`}>{inquiry.status}</span>
               </div>
 
               <div className="space-y-1 text-sm">
-                <div className="text-gray-600">{inquiry.email}</div>
-                <div className="text-gray-600">{inquiry.phone}</div>
+                <div className="text-gray-600 font-medium break-words whitespace-pre-wrap">{inquiry.subject}</div>
+                <div className="text-gray-600 break-words whitespace-pre-wrap">{inquiry.message}</div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
-                  {inquiry.inquiry_type}
-                </span>
-              </div>
+              <div className="text-xs text-gray-500">{formatDate(inquiry.created_at)}</div>
 
-              <div className="text-sm text-gray-900 font-medium">
-                {inquiry.subject}
-              </div>
-
-              <div className="text-xs text-gray-500">
-                {formatDate(inquiry.created_at)}
-              </div>
-
-              <button
-                onClick={() => setSelectedInquiry(inquiry)}
-                className="w-full flex items-center justify-center gap-2 bg-[#E6B325] hover:bg-[#d4a520] text-black font-medium px-4 py-2 rounded-lg transition-colors"
-              >
+              <button onClick={() => setSelectedInquiry(inquiry)} className="w-full flex items-center justify-center gap-2 bg-[#E6B325] hover:bg-[#d4a520] text-black font-medium px-4 py-2 rounded-lg transition-colors">
                 <Eye className="h-4 w-4" />
                 {t("InquiryDetails.ViewDetails")}
               </button>
@@ -476,7 +290,7 @@ export default function PartnerInquiriesPage() {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              totalItems={filteredInquiries.length}
+              totalItems={totalItemsState}
               itemsPerPage={itemsPerPage}
               onPageChange={setCurrentPage}
               translations={{
@@ -550,12 +364,8 @@ export default function PartnerInquiriesPage() {
                   </span>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Inquiry Type
-                  </label>
-                  <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-800">
-                    {selectedInquiry.inquiry_type}
-                  </span>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                  <div className="text-gray-900">{selectedInquiry.subject}</div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -567,39 +377,20 @@ export default function PartnerInquiriesPage() {
                 </div>
               </div>
 
-              {/* Contact Information */}
+              {/* Contact Information (minimal from API) */}
               <div className="border-t pt-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                  Contact Information
-                </h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name
-                    </label>
-                    <div className="text-gray-900">
-                      {selectedInquiry.full_name}
-                    </div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">User ID</label>
+                    <div className="text-gray-900">{selectedInquiry.user_id}</div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <div className="text-gray-900">{selectedInquiry.email}</div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone
-                    </label>
-                    <div className="text-gray-900">{selectedInquiry.phone}</div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      User ID
-                    </label>
-                    <div className="text-gray-900">
-                      {selectedInquiry.user_id}
-                    </div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Property</label>
+                    <div className="text-gray-900">{selectedInquiry.property?.title || selectedInquiry.property_id}</div>
+                    {selectedInquiry.property?.price && (
+                      <div className="text-gray-700">{selectedInquiry.property.price} XOF</div>
+                    )}
                   </div>
                 </div>
               </div>

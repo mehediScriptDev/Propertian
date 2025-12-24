@@ -34,7 +34,7 @@ export default function PartnerAddPropertyPage({ params }) {
 
       <div className='rounded-lg bg-white shadow-sm overflow-hidden p-4 sm:p-6'>
         {/* Pass defaultVerified=false so partner submissions are not verified */}
-        <AddPropertyForm translations={translations} locale={locale} defaultVerified={false} apiEndpoint={'/partner/properties'} />
+        <AddPropertyForm translations={translations} locale={locale} defaultVerified={false} apiEndpoint={'/properties'} />
       </div>
     </div>
   );
