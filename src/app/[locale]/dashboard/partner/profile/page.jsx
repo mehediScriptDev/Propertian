@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   User,
   Building2,
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
+import { get } from "@/lib/api";
 
 export default function PartnerProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -36,6 +37,45 @@ export default function PartnerProfilePage() {
     created_at: "2024-01-15T10:30:00Z",
     updated_at: "2024-11-08T14:20:00Z",
   });
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [profileError, setProfileError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchProfile() {
+      setLoadingProfile(true);
+      setProfileError(null);
+      try {
+        const res = await get("/auth/profile");
+        // expected shape: { success: true, data: { user: { ... } } }
+        const user = res?.data?.user;
+        if (!user) throw new Error("No user data returned");
+
+        if (isMounted) {
+          setFormData((prev) => ({
+            ...prev,
+            id: user.id || prev.id,
+            contact_person: `${user.firstName || ""} ${user.lastName || ""}`.trim() || prev.contact_person,
+            email: user.email || prev.email,
+            phone_number: user.phone || prev.phone_number,
+            is_verified: typeof user.isVerified === "boolean" ? user.isVerified : prev.is_verified,
+            created_at: user.createdAt || user.created_at || prev.created_at,
+            updated_at: user.updatedAt || user.updated_at || prev.updated_at,
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to load profile", err);
+        if (isMounted) setProfileError(err?.message || "Failed to load profile");
+      } finally {
+        if (isMounted) setLoadingProfile(false);
+      }
+    }
+
+    fetchProfile();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
