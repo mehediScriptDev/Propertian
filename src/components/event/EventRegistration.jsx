@@ -2,7 +2,8 @@
 
 import { memo, useState, useCallback } from 'react';
 import { Linkedin, Facebook, Twitter } from 'lucide-react';
-import axios from '@/lib/axios'
+import axios from '@/lib/axios';
+import { showToast } from '@/components/Toast';
 
 const EventRegistration = memo(({ translations, event }) => {
   const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ const EventRegistration = memo(({ translations, event }) => {
 
       if (!event?.id) {
         console.warn('No event selected for registration');
-        alert('Event not selected. Please wait a moment and try again.')
+        showToast('Event not selected. Please wait a moment and try again.', 'error');
         return
       }
 
@@ -49,15 +50,15 @@ const EventRegistration = memo(({ translations, event }) => {
         const url = `/events/${event.id}/register`
         const res = await axios.post(url, payload)
         console.log('Registration response:', res)
-        // show a simple success message
-        alert('Registration successful')
+        // show a success toast message
+        showToast('Registration successful! We look forward to seeing you at the event.', 'success');
         setFormData({ fullName: '', email: '', phone: '' })
       } catch (err) {
         // axiosInstance rejects with an object containing { message, status, data }
         console.error('Registration failed', err)
         const serverMessage =
           err?.message || err?.data?.message || err?.response?.data?.message || 'Registration failed. Please try again.'
-        alert(serverMessage)
+        showToast(serverMessage, 'error');
       } finally {
         setIsSubmitting(false)
       }

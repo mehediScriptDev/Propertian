@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import Toast from '@/components/Toast';
 
 export default function PageLayout({ children, locale }) {
   const pathname = usePathname();
@@ -19,6 +20,7 @@ export default function PageLayout({ children, locale }) {
       <main className='grow'>{children}</main>
       <Footer locale={locale} />
       <WhatsAppButton />
+      <Toast />
     </div>
   );
 }
