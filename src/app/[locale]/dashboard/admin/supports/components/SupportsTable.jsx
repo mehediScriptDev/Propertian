@@ -58,7 +58,7 @@ export default function SupportsTable({
     const [currentPage, setCurrentPage] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 6;
 
     // Modal state for viewing message details
     const [selectedMessage, setSelectedMessage] = useState(null);
@@ -402,23 +402,34 @@ export default function SupportsTable({
                             </div>
 
                             {/* Pagination */}
-                            {totalPages > 1 && (
+                            {messages.length > 0 && (
                                 <div className='px-6 py-3 bg-white border-t border-gray-100'>
                                     <div className='flex items-center justify-between'>
                                         <div className='text-sm text-gray-600'>
                                             Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} results
                                         </div>
-                                        <div>
-                                            <Pagination
-                                                currentPage={currentPage}
-                                                totalPages={totalPages}
-                                                totalItems={totalItems}
-                                                itemsPerPage={itemsPerPage}
-                                                onPageChange={handlePageChange}
-                                                hideInfo={true}
-                                                noBorder={true}
-                                            />
-                                        </div>
+                                        {totalPages > 1 && (
+                                            <div>
+                                                <Pagination
+                                                    currentPage={currentPage}
+                                                    totalPages={totalPages}
+                                                    totalItems={totalItems}
+                                                    itemsPerPage={itemsPerPage}
+                                                    onPageChange={handlePageChange}
+                                                    hideInfo={true}
+                                                    noBorder={true}
+                                                    translations={{
+                                                        previous: 'Previous',
+                                                        next: 'Next',
+                                                        page: 'Page',
+                                                        of: 'of',
+                                                        showing: 'Showing',
+                                                        to: 'to',
+                                                        results: 'results'
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}
