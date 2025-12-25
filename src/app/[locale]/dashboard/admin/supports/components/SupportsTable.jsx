@@ -66,6 +66,11 @@ export default function SupportsTable({
     const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
     const [replyContent, setReplyContent] = useState('');
     const [isSendingReply, setIsSendingReply] = useState(false);
+    
+    // Confirmation modal state
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
+    const [confirmMessage, setConfirmMessage] = useState('');
 
     // Fetch messages from API
     const fetchMessages = async (page = 1) => {
@@ -104,14 +109,18 @@ export default function SupportsTable({
     };
 
     const handleDelete = async (id) => {
-        if (typeof window !== 'undefined' && window.confirm('Are you sure you want to delete this message?')) {
+        setConfirmMessage('Are you sure you want to delete this message?');
+        setConfirmAction(() => async () => {
             try {
                 await del(`/messages/${id}`);
                 fetchMessages(currentPage);
+                setShowConfirmModal(false);
             } catch (error) {
                 console.error('Error deleting message:', error);
+                setShowConfirmModal(false);
             }
-        }
+        });
+        setShowConfirmModal(true);
     };
 
     const handleClose = () => {
@@ -678,6 +687,37 @@ export default function SupportsTable({
                             >
                                 <Send className='h-4 w-4' />
                                 {isSendingReply ? 'Sending...' : 'Send Reply'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirmation Modal */}
+            {showConfirmModal && (
+                <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
+                    <div className='absolute inset-0 bg-black/50' onClick={() => setShowConfirmModal(false)} />
+
+                    <div className='relative z-10 w-full max-w-md rounded-xl bg-white shadow-2xl'>
+                        <div className='px-6 py-5'>
+                            <h3 className='text-lg font-semibold text-gray-900 mb-2'>Confirm Action</h3>
+                            <p className='text-sm text-gray-600'>{confirmMessage}</p>
+                        </div>
+
+                        <div className='bg-gray-50 px-6 py-4 flex items-center justify-end gap-3 rounded-b-xl'>
+                            <button
+                                onClick={() => setShowConfirmModal(false)}
+                                className='px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition'
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (confirmAction) confirmAction();
+                                }}
+                                className='px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition'
+                            >
+                                OK
                             </button>
                         </div>
                     </div>
