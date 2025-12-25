@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, X, User, Mail, Calendar, Reply, Trash, MailOpen, Send } from 'lucide-react';
 import Pagination from '../../../../../../components/dashboard/Pagination';
-import { get, del, put } from '@/lib/api';
+import { get, del, put, post } from '@/lib/api';
 
 // Format date helper
 function formatDate(dateString) {
@@ -64,6 +64,8 @@ export default function SupportsTable({
     const [selectedMessage, setSelectedMessage] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+    const [replyContent, setReplyContent] = useState('');
+    const [isSendingReply, setIsSendingReply] = useState(false);
 
     // Fetch messages from API
     const fetchMessages = async (page = 1) => {
@@ -116,6 +118,8 @@ export default function SupportsTable({
         setIsModalOpen(false);
         setIsReplyModalOpen(false);
         setSelectedMessage(null);
+        setReplyContent('');
+        setIsSendingReply(false);
     };
 
     const handlePageChange = (page) => {
@@ -130,6 +134,36 @@ export default function SupportsTable({
             fetchMessages(currentPage);
         } catch (error) {
             console.error('Error marking all messages as read:', error);
+        }
+    };
+
+    const handleMarkAsRead = async (messageId) => {
+        try {
+            await put(`/messages/${messageId}/read`);
+            // Refresh messages to update read status
+            fetchMessages(currentPage);
+            // Close modal after marking as read
+            handleClose();
+        } catch (error) {
+            console.error('Error marking message as read:', error);
+        }
+    };
+
+    const handleSendReply = async () => {
+        if (!replyContent.trim() || !selectedMessage) return;
+        
+        setIsSendingReply(true);
+        try {
+            await post(`/messages/${selectedMessage.id}/reply`, {
+                content: replyContent
+            });
+            // Close modal and refresh messages
+            handleClose();
+            fetchMessages(currentPage);
+        } catch (error) {
+            console.error('Error sending reply:', error);
+        } finally {
+            setIsSendingReply(false);
         }
     };
 
@@ -567,12 +601,15 @@ export default function SupportsTable({
 
                         {/* Action Buttons */}
                         <div className='sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3'>
-                            <button
-                                onClick={handleClose}
-                                className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition'
-                            >
-                                Close
-                            </button>
+                            {!selectedMessage.isRead && (
+                                <button
+                                    onClick={() => handleMarkAsRead(selectedMessage.id)}
+                                    className='px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition flex items-center gap-2'
+                                >
+                                    <MailOpen className='h-4 w-4' />
+                                    Mark as Read
+                                </button>
+                            )}
                             <button
                                 onClick={() => {
                                     handleClose();
@@ -615,9 +652,12 @@ export default function SupportsTable({
                                 <div>
                                     <label className='block text-sm font-medium text-gray-700 mb-2'>Your Reply</label>
                                     <textarea
+                                        value={replyContent}
+                                        onChange={(e) => setReplyContent(e.target.value)}
                                         rows={8}
                                         className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:border-transparent resize-none'
                                         placeholder='Type your reply here...'
+                                        disabled={isSendingReply}
                                     />
                                 </div>
                             </div>
@@ -626,15 +666,18 @@ export default function SupportsTable({
                         <div className='bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3'>
                             <button
                                 onClick={handleClose}
-                                className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition'
+                                disabled={isSendingReply}
+                                className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed'
                             >
                                 Cancel
                             </button>
                             <button
-                                className='px-4 py-2 text-sm font-medium text-white bg-[#d4af37] rounded-lg hover:bg-[#c49d2f] transition flex items-center gap-2'
+                                onClick={handleSendReply}
+                                disabled={isSendingReply || !replyContent.trim()}
+                                className='px-4 py-2 text-sm font-medium text-white bg-[#d4af37] rounded-lg hover:bg-[#c49d2f] transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
                             >
                                 <Send className='h-4 w-4' />
-                                Send Reply
+                                {isSendingReply ? 'Sending...' : 'Send Reply'}
                             </button>
                         </div>
                     </div>
