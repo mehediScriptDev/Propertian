@@ -103,7 +103,11 @@
         "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
         "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
         "passwordsMismatch": "Les mots de passe ne correspondent pas",
-        "registrationFailed": "Échec de l'inscription. Veuillez réessayer."
+        "registrationFailed": "Échec de l'inscription. Veuillez réessayer.",
+        "acceptTerms" : "Vous devez accepter les Termes et Conditions et la Politique de Confidentialité",
+        "privacyPolicy": "Vous devez lire la Politique de Confidentialité",
+        "passwordNumber": "Le mot de passe doit contenir au moins un chiffre",
+        "passwordSpecial": "Le mot de passe doit contenir au moins un caractère spécial"
       }
     },
     "forgotPassword": {

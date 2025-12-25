@@ -101,9 +101,13 @@
         "emailInvalid": "Please enter a valid email address",
         "passwordRequired": "Password is required",
         "confirmPasswordRequired": "Please confirm your password",
-        "passwordMinLength": "Password must be at least 6 characters",
+        "passwordMinLength": "Password must be at least 8 characters",
         "passwordsMismatch": "Passwords do not match",
-        "registrationFailed": "Registration failed. Please try again."
+        "registrationFailed": "Registration failed. Please try again.",
+        "acceptTerms" : "You must accept the Terms & Conditions and Privacy Policy",
+        "privacyPolicy": "You must read the Privacy Policy",
+        "passwordNumber": "Password must contain at least one number",
+        "passwordSpecial": "Password must contain at least one special character"
       }
     },
     "forgotPassword": {
