@@ -101,9 +101,13 @@
         "emailInvalid": "Please enter a valid email address",
         "passwordRequired": "Password is required",
         "confirmPasswordRequired": "Please confirm your password",
-        "passwordMinLength": "Password must be at least 6 characters",
+        "passwordMinLength": "Password must be at least 8 characters",
         "passwordsMismatch": "Passwords do not match",
-        "registrationFailed": "Registration failed. Please try again."
+        "registrationFailed": "Registration failed. Please try again.",
+        "acceptTerms" : "You must accept the Terms & Conditions and Privacy Policy",
+        "privacyPolicy": "You must read the Privacy Policy",
+        "passwordNumber": "Password must contain at least one number",
+        "passwordSpecial": "Password must contain at least one special character"
       }
     },
     "forgotPassword": {
@@ -740,13 +744,15 @@
     "partner": {
       "title": "Partner Dashboard",
       "properties": "Properties",
+      "AllProperties": "All Properties",
       "myListings": "My Listings",
       "addListing": "Add Listing",
       "editListing": "Edit Listing",
       "inquiries": "Inquiries",
       "developerPortal": "Developer Portal",
       "developerInquiry": "Developer Inquiry",
-      "profile": "Profile"
+      "profile": "Profile",
+      "Add Property": "Add Property"
     },
     "pages": {
       "adminDashboard": {
@@ -1805,10 +1811,10 @@
     "title": "Here's an overview of your property portfolio and recent activities",
     "addButton": "Add New Property",
     "statsData": {
-      "totalProperties": "Total Properties",
-      "totalViews": "Total Views",
+      "totalProperties": "Total Listings",
       "activeListings": "Active Listings",
-      "newInquiries": "New Inquiries"
+      "inactiveListings": "Inactive Listings",
+      "totalInquiries": "Total Inquiries"
     },
     "AllInquiries": "All Inquiries",
     "SearchInquiries": "Search inquiries...",
@@ -1823,6 +1829,14 @@
     "Status": "Status",
     "views": "views",
     "inquiries": "inquiries",
+    "Actions": "Actions",
+    "ViewDetails": "View details",
+    "noImage": "No image",
+    "Address": "Address",
+    "Bedrooms": "Bedrooms",
+    "Bathrooms": "Bathrooms",
+    "Sqft": "Sqft",
+    "Amenities": "Amenities",
     "NoPropertiesFound": "No Properties Found",
     "TryAdjusting": "Try adjusting your search or filters",
     "Next": "Next",
@@ -1893,6 +1907,7 @@
     "Responded": "Responded",
     "ID": "ID",
     "ContactInfo": "Contact Info",
+    "PropertyInfo": "Property Info",
     "Type": "Type",
     "Subject": "Subject",
     "Status": "Status",

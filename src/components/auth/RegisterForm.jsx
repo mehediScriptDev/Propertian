@@ -46,23 +46,34 @@ const RegisterForm = () => {
             newErrors.email = t('auth.register.errors.emailInvalid') || 'Please enter a valid email';
         }
 
-        // Password validation
+        // Password validation - Strong password requirements
         if (!formData.password) {
             newErrors.password = t('auth.register.errors.passwordRequired') || 'Password is required';
-        } else if (formData.password.length < 6) {
-            newErrors.password = t('auth.register.errors.passwordMinLength') || 'Password must be at least 6 characters';
+        } else if (formData.password.length < 8) {
+            newErrors.password = t('auth.register.errors.passwordMinLength') || 'Password must be at least 8 characters';
+        }  else if (!/[a-z]/.test(formData.password)) {
+            newErrors.password = t('auth.register.errors.passwordLowercase') || 'Password must contain at least one lowercase letter';
+        } else if (!/[0-9]/.test(formData.password)) {
+            newErrors.password = t('auth.register.errors.passwordNumber') || 'Password must contain at least one number';
+        } else if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password)) {
+            newErrors.password = t('auth.register.errors.passwordSpecial') || 'Password must contain at least one special character';
         }
 
         // Confirm password validation
         if (!formData.confirmPassword) {
             newErrors.confirmPassword = t('auth.register.errors.confirmPasswordRequired') || 'Please confirm your password';
         } else if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = t('auth.register.errors.passwordMismatch') || 'Passwords do not match';
+            newErrors.confirmPassword = t('auth.register.errors.passwordsMismatch') || 'Passwords do not match';
         }
 
         // Terms acceptance validation
         if (!formData.acceptTerms) {
             newErrors.acceptTerms = t('auth.register.errors.acceptTerms') || 'You must accept the terms and conditions';
+        }
+        
+        // Privacy policy validation
+        if (!formData.readPrivacy) {
+            newErrors.readPrivacy = t('auth.register.errors.privacyPolicy') || 'You must read and accept the privacy policy';
         }
 
         return newErrors;
@@ -181,6 +192,33 @@ const RegisterForm = () => {
                     required
                     disabled={isLoading}
                 />
+                
+                {/* Password requirements helper */}
+                <div className="mt-2 -mb-2 text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                    <p className="font-medium mb-1.5">Password must contain:</p>
+                    <ul className="space-y-1 pl-2">
+                        <li className={`flex items-center gap-1.5 ${formData.password.length >= 8 ? 'text-green-600 dark:text-green-500' : ''}`}>
+                            <span className={`inline-block w-1 h-1 rounded-full ${formData.password.length >= 8 ? 'bg-green-600' : 'bg-gray-400'}`}></span>
+                            At least 8 characters
+                        </li>
+                        <li className={`flex items-center gap-1.5 ${/[A-Z]/.test(formData.password) ? 'text-green-600 dark:text-green-500' : ''}`}>
+                            <span className={`inline-block w-1 h-1 rounded-full ${/[A-Z]/.test(formData.password) ? 'bg-green-600' : 'bg-gray-400'}`}></span>
+                            One uppercase letter
+                        </li>
+                        <li className={`flex items-center gap-1.5 ${/[a-z]/.test(formData.password) ? 'text-green-600 dark:text-green-500' : ''}`}>
+                            <span className={`inline-block w-1 h-1 rounded-full ${/[a-z]/.test(formData.password) ? 'bg-green-600' : 'bg-gray-400'}`}></span>
+                            One lowercase letter
+                        </li>
+                        <li className={`flex items-center gap-1.5 ${/[0-9]/.test(formData.password) ? 'text-green-600 dark:text-green-500' : ''}`}>
+                            <span className={`inline-block w-1 h-1 rounded-full ${/[0-9]/.test(formData.password) ? 'bg-green-600' : 'bg-gray-400'}`}></span>
+                            One number
+                        </li>
+                        <li className={`flex items-center gap-1.5 ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password) ? 'text-green-600 dark:text-green-500' : ''}`}>
+                            <span className={`inline-block w-1 h-1 rounded-full ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password) ? 'bg-green-600' : 'bg-gray-400'}`}></span>
+                            One special character (!@#$%^&amp;*)
+                        </li>
+                    </ul>
+                </div>
 
                 <FormInput
                     label={t('auth.register.confirmPassword')}
@@ -234,6 +272,9 @@ const RegisterForm = () => {
                             </Link>
                         </span>
                     </label>
+                    {errors.readPrivacy && (
+                        <p className="text-red-600 dark:text-red-400 text-xs ml-7">{errors.readPrivacy}</p>
+                    )}
                 </div>
 
                 <button

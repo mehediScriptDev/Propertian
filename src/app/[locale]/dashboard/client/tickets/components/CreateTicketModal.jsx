@@ -1,13 +1,19 @@
 "use client";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
+import { post } from "@/lib/api";
 
 export default function CreateTicketModal({ show, onClose, newTicket, setNewTicket, onSubmit, editing }) {
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
   const firstInputRef = useRef(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Admin receiver ID (constant)
+  const ADMIN_RECEIVER_ID = "95994aca-2080-436a-94f1-0bc380018537";
 
   useEffect(() => {
     if (show) {
@@ -24,10 +30,36 @@ export default function CreateTicketModal({ show, onClose, newTicket, setNewTick
   // small categories list for the new design
   const categories = ["Technical issue","Partner Complaint", "Payment Issue", "Other"];
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    // keep existing onSubmit handler for backend interaction
-    onSubmit && onSubmit();
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      // Prepare the payload
+      const payload = {
+        receiverId: ADMIN_RECEIVER_ID,
+        subject: newTicket.subject || "",
+        content: newTicket.description || ""
+      };
+
+      // Make API call
+      const response = await post("/messages", payload);
+
+      // Call the existing onSubmit handler if provided (for parent component updates)
+      if (onSubmit) {
+        onSubmit(response);
+      }
+
+      // Reset form and close modal on success
+      setNewTicket({ subject: "", description: "" });
+      onClose();
+    } catch (err) {
+      console.error("Error creating ticket:", err);
+      setError(err.response?.data?.message || "Failed to create ticket. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -63,7 +95,14 @@ export default function CreateTicketModal({ show, onClose, newTicket, setNewTick
 
         {/* New premium design form (uses the same `newTicket` + `setNewTicket` shape) */}
         <form onSubmit={handleFormSubmit} className="p-6 max-h-[70vh] overflow-y-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          <div className=" mb-4">
             {/* Subject */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.client.supportTicket.createNewTicket.Subject", "Subject")}</label>
@@ -78,7 +117,7 @@ export default function CreateTicketModal({ show, onClose, newTicket, setNewTick
             </div>
 
             {/* Category */}
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
               <select
                 value={newTicket.category || categories[0]}
@@ -92,7 +131,7 @@ export default function CreateTicketModal({ show, onClose, newTicket, setNewTick
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
           </div>
 
           {/* Description */}
@@ -109,11 +148,25 @@ export default function CreateTicketModal({ show, onClose, newTicket, setNewTick
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-            <button type="button" onClick={onClose} className="w-full sm:w-auto px-4 py-2 bg-gray-200 rounded-lg text-gray-800 hover:bg-gray-300 transition">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              disabled={isSubmitting}
+              className="w-full sm:w-auto px-4 py-2 bg-gray-200 rounded-lg text-gray-800 hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               {t("dashboard.client.supportTicket.createNewTicket.Cancel", "Cancel")}
             </button>
-            <button type="submit" className="w-full sm:w-auto px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition">
-              {editing ? t("dashboard.client.supportTicket.createNewTicket.SaveChanges", "Save Changes") : t("dashboard.client.supportTicket.createNewTicket.CreateTicket", "Submit Ticket")}
+            <button 
+              type="submit" 
+              disabled={isSubmitting || !newTicket.subject || !newTicket.description}
+              className="w-full sm:w-auto px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting 
+                ? t("dashboard.client.supportTicket.createNewTicket.Submitting", "Submitting...") 
+                : editing 
+                  ? t("dashboard.client.supportTicket.createNewTicket.SaveChanges", "Save Changes") 
+                  : t("dashboard.client.supportTicket.createNewTicket.CreateTicket", "Submit Ticket")
+              }
             </button>
           </div>
         </form>

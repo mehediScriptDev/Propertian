@@ -99,6 +99,13 @@ export const uploadFile = async (url, formData, onUploadProgress = null) => {
       config.onUploadProgress = onUploadProgress;
     }
 
+    // Ensure multipart/form-data is used for this request so FormData (files) are encoded correctly.
+    // We set the header here to avoid the global default application/json header interfering.
+    config.headers = {
+      ...(config.headers || {}),
+      "Content-Type": "multipart/form-data",
+    };
+
     console.log("Uploading to:", url);
     const response = await axiosInstance.post(url, formData, config);
     console.log("Upload response:", response.data);

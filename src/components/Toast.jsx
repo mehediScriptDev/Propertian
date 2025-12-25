@@ -48,7 +48,7 @@ export default function Toast() {
     const isSuccess = toast.type === 'success';
 
     return (
-        <div className="fixed top-4 right-4 z-[9999] animate-slide-in">
+        <div className="fixed top-4 right-4 z-[99999] animate-slide-in">
             <div
                 className={`flex items-start gap-3 min-w-[320px] max-w-md rounded-lg shadow-lg p-4 border ${isSuccess
                         ? 'bg-green-50 border-green-200'

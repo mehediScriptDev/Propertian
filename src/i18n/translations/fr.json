@@ -103,7 +103,11 @@
         "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
         "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
         "passwordsMismatch": "Les mots de passe ne correspondent pas",
-        "registrationFailed": "Échec de l'inscription. Veuillez réessayer."
+        "registrationFailed": "Échec de l'inscription. Veuillez réessayer.",
+        "acceptTerms" : "Vous devez accepter les Termes et Conditions et la Politique de Confidentialité",
+        "privacyPolicy": "Vous devez lire la Politique de Confidentialité",
+        "passwordNumber": "Le mot de passe doit contenir au moins un chiffre",
+        "passwordSpecial": "Le mot de passe doit contenir au moins un caractère spécial"
       }
     },
     "forgotPassword": {
@@ -739,6 +743,7 @@
     "partner": {
       "title": "Tableau de Bord Partenaire",
       "properties": "Propriétés",
+      "AllProperties": "Toutes les Propriétés",
       "myListings": "Mes Annonces",
       "addListing": "Ajouter une Annonce",
       "editListing": "Modifier l'Annonce",
@@ -1799,12 +1804,12 @@
     "welcome": "Bon retour, partenaire",
     "title": "Voici un aperçu de votre portefeuille immobilier et de vos activités récentes",
     "addButton": "Ajouter une nouvelle propriété",
-    "statsData": {
-      "totalProperties": "Total des propriétés",
-      "totalViews": "Nombre total de vues",
-      "activeListings": "Annonces actives",
-      "newInquiries": "Nouvelles demandes"
-    },
+    "statsData":{
+  "totalProperties": "Total des annonces",
+  "activeListings": "Annonces actives",
+  "inactiveListings": "Annonces inactives",
+  "totalInquiries": "Total des demandes"
+},
     "AllInquiries": "Toutes les demandes",
     "SearchInquiries": "Rechercher des demandes...",
     "AllStatus": "Tous les statuts",
@@ -1818,6 +1823,14 @@
     "Status": "Statut",
     "views": "vues",
     "inquiries": "demandes",
+    "Actions": "Actions",
+    "ViewDetails": "Voir les détails",
+    "noImage": "Pas d'image",
+    "Address": "Adresse",
+    "Bedrooms": "Chambres",
+    "Bathrooms": "Salles de bain",
+    "Sqft": "Superficie",
+    "Amenities": "Équipements",
     "NoPropertiesFound": "Aucune propriété trouvée",
     "TryAdjusting": "Essayez d’ajuster votre recherche ou vos filtres",
     "Next": "Suivant",
@@ -1888,6 +1901,7 @@
     "Responded": "Répondu",
     "ID": "ID",
     "ContactInfo": "Informations de contact",
+    "PropertyInfo": "Informations sur la propriété",
     "Type": "Type",
     "Subject": "Sujet",
     "Status": "Statut",

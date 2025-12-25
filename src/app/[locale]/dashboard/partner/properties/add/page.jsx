@@ -8,8 +8,7 @@ export default function PartnerAddPropertyPage({ params }) {
   const { t } = useTranslation(locale);
 
   const translations = {
-    title: t('dashboard.partner.properties.add.title') || 'Add Property',
-    subtitle: t('dashboard.partner.properties.add.subtitle') || 'Create a new property listing (partner)',
+    title: t('Add Property'),
     submit: t('common.submit') || 'Save Property',
     cancel: t('common.cancel') || 'Cancel',
     basicInfo: t('dashboard.partner.properties.add.basicInfo') || 'Basic Information',
@@ -34,7 +33,12 @@ export default function PartnerAddPropertyPage({ params }) {
 
       <div className='rounded-lg bg-white shadow-sm overflow-hidden p-4 sm:p-6'>
         {/* Pass defaultVerified=false so partner submissions are not verified */}
-        <AddPropertyForm translations={translations} locale={locale} defaultVerified={false} apiEndpoint={'/partner/properties'} />
+        <AddPropertyForm
+          translations={translations}
+          locale={locale}
+          defaultVerified={false}
+          apiEndpoint={'https://quiahgroup1backend.mtscorporate.com/api/properties'}
+        />
       </div>
     </div>
   );

@@ -37,6 +37,22 @@ export default function ChangePasswordForm() {
             setError(t("dashboard.client.password.errors.minLength"));
             return;
         }
+        if (!/[A-Z]/.test(newPassword)) {
+            setError(t("dashboard.client.password.errors.uppercase") || "Password must contain at least one uppercase letter");
+            return;
+        }
+        if (!/[a-z]/.test(newPassword)) {
+            setError(t("dashboard.client.password.errors.lowercase") || "Password must contain at least one lowercase letter");
+            return;
+        }
+        if (!/[0-9]/.test(newPassword)) {
+            setError(t("dashboard.client.password.errors.number") || "Password must contain at least one number");
+            return;
+        }
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)) {
+            setError(t("dashboard.client.password.errors.special") || "Password must contain at least one special character");
+            return;
+        }
         if (newPassword !== confirmPassword) {
             setError(t("dashboard.client.password.errors.mismatch"));
             return;
