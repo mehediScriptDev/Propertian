@@ -17,41 +17,13 @@ function formatDate(dateString) {
     });
 }
 
-// Demo data for Send Supports tab
-const sendSupportsData = [
-    {
-        id: 1,
-        subject: 'Welcome to our platform',
-        email: 'user1@example.com',
-        sentDate: '2024-12-20',
-        status: 'delivered',
-        message: 'Thank you for joining our platform. We are here to help you.'
-    },
-    {
-        id: 2,
-        subject: 'Property listing approved',
-        email: 'user2@example.com',
-        sentDate: '2024-12-21',
-        status: 'delivered',
-        message: 'Your property listing has been approved and is now live.'
-    },
-    {
-        id: 3,
-        subject: 'Account verification',
-        email: 'user3@example.com',
-        sentDate: '2024-12-22',
-        status: 'pending',
-        message: 'Please verify your email address to complete registration.'
-    },
-];
-
 export default function SupportsTable({
     title = 'Support Messages',
 }) {
     // Tab state
     const [activeTab, setActiveTab] = useState('user-support');
     
-    // Messages state
+    // Messages state (User Support - Inbox)
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -59,6 +31,13 @@ export default function SupportsTable({
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const itemsPerPage = 6;
+
+    // Sent messages state (Send Supports)
+    const [sentMessages, setSentMessages] = useState([]);
+    const [sentLoading, setSentLoading] = useState(false);
+    const [sentCurrentPage, setSentCurrentPage] = useState(1);
+    const [sentTotalItems, setSentTotalItems] = useState(0);
+    const [sentTotalPages, setSentTotalPages] = useState(1);
 
     // Modal state for viewing message details
     const [selectedMessage, setSelectedMessage] = useState(null);
@@ -72,7 +51,7 @@ export default function SupportsTable({
     const [confirmAction, setConfirmAction] = useState(null);
     const [confirmMessage, setConfirmMessage] = useState('');
 
-    // Fetch messages from API
+    // Fetch messages from API (inbox)
     const fetchMessages = async (page = 1) => {
         setLoading(true);
         try {
@@ -92,9 +71,30 @@ export default function SupportsTable({
         }
     };
 
+    // Fetch sent messages from API
+    const fetchSentMessages = async (page = 1) => {
+        setSentLoading(true);
+        try {
+            const response = await get(`/messages/sent?page=${page}&limit=${itemsPerPage}`);
+            if (response && response.success) {
+                setSentMessages(response.data.messages || []);
+                setSentTotalItems(response.data.pagination?.totalItems || 0);
+                setSentTotalPages(response.data.pagination?.totalPages || 1);
+                setSentCurrentPage(response.data.pagination?.currentPage || page);
+            }
+        } catch (error) {
+            console.error('Error fetching sent messages:', error);
+            setSentMessages([]);
+        } finally {
+            setSentLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (activeTab === 'user-support') {
             fetchMessages(currentPage);
+        } else if (activeTab === 'send-supports') {
+            fetchSentMessages(sentCurrentPage);
         }
     }, [activeTab]);
 
@@ -134,6 +134,11 @@ export default function SupportsTable({
     const handlePageChange = (page) => {
         setCurrentPage(page);
         fetchMessages(page);
+    };
+
+    const handleSentPageChange = (page) => {
+        setSentCurrentPage(page);
+        fetchSentMessages(page);
     };
 
     const handleMarkAllAsRead = async () => {
@@ -440,107 +445,176 @@ export default function SupportsTable({
                 <>
                     {/* Send Supports Tab Content */}
                     <div className='px-6 py-5 border-b border-gray-100'>
-                        <div className='flex items-center justify-between'>
-                            <h3 className='text-lg font-semibold text-gray-900'>Sent Support Messages</h3>
-                            
+                        <h3 className='text-lg font-semibold text-gray-900'>Sent Support Messages</h3>
+                    </div>
+
+                    {sentLoading ? (
+                        <div className='px-6 py-12 text-center'>
+                            <div className='inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d4af37] border-r-transparent'></div>
+                            <p className='mt-4 text-sm text-gray-500'>Loading sent messages...</p>
                         </div>
-                    </div>
+                    ) : (
+                        <>
+                            {/* Desktop Table for Send Supports */}
+                            <div className='hidden lg:block overflow-x-auto'>
+                                <table className='w-full min-w-[800px]'>
+                                    <thead className='bg-gray-50'>
+                                        <tr>
+                                            <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700'>RECIPIENT</th>
+                                            <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700'>SUBJECT</th>
+                                            <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700'>DATE</th>
+                                            <th className='px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700'>STATUS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className='bg-white divide-y divide-gray-100'>
+                                        {sentMessages.map((message) => {
+                                            const receiver = message.users_messages_receiverIdTousers;
+                                            const receiverName = `${receiver?.firstName || ''} ${receiver?.lastName || ''}`.trim() || 'Unknown';
+                                            
+                                            return (
+                                                <tr key={message.id} className='hover:bg-gray-50 transition'>
+                                                    <td className='px-6 py-4'>
+                                                        <div className='flex items-center gap-3'>
+                                                            <div className='h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm'>
+                                                                {receiverName.charAt(0).toUpperCase()}
+                                                            </div>
+                                                            <div>
+                                                                <div className='text-sm font-medium text-gray-900'>{receiverName}</div>
+                                                                <div className='text-xs text-gray-500'>{receiver?.email}</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className='px-6 py-4'>
+                                                        <div className='text-sm text-gray-900'>
+                                                            {message.subject}
+                                                        </div>
+                                                        <div className='text-xs text-gray-500 mt-1 truncate max-w-md'>
+                                                            {message.content}
+                                                        </div>
+                                                    </td>
+                                                    <td className='px-6 py-4 text-sm text-gray-600'>
+                                                        {formatDate(message.createdAt)}
+                                                    </td>
+                                                    <td className='px-6 py-4'>
+                                                        {message.isRead ? (
+                                                            <span className='inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800'>
+                                                                <MailOpen className='h-3.5 w-3.5 mr-1' />
+                                                                Read
+                                                            </span>
+                                                        ) : (
+                                                            <span className='inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800'>
+                                                                <Send className='h-3.5 w-3.5 mr-1' />
+                                                                Sent
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
 
-                    {/* Desktop Table for Send Supports */}
-                    <div className='hidden lg:block overflow-x-auto'>
-                        <table className='w-full min-w-[800px]'>
-                            <thead className='bg-gray-100 text-gray-900'>
-                                <tr>
-                                    <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>SUBJECT</th>
-                                    <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>RECIPIENT EMAIL</th>
-                                    <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>STATUS</th>
-                                    <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>SENT DATE</th>
-                                    <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>ACTIONS</th>
-                                </tr>
-                            </thead>
-                            <tbody className='bg-white'>
-                                {sendSupportsData.map((item) => (
-                                    <tr key={item.id} className='border-t border-gray-100'>
-                                        <td className='px-6 py-4 text-sm text-gray-900'>{item.subject}</td>
-                                        <td className='px-6 py-4 text-sm text-gray-700'>{item.email}</td>
-                                        <td className='px-6 py-4 text-sm'>
-                                            <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${
-                                                item.status === 'delivered' 
-                                                    ? 'bg-emerald-100 text-emerald-800 border-emerald-100' 
-                                                    : 'bg-amber-100 text-amber-800 border-amber-100'
-                                            }`}>
-                                                {item.status}
-                                            </span>
-                                        </td>
-                                        <td className='px-6 py-4 text-sm text-gray-700'>{item.sentDate}</td>
-                                        <td className='py-4 text-sm'>
-                                            <div className='flex items-center gap-2'>
-                                                <button
-                                                    onClick={() => handleOpen(item)}
-                                                    className='inline-flex items-center justify-center p-2 rounded-md text-[#d4af37] hover:bg-gray-50'
-                                                    title='View'
-                                                >
-                                                    <Eye className='h-4 w-4' />
-                                                </button>
-                                                <button
-                                                    className='inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:bg-gray-50'
-                                                    title='Resend'
-                                                >
-                                                    <MailOpen className='h-4 w-4' />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(item.id)}
-                                                    className='inline-flex items-center justify-center p-2 rounded-md text-red-500 hover:bg-red-50'
-                                                    title='Delete'
-                                                >
-                                                    <Trash className='h-4 w-4' />
-                                                </button>
+                                        {sentMessages.length === 0 && (
+                                            <tr>
+                                                <td colSpan={4} className='px-6 py-12 text-center'>
+                                                    <Send className='h-12 w-12 text-gray-300 mx-auto mb-3' />
+                                                    <p className='text-sm text-gray-500'>No sent messages found.</p>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Mobile cards for Send Supports */}
+                            <div className='lg:hidden space-y-4 p-4'>
+                                {sentMessages.map((message) => {
+                                    const receiver = message.users_messages_receiverIdTousers;
+                                    const receiverName = `${receiver?.firstName || ''} ${receiver?.lastName || ''}`.trim() || 'Unknown';
+                                    
+                                    return (
+                                        <article key={message.id} className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm'>
+                                            <div className='flex items-start gap-3 mb-3'>
+                                                <div className='h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold flex-shrink-0'>
+                                                    {receiverName.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div className='min-w-0 flex-1'>
+                                                    <div className='text-sm font-semibold text-gray-900'>
+                                                        {receiverName}
+                                                    </div>
+                                                    <div className='text-xs text-gray-500 mt-0.5'>{receiver?.email}</div>
+                                                    <div className='mt-1'>
+                                                        {message.isRead ? (
+                                                            <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800'>
+                                                                <MailOpen className='h-3 w-3 mr-1' />
+                                                                Read
+                                                            </span>
+                                                        ) : (
+                                                            <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800'>
+                                                                <Send className='h-3 w-3 mr-1' />
+                                                                Sent
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
 
-                    {/* Mobile cards for Send Supports */}
-                    <div className='lg:hidden space-y-4 p-4'>
-                        {sendSupportsData.map((item) => (
-                            <article key={item.id} className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm'>
-                                <div className='flex items-start justify-between'>
-                                    <div className='min-w-0'>
-                                        <div className='text-sm font-semibold text-gray-900 truncate'>{item.subject}</div>
-                                        <div className='text-xs text-gray-500 mt-2'>{item.email}</div>
-                                        <div className='text-xs text-gray-400 mt-1'>{item.sentDate}</div>
+                                            <div className='mb-3'>
+                                                <div className='text-sm font-medium text-gray-900 mb-1'>
+                                                    {message.subject}
+                                                </div>
+                                                <div className='text-xs text-gray-500 line-clamp-2'>
+                                                    {message.content}
+                                                </div>
+                                            </div>
+
+                                            <div className='text-xs text-gray-400'>
+                                                {formatDate(message.createdAt)}
+                                            </div>
+                                        </article>
+                                    );
+                                })}
+
+                                {sentMessages.length === 0 && (
+                                    <div className='text-center py-12'>
+                                        <Send className='h-12 w-12 text-gray-300 mx-auto mb-3' />
+                                        <p className='text-sm text-gray-500'>No sent messages found.</p>
                                     </div>
-                                    <div>
-                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                                            item.status === 'delivered' 
-                                                ? 'bg-emerald-100 text-emerald-800' 
-                                                : 'bg-amber-100 text-amber-800'
-                                        }`}>
-                                            {item.status}
-                                        </span>
+                                )}
+                            </div>
+
+                            {/* Pagination for Sent Messages */}
+                            {sentMessages.length > 0 && (
+                                <div className='px-6 py-3 bg-white border-t border-gray-100'>
+                                    <div className='flex items-center justify-between'>
+                                        <div className='text-sm text-gray-600'>
+                                            Showing {((sentCurrentPage - 1) * itemsPerPage) + 1} to {Math.min(sentCurrentPage * itemsPerPage, sentTotalItems)} of {sentTotalItems} results
+                                        </div>
+                                        {sentTotalPages > 1 && (
+                                            <div>
+                                                <Pagination
+                                                    currentPage={sentCurrentPage}
+                                                    totalPages={sentTotalPages}
+                                                    totalItems={sentTotalItems}
+                                                    itemsPerPage={itemsPerPage}
+                                                    onPageChange={handleSentPageChange}
+                                                    hideInfo={true}
+                                                    noBorder={true}
+                                                    translations={{
+                                                        previous: 'Previous',
+                                                        next: 'Next',
+                                                        page: 'Page',
+                                                        of: 'of',
+                                                        showing: 'Showing',
+                                                        to: 'to',
+                                                        results: 'results'
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                <div className='mt-4 flex items-center gap-2'>
-                                    <button onClick={() => handleOpen(item)} className='inline-flex items-center gap-2 bg-white text-[#374151] border border-gray-200 text-sm font-medium px-3 py-2 rounded-md'>
-                                        <Eye className='h-4 w-4 text-[#d4af37]' />
-                                        View
-                                    </button>
-                                    <button className='inline-flex items-center gap-2 border border-gray-200 text-sm px-3 py-2 rounded-md text-gray-700'>
-                                        <MailOpen className='h-4 w-4' />
-                                        Resend
-                                    </button>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
-
-                    {/* Footer for Send Supports */}
-                    <div className='px-6 py-3 bg-white border-t border-gray-100'>
-                        <div className='text-sm text-gray-600'>Showing 1 to {sendSupportsData.length} of {sendSupportsData.length} results</div>
-                    </div>
+                            )}
+                        </>
+                    )}
                 </>
             )}
 
