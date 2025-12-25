@@ -162,7 +162,7 @@ export default function CreateTicketModal({ show, onClose, newTicket, setNewTick
               className="w-full sm:w-auto px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting 
-                ? t("dashboard.client.supportTicket.createNewTicket.Submitting", "Submitting...") 
+                ? t("Submitting...") 
                 : editing 
                   ? t("dashboard.client.supportTicket.createNewTicket.SaveChanges", "Save Changes") 
                   : t("dashboard.client.supportTicket.createNewTicket.CreateTicket", "Submit Ticket")
