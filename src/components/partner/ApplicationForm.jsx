@@ -5,10 +5,13 @@ import React, { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 import { ChevronDown } from "lucide-react";
+import axiosInstance from "@/lib/axios";
+import { showToast } from "@/components/Toast";
 
 export default function ApplicationForm() {
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -45,18 +48,41 @@ export default function ApplicationForm() {
     return e;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validate();
     if (Object.keys(errors).length) {
       // show first error as alert for now
-      alert(Object.values(errors)[0]);
+      showToast(Object.values(errors)[0], 'error');
       return;
     }
 
-    // No backend call here per client request — just log the data
-    console.log('Listing submission (client-side):', formData);
-    alert('Submission received — we will contact you shortly.');
+    setLoading(true);
+    try {
+      const response = await axiosInstance.post('/partner/apply', formData);
+      
+      if (response.data) {
+        showToast('Application submitted successfully! We will contact you shortly.', 'success');
+        // Reset form after successful submission
+        setFormData({
+          fullName: "",
+          email: "",
+          phone: "",
+          role: "Developer",
+          listingTypes: [],
+          cityCountry: "",
+          photoAssistance: "Not sure yet",
+          management: "I want more information",
+          message: "",
+        });
+      }
+    } catch (error) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to submit application. Please try again.';
+      showToast(errorMessage, 'error');
+      console.error('Application submission error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const listingOptions = [
@@ -157,7 +183,13 @@ export default function ApplicationForm() {
           <textarea name="message" value={formData.message} onChange={handleInputChange} rows={4} className="w-full px-4 py-3 bg-cream/40 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
 
         </div>
-        <button type="submit" className="w-full py-2.5 lg:py-4 bg-primary hover:bg-primary-dark text-charcoal rounded-lg transition-all duration-200 font-semibold text-base lg:text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1">Submit Listing</button>
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="w-full py-2.5 lg:py-4 bg-primary hover:bg-primary-dark text-charcoal rounded-lg transition-all duration-200 font-semibold text-base lg:text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        >
+          {loading ? 'Submitting...' : 'Submit Listing'}
+        </button>
       </form>
     </section>
   );
