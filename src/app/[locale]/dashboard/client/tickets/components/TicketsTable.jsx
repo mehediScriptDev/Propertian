@@ -6,6 +6,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 import axiosInstance from "@/lib/axios";
 import MessageViewModal from './MessageViewModal';
+import CustomAlert from './CustomAlert';
+import ConfirmDialog from './ConfirmDialog';
 
 function TicketsTable({
   onRowClick,
@@ -27,6 +29,10 @@ function TicketsTable({
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showView, setShowView] = useState(false);
   const [activeTab, setActiveTab] = useState('send');
+  
+  // Alert and confirm dialog state
+  const [alert, setAlert] = useState({ show: false, type: 'success', message: '' });
+  const [confirmDialog, setConfirmDialog] = useState({ show: false, messageId: null });
   
   // State for sent messages
   const [sentMessages, setSentMessages] = useState([]);
@@ -98,20 +104,28 @@ function TicketsTable({
     setShowView(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this message?')) {
-      try {
-        await axiosInstance.delete(`/messages/${id}`);
-        // Refresh the appropriate list
-        if (activeTab === 'send') {
-          fetchSentMessages(sentCurrentPage);
-        } else {
-          fetchReceivedMessages(receivedCurrentPage);
-        }
-      } catch (error) {
-        console.error('Error deleting message:', error);
-        alert('Failed to delete message');
+  const handleDeleteClick = (id) => {
+    setConfirmDialog({ show: true, messageId: id });
+  };
+
+  const handleDelete = async () => {
+    const { messageId } = confirmDialog;
+    setConfirmDialog({ show: false, messageId: null });
+    
+    try {
+      await axiosInstance.delete(`/messages/${messageId}`);
+      // Refresh the appropriate list
+      if (activeTab === 'send') {
+        fetchSentMessages(sentCurrentPage);
+      } else {
+        fetchReceivedMessages(receivedCurrentPage);
       }
+      // Show success alert
+      setAlert({ show: true, type: 'success', message: 'Message deleted successfully!' });
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      // Show error alert
+      setAlert({ show: true, type: 'error', message: 'Failed to delete message. Please try again.' });
     }
   };
 
@@ -295,7 +309,7 @@ function TicketsTable({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(message.id);
+                          handleDeleteClick(message.id);
                         }}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
                         title="Delete"
@@ -386,7 +400,7 @@ function TicketsTable({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(message.id);
+                      handleDeleteClick(message.id);
                     }}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition"
                   >
@@ -430,6 +444,23 @@ function TicketsTable({
       message={selectedMessage}
       messageType={activeTab}
       onClose={() => setShowView(false)} 
+    />
+    
+    {/* Custom Alert */}
+    <CustomAlert
+      show={alert.show}
+      type={alert.type}
+      message={alert.message}
+      onClose={() => setAlert({ ...alert, show: false })}
+    />
+    
+    {/* Confirm Dialog */}
+    <ConfirmDialog
+      show={confirmDialog.show}
+      title="Delete Message"
+      message="Are you sure you want to delete this message? This action cannot be undone."
+      onConfirm={handleDelete}
+      onCancel={() => setConfirmDialog({ show: false, messageId: null })}
     />
     </>
   );
