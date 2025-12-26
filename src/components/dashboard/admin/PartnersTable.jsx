@@ -13,10 +13,14 @@ import {
   Clock,
   X,
 } from 'lucide-react';
+import CustomAlert from '@/app/[locale]/dashboard/client/tickets/components/CustomAlert';
+import ConfirmDialog from '@/app/[locale]/dashboard/client/tickets/components/ConfirmDialog';
 
-const PartnersTable = memo(({ partners, loading, translations }) => {
+const PartnersTable = memo(({ partners, loading, onDelete, translations }) => {
   const [selectedPartner, setSelectedPartner] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({ show: false, partnerId: null });
+  const [alert, setAlert] = useState({ show: false, type: 'success', message: '' });
 
   const handleView = (partner) => {
     setSelectedPartner(partner);
@@ -26,6 +30,22 @@ const PartnersTable = memo(({ partners, loading, translations }) => {
   const handleClose = () => {
     setIsModalOpen(false);
     setSelectedPartner(null);
+  };
+
+  const handleDeleteClick = (id) => {
+    setConfirmDialog({ show: true, partnerId: id });
+  };
+
+  const handleDelete = async () => {
+    const { partnerId } = confirmDialog;
+    setConfirmDialog({ show: false, partnerId: null });
+
+    try {
+      await onDelete(partnerId);
+      setAlert({ show: true, type: 'success', message: 'Partner application deleted successfully!' });
+    } catch (error) {
+      setAlert({ show: true, type: 'error', message: 'Failed to delete partner application.' });
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -262,6 +282,7 @@ const PartnersTable = memo(({ partners, loading, translations }) => {
                       <Eye className='h-4 w-4 text-gray-600' />
                     </button>
                     <button
+                      onClick={() => handleDeleteClick(partner.id)}
                       className='rounded p-1.5 hover:bg-gray-100 transition-colors'
                       title={translations.table.delete}
                     >
@@ -298,6 +319,7 @@ const PartnersTable = memo(({ partners, loading, translations }) => {
                   <Eye className='h-4 w-4 text-gray-600' />
                 </button>
                 <button
+                  onClick={() => handleDeleteClick(partner.id)}
                   className='rounded p-1.5 hover:bg-gray-100 transition-colors'
                   title={translations.table.delete}
                 >
@@ -382,6 +404,23 @@ const PartnersTable = memo(({ partners, loading, translations }) => {
           </div>
         </div>
       )}
+
+      {/* Custom Alert */}
+      <CustomAlert
+        show={alert.show}
+        type={alert.type}
+        message={alert.message}
+        onClose={() => setAlert({ ...alert, show: false })}
+      />
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        show={confirmDialog.show}
+        title="Delete Partner Application"
+        message="Are you sure you want to delete this partner application? This action cannot be undone."
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDialog({ show: false, partnerId: null })}
+      />
     </div>
     </div>
   );
