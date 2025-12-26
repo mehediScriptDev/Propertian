@@ -5,9 +5,21 @@ import { Eye, Edit2, Trash2, Edit } from 'lucide-react'
 import PartnerModal from './modals/PartnerModal'
 import ConfirmModal from './modals/ConfirmModal'
 
-const PartnerTable = ({ partners = [], onDelete }) => {
+const PartnerTable = ({ partners = [], loading = false, onDelete }) => {
     const [selected, setSelected] = useState(null)
     const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+
+    // Show loading state
+    if (loading) {
+        return (
+            <div className="relative min-h-[400px] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+                    <p className="text-sm font-medium text-gray-700">Loading partners...</p>
+                </div>
+            </div>
+        );
+    }
 
     const categoryBadgeClass = (cat) => {
         if (!cat) return 'bg-gray-100 text-gray-700'

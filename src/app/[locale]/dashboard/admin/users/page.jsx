@@ -455,7 +455,7 @@ export default function AdminUsersPage({ params }) {
           </div>
         )}
 
-        <UsersTable users={filteredAndPaginatedUsers} title='All Users' translations={userTranslations} onActionClick={handleActionClick} />
+        <UsersTable users={filteredAndPaginatedUsers} title='All Users' translations={userTranslations} onActionClick={handleActionClick} loading={loading} />
 
         <ViewUserModal
           isOpen={showUserModal}

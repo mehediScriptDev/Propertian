@@ -1,94 +1,13 @@
 'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
+import { use, useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from '@/i18n';
 import { Users, CheckCircle, Clock, FolderOpen } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
 import PartnersFilters from '@/components/dashboard/admin/PartnersFilters';
 import PartnersTable from '@/components/dashboard/admin/PartnersTable';
 import Pagination from '@/components/dashboard/Pagination';
-
-// Mock partners data - deterministic generation based on DB schema
-const generateMockPartners = () => {
-  const companies = [
-    'KOF Builders & Developers',
-    'Prime Properties CI',
-    'Ivory Coast Realty Group',
-    'Coastal Properties Ltd',
-    'Urban Living CI',
-    'Abidjan Elite Homes',
-    'West Africa Construction',
-    'Horizon Developments',
-    'Prestige Real Estate CI',
-    'Modern Living Solutions',
-    'Atlantic Coast Builders',
-    'Golden Gate Properties',
-  ];
-
-  const contactPersons = [
-    'Jean-Paul Kouassi',
-    'Marie-Claire Diabate',
-    'Ibrahim Traore',
-    'Sophie Mensah',
-    "David N'Guessan",
-    'Fatou Diallo',
-    'Eric Koffi',
-    'Aminata Toure',
-    'Laurent Yao',
-    'Grace Ouattara',
-    'Michel Bamba',
-    'Awa Sanogo',
-  ];
-
-  const projects = [
-    ['Riviera Golf Residences', 'Plateau Business Center'],
-    [
-      'Cocody Modern Apartments',
-      'Marcory Luxury Villas',
-      'Yopougon Family Homes',
-    ],
-    ['Grand-Bassam Beach Resort'],
-    ['Abidjan Sky Tower', 'Plateau Office Complex', 'Cocody Commercial Plaza'],
-    ['Affordable Housing Project'],
-    ['Riviera Palm Villas', 'Angré Premium Residences'],
-    ['Industrial Park Yopougon'],
-    ['Eco-Friendly Homes Cocody', 'Smart City Development'],
-    ['Luxury Beachfront Villas'],
-    ['Mixed-Use Development Plateau'],
-    ['Coastal Living Complex'],
-    ['Golden Residences Marcory', 'Prestige Towers Plateau'],
-  ];
-
-  return companies.map((company, index) => ({
-    id: index + 1,
-    company_name: company,
-    contact_person: contactPersons[index],
-    email: `${contactPersons[index]
-      .toLowerCase()
-      .replace(/\s+/g, '.')}@${company.toLowerCase().replace(/\s+/g, '')}.ci`,
-    phone_number:
-      index % 3 === 0
-        ? null
-        : `+225 ${String(index + 10).padStart(2, '0')} ${String(
-          index + 20
-        ).padStart(2, '0')} ${String(index + 30).padStart(2, '0')} ${String(
-          index + 40
-        ).padStart(2, '0')}`,
-    project_names: projects[index],
-    package:
-      index % 4 === 0 ? 'premium' : index % 3 === 0 ? 'standard' : 'basic',
-    documents:
-      index % 5 !== 0 ? ['business_license.pdf', 'tax_clearance.pdf'] : [],
-    is_verified: index % 3 !== 2,
-    is_paid: index % 4 !== 3,
-    created_at: new Date(
-      Date.now() - index * 15 * 24 * 60 * 60 * 1000
-    ).toISOString(),
-    updated_at: new Date(
-      Date.now() - index * 5 * 24 * 60 * 60 * 1000
-    ).toISOString(),
-  }));
-};
+import axiosInstance from '@/lib/axios';
 
 export default function AdminPartnersPage({ params }) {
   const { locale } = use(params);
@@ -96,12 +15,49 @@ export default function AdminPartnersPage({ params }) {
 
   // State
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [verificationFilter, setVerificationFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1
+  });
 
   // Constants
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 8;
+
+  // Fetch applications from API
+  useEffect(() => {
+    fetchApplications();
+  }, [currentPage, statusFilter]);
+
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      let url = `/partner/applications?page=${currentPage}&limit=${ITEMS_PER_PAGE}`;
+      
+      // Add status filter if not 'all'
+      if (statusFilter !== 'all') {
+        url += `&status=${statusFilter}`;
+      }
+      
+      const response = await axiosInstance.get(url);
+      
+      if (response.data.success) {
+        setApplications(response.data.data.applications);
+        setPagination(response.data.data.pagination);
+      }
+    } catch (error) {
+      console.error('Error fetching partner applications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Memoized translations
   const partnersTranslations = useMemo(
@@ -150,22 +106,16 @@ export default function AdminPartnersPage({ params }) {
     [t]
   );
 
-  // Mock partners data
-  const partners = useMemo(() => generateMockPartners(), []);
-
   // Calculate stats
   const stats = useMemo(() => {
-    const verifiedCount = partners.filter((p) => p.is_verified).length;
-    const pendingCount = partners.filter((p) => !p.is_verified).length;
-    const totalProjects = partners.reduce(
-      (sum, p) => sum + (p.project_names?.length || 0),
-      0
-    );
+    const pendingCount = applications.filter((p) => p.status === 'PENDING').length;
+    const underReviewCount = applications.filter((p) => p.status === 'UNDER_REVIEW').length;
+    const approvedCount = applications.filter((p) => p.status === 'APPROVED').length;
 
     return [
       {
         title: 'Total',
-        value: partners.length,
+        value: pagination.total,
         trend: '+8.3%',
         icon: Users,
         variant: 'primary',
@@ -179,58 +129,55 @@ export default function AdminPartnersPage({ params }) {
       },
       {
         title: 'Under Review',
-        value: verifiedCount,
+        value: underReviewCount,
         trend: '+12.5%',
         icon: FolderOpen,
         variant: 'info',
       },
       {
         title: 'Approved',
-        value: totalProjects,
+        value: approvedCount,
         trend: '+15.8%',
         icon: CheckCircle,
         variant: 'success',
       },
     ];
-  }, [partners]);
+  }, [applications, pagination.total]);
 
-  // Filter partners
-  const filteredPartners = useMemo(() => {
-    return partners.filter((partner) => {
+  // Filter applications
+  const filteredApplications = useMemo(() => {
+    return applications.filter((app) => {
       const matchesSearch =
-        partner.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        partner.contact_person
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        partner.email.toLowerCase().includes(searchTerm.toLowerCase());
+        app.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.companyName?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus =
+        statusFilter === 'all' || app.status === statusFilter;
 
       const matchesVerification =
         verificationFilter === 'all' ||
-        (verificationFilter === 'verified' && partner.is_verified) ||
-        (verificationFilter === 'pending' && !partner.is_verified) ||
-        (verificationFilter === 'rejected' && false); // No rejected in mock data
+        (verificationFilter === 'verified' && app.isVerified) ||
+        (verificationFilter === 'pending' && !app.isVerified);
 
       const matchesPayment =
         paymentFilter === 'all' ||
-        (paymentFilter === 'paid' && partner.is_paid) ||
-        (paymentFilter === 'unpaid' && !partner.is_paid) ||
-        (paymentFilter === 'partial' && false); // No partial in mock data
+        (paymentFilter === 'paid' && app.isPaid) ||
+        (paymentFilter === 'unpaid' && !app.isPaid);
 
-      return matchesSearch && matchesVerification && matchesPayment;
+      return matchesSearch && matchesStatus && matchesVerification && matchesPayment;
     });
-  }, [partners, searchTerm, verificationFilter, paymentFilter]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredPartners.length / ITEMS_PER_PAGE);
-  const paginatedPartners = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredPartners.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredPartners, currentPage]);
+  }, [applications, searchTerm, statusFilter, verificationFilter, paymentFilter]);
 
   // Handlers
   const handleSearchChange = useCallback((value) => {
     setSearchTerm(value);
     setCurrentPage(1); // Reset to first page on search
+  }, []);
+
+  const handleStatusChange = useCallback((value) => {
+    setStatusFilter(value);
+    setCurrentPage(1);
   }, []);
 
   const handleVerificationChange = useCallback((value) => {
@@ -246,6 +193,28 @@ export default function AdminPartnersPage({ params }) {
   const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
   }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      await axiosInstance.delete(`/partner/applications/${id}`);
+      fetchApplications(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting application:', error);
+    }
+  };
+
+  const handleStatusUpdate = async (id, newStatus) => {
+    try {
+      await axiosInstance.put(`/partner/applications/${id}/status`, { 
+        status: newStatus,
+        adminNotes: `Status changed to ${newStatus}`
+      });
+      fetchApplications(); // Refresh the list
+    } catch (error) {
+      console.error('Error updating status:', error);
+      throw error;
+    }
+  };
 
   // Pagination translations
   const paginationTranslations = useMemo(
@@ -289,9 +258,11 @@ export default function AdminPartnersPage({ params }) {
       {/* Filters */}
       <PartnersFilters
         searchTerm={searchTerm}
+        statusFilter={statusFilter}
         verificationFilter={verificationFilter}
         paymentFilter={paymentFilter}
         onSearchChange={handleSearchChange}
+        onStatusChange={handleStatusChange}
         onVerificationChange={handleVerificationChange}
         onPaymentChange={handlePaymentChange}
         translations={partnersTranslations}
@@ -300,13 +271,17 @@ export default function AdminPartnersPage({ params }) {
       {/* Partners Table with Pagination */}
       <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
         <PartnersTable
-          partners={paginatedPartners}
+          partners={filteredApplications}
+          loading={loading}
+          onDelete={handleDelete}
+          onStatusChange={handleStatusUpdate}
+          onRefresh={fetchApplications}
           translations={partnersTranslations}
         />
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={filteredPartners.length}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.total}
           itemsPerPage={ITEMS_PER_PAGE}
           onPageChange={handlePageChange}
           translations={paginationTranslations}

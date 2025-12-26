@@ -52,10 +52,10 @@ export default function PropertiesTable({
       {/* Header */}
       <div className='flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 bg-white/60 px-6 py-4'>
         <h2 className='text-xl font-bold text-gray-900'>{title}</h2>
-        <button className="inline-flex items-center rounded-md bg-accent  px-5 py-2 text-base font-medium text-white cursor-pointer  ">
+        {/* <button className="inline-flex items-center rounded-md bg-accent  px-5 py-2 text-base font-medium text-white cursor-pointer  ">
           <Plus className='h-5 w-5 text-white' />
           {addButtonText}
-        </button>
+        </button> */}
       </div>
 
       {/* Mobile Card View */}

@@ -141,9 +141,7 @@ const Page = () => {
                     <ChevronDown className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
                 </div>
             </section>
-            {loading ? (
-                <div className="text-sm text-gray-500">Loading partners...</div>
-            ) : error ? (
+            {error ? (
                 <div className="text-sm text-red-500">{error}</div>
             ) : (
                 <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
@@ -153,7 +151,7 @@ const Page = () => {
                             <button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg  bg-primary text-white">+ Add Partner</button>
                         </div>
                     </div>
-                    <PartnerTable partners={paginated} onDelete={handleDelete} />
+                    <PartnerTable partners={paginated} loading={loading} onDelete={handleDelete} />
                     <AddPartnerModal open={showAddModal} onClose={() => setShowAddModal(false)} onCreate={handleCreate} />
                     <Pagination
                         currentPage={currentPage}

@@ -433,6 +433,7 @@ export default function ConciergeRequestsPage({ params }) {
           translations={conciergeTranslations}
           onDelete={handleDelete}
           onEdit={handleEdit}
+          loading={loading}
         />
         <Pagination
           currentPage={currentPage}
