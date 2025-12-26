@@ -70,7 +70,7 @@ const mockTestimonials = [
     name: "Marcus Johnson (Sample)",
     title: "Business Owner from USA",
     imageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD6IZFqbF5BxNbLqQo6HJPBzLCG8_8n3qR5Ks3Rn2Vw4YdLKPmZoQxJv7RhTgNfW8sYuXqKcMz6rLpH9VvGn3ZwQxYj4RmNfL8sKqTpVwXyRzJ5nMgLcYxWpQvRsNfH6tZj9qMxLp",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
   },
   {
     id: 5,
@@ -79,7 +79,7 @@ const mockTestimonials = [
     name: "Aisha Mensah (Sample)",
     title: "Teacher from Ghana",
     imageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBnL9XpYgZwKqRvNfH7TmPsJc6VdWxYzA8BqCr3DtEuF4GvHsI2JxKyL0MzN1OxPyQzR3SxTyU4VxWyX5YzZ6AxByC1DxEyF2GxHyI3JxKyL4MxNyO5PxQyR6SxTyU7VxWyX8YzZ9AxByC",
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
   },
   {
     id: 6,
@@ -88,7 +88,7 @@ const mockTestimonials = [
     name: "David Okafor (Sample)",
     title: "Engineer from Nigeria",
     imageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCyM3NxOzP1QxRyS4TxUyV6WxXyY7ZxA8ByC9DxEyF0GxHyI1JxKyL2MxNyO3PxQyR4SxTyU5VxWyX6YzZ7AxByC8DxEyF9GxHyI0JxKyL1MxNyO2PxQyR3SxTyU4VxWyX5YzZ6AxByC7DxE",
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
   },
 ];
 
