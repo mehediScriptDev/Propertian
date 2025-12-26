@@ -126,14 +126,13 @@ export default function AllBookingsPage() {
                     </div>
                 </div>
 
-                {loading ? (
-                    <div className="text-sm text-gray-500">Loading bookings...</div>
-                ) : error ? (
+                {error ? (
                     <div className="text-sm text-red-500">{error}</div>
                 ) : (
                     <div>
                         <BookingTable
                             bookings={paginated}
+                            loading={loading}
                             onView={(b) => { setSelectedBooking(b); setShowDetails(true) }}
                             onDelete={(b) => { setBookingToDelete(b); setShowDeleteConfirm(true) }}
                             onEdit={(b) => { setBookingToUpdate(b); setShowUpdateModal(true) }}

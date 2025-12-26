@@ -13,7 +13,19 @@ const statusClasses = (status) => {
     return 'bg-gray-100 text-gray-700'
 }
 
-export default function BookingTable({ bookings = [], className = '', onView, onEdit, onDelete }) {
+export default function BookingTable({ bookings = [], loading = false, className = '', onView, onEdit, onDelete }) {
+    // Show loading state
+    if (loading) {
+        return (
+            <div className="relative min-h-[400px] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+                    <p className="text-sm font-medium text-gray-700">Loading bookings...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={className}>
             {/* Desktop / tablet: table (md+) */}
