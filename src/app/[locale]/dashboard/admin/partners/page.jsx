@@ -205,10 +205,14 @@ export default function AdminPartnersPage({ params }) {
 
   const handleStatusUpdate = async (id, newStatus) => {
     try {
-      await axiosInstance.patch(`/partner/applications/${id}/status`, { status: newStatus });
+      await axiosInstance.put(`/partner/applications/${id}/status`, { 
+        status: newStatus,
+        adminNotes: `Status changed to ${newStatus}`
+      });
       fetchApplications(); // Refresh the list
     } catch (error) {
       console.error('Error updating status:', error);
+      throw error;
     }
   };
 
@@ -270,7 +274,7 @@ export default function AdminPartnersPage({ params }) {
           partners={filteredApplications}
           loading={loading}
           onDelete={handleDelete}
-          onStatusUpdate={handleStatusUpdate}
+          onStatusChange={handleStatusUpdate}
           onRefresh={fetchApplications}
           translations={partnersTranslations}
         />

@@ -16,11 +16,26 @@ import {
 import CustomAlert from '@/app/[locale]/dashboard/client/tickets/components/CustomAlert';
 import ConfirmDialog from '@/app/[locale]/dashboard/client/tickets/components/ConfirmDialog';
 
-const PartnersTable = memo(({ partners, loading, onDelete, translations }) => {
+const PartnersTable = memo(({ partners, loading, onDelete, onStatusChange, translations }) => {
   const [selectedPartner, setSelectedPartner] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ show: false, partnerId: null });
   const [alert, setAlert] = useState({ show: false, type: 'success', message: '' });
+  const [updatingStatus, setUpdatingStatus] = useState({});
+
+  const handleStatusChange = async (partnerId, newStatus) => {
+    setUpdatingStatus(prev => ({ ...prev, [partnerId]: true }));
+    try {
+      if (onStatusChange) {
+        await onStatusChange(partnerId, newStatus);
+        setAlert({ show: true, type: 'success', message: 'Status updated successfully!' });
+      }
+    } catch (error) {
+      setAlert({ show: true, type: 'error', message: 'Failed to update status.' });
+    } finally {
+      setUpdatingStatus(prev => ({ ...prev, [partnerId]: false }));
+    }
+  };
 
   const handleView = (partner) => {
     setSelectedPartner(partner);
@@ -90,35 +105,47 @@ const PartnersTable = memo(({ partners, loading, onDelete, translations }) => {
   };
 
   const getVerificationBadge = (status) => {
+    const statusUpper = String(status || 'PENDING').toUpperCase();
+    
     const badges = {
-      verified: {
-        bg: 'bg-green-100',
-        text: 'text-green-800',
-        icon: CheckCircle,
-        label: translations.verification.verified,
-      },
-      pending: {
-        bg: 'bg-yellow-100',
-        text: 'text-yellow-800',
+      PENDING: {
+        bg: 'bg-yellow-50',
+        text: 'text-yellow-700',
+        border: 'border-yellow-200',
         icon: Clock,
-        label: translations.verification.pending,
+        label: 'Pending',
       },
-      rejected: {
-        bg: 'bg-red-100',
-        text: 'text-red-800',
+      UNDER_REVIEW: {
+        bg: 'bg-blue-50',
+        text: 'text-blue-700',
+        border: 'border-blue-200',
+        icon: FolderOpen,
+        label: 'Under Review',
+      },
+      APPROVED: {
+        bg: 'bg-green-50',
+        text: 'text-green-700',
+        border: 'border-green-200',
+        icon: CheckCircle,
+        label: 'Approved',
+      },
+      REJECTED: {
+        bg: 'bg-red-50',
+        text: 'text-red-700',
+        border: 'border-red-200',
         icon: XCircle,
-        label: translations.verification.rejected,
+        label: 'Rejected',
       },
     };
 
-    const badge = badges[status] || badges.pending;
+    const badge = badges[statusUpper] || badges.PENDING;
     const Icon = badge.icon;
 
     return (
       <span
-        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border ${badge.bg} ${badge.text} ${badge.border}`}
       >
-        <Icon className='h-3.5 w-3.5' />
+        <Icon className='h-4 w-4' />
         {badge.label}
       </span>
     );
@@ -267,7 +294,25 @@ const PartnersTable = memo(({ partners, loading, onDelete, translations }) => {
                   </div>
                 </td>
                 <td className='px-6 py-4'>
-                  {getStatusBadge(partner.status)}
+                  <select
+                    value={partner.status || 'PENDING'}
+                    onChange={(e) => handleStatusChange(partner.id, e.target.value)}
+                    disabled={updatingStatus[partner.id]}
+                    className={`
+                      px-3 py-1.5 rounded-md text-xs font-medium border cursor-pointer
+                      focus:outline-none focus:ring-2 focus:ring-primary/20
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      ${partner.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
+                      ${partner.status === 'UNDER_REVIEW' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
+                      ${partner.status === 'APPROVED' ? 'bg-green-50 text-green-700 border-green-200' : ''}
+                      ${partner.status === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200' : ''}
+                    `}
+                  >
+                    <option value="PENDING">Pending</option>
+                    <option value="UNDER_REVIEW">Under Review</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REJECTED">Rejected</option>
+                  </select>
                 </td>
                 <td className='px-6 py-4'>
                   {getPaymentBadge(partner.isPaid ? 'paid' : 'unpaid')}
