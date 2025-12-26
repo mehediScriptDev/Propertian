@@ -84,10 +84,10 @@ const PartnersFilters = memo(
             </div>
 
             {/* Add Partner Button */}
-            <button className="inline-flex items-center justify-center w-full sm:w-auto rounded-md bg-accent px-5 py-3 text-base font-medium text-white cursor-pointer gap-2 mt-2 sm:mt-0">
+            {/* <button className="inline-flex items-center justify-center w-full sm:w-auto rounded-md bg-accent px-5 py-3 text-base font-medium text-white cursor-pointer gap-2 mt-2 sm:mt-0">
               <UserPlus className='h-4 w-4' />
               <span>{translations.addPartner}</span>
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

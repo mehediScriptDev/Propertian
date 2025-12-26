@@ -367,39 +367,172 @@ const PartnersTable = memo(({ partners, loading, onDelete, translations }) => {
       )}
       {/* Partner Details Modal */}
       {isModalOpen && selectedPartner && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center'>
-          <div className='absolute inset-0 bg-black/40' onClick={handleClose} />
+        <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
+          <div className='absolute inset-0 bg-black/50 backdrop-blur-sm' onClick={handleClose} />
 
-          <div className='relative bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto'>
-            <div className='flex items-center justify-between px-6 py-4 border-b border-gray-200'>
-              <div className='flex items-center gap-3'>
-                <span className='inline-flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 text-primary'>
-                  <FolderOpen className='h-5 w-5' />
-                </span>
-                <div>
-                  <h3 className='text-lg font-semibold text-gray-900'>{selectedPartner.company_name}</h3>
-                  <div className='text-base text-gray-500'>{selectedPartner.contact_person}</div>
+          <div className='relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col'>
+            {/* Header */}
+            <div className='sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-4 flex items-center justify-between'>
+              <div className='flex items-center gap-3 flex-1 min-w-0'>
+                <div className='p-2.5 bg-white/20 backdrop-blur-sm rounded-xl'>
+                  <FolderOpen className='h-5 w-5 sm:h-6 sm:w-6 text-white' />
+                </div>
+                <div className='flex-1 min-w-0'>
+                  <h3 className='text-base sm:text-lg font-bold text-white truncate'>
+                    {selectedPartner.fullName}
+                  </h3>
+                  <p className='text-xs sm:text-sm text-blue-100 truncate'>{selectedPartner.email}</p>
                 </div>
               </div>
-
-              <div>
-                <button onClick={handleClose} className='p-2 rounded-full hover:bg-gray-100'>
-                  <X className='h-5 w-5 text-gray-700' />
-                </button>
-              </div>
+              <button 
+                onClick={handleClose} 
+                className='p-2 rounded-full hover:bg-white/20 transition-colors ml-2 flex-shrink-0'
+              >
+                <X className='h-5 w-5 text-white' />
+              </button>
             </div>
 
-            <div className='p-6'>
-              <dl className='space-y-3'>
-                {Object.entries(selectedPartner).map(([key, value]) => (
-                  <div key={key} className='flex items-start justify-between gap-4'>
-                    <dt className='text-base text-gray-500'>{prettyLabel(key)}</dt>
-                    <dd className='text-base font-medium text-gray-900'>
-                      {formatValue(value)}
-                    </dd>
+            {/* Content */}
+            <div className='flex-1 overflow-y-auto p-4 sm:p-6'>
+              <div className='space-y-4'>
+                {/* Status Badge */}
+                <div className='flex flex-wrap gap-2 pb-4 border-b border-gray-200'>
+                  {getStatusBadge(selectedPartner.status)}
+                  {selectedPartner.isVerified && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <CheckCircle className='h-3.5 w-3.5' />
+                      Verified
+                    </span>
+                  )}
+                  {selectedPartner.isPaid && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Paid
+                    </span>
+                  )}
+                  {selectedPartner.package && (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      {selectedPartner.package}
+                    </span>
+                  )}
+                </div>
+
+                {/* Contact Information */}
+                <div className='bg-gray-50 rounded-xl p-4'>
+                  <h4 className='text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2'>
+                    <Mail className='h-4 w-4 text-gray-600' />
+                    Contact Information
+                  </h4>
+                  <div className='space-y-2.5'>
+                    <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1'>
+                      <span className='text-xs sm:text-sm text-gray-600 font-medium'>Email</span>
+                      <span className='text-xs sm:text-sm text-gray-900 break-all'>{selectedPartner.email}</span>
+                    </div>
+                    {selectedPartner.phone && (
+                      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1'>
+                        <span className='text-xs sm:text-sm text-gray-600 font-medium'>Phone</span>
+                        <span className='text-xs sm:text-sm text-gray-900'>{selectedPartner.phone}</span>
+                      </div>
+                    )}
+                    {selectedPartner.cityCountry && (
+                      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1'>
+                        <span className='text-xs sm:text-sm text-gray-600 font-medium'>Location</span>
+                        <span className='text-xs sm:text-sm text-gray-900'>{selectedPartner.cityCountry}</span>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </dl>
+                </div>
+
+                {/* Professional Details */}
+                <div className='bg-blue-50 rounded-xl p-4'>
+                  <h4 className='text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2'>
+                    <FolderOpen className='h-4 w-4 text-blue-600' />
+                    Professional Details
+                  </h4>
+                  <div className='space-y-2.5'>
+                    <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1'>
+                      <span className='text-xs sm:text-sm text-gray-600 font-medium'>Role</span>
+                      <span className='text-xs sm:text-sm text-gray-900'>{selectedPartner.role}</span>
+                    </div>
+                    {selectedPartner.companyName && (
+                      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1'>
+                        <span className='text-xs sm:text-sm text-gray-600 font-medium'>Company</span>
+                        <span className='text-xs sm:text-sm text-gray-900'>{selectedPartner.companyName}</span>
+                      </div>
+                    )}
+                    {selectedPartner.management && (
+                      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1'>
+                        <span className='text-xs sm:text-sm text-gray-600 font-medium'>Management</span>
+                        <span className='text-xs sm:text-sm text-gray-900'>{selectedPartner.management}</span>
+                      </div>
+                    )}
+                    {selectedPartner.photoAssistance && (
+                      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1'>
+                        <span className='text-xs sm:text-sm text-gray-600 font-medium'>Photo Assistance</span>
+                        <span className='text-xs sm:text-sm text-gray-900'>{selectedPartner.photoAssistance}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Listing Types */}
+                {selectedPartner.listingTypes && selectedPartner.listingTypes.length > 0 && (
+                  <div className='bg-amber-50 rounded-xl p-4'>
+                    <h4 className='text-sm font-semibold text-gray-900 mb-3'>Listing Types</h4>
+                    <div className='flex flex-wrap gap-2'>
+                      {selectedPartner.listingTypes.map((type, idx) => (
+                        <span key={idx} className='px-2.5 py-1 bg-white border border-amber-200 text-amber-800 rounded-lg text-xs font-medium'>
+                          {type}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Projects */}
+                {selectedPartner.projectNames && selectedPartner.projectNames.length > 0 && (
+                  <div className='bg-green-50 rounded-xl p-4'>
+                    <h4 className='text-sm font-semibold text-gray-900 mb-3'>Projects ({selectedPartner.projectNames.length})</h4>
+                    <div className='flex flex-wrap gap-2'>
+                      {selectedPartner.projectNames.map((project, idx) => (
+                        <span key={idx} className='px-2.5 py-1 bg-white border border-green-200 text-green-800 rounded-lg text-xs font-medium'>
+                          {project}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Message */}
+                {selectedPartner.message && (
+                  <div className='bg-gray-50 rounded-xl p-4'>
+                    <h4 className='text-sm font-semibold text-gray-900 mb-2'>Message</h4>
+                    <p className='text-xs sm:text-sm text-gray-700 leading-relaxed'>{selectedPartner.message}</p>
+                  </div>
+                )}
+
+                {/* Admin Notes */}
+                {selectedPartner.adminNotes && (
+                  <div className='bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4'>
+                    <h4 className='text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2'>
+                      <Clock className='h-4 w-4 text-yellow-600' />
+                      Admin Notes
+                    </h4>
+                    <p className='text-xs sm:text-sm text-gray-700 leading-relaxed'>{selectedPartner.adminNotes}</p>
+                  </div>
+                )}
+
+                {/* Timestamps */}
+                <div className='grid grid-cols-2 gap-3 pt-2'>
+                  <div className='bg-gray-50 rounded-lg p-3'>
+                    <span className='text-xs text-gray-600 block mb-1'>Created</span>
+                    <span className='text-xs sm:text-sm font-medium text-gray-900'>{formatDate(selectedPartner.createdAt)}</span>
+                  </div>
+                  <div className='bg-gray-50 rounded-lg p-3'>
+                    <span className='text-xs text-gray-600 block mb-1'>Updated</span>
+                    <span className='text-xs sm:text-sm font-medium text-gray-900'>{formatDate(selectedPartner.updatedAt)}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
