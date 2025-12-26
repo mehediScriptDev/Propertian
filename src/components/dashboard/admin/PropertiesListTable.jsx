@@ -11,7 +11,19 @@ const STATUS_BADGE_STYLES = {
   inactive: 'bg-gray-100 text-gray-700',
 };
 
-const PropertiesListTable = memo(({ properties, translations, onView, onEdit, onDelete }) => {
+const PropertiesListTable = memo(({ properties, translations, onView, onEdit, onDelete, loading = false }) => {
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="relative min-h-[400px] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+          <p className="text-sm font-medium text-gray-700">Loading properties...</p>
+        </div>
+      </div>
+    );
+  }
+  
   const getStatusBadge = (status) => {
     const badgeStyle =
       STATUS_BADGE_STYLES[status] || 'bg-gray-100 text-gray-700';

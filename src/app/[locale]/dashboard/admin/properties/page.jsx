@@ -311,6 +311,7 @@ export default function PropertiesManagementPage({ params }) {
           onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          loading={loading}
         />
         <ViewPropertyModal isOpen={showViewModal} onClose={() => setShowViewModal(false)} property={selectedProperty} t={t} />
         <EditPropertyModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} property={selectedProperty} onSave={handleSaveEdit} t={t} />
