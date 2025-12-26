@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 
 // i18n utility functions
@@ -30,17 +32,17 @@ export function useTranslation(localeParam = "en") {
       for (const k of keys) {
         value = value?.[k];
       }
-      
+
       // If no value found, return the key
       if (!value) return key;
-      
+
       // Handle interpolation: replace {{variable}} with actual values
       if (typeof value === "string" && Object.keys(params).length > 0) {
         return value.replace(/\{\{(\w+)\}\}/g, (match, paramKey) => {
           return params[paramKey] !== undefined ? params[paramKey] : match;
         });
       }
-      
+
       return value;
     };
   }, [t]);
