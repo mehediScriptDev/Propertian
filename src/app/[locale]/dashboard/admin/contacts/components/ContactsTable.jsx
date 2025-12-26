@@ -1,7 +1,19 @@
 
 import { Eye, Edit, Trash2 } from 'lucide-react'
 
-export default function ContactsTable({ contacts, onViewDetails, onEdit, onDelete }) {
+export default function ContactsTable({ contacts, loading = false, onViewDetails, onEdit, onDelete }) {
+    // Show loading state
+    if (loading) {
+        return (
+            <div className="relative min-h-[400px] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+                    <p className="text-sm font-medium text-gray-700">Loading contacts...</p>
+                </div>
+            </div>
+        );
+    }
+
     if (contacts.length === 0) {
         return (
             <div className='p-8 text-center text-sm text-gray-500'>

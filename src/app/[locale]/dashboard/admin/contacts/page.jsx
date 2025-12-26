@@ -149,14 +149,13 @@ export default function ContactsAdminPage() {
 
 
             <section className='rounded-lg bg-white shadow-sm overflow-hidden'>
-                {loading ? (
-                    <div className='py-12 text-center text-sm text-gray-500'>Loading contacts…</div>
-                ) : error ? (
+                {error ? (
                     <div className='p-4 text-sm text-red-600'>{error}</div>
                 ) : (
                     <>
                         <ContactsTable
                             contacts={paginatedContacts}
+                            loading={loading}
                             onViewDetails={handleViewDetails}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
