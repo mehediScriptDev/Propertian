@@ -6,9 +6,11 @@ import { ChevronDown, Search, UserPlus } from 'lucide-react';
 const PartnersFilters = memo(
   ({
     searchTerm,
+    statusFilter,
     verificationFilter,
     paymentFilter,
     onSearchChange,
+    onStatusChange,
     onVerificationChange,
     onPaymentChange,
     translations,
@@ -30,8 +32,23 @@ const PartnersFilters = memo(
 
           {/* Filters and Add Button */}
           <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-3'>
-            {/* Verification Filter */}
+            {/* Status Filter */}
             <div className='relative w-full sm:w-auto'>
+              <select
+                value={statusFilter}
+                onChange={(e) => onStatusChange(e.target.value)}
+                className='w-full h-12 appearance-none rounded-lg border border-gray-200 bg-white pl-4 pr-10 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer'
+              >
+                <option value='all'>All Status</option>
+                <option value='PENDING'>Pending</option>
+                <option value='UNDER_REVIEW'>Under Review</option>
+                <option value='APPROVED'>Approved</option>
+                <option value='REJECTED'>Rejected</option>
+              </select>
+              <ChevronDown className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
+            </div>
+            {/* Verification Filter */}
+            {/* <div className='relative w-full sm:w-auto'>
               <select
                 value={verificationFilter}
                 onChange={(e) => onVerificationChange(e.target.value)}
@@ -51,7 +68,7 @@ const PartnersFilters = memo(
                 </option>
               </select>
               <ChevronDown className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
-            </div>
+            </div> */}
             {/* Payment Filter */}
             <div className='relative w-full sm:w-auto'>
               <select
@@ -62,7 +79,6 @@ const PartnersFilters = memo(
                 <option value='all'>{translations.filters.allPayment}</option>
                 <option value='paid'>{translations.payment.paid}</option>
                 <option value='unpaid'>{translations.payment.unpaid}</option>
-                <option value='partial'>{translations.payment.partial}</option>
               </select>
               <ChevronDown className='pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500' />
             </div>

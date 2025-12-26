@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react';
 
-const PartnersTable = memo(({ partners, translations }) => {
+const PartnersTable = memo(({ partners, loading, translations }) => {
   const [selectedPartner, setSelectedPartner] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -27,6 +27,48 @@ const PartnersTable = memo(({ partners, translations }) => {
     setIsModalOpen(false);
     setSelectedPartner(null);
   };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      APPROVED: {
+        bg: 'bg-green-100',
+        text: 'text-green-800',
+        icon: CheckCircle,
+        label: 'Approved',
+      },
+      PENDING: {
+        bg: 'bg-yellow-100',
+        text: 'text-yellow-800',
+        icon: Clock,
+        label: 'Pending',
+      },
+      UNDER_REVIEW: {
+        bg: 'bg-blue-100',
+        text: 'text-blue-800',
+        icon: FolderOpen,
+        label: 'Under Review',
+      },
+      REJECTED: {
+        bg: 'bg-red-100',
+        text: 'text-red-800',
+        icon: XCircle,
+        label: 'Rejected',
+      },
+    };
+
+    const badge = badges[status] || badges.PENDING;
+    const Icon = badge.icon;
+
+    return (
+      <span
+        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}
+      >
+        <Icon className='h-3.5 w-3.5' />
+        {badge.label}
+      </span>
+    );
+  };
+
   const getVerificationBadge = (status) => {
     const badges = {
       verified: {
@@ -131,6 +173,17 @@ const PartnersTable = memo(({ partners, translations }) => {
   };
 
   return (
+    <div className="relative">
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+            <p className="text-sm font-medium text-gray-700">Loading applications...</p>
+          </div>
+        </div>
+      )}
+      
     <div>
       <div className='px-6 py-5'>
         <div className='flex items-center justify-between'>
@@ -143,9 +196,6 @@ const PartnersTable = memo(({ partners, translations }) => {
         <table className='w-full min-w-[800px]'>
           <thead className='bg-gray-100 text-gray-900'>
             <tr>
-              <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
-                {translations.table.company}
-              </th>
               <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>
                 {translations.table.contact}
               </th>
@@ -170,20 +220,9 @@ const PartnersTable = memo(({ partners, translations }) => {
                 className='hover:bg-gray-50 transition-colors'
               >
                 <td className='px-6 py-4'>
-                  <div className='flex flex-col'>
-                    <div className='font-medium text-gray-900'>
-                      {partner.company_name}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      {translations.table.joined}{' '}
-                      {formatDate(partner.created_at)}
-                    </div>
-                  </div>
-                </td>
-                <td className='px-6 py-4'>
                   <div className='flex flex-col gap-1'>
                     <div className='text-sm font-medium text-gray-900'>
-                      {partner.contact_person}
+                      {partner.fullName}
                     </div>
                     <div className='flex items-center gap-1 text-sm text-gray-600'>
                       <Mail className='h-3.5 w-3.5 shrink-0 text-gray-400' />
@@ -191,10 +230,10 @@ const PartnersTable = memo(({ partners, translations }) => {
                         {partner.email}
                       </span>
                     </div>
-                    {partner.phone_number && (
+                    {partner.phone && (
                       <div className='flex items-center gap-1 text-sm text-gray-600'>
                         <Phone className='h-3.5 w-3.5 shrink-0 text-gray-400' />
-                        {partner.phone_number}
+                        {partner.phone}
                       </div>
                     )}
                   </div>
@@ -203,17 +242,15 @@ const PartnersTable = memo(({ partners, translations }) => {
                   <div className='flex items-center gap-2'>
                     <FolderOpen className='h-4 w-4 text-gray-400' />
                     <span className='text-sm font-medium text-gray-900'>
-                      {partner.project_names?.length || 0}
+                      {partner.projectNames?.length || 0}
                     </span>
                   </div>
                 </td>
                 <td className='px-6 py-4'>
-                  {getVerificationBadge(
-                    partner.is_verified ? 'verified' : 'pending'
-                  )}
+                  {getStatusBadge(partner.status)}
                 </td>
                 <td className='px-6 py-4'>
-                  {getPaymentBadge(partner.is_paid ? 'paid' : 'unpaid')}
+                  {getPaymentBadge(partner.isPaid ? 'paid' : 'unpaid')}
                 </td>
                 <td className='pl-2 py-4'>
                   <div className='flex items-center gap-2'>
@@ -223,12 +260,6 @@ const PartnersTable = memo(({ partners, translations }) => {
                       title={translations.table.view}
                     >
                       <Eye className='h-4 w-4 text-gray-600' />
-                    </button>
-                    <button
-                      className='rounded p-1.5 hover:bg-gray-100 transition-colors'
-                      title={translations.table.edit}
-                    >
-                      <Edit className='h-4 w-4 text-blue-600' />
                     </button>
                     <button
                       className='rounded p-1.5 hover:bg-gray-100 transition-colors'
@@ -251,16 +282,12 @@ const PartnersTable = memo(({ partners, translations }) => {
             key={partner.id}
             className='p-4 hover:bg-gray-50 transition-colors'
           >
-            {/* Company Name */}
+            {/* Contact Person */}
             <div className='flex items-start justify-between mb-3'>
               <div className='flex-1'>
                 <h3 className='font-medium text-gray-900'>
-                  {partner.company_name}
+                  {partner.fullName}
                 </h3>
-                <p className='text-xs text-gray-500 mt-1'>
-                  {translations.table.joined}{' '}
-                  {formatDate(partner.created_at)}
-                </p>
               </div>
               <div className='flex items-center gap-1 ml-2'>
                 <button
@@ -269,12 +296,6 @@ const PartnersTable = memo(({ partners, translations }) => {
                   title={translations.table.view}
                 >
                   <Eye className='h-4 w-4 text-gray-600' />
-                </button>
-                <button
-                  className='rounded p-1.5 hover:bg-gray-100 transition-colors'
-                  title={translations.table.edit}
-                >
-                  <Edit className='h-4 w-4 text-blue-600' />
                 </button>
                 <button
                   className='rounded p-1.5 hover:bg-gray-100 transition-colors'
@@ -287,20 +308,14 @@ const PartnersTable = memo(({ partners, translations }) => {
 
             {/* Contact Info */}
             <div className='space-y-2 mb-3'>
-              <div className='text-sm'>
-                <span className='font-medium text-gray-700'>
-                  {translations.table.contact}:{' '}
-                </span>
-                <span className='text-gray-900'>{partner.contact_person}</span>
-              </div>
               <div className='flex items-center gap-1 text-sm text-gray-600'>
                 <Mail className='h-3.5 w-3.5 shrink-0 text-gray-400' />
                 <span className='truncate'>{partner.email}</span>
               </div>
-              {partner.phone_number && (
+              {partner.phone && (
                 <div className='flex items-center gap-1 text-sm text-gray-600'>
                   <Phone className='h-3.5 w-3.5 shrink-0 text-gray-400' />
-                  {partner.phone_number}
+                  {partner.phone}
                 </div>
               )}
             </div>
@@ -310,14 +325,12 @@ const PartnersTable = memo(({ partners, translations }) => {
               <div className='flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md'>
                 <FolderOpen className='h-3.5 w-3.5 text-gray-400' />
                 <span className='font-medium'>
-                  {partner.project_names?.length || 0}
+                  {partner.projectNames?.length || 0}
                 </span>
                 <span className='text-xs'>{translations.table.projects}</span>
               </div>
-              {getVerificationBadge(
-                partner.is_verified ? 'verified' : 'pending'
-              )}
-              {getPaymentBadge(partner.is_paid ? 'paid' : 'unpaid')}
+              {getStatusBadge(partner.status)}
+              {getPaymentBadge(partner.isPaid ? 'paid' : 'unpaid')}
             </div>
           </div>
         ))}
@@ -369,6 +382,7 @@ const PartnersTable = memo(({ partners, translations }) => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 });
