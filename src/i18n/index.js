@@ -22,15 +22,26 @@ export function useTranslation(localeParam = "en") {
   // Memoize translation object to prevent unnecessary re-renders
   const t = useMemo(() => getTranslation(locale), [locale]);
 
-  // Memoize translation function
+  // Memoize translation function with interpolation support
   const translate = useMemo(() => {
-    return (key) => {
+    return (key, params = {}) => {
       const keys = key.split(".");
       let value = t;
       for (const k of keys) {
         value = value?.[k];
       }
-      return value || key;
+      
+      // If no value found, return the key
+      if (!value) return key;
+      
+      // Handle interpolation: replace {{variable}} with actual values
+      if (typeof value === "string" && Object.keys(params).length > 0) {
+        return value.replace(/\{\{(\w+)\}\}/g, (match, paramKey) => {
+          return params[paramKey] !== undefined ? params[paramKey] : match;
+        });
+      }
+      
+      return value;
     };
   }, [t]);
 
