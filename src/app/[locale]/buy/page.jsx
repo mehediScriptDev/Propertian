@@ -26,6 +26,7 @@ export default function BuyPage() {
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const [displayCount, setDisplayCount] = useState(3);
   const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Inject structured data for SEO (match rent page behavior)
   useEffect(() => {
@@ -131,11 +132,22 @@ export default function BuyPage() {
 
   // properties fetch
   useEffect(() => {
+    let mounted = true;
+    setLoading(true);
     api.get(`/properties?listingType=SALE`)
       .then(res => {
-        setProperties(res.data.properties);
+        if (!mounted) return;
+        setProperties(res?.data?.properties || []);
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        if (mounted) setProperties([]);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => { mounted = false; };
   }, []);
 
   return (
@@ -215,7 +227,21 @@ export default function BuyPage() {
           </div>
 
           {/* Properties Grid */}
-          {properties.length > 0 ? (
+          {loading ? (
+            <div className='text-center py-12'>
+              <div className='inline-flex items-center gap-3'>
+                <svg className='animate-spin h-6 w-6 text-gray-600' viewBox='0 0 24 24'>
+                  <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' fill='none'></circle>
+                  <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z'></path>
+                </svg>
+                <span className='text-gray-700'>{(() => {
+                  const key = 'buy.results.loading';
+                  const res = t(key);
+                  return res === key ? 'Loading properties...' : res;
+                })()}</span>
+              </div>
+            </div>
+          ) : properties.length > 0 ? (
             <>
               <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 xl:gap-6'>
                 {displayedProperties.map((property) => (

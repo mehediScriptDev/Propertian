@@ -1013,6 +1013,7 @@
     "listings": {
       "title": "Propriétés en Location Vedette",
       "sortBy": "Trier par:",
+      "loading": "Chargement des propriétés...",
       "sortOptions": {
         "newest": "Annonces les Plus Récentes",
         "priceLow": "Prix (Bas à Élevé)",
@@ -1990,7 +1991,8 @@
     "PDFDocuments": "Documents PDF",
     "AccountInformation": "Informations du compte",
     "AccountCreated": "Compte créé",
-    "LastUpdated": "Dernière mise à jour"
+    "LastUpdated": "Dernière mise à jour",
+    "NotVerified": "Non vérifié"
   },
   "Verification": {
     "HowItWorksTitle": "Comment être vérifié en 5 étapes simples",

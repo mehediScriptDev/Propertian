@@ -82,7 +82,12 @@ export default function RentDetailsPage() {
     return (
       <main className="min-h-screen bg-gray-50 dark:bg-neutral-900">
         <div className="max-w-3xl mx-auto px-4 py-16 text-center text-gray-700 dark:text-gray-300">
-          <p>{t('rent.listings.loading', 'Loading property...')}</p>
+          {/* Use fallback if translation returns raw key */}
+          <p>{(() => {
+            const key = 'rent.listings.loading';
+            const res = t(key);
+            return res === key ? 'Loading property...' : res;
+          })()}</p>
         </div>
       </main>
     );

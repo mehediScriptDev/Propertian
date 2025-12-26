@@ -382,11 +382,6 @@ export default function PartnerDashboardPage({ params }) {
             <h3 className="mt-3 text-sm font-medium text-gray-900">
               {t("Partner.NoPropertiesFound")}
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {searchQuery || filterStatus !== "all"
-                ? t("Partner.TryAdjusting")
-                : t("Partner.NoPropertiesAdded")}
-            </p>
           </div>
         )}
 

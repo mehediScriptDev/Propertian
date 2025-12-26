@@ -1015,6 +1015,7 @@
     "listings": {
       "title": "Featured Rental Properties",
       "sortBy": "Sort by:",
+      "loading": "Loading properties...",
       "sortOptions": {
         "newest": "Newest Listings",
         "priceLow": "Price (Low to High)",
@@ -1996,7 +1997,9 @@
     "PDFDocuments": "PDF Documents",
     "AccountInformation": "Account Information",
     "AccountCreated": "Account Created",
-    "LastLogin": "Last Login"
+    "LastLogin": "Last Login",
+    "LastUpdated": "Last Updated",
+    "NotVerified": "Not Verified"
   },
   "Verification": {
     "HowItWorksTitle": "How to Get Verified in 5 Simple Steps",

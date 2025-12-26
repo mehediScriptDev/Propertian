@@ -15,7 +15,7 @@ export default function RentPage() {
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
   const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     city: 'abidjan',
@@ -291,7 +291,12 @@ export default function RentPage() {
                   <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' fill='none'></circle>
                   <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z'></path>
                 </svg>
-                <span className='text-gray-700'>{t('rent.listings.loading', 'Loading properties...')}</span>
+                {/* Use fallback if translation returns the raw key */}
+                <span className='text-gray-700'>{(() => {
+                  const key = 'rent.listings.loading';
+                  const res = t(key);
+                  return res === key ? 'Loading properties...' : res;
+                })()}</span>
               </div>
             </div>
           ) : error ? (
