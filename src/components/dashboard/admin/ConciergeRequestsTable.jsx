@@ -20,11 +20,23 @@ import {
 import RequestDetailsModal from './RequestDetailsModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 
-const ConciergeRequestsTable = memo(({ requests, translations, onEdit, onDelete }) => {
+const ConciergeRequestsTable = memo(({ requests, translations, onEdit, onDelete, loading = false }) => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="relative min-h-[400px] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+          <p className="text-sm font-medium text-gray-700">Loading requests...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleViewRequest = (request) => {
     setSelectedRequest(request);
