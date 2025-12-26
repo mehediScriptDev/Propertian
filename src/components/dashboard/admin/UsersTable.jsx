@@ -12,9 +12,21 @@ import { useState } from 'react';
  * @param {Array} props.users - User data array
  * @param {Function} props.onActionClick - Action click handler
  */
-export default function UsersTable({ title, users = [], onActionClick }) {
+export default function UsersTable({ title, users = [], onActionClick, loading = false }) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="relative min-h-[400px] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+          <p className="text-sm font-medium text-gray-700">Loading users...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleViewDetails = (user) => {
     if (onActionClick) {
