@@ -80,9 +80,9 @@ const PartnerTable = ({ partners = [], loading = false, onDelete }) => {
                                 <button onClick={() => setSelected(p)} className="text-gray-600 hover:text-blue-600 transition-colors p-2" title="View">
                                     <Eye className="h-5 w-5" />
                                 </button>
-                                <button className="text-gray-600 hover:text-blue-600 transition-colors p-2" title="Edit">
+                                {/* <button className="text-gray-600 hover:text-blue-600 transition-colors p-2" title="Edit">
                                     <Edit2 className="h-5 w-5" />
-                                </button>
+                                </button> */}
                                 <button onClick={() => { setSelected(null); setConfirmDeleteId(p.id) }} className="text-gray-600 hover:text-red-600 transition-colors p-2" title="Delete">
                                     <Trash2 className="h-5 w-5" />
                                 </button>
@@ -140,9 +140,9 @@ const PartnerTable = ({ partners = [], loading = false, onDelete }) => {
                                             <button onClick={() => setSelected(p)} className="text-gray-600 hover:text-blue-600 transition-colors p-1" title="View">
                                                 <Eye className="h-4 w-4" />
                                             </button>
-                                            <button className="text-blue-600 transition-colors p-1" title="Edit">
+                                            {/* <button className="text-blue-600 transition-colors p-1" title="Edit">
                                                 <Edit className="h-4 w-4" />
-                                            </button>
+                                            </button> */}
                                             <button onClick={() => { setSelected(null); setConfirmDeleteId(p.id) }} className=" text-red-600 transition-colors p-1" title="Delete">
                                                 <Trash2 className="h-4 w-4" />
                                             </button>
