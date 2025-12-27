@@ -9,6 +9,7 @@ import BlogPublishSidebar from '@/components/dashboard/admin/BlogPublishSidebar'
 import FeaturedImageUpload from '@/components/dashboard/admin/FeaturedImageUpload';
 import { post } from '@/lib/api';
 import Toast, { showToast } from '@/components/Toast';
+import Modal from '@/components/Modal';
 
 export default function BlogEditor({ params }) {
   const { locale } = use(params);
@@ -154,24 +155,27 @@ export default function BlogEditor({ params }) {
     altText,
   ]);
 
+  const [showCancelModal, setShowCancelModal] = useState(false);
+
   const handleCancel = useCallback(() => {
-    if (
-      confirm(
-        'Are you sure you want to cancel? All unsaved changes will be lost.'
-      )
-    ) {
-      setTitle('');
-      setContent('');
-      setMetaTitle('');
-      setMetaDescription('');
-      setUrlSlug('');
-      setStatus('draft');
-      setCategory('');
-      setTags('');
-      setImageUrl('');
-      setAltText('');
-    }
+    setShowCancelModal(true);
   }, []);
+
+  const confirmCancel = useCallback(() => {
+    setShowCancelModal(false);
+    setTitle('');
+    setContent('');
+    setMetaTitle('');
+    setMetaDescription('');
+    setUrlSlug('');
+    setStatus('draft');
+    setCategory('');
+    setTags('');
+    setImageUrl('');
+    setAltText('');
+  }, []);
+
+  const closeCancelModal = useCallback(() => setShowCancelModal(false), []);
 
   const handlePublish = useCallback(async () => {
     try {
@@ -320,6 +324,34 @@ export default function BlogEditor({ params }) {
           />
         </div>
       </div>
+      <Modal
+        isOpen={showCancelModal}
+        onClose={closeCancelModal}
+        title={blogEditorTranslations.cancel}
+        footer={
+          <div className='flex items-center justify-end gap-3'>
+            <button
+              type='button'
+              onClick={closeCancelModal}
+              className='px-4 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700'
+            >
+              {blogEditorTranslations.cancel}
+            </button>
+
+            <button
+              type='button'
+              onClick={confirmCancel}
+              className='px-4 py-2 bg-accent text-white rounded-md text-sm'
+            >
+              OK
+            </button>
+          </div>
+        }
+      >
+        <div className='text-sm text-gray-700'>
+          Are you sure you want to cancel? All unsaved changes will be lost.
+        </div>
+      </Modal>
       <Toast />
     </div>
   );

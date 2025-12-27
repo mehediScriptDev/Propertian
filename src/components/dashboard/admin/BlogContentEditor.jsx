@@ -43,12 +43,12 @@ const BlogContentEditor = memo(
             />
 
             {/* Editor Toolbar Hint */}
-            <div className='absolute bottom-3 right-3 hidden sm:flex gap-2 text-gray-400 text-xs'>
+            {/* <div className='absolute bottom-3 right-3 hidden sm:flex gap-2 text-gray-400 text-xs'>
               <span className='px-2 py-1 bg-gray-50 rounded'>Bold</span>
               <span className='px-2 py-1 bg-gray-50 rounded'>Italic</span>
               <span className='px-2 py-1 bg-gray-50 rounded'>Link</span>
               <span className='px-2 py-1 bg-gray-50 rounded'>List</span>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
