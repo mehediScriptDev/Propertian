@@ -5,7 +5,7 @@ import { Eye, Edit, Trash2 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import EditEventModal from '@/app/[locale]/dashboard/admin/event-management/components/Modal/EditEventModal';
 import Modal from '@/components/Modal';
-import { del } from '@/lib/api';
+import { del, put } from '@/lib/api';
 import Pagination from '@/components/dashboard/Pagination';
 
 export default function EventTable({ events = [], loading = false, error, t }) {
@@ -236,10 +236,39 @@ export default function EventTable({ events = [], loading = false, error, t }) {
                 isOpen={isEditOpen}
                 onClose={closeEditModal}
                 event={selectedEditEvent}
-                onSave={(updated) => {
-                    // default behaviour: close modal and log updated payload
-                    console.log('Edit saved', updated);
-                    closeEditModal();
+                onSave={async (updated) => {
+                    // Call API PUT /events/:id with minimal payload
+                    const id = updated?.id || updated?._id;
+                    if (!id) {
+                        alert('Missing event id');
+                        return;
+                    }
+
+                    try {
+                        // Build payload as requested
+                        const payload = {
+                            title: updated.title,
+                            capacity: updated.capacity,
+                            isPublished: !!updated.isPublished,
+                            status: (updated.status || '').toString().toUpperCase(),
+                        };
+
+                        // send PUT request
+                        await put(`/events/${encodeURIComponent(id)}`, payload);
+
+                        // update local list for immediate UI feedback
+                        setLocalEvents((prev) => prev.map((ev) => ((ev.id || ev._id) === id ? { ...ev, ...updated } : ev)));
+
+                        // close modal
+                        closeEditModal();
+
+                        // refresh server data in background
+                        try { router.refresh(); } catch (e) { /* ignore */ }
+                    } catch (err) {
+                        console.error('Update failed', err);
+                        const msg = err?.response?.data?.message || err?.message || 'Update failed';
+                        alert(msg);
+                    }
                 }}
             />
 

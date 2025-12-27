@@ -44,7 +44,6 @@ export default function EditEventModal({ isOpen, onClose, event, onSave }) {
         status: event?.status || '',
         description: event?.description || '',
     }));
-
     useEffect(() => {
         // reset when event changes
         setForm({
@@ -62,11 +61,13 @@ export default function EditEventModal({ isOpen, onClose, event, onSave }) {
         });
     }, [event]);
 
+    const [isSaving, setIsSaving] = useState(false);
+
     if (!isOpen) return null;
 
     const update = (k, v) => setForm((s) => ({ ...s, [k]: v }));
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const payload = {
             ...event,
             title: form.title,
@@ -82,7 +83,26 @@ export default function EditEventModal({ isOpen, onClose, event, onSave }) {
             description: form.description,
         };
 
-        onSave?.(payload);
+        if (isSaving) return; // prevent double submit
+
+        try {
+            setIsSaving(true);
+            const result = onSave?.(payload);
+            // If parent returned a promise, await it
+            if (result && typeof result.then === 'function') {
+                await result;
+            }
+        } catch (err) {
+            console.error('Save failed', err);
+            // Minimal user feedback
+            try {
+                alert(err?.message || 'Save failed');
+            } catch (e) {
+                // ignore
+            }
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -132,8 +152,10 @@ export default function EditEventModal({ isOpen, onClose, event, onSave }) {
                     </div>
 
                     <div className='flex items-center justify-end gap-3'>
-                        <button onClick={onClose} className='px-4 py-2 rounded bg-gray-100'>Cancel</button>
-                        <button onClick={handleSave} className='px-4 py-2 rounded bg-primary text-white'>Save</button>
+                        <button onClick={onClose} disabled={isSaving} className='px-4 py-2 rounded bg-gray-100 disabled:opacity-50'>Cancel</button>
+                        <button onClick={handleSave} disabled={isSaving} className='px-4 py-2 rounded bg-primary text-white disabled:opacity-50'>
+                            {isSaving ? 'Saving...' : 'Save'}
+                        </button>
                     </div>
                 </div>
             </div>
