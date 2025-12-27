@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useState, useMemo, useCallback, useEffect } from 'react';
-import { get, del, patch } from '@/lib/api';
+import { get, del, put } from '@/lib/api';
 import RequestEditModal from '@/components/dashboard/admin/RequestEditModal';
 import { useTranslation } from '@/i18n';
 import { Bell, Clock, AlertCircle, CheckCircle } from 'lucide-react';
@@ -281,7 +281,8 @@ export default function ConciergeRequestsPage({ params }) {
         description: updated.description,
       };
 
-      const res = await patch(`/concierge/requests/${encodeURIComponent(id)}`, payload);
+      // API expects a PUT to update a concierge request
+      const res = await put(`/concierge/requests/${encodeURIComponent(id)}`, payload);
       const data = res?.data ?? res;
       const updatedItem = data?.request || data || null;
 

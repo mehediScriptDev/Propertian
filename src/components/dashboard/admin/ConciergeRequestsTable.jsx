@@ -265,13 +265,13 @@ const ConciergeRequestsTable = memo(({ requests, translations, onEdit, onDelete,
                       <Eye className='h-4 w-4' />
                     </button>
 
-                    <button
+                    {/* <button
                       onClick={() => handleEditRequest(request)}
                       className='p-1.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors'
                       title={translations.table.edit || 'Edit'}
                     >
                       <Edit className='h-4 w-4' />
-                    </button>
+                    </button> */}
 
                     <button
                       onClick={() => handleDeleteRequest(request)}
@@ -350,10 +350,10 @@ const ConciergeRequestsTable = memo(({ requests, translations, onEdit, onDelete,
                   <Eye className='h-4 w-4' />
                   {translations.table.view}
                 </button>
-
+{/* 
                 <button onClick={() => handleEditRequest(request)} className='p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors' title={translations.table.edit || 'Edit'}>
                   <Edit className='h-4 w-4' />
-                </button>
+                </button> */}
 
                 <button onClick={() => handleDeleteRequest(request)} className='p-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors' title={translations.table.delete || 'Delete'}>
                   <Trash2 className='h-4 w-4' />
