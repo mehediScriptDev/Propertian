@@ -1,19 +1,44 @@
 "use client"
 
-import React from 'react'
+import React, { useState, useRef } from 'react'
 import Image from 'next/image'
-import { Eye, Edit3, Trash2, Edit } from 'lucide-react'
+import { Eye, Trash2 } from 'lucide-react'
+import axios from '@/lib/axios'
+import CustomAlert from '@/app/[locale]/dashboard/client/tickets/components/CustomAlert'
 
 const statusClasses = (status) => {
     if (!status) return 'bg-gray-100 text-gray-700'
     const s = String(status).toLowerCase()
     if (s.includes('pend')) return 'bg-yellow-100 text-yellow-800'
-    if (s.includes('confirm') || s.includes('paid')) return 'bg-green-100 text-green-800'
+    if (s.includes('confirm') || s.includes('paid') || s.includes('complete')) return 'bg-green-100 text-green-800'
     if (s.includes('cancel')) return 'bg-red-100 text-red-800'
     return 'bg-gray-100 text-gray-700'
 }
 
-export default function BookingTable({ bookings = [], loading = false, className = '', onView, onEdit, onDelete }) {
+export default function BookingTable({ bookings = [], loading = false, className = '', onView, onEdit, onDelete, onStatusChange }) {
+    const [updatingId, setUpdatingId] = useState(null)
+    const selectRefs = useRef({})
+    const [alert, setAlert] = useState({ show: false, type: 'success', message: '' })
+
+    const statuses = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED']
+
+    const handleStatusChange = async (id, booking, newStatus) => {
+        // avoid double updates
+        if (!id || !onStatusChange) return
+        setUpdatingId(id)
+
+        try {
+            // Let parent handle the API call and state update
+            await onStatusChange(id, booking, newStatus)
+            setAlert({ show: true, type: 'success', message: 'Booking status updated' })
+        } catch (err) {
+            console.error('Failed to update booking status', err)
+            const msg = err?.response?.data?.message || err?.message || 'Failed to update booking status'
+            setAlert({ show: true, type: 'error', message: msg })
+        } finally {
+            setUpdatingId(null)
+        }
+    }
     // Show loading state
     if (loading) {
         return (
@@ -63,19 +88,27 @@ export default function BookingTable({ bookings = [], loading = false, className
                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{email}</td>
                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{phone}</td>
                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{prop}</td>
-                                    <td className='px-6 py-4 whitespace-nowrap'>
-                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusClasses(status)}`}>
-                                            {status}
-                                        </span>
+                                    <td className='px-3 py-4 whitespace-nowrap'>
+                                        <div className='inline-block'>
+                                            <select
+                                                ref={el => selectRefs.current[id] = el}
+                                                value={status}
+                                                onChange={e => handleStatusChange(id, b, e.target.value)}
+                                                disabled={updatingId === id}
+                                                className={`text-xs font-medium rounded-sm px-3 py-1 ${statusClasses(status)} border-gray-200`}
+                                            >
+                                                {statuses.map(s => (
+                                                    <option key={s} value={s}>{s}</option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </td>
                                     <td className='px-6 py-4 text-right'>
                                         <div className='inline-flex items-center gap-2 justify-end'>
                                             <button onClick={() => onView && onView(b)} title='View' className='inline-flex items-center justify-center p-1 rounded text-gray-600 hover:bg-gray-100'>
                                                 <Eye className='h-4 w-4' />
                                             </button>
-                                            <button onClick={() => onEdit && onEdit(b)} title='Edit' className='inline-flex items-center justify-center p-1 rounded text-blue-600 hover:bg-blue-50'>
-                                                <Edit className='h-4 w-4' />
-                                            </button>
+                                            {/* Edit removed per request */}
                                             <button onClick={() => onDelete && onDelete(b)} title='Delete' className='inline-flex items-center justify-center p-1 rounded text-red-600 hover:bg-red-50'>
                                                 <Trash2 className='h-4 w-4' />
                                             </button>
@@ -120,12 +153,9 @@ export default function BookingTable({ bookings = [], loading = false, className
                                     <p className='mt-2 text-xs text-gray-600'>{email} · {phone}</p>
                                     <p className='mt-2 text-xs text-gray-400 font-mono truncate text-ellipsis'>{id}</p>
                                 </div>
-                                <div className='shrink-0 flex flex-col items-end gap-2'>
+                                    <div className='shrink-0 flex flex-col items-end gap-2'>
                                     <button onClick={() => onView && onView(b)} title='View' className='p-2 rounded text-gray-600 hover:bg-gray-100'>
                                         <Eye className='h-4 w-4' />
-                                    </button>
-                                    <button onClick={() => onEdit && onEdit(b)} title='Edit' className='p-2 rounded text-blue-600 hover:bg-blue-50'>
-                                        <Edit3 className='h-4 w-4' />
                                     </button>
                                     <button onClick={() => onDelete && onDelete(b)} title='Delete' className='p-2 rounded text-red-600 hover:bg-red-50'>
                                         <Trash2 className='h-4 w-4' />
@@ -136,6 +166,12 @@ export default function BookingTable({ bookings = [], loading = false, className
                     )
                 })}
             </div>
+            <CustomAlert
+                show={alert.show}
+                type={alert.type}
+                message={alert.message}
+                onClose={() => setAlert(s => ({ ...s, show: false }))}
+            />
         </div>
     )
 }

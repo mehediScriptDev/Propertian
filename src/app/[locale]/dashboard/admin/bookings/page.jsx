@@ -8,7 +8,6 @@ import { List, Search } from 'lucide-react'
 import BookingTable from './components/BookingTable'
 import BookingDetailsModal from './components/BookingDetailsModal'
 import ConfirmDeleteModal from './components/ConfirmDeleteModal'
-import UpdateStatusModal from './components/UpdateStatusModal'
 import Pagination from '@/components/dashboard/Pagination'
 
 export default function AllBookingsPage() {
@@ -26,8 +25,7 @@ export default function AllBookingsPage() {
     const [showDetails, setShowDetails] = useState(false)
     const [bookingToDelete, setBookingToDelete] = useState(null)
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-    const [bookingToUpdate, setBookingToUpdate] = useState(null)
-    const [showUpdateModal, setShowUpdateModal] = useState(false)
+    
 
     const fetchBookings = async () => {
         setLoading(true)
@@ -89,6 +87,33 @@ export default function AllBookingsPage() {
 
     const handlePageChange = (page) => setCurrentPage(page)
 
+    const handleStatusUpdate = async (id, booking, newStatus) => {
+        // Optimistically update local state FIRST for instant feedback
+        setBookings(prevBookings => 
+            prevBookings.map(b => 
+                b.id === id ? { ...b, status: newStatus } : b
+            )
+        )
+
+        try {
+            // Prepare payload with ownerId to avoid server errors
+            const ownerId = booking?.property?.ownerId || booking?.property?.owner?.id || booking?.ownerId || booking?.owner?.id
+            const payload = { status: newStatus }
+            if (ownerId) payload.ownerId = ownerId
+
+            // Make API call
+            await axios.put(`/bookings/${id}`, payload)
+            
+            // Refetch to ensure server sync
+            await fetchBookings()
+        } catch (error) {
+            console.error('Error updating booking status:', error)
+            // On error, refetch to revert to server state
+            await fetchBookings()
+            throw error // Re-throw so BookingTable can show error alert
+        }
+    }
+
     const paginationTranslations = {
         previous: 'Previous',
         next: 'Next',
@@ -120,8 +145,8 @@ export default function AllBookingsPage() {
                             <option value='ALL'>All statuses</option>
                             <option value='PENDING'>PENDING</option>
                             <option value='CONFIRMED'>CONFIRMED</option>
-                            <option value='PAID'>PAID</option>
                             <option value='CANCELLED'>CANCELLED</option>
+                            <option value='COMPLETED'>COMPLETED</option>
                         </select>
                     </div>
                 </div>
@@ -135,7 +160,7 @@ export default function AllBookingsPage() {
                             loading={loading}
                             onView={(b) => { setSelectedBooking(b); setShowDetails(true) }}
                             onDelete={(b) => { setBookingToDelete(b); setShowDeleteConfirm(true) }}
-                            onEdit={(b) => { setBookingToUpdate(b); setShowUpdateModal(true) }}
+                            onStatusChange={handleStatusUpdate}
                         />
                         <BookingDetailsModal isOpen={showDetails} onClose={() => { setShowDetails(false); setSelectedBooking(null) }} booking={selectedBooking} />
                         <ConfirmDeleteModal
@@ -171,25 +196,7 @@ export default function AllBookingsPage() {
                                 }
                             }}
                         />
-                        <UpdateStatusModal
-                            isOpen={showUpdateModal}
-                            onClose={() => { setShowUpdateModal(false); setBookingToUpdate(null) }}
-                            booking={bookingToUpdate}
-                            onConfirm={async ({ status }) => {
-                                if (!bookingToUpdate) return
-                                const id = bookingToUpdate.id
-                                try {
-                                    await axios.put(`/bookings/${id}`, { status })
-                                    setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b))
-                                } catch (err) {
-                                    console.error('Failed to update booking status', err)
-                                    throw err
-                                } finally {
-                                    setShowUpdateModal(false)
-                                    setBookingToUpdate(null)
-                                }
-                            }}
-                        />
+                        {/* Status editing moved inline to the table; modal removed */}
                         <Pagination
                             currentPage={currentPage}
                             totalPages={totalPages}
