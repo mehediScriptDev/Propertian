@@ -2,6 +2,7 @@
 import { useState, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Search, Filter, Eye, MessageSquare } from "lucide-react";
+import { Spinner } from "@/components/Loading";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 import { get } from "@/lib/api";
@@ -178,126 +179,133 @@ export default function PartnerInquiriesPage() {
           </div>
         </div>
 
-        {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                  {t("InquiryDetails.ID")}
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                  {t("InquiryDetails.PropertyInfo")}
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                  {t("InquiryDetails.Subject")}
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                  {t("InquiryDetails.Status")}
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                  {t("InquiryDetails.Date")}
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                  {t("InquiryDetails.Actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {currentInquiries.map((inquiry) => (
-                <tr key={inquiry.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 text-sm text-gray-900">#{inquiry.id}</td>
+        {loading ? (
+          <div className="py-12 flex flex-col items-center justify-center">
+            <Spinner size="lg" />
+            <p className="mt-3 text-gray-500">{t("InquiryDetails.Loading") || "Loading inquiries..."}</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+                      {t("InquiryDetails.ID")}
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+                      {t("InquiryDetails.PropertyInfo")}
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+                      {t("InquiryDetails.Subject")}
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+                      {t("InquiryDetails.Status")}
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+                      {t("InquiryDetails.Date")}
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+                      {t("InquiryDetails.Actions")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {currentInquiries.map((inquiry) => (
+                    <tr key={inquiry.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-4 text-sm text-gray-900">#{inquiry.id}</td>
 
-                  <td className="px-4 py-4">
-                    <div className="text-sm">
-                      <div className="font-medium text-gray-900">{inquiry.property?.title || "—"}</div>
-                      <div className="text-gray-500">{inquiry.property?.address || ""}</div>
-                      {inquiry.property?.city && <div className="text-gray-500">{inquiry.property.city}</div>}
-                    </div>
-                  </td>
+                      <td className="px-4 py-4">
+                        <div className="text-sm">
+                          <div className="font-medium text-gray-900">{inquiry.property?.title || "—"}</div>
+                          <div className="text-gray-500">{inquiry.property?.address || ""}</div>
+                          {inquiry.property?.city && <div className="text-gray-500">{inquiry.property.city}</div>}
+                        </div>
+                      </td>
 
-                  {/* Type column: message snippet */}
+                      {/* Subject column: show subject if provided */}
+                      <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{inquiry.subject || "—"}</td>
 
-                  {/* Subject column: show subject if provided */}
-                  <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{inquiry.subject || "—"}</td>
+                      <td className="px-4 py-4">
+                        <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(inquiry.status)}`}>{inquiry.status}</span>
+                      </td>
 
-                  <td className="px-4 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(inquiry.status)}`}>{inquiry.status}</span>
-                  </td>
+                      <td className="px-4 py-4 text-sm text-gray-500">{formatDate(inquiry.created_at)}</td>
 
-                  <td className="px-4 py-4 text-sm text-gray-500">{formatDate(inquiry.created_at)}</td>
-
-                  <td className="px-4 py-4">
-                    <button onClick={() => setSelectedInquiry(inquiry)} className="inline-flex items-center gap-1 text-[#E6B325] hover:text-[#d4a520]">
-                      <Eye className="h-4 w-4" />
-                      <span className="text-sm font-medium">{t("InquiryDetails.ViewDetails") || "View"}</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile Cards */}
-        <div className="md:hidden space-y-4">
-          {currentInquiries.map((inquiry) => (
-            <div key={inquiry.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-gray-900 break-words whitespace-normal truncate">{inquiry.property?.title || `Inquiry #${inquiry.id}`}</div>
-                  <div className="text-sm text-gray-500 break-words whitespace-normal truncate">{inquiry.property?.address || ""}</div>
-                </div>
-                <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(inquiry.status)}`}>{inquiry.status}</span>
-              </div>
-
-              <div className="space-y-1 text-sm">
-                <div className="text-gray-600 font-medium break-words whitespace-pre-wrap">{inquiry.subject}</div>
-                <div className="text-gray-600 break-words whitespace-pre-wrap">{inquiry.message}</div>
-              </div>
-
-              <div className="text-xs text-gray-500">{formatDate(inquiry.created_at)}</div>
-
-              <button onClick={() => setSelectedInquiry(inquiry)} className="w-full flex items-center justify-center gap-2 bg-[#E6B325] hover:bg-[#d4a520] text-black font-medium px-4 py-2 rounded-lg transition-colors">
-                <Eye className="h-4 w-4" />
-                {t("InquiryDetails.ViewDetails")}
-              </button>
+                      <td className="px-4 py-4">
+                        <button onClick={() => setSelectedInquiry(inquiry)} className="inline-flex items-center gap-1 text-[#E6B325] hover:text-[#d4a520]">
+                          <Eye className="h-4 w-4" />
+                          <span className="text-sm font-medium">{t("InquiryDetails.ViewDetails") || "View"}</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
 
-        {/* Empty State */}
-        {currentInquiries.length === 0 && (
-          <div className="text-center py-12">
-            <MessageSquare className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
-              {t("InquiryDetails.NoInquiries")}
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {t("InquiryDetails.TryAdjusting")}
-            </p>
-          </div>
-        )}
+            {/* Mobile Cards */}
+            <div className="md:hidden space-y-4">
+              {currentInquiries.map((inquiry) => (
+                <div key={inquiry.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-gray-900 break-words whitespace-normal truncate">{inquiry.property?.title || `Inquiry #${inquiry.id}`}</div>
+                      <div className="text-sm text-gray-500 break-words whitespace-normal truncate">{inquiry.property?.address || ""}</div>
+                    </div>
+                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(inquiry.status)}`}>{inquiry.status}</span>
+                  </div>
 
-        {/* Pagination */}
-        {currentInquiries.length > 0 && (
-          <div className="mt-6">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalItemsState}
-              itemsPerPage={itemsPerPage}
-              onPageChange={setCurrentPage}
-              translations={{
-                showing: t("Partner.Showing"),
-                to: t("Partner.to"),
-                of: t("Partner.of"),
-                results: t("Partner.results"),
-                previous: t("Partner.Previous"),
-                next: t("Partner.Next"),
-              }}
-            />
-          </div>
+                  <div className="space-y-1 text-sm">
+                    <div className="text-gray-600 font-medium break-words whitespace-pre-wrap">{inquiry.subject}</div>
+                    <div className="text-gray-600 break-words whitespace-pre-wrap">{inquiry.message}</div>
+                  </div>
+
+                  <div className="text-xs text-gray-500">{formatDate(inquiry.created_at)}</div>
+
+                  <button onClick={() => setSelectedInquiry(inquiry)} className="w-full flex items-center justify-center gap-2 bg-[#E6B325] hover:bg-[#d4a520] text-black font-medium px-4 py-2 rounded-lg transition-colors">
+                    <Eye className="h-4 w-4" />
+                    {t("InquiryDetails.ViewDetails")}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Empty State */}
+            {currentInquiries.length === 0 && (
+              <div className="text-center py-12">
+                <MessageSquare className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">
+                  {t("InquiryDetails.NoInquiries")}
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  {t("InquiryDetails.TryAdjusting")}
+                </p>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {currentInquiries.length > 0 && (
+              <div className="mt-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalItemsState}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={setCurrentPage}
+                  translations={{
+                    showing: t("Partner.Showing"),
+                    to: t("Partner.to"),
+                    of: t("Partner.of"),
+                    results: t("Partner.results"),
+                    previous: t("Partner.Previous"),
+                    next: t("Partner.Next"),
+                  }}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 

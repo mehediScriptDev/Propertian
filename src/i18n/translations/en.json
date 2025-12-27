@@ -1919,7 +1919,8 @@
     "Actions": "Actions",
     "ViewDetails": "View Details",
     "NoInquiries": "No Inquiries Found",
-    "TryAdjusting": "Try adjusting your search or filter criteria."
+    "TryAdjusting": "Try adjusting your search or filter criteria.",
+    "Loading": "Loading..."
   },
   "Developer_Portal": {
     "DeveloperPortal": "Developer Portal",
