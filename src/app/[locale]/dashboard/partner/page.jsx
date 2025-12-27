@@ -257,30 +257,41 @@ export default function PartnerDashboardPage({ params }) {
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin h-10 w-10 border-4 border-[#E6B325] border-t-transparent rounded-full"></div>
+              <p className="text-sm font-medium text-gray-700">{t("dashboard.partner.LoadingProperties") || "Loading properties..."}</p>
+            </div>
+          </div>
+        )}
+
         {/* Desktop Table */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  {t("Partner.Properties")}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  {t("Partner.Locations")}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  {t("Partner.Price")}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  {t("Partner.Status")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                  {t("Partner.Actions") || 'Actions'}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {currentProperties.map((property) => (
+        {!loading && (
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    {t("Partner.Properties")}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    {t("Partner.Locations")}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    {t("Partner.Price")}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    {t("Partner.Status")}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                    {t("Partner.Actions") || 'Actions'}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {currentProperties.map((property) => (
                 <tr
                   key={property.id}
                   className="transition-colors hover:bg-gray-50"
@@ -323,9 +334,11 @@ export default function PartnerDashboardPage({ params }) {
             </tbody>
           </table>
         </div>
+        )}
 
         {/* Mobile Cards */}
-        <div className="divide-y divide-gray-200 lg:hidden">
+        {!loading && (
+          <div className="divide-y divide-gray-200 lg:hidden">
           {currentProperties.map((property) => (
             <div
               key={property.id}
@@ -372,9 +385,10 @@ export default function PartnerDashboardPage({ params }) {
             </div>
           ))}
         </div>
+        )}
 
         {/* Empty State */}
-        {currentProperties.length === 0 && (
+        {!loading && currentProperties.length === 0 && (
           <div className="px-6 py-12 text-center">
             <div className="mx-auto h-12 w-12 text-gray-300">
               <MapPin className="h-12 w-12" />

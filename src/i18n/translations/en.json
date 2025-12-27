@@ -754,7 +754,8 @@
       "developerPortal": "Developer Portal",
       "developerInquiry": "Developer Inquiry",
       "profile": "Profile",
-      "Add Property": "Add Property"
+      "Add Property": "Add Property",
+      "LoadingProperties": "Loading Properties..."
     },
     "pages": {
       "adminDashboard": {

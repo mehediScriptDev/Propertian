@@ -751,7 +751,8 @@
       "inquiries": "Demandes",
       "developerPortal": "Portail Développeur",
       "developerInquiry": "Demande Développeur",
-      "profile": "Profil"
+      "profile": "Profil",
+      "LoadingProperties": "Chargement des propriétés..."
     },
     "pages": {
       "adminDashboard": {
