@@ -1,8 +1,9 @@
-'use client';
+ 'use client';
 
-import { memo } from 'react';
+import { memo, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { MapPin, Eye, Edit, Trash2 } from 'lucide-react';
+import Modal from '@/components/Modal';
 
 const STATUS_BADGE_STYLES = {
   available: 'bg-green-100 text-green-700',
@@ -36,6 +37,22 @@ const PropertiesListTable = memo(({ properties, translations, onView, onEdit, on
       </span>
     );
   };
+
+  // Delete modal state
+  const [propertyToDelete, setPropertyToDelete] = useState(null);
+
+  const openDeleteModal = useCallback((property) => {
+    setPropertyToDelete(property);
+  }, []);
+
+  const closeDeleteModal = useCallback(() => setPropertyToDelete(null), []);
+
+  const confirmDelete = useCallback(() => {
+    if (propertyToDelete) {
+      onDelete && onDelete(propertyToDelete);
+      setPropertyToDelete(null);
+    }
+  }, [propertyToDelete, onDelete]);
 
   return (
     <div>
@@ -135,7 +152,7 @@ const PropertiesListTable = memo(({ properties, translations, onView, onEdit, on
                     </button>
                     <button
                       type='button'
-                      onClick={() => onDelete && onDelete(property)}
+                      onClick={() => openDeleteModal(property)}
                       className='p-1.5 rounded-lg hover:bg-red-50 transition-colors duration-200'
                       title={translations.table.delete}
                       aria-label={`${translations.table.delete} ${property.title}`}
@@ -202,7 +219,7 @@ const PropertiesListTable = memo(({ properties, translations, onView, onEdit, on
                 </button>
                 <button
                   type='button'
-                  onClick={() => onDelete && onDelete(property)}
+                  onClick={() => openDeleteModal(property)}
                   className='p-1.5 rounded-lg hover:bg-red-50 transition-colors duration-200'
                   title={translations.table.delete}
                   aria-label={`${translations.table.delete} ${property.title}`}
@@ -214,6 +231,37 @@ const PropertiesListTable = memo(({ properties, translations, onView, onEdit, on
           </div>
         ))}
       </div>
+
+      {/* Delete confirmation modal */}
+      <Modal
+        isOpen={!!propertyToDelete}
+        onClose={closeDeleteModal}
+        title={translations.table.delete}
+        footer={
+          <div className='flex items-center justify-end gap-3'>
+            <button
+              type='button'
+              onClick={closeDeleteModal}
+              className='px-4 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700'
+            >
+              {translations.cancel || 'Cancel'}
+            </button>
+            <button
+              type='button'
+              onClick={confirmDelete}
+              className='px-4 py-2 bg-red-600 text-white rounded-md text-sm'
+            >
+              {translations.table.delete}
+            </button>
+          </div>
+        }
+      >
+        <div className='text-sm text-gray-700'>
+          {propertyToDelete
+            ? `Are you sure you want to delete "${propertyToDelete.title}"?`
+            : 'Are you sure you want to delete this item?'}
+        </div>
+      </Modal>
     </div>
   );
 });
