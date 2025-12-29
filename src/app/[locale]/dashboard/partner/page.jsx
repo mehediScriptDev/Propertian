@@ -3,7 +3,7 @@
 import { use, useMemo, useState, useEffect } from "react";
 import { useTranslation } from "@/i18n";
 import dynamic from "next/dynamic";
-import { get, del } from "@/lib/api";
+import { get, del, put } from "@/lib/api";
 import StatsCard from "@/components/dashboard/admin/StatsCard";
 import Modal from '@/components/Modal';
 import Link from 'next/link';
@@ -44,6 +44,9 @@ export default function PartnerDashboardPage({ params }) {
   const [showCustomAlert, setShowCustomAlert] = useState(false);
   const [customAlertMsg, setCustomAlertMsg] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [editForm, setEditForm] = useState({ title: "", price: "", status: "" });
+  const [editing, setEditing] = useState(false);
   const closeModal = () => setSelectedProperty(null);
   
 
@@ -188,6 +191,38 @@ export default function PartnerDashboardPage({ params }) {
   const handleDelete = (propertyId, title) => {
     // show custom confirm modal
     setDeleteConfirm({ id: propertyId, title });
+  };
+
+  const openEditModal = (property) => {
+    setEditItem(property);
+    setEditForm({ title: property.title || "", price: property.price || "", status: property.status || "" });
+  };
+
+  function handleEditChange(e) {
+    const { name, value } = e.target;
+    setEditForm((s) => ({ ...s, [name]: value }));
+  }
+
+  const submitEdit = async () => {
+    if (!editItem) return;
+    setEditing(true);
+    try {
+      const payload = { title: editForm.title, price: editForm.price, status: editForm.status };
+      const res = await put(`/properties/${editItem.id}`, payload);
+      const updated = res?.data || res;
+      setProperties((p) => p.map((it) => (it.id === editItem.id ? { ...it, ...updated } : it)));
+      setCustomAlertMsg(t('Partner.updateSuccess') || 'Property updated');
+      setShowCustomAlert(true);
+      setTimeout(() => setShowCustomAlert(false), 4000);
+      setEditItem(null);
+    } catch (err) {
+      console.error('Update property failed', err);
+      setCustomAlertMsg(t('Partner.updateFailed') || 'Failed to update property');
+      setShowCustomAlert(true);
+      setTimeout(() => setShowCustomAlert(false), 4000);
+    } finally {
+      setEditing(false);
+    }
   };
 
   const confirmDelete = async () => {
@@ -365,9 +400,9 @@ export default function PartnerDashboardPage({ params }) {
                         <Eye className="h-4 w-4 text-[#6b7280]" />
                       </button>
 
-                      <Link href={`/${locale}/dashboard/partner/properties/${property.id}/edit`} aria-label={t('Partner.Edit') || 'Edit'} className="p-1 rounded hover:bg-gray-100">
+                      <button onClick={() => openEditModal(property)} aria-label={t('Partner.Edit') || 'Edit'} className="p-1 rounded hover:bg-gray-100">
                         <Edit className="h-4 w-4 text-[#6b7280]" />
-                      </Link>
+                      </button>
 
                       <button onClick={() => handleDelete(property.id, property.title)} aria-label={t('Partner.Delete') || 'Delete'} className="p-1 rounded hover:bg-gray-100">
                         <Trash2 className="h-4 w-4 text-red-500" />
@@ -426,9 +461,9 @@ export default function PartnerDashboardPage({ params }) {
                 <button onClick={() => setSelectedProperty(property)} className="p-1 rounded text-sm font-medium text-[#E6B325] hover:bg-gray-100">
                   <Eye className="h-4 w-4 inline" />
                 </button>
-                <Link href={`/${locale}/dashboard/partner/properties/${property.id}/edit`} className="p-1 rounded hover:bg-gray-100">
+                <button onClick={() => openEditModal(property)} className="p-1 rounded hover:bg-gray-100">
                   <Edit className="h-4 w-4" />
-                </Link>
+                </button>
                 <button onClick={() => handleDelete(property.id, property.title)} className="p-1 rounded hover:bg-gray-100">
                   <Trash2 className="h-4 w-4 text-red-500" />
                 </button>
@@ -488,6 +523,36 @@ export default function PartnerDashboardPage({ params }) {
               <div className="mt-4 flex justify-end gap-3">
                 <button onClick={cancelDelete} disabled={deleting} className="px-4 py-2 rounded border bg-white">{t('common.cancel') || 'Cancel'}</button>
                 <button onClick={confirmDelete} disabled={deleting} className="px-4 py-2 rounded bg-red-600 text-white">{deleting ? (t('common.deleting') || 'Deleting...') : (t('common.delete') || 'Delete')}</button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Edit Modal */}
+        {editItem && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-md shadow-lg max-w-lg w-full p-6">
+              <h3 className="text-lg font-semibold">{t('Partner.editProperty') || 'Edit Property'}</h3>
+              <div className="mt-3 grid grid-cols-1 gap-3">
+                <div>
+                  <label className="block text-sm text-gray-700">{t('common.Title') || 'Title'}</label>
+                  <input name="title" value={editForm.title} onChange={handleEditChange} className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700">{t('Partner.Price') || 'Price'}</label>
+                  <input name="price" value={editForm.price} onChange={handleEditChange} className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700">{t('Partner.Status') || 'Status'}</label>
+                  <select name="status" value={editForm.status} onChange={handleEditChange} className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2">
+                    <option value="available">Available</option>
+                    <option value="pending">Pending</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end gap-3">
+                <button onClick={() => setEditItem(null)} disabled={editing} className="px-4 py-2 rounded border bg-white">{t('common.cancel') || 'Cancel'}</button>
+                <button onClick={submitEdit} disabled={editing} className="px-4 py-2 rounded bg-[#E6B325] text-white">{editing ? (t('common.saving') || 'Saving...') : (t('common.save') || 'Save')}</button>
               </div>
             </div>
           </div>
