@@ -319,7 +319,7 @@ export default function PartnerDashboardPage({ params }) {
                   aria-label="Filter by status"
                 >
                   <option value="all">{t("Partner.AllStatus")}</option>
-                  <option value="active">{t("Partner.Active")}</option>
+                  <option value="available">{t("common.Available") || 'Available'}</option>
                   <option value="pending">{t("Partner.Pending")}</option>
                 </select>
               </div>
@@ -445,12 +445,12 @@ export default function PartnerDashboardPage({ params }) {
 
               <div className="flex items-center justify-between">
                 <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${property.status === "active"
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${property.status === "available"
                     ? "bg-green-100 text-green-800"
                     : "bg-yellow-100 text-yellow-800"
                     }`}
                 >
-                  {property.status === "active" ? "Active" : "Pending"}
+                  {property.status === "available" ? "Available" : "Pending"}
                 </span>
                 <div className="flex items-center gap-1 text-sm text-gray-600">
                   <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
