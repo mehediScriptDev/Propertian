@@ -17,7 +17,10 @@
   },
   "common": {
     "search": "Rechercher",
+    "confirmDeleteTitle": "Confirmer la Suppression",
+    "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {item} ? Cette action est irréversible.",
     "submit": "Soumettre",
+    "deleting": "Suppression en cours...",
     "loading": "Chargement...",
     "readMore": "Lire Plus",
     "save": "Enregistrer",
@@ -549,6 +552,7 @@
         "subtitle": "Gérer et surveiller tous les partenaires et développeurs enregistrés",
         "addPartner": "Ajouter un Partenaire",
         "searchPlaceholder": "Rechercher des partenaires...",
+        "confirmDeleteTitle": "Confirmer la Suppression du Partenaire",
         "allStatus": "Tous les Statuts",
         "stats": {
           "totalPartners": "Total des Partenaires",

@@ -3,7 +3,7 @@
 import { use, useMemo, useState, useEffect } from "react";
 import { useTranslation } from "@/i18n";
 import dynamic from "next/dynamic";
-import { get } from "@/lib/api";
+import { get, del } from "@/lib/api";
 import StatsCard from "@/components/dashboard/admin/StatsCard";
 import Modal from '@/components/Modal';
 import Link from 'next/link';
@@ -19,6 +19,8 @@ import {
   TrendingUp,
   EyeIcon,
   EyeOff,
+  Edit,
+  Trash2,
 } from "lucide-react";
 
 // Lazy load Pagination component
@@ -38,6 +40,10 @@ export default function PartnerDashboardPage({ params }) {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
   const [selectedProperty, setSelectedProperty] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // { id, title }
+  const [showCustomAlert, setShowCustomAlert] = useState(false);
+  const [customAlertMsg, setCustomAlertMsg] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const closeModal = () => setSelectedProperty(null);
   
 
@@ -177,6 +183,35 @@ export default function PartnerDashboardPage({ params }) {
     setFilterStatus(value);
     setCurrentPage(1);
   };
+
+  // Delete property handler (confirm + call API + update list)
+  const handleDelete = (propertyId, title) => {
+    // show custom confirm modal
+    setDeleteConfirm({ id: propertyId, title });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
+    const propertyId = deleteConfirm.id;
+    setDeleting(true);
+    try {
+      await del(`/properties/${propertyId}`);
+      setProperties((p) => p.filter((item) => item.id !== propertyId));
+      setCustomAlertMsg(t('Partner.deleteSuccess') || 'Property deleted');
+      setShowCustomAlert(true);
+      setTimeout(() => setShowCustomAlert(false), 4000);
+    } catch (err) {
+      console.error('Delete property failed', err);
+      setCustomAlertMsg(t('Partner.deleteFailed') || 'Failed to delete property');
+      setShowCustomAlert(true);
+      setTimeout(() => setShowCustomAlert(false), 4000);
+    } finally {
+      setDeleteConfirm(null);
+      setDeleting(false);
+    }
+  };
+
+  const cancelDelete = () => setDeleteConfirm(null);
 
   return (
     <div className="space-y-3 lg:space-y-4.5">
@@ -325,9 +360,19 @@ export default function PartnerDashboardPage({ params }) {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button onClick={() => setSelectedProperty(property)} className="text-sm font-medium text-[#E6B325] hover:underline">
-                      {t("Partner.ViewDetails") || 'View details'}
-                    </button>
+                    <div className="inline-flex items-center gap-2">
+                      <button onClick={() => setSelectedProperty(property)} aria-label={t('Partner.ViewDetails') || 'View details'} className="p-1 rounded hover:bg-gray-100">
+                        <Eye className="h-4 w-4 text-[#6b7280]" />
+                      </button>
+
+                      <Link href={`/${locale}/dashboard/partner/properties/${property.id}/edit`} aria-label={t('Partner.Edit') || 'Edit'} className="p-1 rounded hover:bg-gray-100">
+                        <Edit className="h-4 w-4 text-[#6b7280]" />
+                      </Link>
+
+                      <button onClick={() => handleDelete(property.id, property.title)} aria-label={t('Partner.Delete') || 'Delete'} className="p-1 rounded hover:bg-gray-100">
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -377,9 +422,15 @@ export default function PartnerDashboardPage({ params }) {
                   {property._count?.inquiries ?? '-'} {t("Partner.inquiries")}
                 </div>
               </div>
-              <div className="mt-3 flex items-center justify-end">
-                <button onClick={() => setSelectedProperty(property)} className="text-sm font-medium text-[#E6B325] hover:underline">
-                  {t("Partner.ViewDetails") || 'View details'}
+              <div className="mt-3 flex items-center justify-end gap-2">
+                <button onClick={() => setSelectedProperty(property)} className="p-1 rounded text-sm font-medium text-[#E6B325] hover:bg-gray-100">
+                  <Eye className="h-4 w-4 inline" />
+                </button>
+                <Link href={`/${locale}/dashboard/partner/properties/${property.id}/edit`} className="p-1 rounded hover:bg-gray-100">
+                  <Edit className="h-4 w-4" />
+                </Link>
+                <button onClick={() => handleDelete(property.id, property.title)} className="p-1 rounded hover:bg-gray-100">
+                  <Trash2 className="h-4 w-4 text-red-500" />
                 </button>
               </div>
             </div>
@@ -416,6 +467,30 @@ export default function PartnerDashboardPage({ params }) {
               next: t("Partner.Next"),
             }}
           />
+        )}
+        {/* Custom Alert (top-right) */}
+        {showCustomAlert && (
+          <div role="status" className="fixed top-6 right-6 z-50 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-md shadow-md flex items-start gap-3 max-w-sm">
+            <div className="flex-1">
+              <div className="font-semibold">{customAlertMsg.startsWith('Failed') ? 'Error' : 'Success'}</div>
+              <div className="text-sm">{customAlertMsg}</div>
+            </div>
+            <button type="button" onClick={() => setShowCustomAlert(false)} className="text-green-700 font-bold">×</button>
+          </div>
+        )}
+
+        {/* Delete confirmation modal */}
+        {deleteConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-md shadow-lg max-w-md w-full p-6">
+              <h3 className="text-lg font-semibold">{t('common.confirmDeleteTitle') || 'Confirm delete'}</h3>
+              <p className="mt-2 text-sm text-gray-600">{t('common.confirmDeleteMessage') || `Delete "${deleteConfirm.title}"? This action cannot be undone.`}</p>
+              <div className="mt-4 flex justify-end gap-3">
+                <button onClick={cancelDelete} disabled={deleting} className="px-4 py-2 rounded border bg-white">{t('common.cancel') || 'Cancel'}</button>
+                <button onClick={confirmDelete} disabled={deleting} className="px-4 py-2 rounded bg-red-600 text-white">{deleting ? (t('common.deleting') || 'Deleting...') : (t('common.delete') || 'Delete')}</button>
+              </div>
+            </div>
+          </div>
         )}
         {/* Property Details Modal (uses shared Modal component for consistent styling) */}
         <Modal

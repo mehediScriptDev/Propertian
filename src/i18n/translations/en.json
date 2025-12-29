@@ -17,7 +17,10 @@
   },
   "common": {
     "search": "Search",
+    "confirmDeleteTitle": "Confirm Delete",
+    "confirmDeleteMessage": "Are you sure you want to delete {item}? This action cannot be undone.",
     "submit": "Submit",
+    "deleting": "Deleting...",
     "loading": "Loading...",
     "readMore": "Read More",
     "save": "Save",
@@ -549,6 +552,7 @@
         "title": "Partner Management",
         "subtitle": "Manage and monitor all registered partners and developers",
         "addPartner": "Add Partner",
+        "confirmDeleteTitle": "Confirm Delete Partner",
         "searchPlaceholder": "Search partners...",
         "allStatus": "All Status",
         "stats": {
