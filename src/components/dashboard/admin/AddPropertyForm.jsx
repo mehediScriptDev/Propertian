@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import ReactDOM from "react-dom";
 import { uploadFile } from "../../../lib/api";
+import COUNTRY_CODES from "../../../utils/countryCodes";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -34,6 +36,31 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [countryOptions, setCountryOptions] = useState([]);
+  const [stateOptions, setStateOptions] = useState([]);
+  const [cityOptions, setCityOptions] = useState([]);
+  const [zipOptions, setZipOptions] = useState([]);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [loadingZips, setLoadingZips] = useState(false);
+  const [selectedCountryIso, setSelectedCountryIso] = useState("");
+  const [selectedCountryName, setSelectedCountryName] = useState("");
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showStateDropdown, setShowStateDropdown] = useState(false);
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [showZipDropdown, setShowZipDropdown] = useState(false);
+  const [countryFilter, setCountryFilter] = useState("");
+  const [stateFilter, setStateFilter] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
+  const [zipFilter, setZipFilter] = useState("");
+  const countryRef = useRef(null);
+  const stateRef = useRef(null);
+  const cityRef = useRef(null);
+  const zipRef = useRef(null);
+  const countryInputRef = useRef(null);
+  const stateInputRef = useRef(null);
+  const cityInputRef = useRef(null);
+  const zipInputRef = useRef(null);
 
   useEffect(() => {
     return () => {
@@ -44,6 +71,146 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
   function handleInputChange(e) {
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
+  }
+
+  // country/state/city helpers
+  useEffect(() => {
+    setCountryOptions(COUNTRY_CODES.map((c) => ({ name: c.name, iso2: c.iso2 })));
+  }, []);
+
+  // close dropdowns on outside click
+  useEffect(() => {
+    function onDocClick(e) {
+      if (countryRef.current && !countryRef.current.contains(e.target)) setShowCountryDropdown(false);
+      if (stateRef.current && !stateRef.current.contains(e.target)) setShowStateDropdown(false);
+      if (cityRef.current && !cityRef.current.contains(e.target)) setShowCityDropdown(false);
+      if (zipRef.current && !zipRef.current.contains(e.target)) setShowZipDropdown(false);
+    }
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
+  }, []);
+
+  async function loadStatesForCountry(countryName) {
+    if (!countryName) {
+      setStateOptions([]);
+      return;
+    }
+    setLoadingStates(true);
+    try {
+      const res = await fetch("https://countriesnow.space/api/v0.1/countries/states", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ country: countryName }),
+      });
+      const json = await res.json();
+      const states = (json?.data?.states || []).map((s) => s.name || s);
+      setStateOptions(states);
+    } catch (err) {
+      setStateOptions([]);
+    } finally {
+      setLoadingStates(false);
+    }
+  }
+
+  async function loadCitiesForState(countryName, stateName) {
+    if (!countryName || !stateName) {
+      setCityOptions([]);
+      return;
+    }
+    console.log('Loading cities for:', { countryName, stateName });
+    setLoadingCities(true);
+    try {
+      const res = await fetch("https://countriesnow.space/api/v0.1/countries/state/cities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ country: countryName, state: stateName }),
+      });
+      const json = await res.json();
+      console.log('Cities API response:', json);
+      const cities = json?.data || [];
+      setCityOptions(cities);
+    } catch (err) {
+      console.error('Error loading cities:', err);
+      setCityOptions([]);
+    } finally {
+      setLoadingCities(false);
+    }
+  }
+
+  // Dropdown portal: render menu into body and position under anchor input
+  function DropdownPortal({ anchorRef, visible, children }) {
+    const elRef = useRef(null);
+    const [, setTick] = useState(0);
+
+    useEffect(() => {
+      if (!visible) return;
+      if (!elRef.current) {
+        elRef.current = document.createElement('div');
+        document.body.appendChild(elRef.current);
+      }
+
+      function update() {
+        setTick((t) => t + 1);
+      }
+
+      window.addEventListener('scroll', update, true);
+      window.addEventListener('resize', update);
+      return () => {
+        window.removeEventListener('scroll', update, true);
+        window.removeEventListener('resize', update);
+        if (elRef.current) {
+          document.body.removeChild(elRef.current);
+          elRef.current = null;
+        }
+      };
+    }, [visible]);
+
+    if (!visible || !anchorRef?.current) return null;
+    if (!elRef.current) {
+      elRef.current = document.createElement('div');
+      document.body.appendChild(elRef.current);
+    }
+
+    const rect = anchorRef.current.getBoundingClientRect();
+    const style = {
+      position: 'absolute',
+      left: `${rect.left + window.scrollX}px`,
+      top: `${rect.bottom + window.scrollY}px`,
+      width: `${rect.width}px`,
+      zIndex: 9999,
+    };
+
+    return ReactDOM.createPortal(
+      <div style={style} className="bg-white border rounded shadow max-h-56 overflow-auto">
+        {children}
+      </div>,
+      elRef.current
+    );
+  }
+
+  async function loadZipsForPlace(countryIso2, stateName, cityName) {
+    if (!countryIso2 || !stateName || !cityName) {
+      setZipOptions([]);
+      return;
+    }
+    setLoadingZips(true);
+    try {
+      // Try zippopotam.us - may not be available for all countries
+      const code = (countryIso2 || "").toLowerCase();
+      const url = `https://api.zippopotam.us/${code}/${encodeURIComponent(stateName)}/${encodeURIComponent(cityName)}`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        setZipOptions([]);
+        return;
+      }
+      const json = await res.json();
+      const zips = (json?.places || []).map((p) => p['post code'] || p['postcode'] || p['postalCode']).filter(Boolean);
+      setZipOptions(Array.from(new Set(zips)));
+    } catch (err) {
+      setZipOptions([]);
+    } finally {
+      setLoadingZips(false);
+    }
   }
 
   function handleNumberChange(e) {
@@ -92,7 +259,6 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
     const err = {};
     if (!form.title.trim()) err.title = "Title is required";
     if (!form.description.trim()) err.description = "Description is required";
-    if (!form.address.trim()) err.address = "Address is required";
     if (!form.city.trim()) err.city = "City is required";
     if (!form.state.trim()) err.state = "State is required";
     if (!form.zipCode.trim()) err.zipCode = "Zip code is required";
@@ -130,7 +296,8 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
       const fd = new FormData();
       fd.append("title", form.title);
       fd.append("description", form.description);
-      fd.append("address", form.address);
+      // address field commented out in UI - skipping append
+      // fd.append("address", form.address);
       fd.append("city", form.city);
       fd.append("state", form.state);
       fd.append("zipCode", form.zipCode);
@@ -207,34 +374,250 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
                     {errors.description && <p className="mt-1 text-xs text-red-600">{errors.description}</p>}
                   </div>
 
+                  {/* Address field commented out per request - kept in state but hidden
                   <div>
                     <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="address" name="address" value={form.address} onChange={handleInputChange} placeholder="Street address" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address}</p>}
                   </div>
+                  */}
 
-                  <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-gray-700">City * <span className="text-xs text-gray-500 ml-1">required</span></label>
-                    <input id="city" name="city" value={form.city} onChange={handleInputChange} placeholder="City" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
-                    {errors.city && <p className="mt-1 text-xs text-red-600">{errors.city}</p>}
+                  {/* Reordered: Country, State, City, Zip Code (Address commented out) */}
+                  <div ref={countryRef} className="relative">
+                    <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country * <span className="text-xs text-gray-500 ml-1">required</span></label>
+                    <div className="relative">
+                      <input id="country" name="country" ref={countryInputRef} value={form.country} onChange={(e)=>{
+                        const v = e.target.value;
+                        setCountryFilter(v);
+                        setForm(s=>({...s, country: v}));
+                        setShowCountryDropdown(true);
+                      }} onFocus={()=> setShowCountryDropdown(true)} placeholder="Country" autoComplete="off" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                      <button type="button" onClick={()=> setShowCountryDropdown(s=>!s)} className="absolute right-2 top-3 text-gray-500">▾</button>
+                    </div>
+                    <DropdownPortal anchorRef={countryInputRef} visible={showCountryDropdown}>
+                      {countryOptions.filter(c=> c.name.toLowerCase().includes((countryFilter||"").toLowerCase())).map((c)=> (
+                        <div key={c.iso2} className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={()=>{
+                          setForm(s=>({...s, country: c.name, state: "", city: "", zipCode: ""}));
+                          setSelectedCountryIso(c.iso2);
+                          setSelectedCountryName(c.name);
+                          setShowCountryDropdown(false);
+                          setCountryFilter("");
+                          setStateOptions([]); setCityOptions([]); setZipOptions([]);
+                          loadStatesForCountry(c.name);
+                        }}>{c.name}</div>
+                      ))}
+                    </DropdownPortal>
+                    {/* Inline fallback if portal doesn't show (keeps UX robust) */}
+                    {showCountryDropdown && (
+                      <div className="absolute mt-1 w-full bg-white border rounded shadow max-h-71 overflow-auto" style={{zIndex: 999999}}>
+                        {countryOptions.filter(c=> c.name.toLowerCase().includes((countryFilter||"").toLowerCase())).map((c)=> (
+                          <div key={c.iso2} className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={()=>{
+                            setForm(s=>({...s, country: c.name, state: "", city: "", zipCode: ""}));
+                            setSelectedCountryIso(c.iso2);
+                            setSelectedCountryName(c.name);
+                            setShowCountryDropdown(false);
+                            setCountryFilter("");
+                            setStateOptions([]); setCityOptions([]); setZipOptions([]);
+                            loadStatesForCountry(c.name);
+                          }}>{c.name}</div>
+                        ))}
+                      </div>
+                    )}
+                    {errors.country && <p className="mt-1 text-xs text-red-600">{errors.country}</p>}
                   </div>
 
-                  <div>
+                  <div ref={stateRef} className="relative">
                     <label htmlFor="state" className="block text-sm font-medium text-gray-700">State * <span className="text-xs text-gray-500 ml-1">required</span></label>
-                    <input id="state" name="state" value={form.state} onChange={handleInputChange} placeholder="State / Region" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                    <div className="relative">
+                      <input id="state" name="state" ref={stateInputRef} value={form.state} onChange={(e)=>{
+                        const v = e.target.value; setStateFilter(v); setForm(s=>({...s, state: v})); setShowStateDropdown(true);
+                      }} onFocus={() => {
+                        setShowStateDropdown(true);
+                        // If states not yet loaded, attempt to load using selected or typed country
+                        if ((!stateOptions || stateOptions.length === 0)) {
+                          const countryName = selectedCountryName || form.country;
+                          if (countryName) {
+                            const found = countryOptions.find(c => c.name.toLowerCase() === (countryName || '').toLowerCase());
+                            if (found) {
+                              setSelectedCountryIso(found.iso2);
+                              setSelectedCountryName(found.name);
+                              loadStatesForCountry(found.name);
+                            } else {
+                              loadStatesForCountry(countryName);
+                            }
+                          }
+                        }
+                      }} placeholder="State / Region" autoComplete="off" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                      <button type="button" onClick={()=> {
+                        setShowStateDropdown(s=>!s);
+                        if ((!stateOptions || stateOptions.length === 0)) {
+                          const countryName = selectedCountryName || form.country;
+                          if (countryName) {
+                            const found = countryOptions.find(c => c.name.toLowerCase() === (countryName || '').toLowerCase());
+                            if (found) {
+                              setSelectedCountryIso(found.iso2);
+                              setSelectedCountryName(found.name);
+                              loadStatesForCountry(found.name);
+                            } else {
+                              loadStatesForCountry(countryName);
+                            }
+                          }
+                        }
+                      }} className="absolute right-2 top-3 text-gray-500">▾</button>
+                    </div>
+                    <DropdownPortal anchorRef={stateInputRef} visible={showStateDropdown}>
+                      {loadingStates ? <div className="px-3 py-2 text-sm text-gray-500">Loading...</div> : stateOptions.filter(s=> s.toLowerCase().includes((stateFilter||"").toLowerCase())).map((s)=> (
+                        <div key={s} className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={()=>{
+                          const countryName = selectedCountryName || form.country;
+                          // Ensure country info is set
+                          if (countryName && !selectedCountryName) {
+                            const found = countryOptions.find(c => c.name.toLowerCase() === (countryName || '').toLowerCase());
+                            if (found) {
+                              setSelectedCountryIso(found.iso2);
+                              setSelectedCountryName(found.name);
+                            }
+                          }
+                          setForm(f=>({...f, state: s, city: "", zipCode: ""}));
+                          setShowStateDropdown(false);
+                          setStateFilter("");
+                          setCityOptions([]); setZipOptions([]);
+                          loadCitiesForState(selectedCountryName || form.country, s);
+                        }}>{s}</div>
+                      ))}
+                    </DropdownPortal>
+                    {showStateDropdown && (
+                      <div className="absolute mt-1 w-full bg-white border rounded shadow max-h-56 overflow-auto" style={{zIndex: 9999}}>
+                        {loadingStates ? <div className="px-3 py-2 text-sm text-gray-500">Loading...</div> : stateOptions.filter(s=> s.toLowerCase().includes((stateFilter||"").toLowerCase())).map((s)=> (
+                          <div key={s} className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={()=>{
+                            const countryName = selectedCountryName || form.country;
+                            // Ensure country info is set
+                            if (countryName && !selectedCountryName) {
+                              const found = countryOptions.find(c => c.name.toLowerCase() === (countryName || '').toLowerCase());
+                              if (found) {
+                                setSelectedCountryIso(found.iso2);
+                                setSelectedCountryName(found.name);
+                              }
+                            }
+                            setForm(f=>({...f, state: s, city: "", zipCode: ""}));
+                            setShowStateDropdown(false);
+                            setStateFilter("");
+                            setCityOptions([]); setZipOptions([]);
+                            loadCitiesForState(selectedCountryName || form.country, s);
+                          }}>{s}</div>
+                        ))}
+                      </div>
+                    )}
                     {errors.state && <p className="mt-1 text-xs text-red-600">{errors.state}</p>}
                   </div>
 
-                  <div>
-                    <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">Zip Code * <span className="text-xs text-gray-500 ml-1">required</span></label>
-                    <input id="zipCode" name="zipCode" value={form.zipCode} onChange={handleInputChange} placeholder="Zip / Postal code" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
-                    {errors.zipCode && <p className="mt-1 text-xs text-red-600">{errors.zipCode}</p>}
+                  <div ref={cityRef} className="relative">
+                    <label htmlFor="city" className="block text-sm font-medium text-gray-700">City * <span className="text-xs text-gray-500 ml-1">required</span></label>
+                    <div className="relative">
+                      <input id="city" name="city" ref={cityInputRef} value={form.city} onChange={(e)=>{ const v = e.target.value; setCityFilter(v); setForm(s=>({...s, city: v})); setShowCityDropdown(true); }} onFocus={() => {
+                        setShowCityDropdown(true);
+                        // If cities not loaded, attempt to load using country+state
+                        if ((!cityOptions || cityOptions.length === 0)) {
+                          const countryName = selectedCountryName || form.country;
+                          const stateName = form.state;
+                          if (stateName && countryName) {
+                            const found = countryOptions.find(c => c.name.toLowerCase() === (countryName || '').toLowerCase());
+                            if (found && !selectedCountryIso) setSelectedCountryIso(found.iso2);
+                            loadCitiesForState(countryName, stateName);
+                          }
+                        }
+                      }} placeholder="City" autoComplete="off" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                      <button type="button" onClick={()=> {
+                        setShowCityDropdown(s=>!s);
+                        if ((!cityOptions || cityOptions.length === 0)) {
+                          const countryName = selectedCountryName || form.country;
+                          const stateName = form.state;
+                          if (stateName && countryName) {
+                            const found = countryOptions.find(c => c.name.toLowerCase() === (countryName || '').toLowerCase());
+                            if (found && !selectedCountryIso) setSelectedCountryIso(found.iso2);
+                            loadCitiesForState(countryName, stateName);
+                          }
+                        }
+                      }} className="absolute right-2 top-3 text-gray-500">▾</button>
+                    </div>
+                    <DropdownPortal anchorRef={cityInputRef} visible={showCityDropdown}>
+                      {loadingCities ? (
+                        <div className="px-4 py-3 text-sm text-gray-500 bg-white">Loading cities...</div>
+                      ) : cityOptions.length === 0 ? (
+                        <div className="px-4 py-3 text-sm text-gray-600 bg-gray-50">No cities found. Please select a state first.</div>
+                      ) : (
+                        cityOptions.filter(c=> c.toLowerCase().includes((cityFilter||"").toLowerCase())).map((c)=> (
+                          <div key={c} className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={()=>{
+                            setForm(f=>({...f, city: c, zipCode: ""}));
+                            setShowCityDropdown(false);
+                            setCityFilter("");
+                            setZipOptions([]);
+                            loadZipsForPlace(selectedCountryIso, form.state, c);
+                          }}>{c}</div>
+                        ))
+                      )}
+                    </DropdownPortal>
+                    {showCityDropdown && (
+                      <div className="absolute mt-1 w-full bg-white border rounded shadow max-h-56 overflow-auto" style={{zIndex: 9999}}>
+                        {loadingCities ? (
+                          <div className="px-4 py-3 text-sm text-gray-500 bg-white">Loading cities...</div>
+                        ) : cityOptions.length === 0 ? (
+                          <div className="px-4 py-3 text-sm text-gray-600 bg-gray-50">No cities found. Please select a state first.</div>
+                        ) : (
+                          cityOptions.filter(c=> c.toLowerCase().includes((cityFilter||"").toLowerCase())).map((c)=> (
+                            <div key={c} className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={()=>{
+                              setForm(f=>({...f, city: c, zipCode: ""}));
+                              setShowCityDropdown(false);
+                              setCityFilter("");
+                              setZipOptions([]);
+                              loadZipsForPlace(selectedCountryIso, form.state, c);
+                            }}>{c}</div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                    {errors.city && <p className="mt-1 text-xs text-red-600">{errors.city}</p>}
                   </div>
 
-                  <div>
-                    <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country * <span className="text-xs text-gray-500 ml-1">required</span></label>
-                    <input id="country" name="country" value={form.country} onChange={handleInputChange} placeholder="Country" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
-                    {errors.country && <p className="mt-1 text-xs text-red-600">{errors.country}</p>}
+                  <div ref={zipRef} className="relative">
+                    <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">Zip Code * <span className="text-xs text-gray-500 ml-1">required</span></label>
+                    <div className="relative">
+                      <input id="zipCode" name="zipCode" ref={zipInputRef} value={form.zipCode} onChange={(e)=>{ setZipFilter(e.target.value); setForm(s=>({...s, zipCode: e.target.value})); setShowZipDropdown(true); }} onFocus={() => {
+                        setShowZipDropdown(true);
+                        // If zips not loaded, attempt to load using country iso + state + city
+                        if ((!zipOptions || zipOptions.length === 0)) {
+                          const countryIso = selectedCountryIso || (countryOptions.find(c=>c.name.toLowerCase() === (form.country||'').toLowerCase()) || {}).iso2;
+                          const stateName = form.state;
+                          const cityName = form.city;
+                          if (countryIso && stateName && cityName) {
+                            loadZipsForPlace(countryIso, stateName, cityName);
+                          }
+                        }
+                      }} placeholder="Zip / Postal code" autoComplete="off" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
+                      <button type="button" onClick={()=> {
+                        setShowZipDropdown(s=>!s);
+                        if ((!zipOptions || zipOptions.length === 0)) {
+                          const countryIso = selectedCountryIso || (countryOptions.find(c=>c.name.toLowerCase() === (form.country||'').toLowerCase()) || {}).iso2;
+                          const stateName = form.state;
+                          const cityName = form.city;
+                          if (countryIso && stateName && cityName) {
+                            loadZipsForPlace(countryIso, stateName, cityName);
+                          }
+                        }
+                      }} className="absolute right-2 top-3 text-gray-500">▾</button>
+                    </div>
+                    <DropdownPortal anchorRef={zipInputRef} visible={showZipDropdown}>
+                      {loadingZips ? <div className="px-3 py-2 text-sm text-gray-500">Loading...</div> : zipOptions.filter(z=> z.toLowerCase().includes((zipFilter||"").toLowerCase())).map((z)=> (
+                        <div key={z} className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={()=>{ setForm(f=>({...f, zipCode: z})); setShowZipDropdown(false); setZipFilter(""); }}>{z}</div>
+                      ))}
+                    </DropdownPortal>
+                    {showZipDropdown && (
+                      <div className="absolute mt-1 w-full bg-white border rounded shadow max-h-56 overflow-auto" style={{zIndex: 9999}}>
+                        {loadingZips ? <div className="px-3 py-2 text-sm text-gray-500">Loading...</div> : zipOptions.filter(z=> z.toLowerCase().includes((zipFilter||"").toLowerCase())).map((z)=> (
+                          <div key={z} className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={()=>{ setForm(f=>({...f, zipCode: z})); setShowZipDropdown(false); setZipFilter(""); }}>{z}</div>
+                        ))}
+                      </div>
+                    )}
+                    {errors.zipCode && <p className="mt-1 text-xs text-red-600">{errors.zipCode}</p>}
                   </div>
                 </div>
               </section>
@@ -387,15 +770,15 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
             <aside className="space-y-6">
               <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm sticky top-20">
                 <h3 className="text-lg font-semibold mb-3">Preview</h3>
-                <div className="w-full h-44 bg-gray-50 rounded overflow-hidden mb-3">
-                  {imagePreviews[0] ? <img src={imagePreviews[0]} alt="cover preview" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400">No cover</div>}
-                </div>
-                <div className="space-y-1">
-                  <div className="font-semibold text-gray-800">{form.title || "Property title"}</div>
-                  <div className="text-gray-600">{(form.address || "") + (form.city ? ", " + form.city : "")}</div>
-                  <div className="text-gray-800 mt-2">{form.price ? `$${form.price}` : "Price"}</div>
-                  <div className="text-gray-600">{form.bedrooms ? `${form.bedrooms} bd` : ""} {form.bathrooms ? `${form.bathrooms} ba` : ""}</div>
-                </div>
+                  <div className="w-full h-44 bg-gray-50 rounded overflow-hidden mb-3">
+                    {imagePreviews[0] ? <img src={imagePreviews[0]} alt="cover preview" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400">No cover</div>}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="font-semibold text-gray-800">{form.title || "Property title"}</div>
+                    <div className="text-gray-600">{[form.city, form.state, form.zipCode].filter(Boolean).join(', ')}</div>
+                    <div className="text-gray-800 mt-2">{form.price ? `$${form.price}` : "Price"}</div>
+                    <div className="text-gray-600">{form.bedrooms ? `${form.bedrooms} bd` : ""} {form.bathrooms ? `${form.bathrooms} ba` : ""}</div>
+                  </div>
               </div>
 
               <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
