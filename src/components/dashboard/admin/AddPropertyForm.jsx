@@ -102,6 +102,9 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
     if (!String(form.bathrooms).trim()) err.bathrooms = "Bathrooms is required";
     if (!String(form.sqft).trim()) err.sqft = "Sqft is required";
 
+    // Images are mandatory for listings
+    if (!form.images || form.images.length === 0) err.images = "At least one image is required";
+
     const numFields = ["price", "bedrooms", "bathrooms", "sqft"];
     numFields.forEach((k) => {
       const v = Number(form[k]);
@@ -193,43 +196,43 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title *</label>
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="title" name="title" value={form.title} onChange={handleInputChange} placeholder="e.g. Modern 4-bedroom villa with pool" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.title && <p className="mt-1 text-xs text-red-600">{errors.title}</p>}
                   </div>
 
                   <div className="md:col-span-2">
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description *</label>
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <textarea id="description" name="description" value={form.description} onChange={handleInputChange} placeholder="Add a detailed description of the property" rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.description && <p className="mt-1 text-xs text-red-600">{errors.description}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address *</label>
+                    <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="address" name="address" value={form.address} onChange={handleInputChange} placeholder="Street address" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-gray-700">City *</label>
+                    <label htmlFor="city" className="block text-sm font-medium text-gray-700">City * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="city" name="city" value={form.city} onChange={handleInputChange} placeholder="City" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.city && <p className="mt-1 text-xs text-red-600">{errors.city}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="state" className="block text-sm font-medium text-gray-700">State *</label>
+                    <label htmlFor="state" className="block text-sm font-medium text-gray-700">State * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="state" name="state" value={form.state} onChange={handleInputChange} placeholder="State / Region" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.state && <p className="mt-1 text-xs text-red-600">{errors.state}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">Zip Code *</label>
+                    <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">Zip Code * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="zipCode" name="zipCode" value={form.zipCode} onChange={handleInputChange} placeholder="Zip / Postal code" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.zipCode && <p className="mt-1 text-xs text-red-600">{errors.zipCode}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country *</label>
+                    <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="country" name="country" value={form.country} onChange={handleInputChange} placeholder="Country" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.country && <p className="mt-1 text-xs text-red-600">{errors.country}</p>}
                   </div>
@@ -267,25 +270,25 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
                   </div>
 
                   <div>
-                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price *</label>
+                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="price" name="price" type="text" inputMode="numeric" value={form.price} onChange={handleNumberChange} placeholder="e.g. 350000" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.price && <p className="mt-1 text-xs text-red-600">{errors.price}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="sqft" className="block text-sm font-medium text-gray-700">Sqft *</label>
+                    <label htmlFor="sqft" className="block text-sm font-medium text-gray-700">Sqft * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="sqft" name="sqft" type="text" value={form.sqft} onChange={handleNumberChange} placeholder="e.g. 4500" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.sqft && <p className="mt-1 text-xs text-red-600">{errors.sqft}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="bedrooms" className="block text-sm font-medium text-gray-700">Bedrooms *</label>
+                    <label htmlFor="bedrooms" className="block text-sm font-medium text-gray-700">Bedrooms * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="bedrooms" name="bedrooms" type="text" value={form.bedrooms} onChange={handleNumberChange} placeholder="e.g. 4" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.bedrooms && <p className="mt-1 text-xs text-red-600">{errors.bedrooms}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="bathrooms" className="block text-sm font-medium text-gray-700">Bathrooms *</label>
+                    <label htmlFor="bathrooms" className="block text-sm font-medium text-gray-700">Bathrooms * <span className="text-xs text-gray-500 ml-1">required</span></label>
                     <input id="bathrooms" name="bathrooms" type="text" value={form.bathrooms} onChange={handleNumberChange} placeholder="e.g. 3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                     {errors.bathrooms && <p className="mt-1 text-xs text-red-600">{errors.bathrooms}</p>}
                   </div>
@@ -331,13 +334,13 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
                   {form.listingType === "RENT" && (
                     <>
                       <div>
-                        <label htmlFor="rentalDuration" className="block text-sm font-medium text-gray-700">Rental Duration *</label>
+                        <label htmlFor="rentalDuration" className="block text-sm font-medium text-gray-700">Rental Duration * <span className="text-xs text-gray-500 ml-1">required</span></label>
                         <input id="rentalDuration" name="rentalDuration" value={form.rentalDuration} onChange={handleInputChange} placeholder="e.g. 12 Months (Minimum)" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                         {errors.rentalDuration && <p className="mt-1 text-xs text-red-600">{errors.rentalDuration}</p>}
                       </div>
 
                       <div>
-                        <label htmlFor="rentalTerms" className="block text-sm font-medium text-gray-700">Rental Terms *</label>
+                        <label htmlFor="rentalTerms" className="block text-sm font-medium text-gray-700">Rental Terms * <span className="text-xs text-gray-500 ml-1">required</span></label>
                         <input id="rentalTerms" name="rentalTerms" value={form.rentalTerms} onChange={handleInputChange} placeholder="e.g. 2 Months Deposit" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2" />
                         {errors.rentalTerms && <p className="mt-1 text-xs text-red-600">{errors.rentalTerms}</p>}
                       </div>
@@ -350,18 +353,19 @@ export default function AddPropertyForm({ translations = {}, defaultVerified = t
                 <h2 className="text-lg font-semibold mb-2">Images</h2>
                 <p className="text-sm text-gray-500 mb-4">Upload images for the listing (multiple allowed)</p>
 
-                <div>
-                  <label htmlFor="images" className="block text-sm font-medium text-gray-700">Images</label>
-                  <input id="images" name="images" type="file" accept="image/*" multiple onChange={handleImagesChange} className="mt-1 block w-full" />
-                  <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-3">
-                    {imagePreviews.map((src, i) => (
-                      <div key={src} className="relative rounded-md overflow-hidden border">
-                        <img src={src} alt={`preview-${i}`} className="w-full h-24 object-cover" />
-                        <button type="button" onClick={() => removeImageAt(i)} className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm text-red-600">×</button>
-                      </div>
-                    ))}
+                  <div>
+                    <label htmlFor="images" className="block text-sm font-medium text-gray-700">Images * <span className="text-xs text-gray-500 ml-1">required</span></label>
+                    <input id="images" name="images" type="file" accept="image/*" multiple onChange={handleImagesChange} className="mt-1 block w-full" />
+                    {errors.images && <p className="mt-1 text-xs text-red-600">{errors.images}</p>}
+                    <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-3">
+                      {imagePreviews.map((src, i) => (
+                        <div key={src} className="relative rounded-md overflow-hidden border">
+                          <img src={src} alt={`preview-${i}`} className="w-full h-24 object-cover" />
+                          <button type="button" onClick={() => removeImageAt(i)} className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm text-red-600">×</button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
               </section>
 
               <div className="sticky bottom-6 bg-transparent pt-4 z-10">
