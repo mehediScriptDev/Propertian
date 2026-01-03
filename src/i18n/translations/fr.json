@@ -45,7 +45,9 @@
     "results": "résultats",
     "saving": "Enregistrement...",
     "Title": "Titre",
-    "Available": "Disponible"
+    "Available": "Disponible",
+    "any": "Tout"
+
   },
   "auth": {
     "login": {

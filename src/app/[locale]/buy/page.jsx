@@ -15,10 +15,10 @@ export default function BuyPage() {
 
   // Filter state
   const [filters, setFilters] = useState({
-    city: 'abidjan',
+    city: 'any',
     bedrooms: 'any',
     propertyType: 'any',
-    verifiedOnly: true,
+    verifiedOnly: false,
   });
 
   // Sort and display state
@@ -67,8 +67,8 @@ export default function BuyPage() {
       if (property.listingType && property.listingType.toUpperCase() !== 'SALE') return false;
 
       // City filter
-      if (filters.city && property.city && property.city.toLowerCase() !== filters.city.toLowerCase()) {
-        return false;
+      if (filters.city && filters.city !== 'any') {
+        if (!property.city || property.city.toLowerCase() !== filters.city.toLowerCase()) return false;
       }
 
       // Bedrooms filter
@@ -134,12 +134,15 @@ export default function BuyPage() {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
+    // `api.get` returns `response.data` (not the full axios response).
+    // API may return either `{ properties: [...] }` or `{ data: { properties: [...] } }`.
     api.get(`/properties?listingType=SALE`)
-      .then(res => {
+      .then((data) => {
         if (!mounted) return;
-        setProperties(res?.data?.properties || []);
+        const props = data?.data?.properties ?? data?.properties ?? [];
+        setProperties(props);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         if (mounted) setProperties([]);
       })
