@@ -574,6 +574,7 @@ export default function PartnerDashboardPage({ params }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 {selectedProperty.images && selectedProperty.images.length > 0 ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={selectedProperty.images[0]} alt={selectedProperty.title} className="w-full h-56 md:h-64 object-cover rounded" />
                 ) : (
                   <div className="w-full h-56 md:h-64 bg-gray-100 rounded flex items-center justify-center text-gray-400">{t('Partner.noImage') || 'No image'}</div>
@@ -582,7 +583,7 @@ export default function PartnerDashboardPage({ params }) {
               <div className="text-sm text-gray-700">
                 <p className="text-gray-800 mb-3">{selectedProperty.description}</p>
                 <div className="space-y-2">
-                  <div><strong>{t('Partner.Address') || 'Address'}:</strong> {(selectedProperty.address || '') + (selectedProperty.city ? ', ' + selectedProperty.city : '')}</div>
+                  <div><strong>{t('Partner.Address') || 'Address'}:</strong> {(selectedProperty.address || '') + (selectedProperty.state ? ", " + selectedProperty.state  : "" || '') + (selectedProperty.city ? ', ' + selectedProperty.city : '') + (selectedProperty.country ? ', ' + selectedProperty.country : '')}</div>
                   <div><strong>{t('Partner.Price') || 'Price'}:</strong> {selectedProperty.price}</div>
                   <div className="flex gap-4">
                     <div><strong>{t('Partner.Bedrooms') || 'Bedrooms'}:</strong> {selectedProperty.bedrooms ?? '-'}</div>
