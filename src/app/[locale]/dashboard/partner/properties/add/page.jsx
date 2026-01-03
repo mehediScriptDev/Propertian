@@ -37,7 +37,7 @@ export default function PartnerAddPropertyPage({ params }) {
           translations={translations}
           locale={locale}
           defaultVerified={false}
-          apiEndpoint={'https://quiahgroup1backend.mtscorporate.com/api/properties'}
+          apiEndpoint={'/properties'}
         />
       </div>
     </div>
