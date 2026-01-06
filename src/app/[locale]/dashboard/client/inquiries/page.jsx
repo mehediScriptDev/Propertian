@@ -15,6 +15,7 @@ import {
   Send,
   Archive,
   Trash,
+  AlertTriangle,
 } from "lucide-react";
 import InquiryModal from "@/components/dashboard/InquiryModal";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -383,7 +384,7 @@ export default function ClientInquiriesPage() {
                       <button
                         onClick={(e) => handleDeleteClick(e, iq.id ?? iq._id)}
                         aria-label="Delete inquiry"
-                        className="ml-3 p-1 rounded hover:bg-red-50 focus:outline-none"
+                        className="ml-2 p-1 rounded hover:bg-red-50 focus:outline-none"
                         title="Delete"
                       >
                         <Trash className="w-5 h-5 text-red-600" aria-hidden="true" />
@@ -478,32 +479,43 @@ export default function ClientInquiriesPage() {
       
       {/* Delete Confirmation Modal */}
       {deleteConfirm.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setDeleteConfirm({ open: false, inquiryId: null })}>
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full" style={{ backgroundColor: '#f8f3d5' }}>
-                <Trash className="w-6 h-6 text-red-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setDeleteConfirm({ open: false, inquiryId: null })}
+          />
+          
+          {/* Dialog */}
+          <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-red-100 rounded-full">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
-              <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
-                Delete Inquiry?
-              </h3>
-              <p className="text-center text-gray-600 mb-6">
-                Are you sure you want to delete this inquiry? This action cannot be undone.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setDeleteConfirm({ open: false, inquiryId: null })}
-                  className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-                >
-                  Delete
-                </button>
+              
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Delete Inquiry
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Are you sure you want to delete this inquiry? This action cannot be undone.
+                </p>
               </div>
+            </div>
+
+            <div className="flex items-center gap-3 mt-6">
+              <button
+                onClick={() => setDeleteConfirm({ open: false, inquiryId: null })}
+                className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
