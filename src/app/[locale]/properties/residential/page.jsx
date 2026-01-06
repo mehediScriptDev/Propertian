@@ -267,7 +267,44 @@ export default function ResidentialPage() {
         {/* Development Cards Grid */}
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 xl:gap-6 my-1.5'>
           {loadingDevelopments ? (
-            <div className='col-span-full text-center py-12'>Loading developments…</div>
+            // Three-card skeleton while developments load
+            <>
+              <div className='col-span-1'>
+                <article className='flex flex-col gap-3 rounded-xl bg-white/50 border border-[#f6efcb] shadow-md overflow-hidden'>
+                  <div className='w-full aspect-video bg-gray-200 animate-pulse' />
+                  <div className='p-4'>
+                    <div className='h-5 bg-gray-200 rounded w-3/4 mb-2 animate-pulse' />
+                    <div className='h-3 bg-gray-200 rounded w-1/2 mb-3 animate-pulse' />
+                    <div className='h-3 bg-gray-200 rounded w-full mb-3 animate-pulse' />
+                    <div className='h-10 bg-gray-200 rounded w-full animate-pulse' />
+                  </div>
+                </article>
+              </div>
+
+              <div className='col-span-1'>
+                <article className='flex flex-col gap-3 rounded-xl bg-white/50 border border-[#f6efcb] shadow-md overflow-hidden'>
+                  <div className='w-full aspect-video bg-gray-200 animate-pulse' />
+                  <div className='p-4'>
+                    <div className='h-5 bg-gray-200 rounded w-3/4 mb-2 animate-pulse' />
+                    <div className='h-3 bg-gray-200 rounded w-1/2 mb-3 animate-pulse' />
+                    <div className='h-3 bg-gray-200 rounded w-full mb-3 animate-pulse' />
+                    <div className='h-10 bg-gray-200 rounded w-full animate-pulse' />
+                  </div>
+                </article>
+              </div>
+
+              <div className='col-span-1'>
+                <article className='flex flex-col gap-3 rounded-xl bg-white/50 border border-[#f6efcb] shadow-md overflow-hidden'>
+                  <div className='w-full aspect-video bg-gray-200 animate-pulse' />
+                  <div className='p-4'>
+                    <div className='h-5 bg-gray-200 rounded w-3/4 mb-2 animate-pulse' />
+                    <div className='h-3 bg-gray-200 rounded w-1/2 mb-3 animate-pulse' />
+                    <div className='h-3 bg-gray-200 rounded w-full mb-3 animate-pulse' />
+                    <div className='h-10 bg-gray-200 rounded w-full animate-pulse' />
+                  </div>
+                </article>
+              </div>
+            </>
           ) : devError ? (
             <div className='col-span-full text-center py-12 text-red-600'>{devError}</div>
           ) : filteredDevelopments.length > 0 ? (

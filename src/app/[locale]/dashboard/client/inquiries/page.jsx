@@ -14,11 +14,14 @@ import {
   Eye,
   Send,
   Archive,
+  Trash,
 } from "lucide-react";
 import InquiryModal from "@/components/dashboard/InquiryModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 import api from "@/lib/api";
+import axios from "@/lib/axios";
+import { showToast } from "@/components/Toast";
 
 const Pagination = dynamic(() => import("@/components/dashboard/Pagination"), {
   ssr: false,
@@ -39,6 +42,35 @@ export default function ClientInquiriesPage() {
   const [error, setError] = useState(null);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  
+  // Confirmation modal state
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, inquiryId: null });
+
+  // Open delete confirmation modal
+  const handleDeleteClick = (e, inquiryId) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    setDeleteConfirm({ open: true, inquiryId });
+  };
+
+  // Confirm and delete inquiry
+  const confirmDelete = async () => {
+    const inquiryId = deleteConfirm.inquiryId;
+    setDeleteConfirm({ open: false, inquiryId: null });
+    
+    try {
+      await api.delete(`/inquiries/${inquiryId}`);
+      setInquiries((prev) =>
+        prev.filter((iq) => (iq.id || iq._id) !== inquiryId)
+      );
+      showToast("Inquiry deleted successfully", "success");
+    } catch (err) {
+      console.error("Inquiry delete failed", err);
+      const msg =
+        err?.response?.data?.message || err?.message || "Failed to delete inquiry";
+      showToast(msg, "error");
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -338,25 +370,24 @@ export default function ClientInquiriesPage() {
                   </td>
                   <td className="px-6 py-4">{getPriorityBadge(iq.priority)}</td>
                   <td className="px-6 py-4">{getStatusBadge(iq.status)}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 actions-col">
                     <div className="flex items-center justify-center gap-2">
                       <button
-                        className="rounded p-1.5 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
-                        title="View inquiry"
-                        aria-label="View inquiry"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedInquiry(iq);
-                        }}
+                        onClick={() => openInquiry(iq)}
+                        aria-label="View"
+                        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
+                        title="View"
                       >
-                        <Eye className="h-4 w-4 text-gray-600" />
+                        <Eye className="w-5 h-5 text-gray-600" aria-hidden="true" />
                       </button>
-                      {/* <button className="rounded p-1.5 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#E6B325]" title="Reply" aria-label="Reply to inquiry" onClick={(e)=>e.stopPropagation()}>
-                        <Send className="h-4 w-4 text-[#E6B325]" />
+                      <button
+                        onClick={(e) => handleDeleteClick(e, iq.id ?? iq._id)}
+                        aria-label="Delete inquiry"
+                        className="ml-3 p-1 rounded hover:bg-red-50 focus:outline-none"
+                        title="Delete"
+                      >
+                        <Trash className="w-5 h-5 text-red-600" aria-hidden="true" />
                       </button>
-                      <button className="rounded p-1.5 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500" title="Archive" aria-label="Archive inquiry" onClick={(e)=>e.stopPropagation()}>
-                        <Archive className="h-4 w-4 text-gray-600" />
-                      </button> */}
                     </div>
                   </td>
                 </tr>
@@ -408,34 +439,21 @@ export default function ClientInquiriesPage() {
                   >
                     <Eye className="h-4 w-4 text-gray-600" />
                   </button>
-                  {/* <button className="rounded p-1.5 transition-colors hover:bg-gray-100" title="Reply" onClick={(e)=>e.stopPropagation()}><Send className="h-4 w-4 text-[#E6B325]" /></button>
-                    <button className="rounded p-1.5 transition-colors hover:bg-gray-100" title="Archive" onClick={(e)=>e.stopPropagation()}><Archive className="h-4 w-4 text-gray-600" /></button> */}
+                  <button
+                    className="rounded transition-colors"
+                    title="Delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(e, iq.id ?? iq._id);
+                    }}
+                  >
+                    <Trash className="h-4 w-4 text-red-600" />
+                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
-
-        {loading ? (
-          <div className="px-6 py-12 text-center">
-            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-4 border-gray-200 border-t-[#E6B325]"></div>
-            <p className="mt-1 text-sm text-gray-500">Loading inquiries…</p>
-          </div>
-        ) : (
-          filtered.length === 0 && (
-            <div className="px-6 py-12 text-center">
-              <Mail className="mx-auto h-12 w-12 text-gray-300" />
-              <h3 className="mt-3 text-sm font-medium text-gray-900">
-                {t("Developer_Inquiry.NoInquiriesFound") ||
-                  "No inquiries found"}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {t("Developer_Inquiry.TryAdjusting") ||
-                  "Try adjusting your search or filters."}
-              </p>
-            </div>
-          )
-        )}
 
         {totalItems > itemsPerPage && (
           <Pagination
@@ -457,6 +475,39 @@ export default function ClientInquiriesPage() {
       </div>
 
       <InquiryModal isOpen={!!selectedInquiry} onClose={() => setSelectedInquiry(null)} inquiry={selectedInquiry} />
+      
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setDeleteConfirm({ open: false, inquiryId: null })}>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full" style={{ backgroundColor: '#f8f3d5' }}>
+                <Trash className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
+                Delete Inquiry?
+              </h3>
+              <p className="text-center text-gray-600 mb-6">
+                Are you sure you want to delete this inquiry? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteConfirm({ open: false, inquiryId: null })}
+                  className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
