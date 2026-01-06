@@ -32,7 +32,7 @@ export default function PartnerDashboardPage({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [properties, setProperties] = useState([]);

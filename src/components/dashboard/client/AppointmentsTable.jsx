@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { Eye, Edit, Trash2, Calendar, Clock } from 'lucide-react';
+import { Eye, Edit, Trash2, Calendar, Clock, X } from 'lucide-react';
 import Pagination from '../Pagination';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
@@ -133,6 +133,15 @@ export default function AppointmentsTable({
                           aria-label={`${translations?.table?.view || 'View'} ${apt.full_name}`}
                         >
                           <Eye className="h-4 w-4 text-gray-600" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onDelete?.(apt.id)}
+                          className="p-1.5 rounded-lg hover:bg-red-50 transition-colors duration-200"
+                          title={translations?.table?.cancel || 'Cancel'}
+                          aria-label={`${translations?.table?.cancel || 'Cancel'} ${apt.full_name}`}
+                        >
+                          <X className="h-4 w-4 text-red-600" />
                         </button>
                       </div>
                     </td>

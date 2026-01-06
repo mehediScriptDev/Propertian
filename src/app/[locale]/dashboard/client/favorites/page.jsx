@@ -75,11 +75,66 @@ export default function SavedProperties() {
   const filteredProperties = useMemo(() => {
     const q = (search || '').trim().toLowerCase();
     if (!q) return favProperties;
-    return favProperties.filter((p) =>
-      String(p.title || p.name || '').toLowerCase().includes(q) ||
-      String(p.address || p.location || '').toLowerCase().includes(q) ||
-      String(p.price || '').toLowerCase().includes(q)
-    );
+
+    // DEBUG: show query and sample fields to help debug matching
+    try {
+      if (typeof window !== 'undefined') {
+        console.debug('SavedProperties search:', { q, sample: favProperties.slice(0, 6).map(p => ({
+          id: p.id,
+          title: (p.title || p.name || p.description || (p.property && (p.property.title || p.property.name)) || '').toString(),
+          city: (p.city || p.address || p.location || (p.property && (p.property.address || p.property.location)) || '').toString(),
+        })) });
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    return favProperties.filter((p) => {
+      // Build a searchable haystack from common fields and some deep shapes
+      const candidates = [];
+
+      // top-level common fields
+      candidates.push(p.title, p.name, p.description, p.reference, p.slug);
+
+      // location / city / address
+      candidates.push(p.city, p.address, p.location);
+
+      // price
+      candidates.push(p.price, p.amount);
+
+      // nested property object common shapes
+      const prop = p.property || p.data || p.attributes || p.item || null;
+      if (prop) {
+        candidates.push(prop.title, prop.name, prop.description, prop.address, prop.location, prop.price);
+
+        // deeper shapes (API platforms often use data.attributes)
+        const nested = prop.data || prop.attributes || null;
+        if (nested) {
+          candidates.push(nested.title, nested.name, nested.description, nested.address, nested.location, nested.price);
+          // attributes from CMS
+          const attrs = nested.attributes || nested;
+          if (attrs) {
+            candidates.push(attrs.title, attrs.name, attrs.description, attrs.address, attrs.location, attrs.price);
+          }
+        }
+      }
+
+      // combine and fallback to JSON string of the object (safe string)
+      let hay = candidates
+        .filter(Boolean)
+        .map((s) => String(s).toLowerCase())
+        .join(' ');
+
+      if (!hay) {
+        try {
+          hay = JSON.stringify(p).toLowerCase();
+        } catch (e) {
+          hay = '';
+        }
+      }
+
+      return hay.includes(q);
+    });
   }, [favProperties, search]);
 
   return (

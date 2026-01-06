@@ -19,7 +19,7 @@ export default function StatsCard({
   return (
     <div
       className="relative overflow-hidden rounded-xl p-6 bg-white/60 shadow-md 
-        transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+        transition-transform duration-300"
     >
       {/* Content */}
       <div className='relative z-10'>
