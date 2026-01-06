@@ -54,6 +54,11 @@ export default function ClientInquiriesPage() {
     setDeleteConfirm({ open: true, inquiryId });
   };
 
+  // Open inquiry detail modal
+  const openInquiry = (inquiry) => {
+    setSelectedInquiry(inquiry);
+  };
+
   // Confirm and delete inquiry
   const confirmDelete = async () => {
     const inquiryId = deleteConfirm.inquiryId;
