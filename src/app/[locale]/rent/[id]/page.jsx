@@ -113,14 +113,36 @@ export default function RentDetailsPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50 dark:bg-neutral-900">
-        <div className="max-w-3xl mx-auto px-4 py-16 text-center text-gray-700 dark:text-gray-300">
-          {/* Use fallback if translation returns raw key */}
-          <p>{(() => {
-            const key = 'rent.listings.loading';
-            const res = t(key);
-            return res === key ? 'Loading property...' : res;
-          })()}</p>
+      <main className="min-h-screen bg-background-light dark:bg-neutral-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-6 gap-3.5">
+            <div className="lg:col-span-2 space-y-3.5 lg:space-y-6">
+              <div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+              <section className="bg-white/50 dark:bg-card-dark rounded-lg shadow-sm p-6">
+                <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded w-3/4 mb-3 animate-pulse" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2 mb-4 animate-pulse" />
+                <div className="space-y-3">
+                  <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-full animate-pulse" />
+                  <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-full animate-pulse" />
+                  <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-2/3 animate-pulse" />
+                </div>
+              </section>
+            </div>
+
+            <div className="lg:col-span-1 lg:space-y-6 space-y-3.5">
+              <div className="sticky top-22 lg:space-y-6 space-y-3.5">
+                <div className="bg-white/50 border border-[#f6efcb] dark:bg-card-dark rounded-lg shadow-sm p-6">
+                  <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded w-3/4 mb-3 animate-pulse" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2 mb-4 animate-pulse" />
+                  <div className="h-10 bg-gray-200 dark:bg-gray-600 rounded w-full mb-2 animate-pulse" />
+                </div>
+                <div className="bg-white/50 border border-[#f6efcb] dark:bg-card-dark rounded-lg shadow-sm p-6">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-full mb-2 animate-pulse" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4 mb-2 animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     );

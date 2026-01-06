@@ -50,7 +50,7 @@ export default function BuyPropertyCard({ property }) {
   const imageAlt = title; // Use title as alt text
   // Prefer first image from images array, fall back to any single-image field or a local placeholder
   const image = (images && images.length && images[0]) || property.image || '/buy-rent/thumb.png';
-  console.log(property)
+  // console.log(property)
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(Boolean(property.isFavorite));

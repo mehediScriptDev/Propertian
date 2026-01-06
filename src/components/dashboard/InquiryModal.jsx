@@ -104,7 +104,7 @@ export default function InquiryModal({ isOpen, onClose, inquiry, onRespond }) {
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <Building2 className="w-4 h-4 text-gray-500 flex-shrink-0" />
+              <Building2 className="w-4 h-4 text-gray-500 shrink-0" />
               <h3 className="text-sm font-semibold text-gray-900 truncate">
                 Property: {inquiry.property || "—"}
               </h3>

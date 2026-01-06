@@ -72,12 +72,39 @@ export default function BuyDetailsPage() {
     }
   };
 
-  // While loading show a simple placeholder
+  // While loading show a skeleton placeholder for better UX
   if (property === null) {
     return (
-      <main className='min-h-screen bg-gray-50'>
-        <div className='max-w-3xl mx-auto px-4 py-16 text-center text-gray-700'>
-          <h1 className='text-2xl font-semibold mb-2'>{t('common.loading') || 'Loading...'}</h1>
+      <main className='min-h-screen bg-background-light'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+          <div className='grid grid-cols-1 lg:grid-cols-3 lg:gap-6 gap-3.5'>
+            <div className='lg:col-span-2 space-y-3.5 lg:space-y-6'>
+              <div className='w-full h-96 bg-gray-200 rounded-lg animate-pulse' />
+              <section className='bg-white/50 rounded-lg shadow-sm p-6'>
+                <div className='h-6 bg-gray-200 rounded w-3/4 mb-3 animate-pulse' />
+                <div className='h-4 bg-gray-200 rounded w-1/2 mb-4 animate-pulse' />
+                <div className='space-y-3'>
+                  <div className='h-3 bg-gray-200 rounded w-full animate-pulse' />
+                  <div className='h-3 bg-gray-200 rounded w-full animate-pulse' />
+                  <div className='h-3 bg-gray-200 rounded w-2/3 animate-pulse' />
+                </div>
+              </section>
+            </div>
+
+            <div className='lg:col-span-1 lg:space-y-6 space-y-3.5'>
+              <div className='sticky top-22 lg:space-y-6 space-y-3.5'>
+                <div className='bg-white/50 border border-[#f6efcb] rounded-lg shadow-sm p-6'>
+                  <div className='h-6 bg-gray-200 rounded w-3/4 mb-3 animate-pulse' />
+                  <div className='h-4 bg-gray-200 rounded w-1/2 mb-4 animate-pulse' />
+                  <div className='h-10 bg-gray-200 rounded w-full mb-2 animate-pulse' />
+                </div>
+                <div className='bg-white/50 border border-[#f6efcb] rounded-lg shadow-sm p-6'>
+                  <div className='h-4 bg-gray-200 rounded w-full mb-2 animate-pulse' />
+                  <div className='h-4 bg-gray-200 rounded w-3/4 mb-2 animate-pulse' />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     );
