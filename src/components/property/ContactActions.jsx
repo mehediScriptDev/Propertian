@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, memo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 import Link from 'next/link';
@@ -11,9 +12,10 @@ import Link from 'next/link';
  * Features: WhatsApp integration, booking modal trigger, escrow contact, i18n support
  * Performance: Memoized to prevent unnecessary re-renders
  */
-function ContactActions({ propertyId, propertyTitle, listingType = 'buy' }) {
+function ContactActions({ propertyId, propertyTitle, listingType = 'buy', onInquire }) {
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
+  const router = useRouter();
 
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
@@ -64,6 +66,13 @@ function ContactActions({ propertyId, propertyTitle, listingType = 'buy' }) {
     // In production, navigate to escrow reservation flow
     console.log('Navigate to escrow reservation for property:', propertyId);
   }, [propertyId]);
+
+  const handleInquireNow = useCallback(() => {
+    if (onInquire) return onInquire(propertyId);
+    // default: navigate to contact page with property query
+    const loc = locale || 'en';
+    router.push(`/${loc}/contact?property=${propertyId}`);
+  }, [onInquire, propertyId, router, locale]);
 
   return (
     <div className='space-y-3'>
@@ -197,6 +206,15 @@ function ContactActions({ propertyId, propertyTitle, listingType = 'buy' }) {
           }
           return 'Reserve with Escrow';
         })()}</span>
+      </button>
+
+      {/* Inquire Now Button */}
+      <button
+        onClick={handleInquireNow}
+        className='w-full bg-[#0f1724] hover:bg-[#0b1220] text-white font-semibold py-3.5 px-6 text-sm xl:text-base rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 shadow-sm'
+        aria-label={t('inquireNow') || 'Inquire Now'}
+      >
+        <span>{t('inquireNow') || 'Inquire Now'}</span>
       </button>
     </div>
   );
