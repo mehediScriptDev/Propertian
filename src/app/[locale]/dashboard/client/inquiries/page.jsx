@@ -14,7 +14,7 @@ import {
   Eye,
   Send,
   Archive,
-  Trash,
+    Trash2,
   AlertTriangle,
 } from "lucide-react";
 import InquiryModal from "@/components/dashboard/InquiryModal";
@@ -392,7 +392,7 @@ export default function ClientInquiriesPage() {
                         className="ml-2 p-1 rounded hover:bg-red-50 focus:outline-none"
                         title="Delete"
                       >
-                        <Trash className="w-5 h-5 text-red-600" aria-hidden="true" />
+                        <Trash2 className="w-5 h-5 text-red-600" aria-hidden="true" />
                       </button>
                     </div>
                   </td>
@@ -453,7 +453,7 @@ export default function ClientInquiriesPage() {
                       handleDeleteClick(e, iq.id ?? iq._id);
                     }}
                   >
-                    <Trash className="h-4 w-4 text-red-600" />
+                    <Trash2 className="h-4 w-4 text-red-600" />
                   </button>
                 </div>
               </div>
