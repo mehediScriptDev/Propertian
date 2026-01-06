@@ -214,7 +214,7 @@ function ContactActions({ propertyId, propertyTitle, listingType = 'buy', onInqu
         className='w-full bg-[#0f1724] hover:bg-[#0b1220] text-white font-semibold py-3.5 px-6 text-sm xl:text-base rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 shadow-sm'
         aria-label={t('inquireNow') || 'Inquire Now'}
       >
-        <span>{t('inquireNow') || 'Inquire Now'}</span>
+        <span>{'Inquire Now'}</span>
       </button>
     </div>
   );

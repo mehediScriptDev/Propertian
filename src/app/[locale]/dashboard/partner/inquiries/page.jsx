@@ -6,6 +6,8 @@ import { Spinner } from "@/components/Loading";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 import { get } from "@/lib/api";
+import api from '@/lib/api';
+import { showToast } from '@/components/Toast';
 
 const Pagination = dynamic(() => import("@/components/dashboard/Pagination"), {
   ssr: false,
@@ -18,6 +20,12 @@ export default function PartnerInquiriesPage() {
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
+  const [responseText, setResponseText] = useState('');
+
+  // Reset response text when a different inquiry is opened
+  useEffect(() => {
+    setResponseText('');
+  }, [selectedInquiry]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const itemsPerPage = 5;
   const [inquiries, setInquiries] = useState([]);
@@ -452,6 +460,20 @@ export default function PartnerInquiriesPage() {
                 </div>
               </div>
 
+              {/* Response editor (shown when there is no response yet) */}
+              {!selectedInquiry.response && (
+                <div className="border-t pt-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Your Response</h4>
+                  <textarea
+                    value={responseText}
+                    onChange={(e) => setResponseText(e.target.value)}
+                    rows={4}
+                    placeholder="Write your response here..."
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
+                  />
+                </div>
+              )}
+
               {/* Response Information */}
               {selectedInquiry.response && (
                 <div className="border-t pt-6">
@@ -498,8 +520,32 @@ export default function PartnerInquiriesPage() {
               >
                 Close
               </button>
-              {selectedInquiry.status === "pending" && (
-                <button className="px-6 py-2 bg-[#E6B325] hover:bg-[#d4a520] text-black font-semibold rounded-lg transition-colors">
+              {!selectedInquiry.response && (
+                <button
+                  onClick={async () => {
+                    if (!responseText || responseText.trim() === '') return;
+                    try {
+                      // Use the respond endpoint with the expected payload
+                      await api.post(`/inquiries/${selectedInquiry.id}/respond`, {
+                        responseMessage: responseText,
+                      });
+
+                      setSelectedInquiry((s) => ({
+                        ...s,
+                        response: responseText,
+                        responded_by: 'You',
+                        responded_at: new Date().toISOString(),
+                        status: 'responded',
+                      }));
+                      setResponseText('');
+                      showToast('Response sent', 'success');
+                    } catch (err) {
+                      console.error('Failed to send response', err);
+                      showToast('Failed to send response', 'error');
+                    }
+                  }}
+                  className="px-6 py-2 bg-[#E6B325] hover:bg-[#d4a520] text-black font-semibold rounded-lg transition-colors"
+                >
                   Respond
                 </button>
               )}

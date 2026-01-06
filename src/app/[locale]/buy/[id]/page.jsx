@@ -11,9 +11,14 @@ import ContactActions from '@/components/property/ContactActions';
 import PropertyTabs from '@/components/property/PropertyTabs';
 import RentalOverview from '@/components/property/RentalOverview';
 import axios from 'axios';
+import api from '@/lib/api';
+import { showToast } from '@/components/Toast';
+import { X } from 'lucide-react';
 
 export default function BuyDetailsPage() {
   const [property, setProperty] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formState, setFormState] = useState({ fullName: '', email: '', phone: '', message: '' });
   console.log(property)
 
   const params = useParams();
@@ -37,6 +42,35 @@ export default function BuyDetailsPage() {
       })
       .catch((err) => console.error('Fetch property error', err));
   }, [id]);
+
+  const handleInquire = (id) => {
+    // open modal for current property
+    setFormState((s) => ({ ...s, message: `I am interested in ${uiProperty?.title || ''}. Please send me more information.` }));
+    setIsModalOpen(true);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormState((s) => ({ ...s, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        propertyId: uiProperty?.id,
+        propertyTitle: uiProperty?.title,
+        message: formState.message,
+      };
+      await api.post('/inquiries', payload);
+      setIsModalOpen(false);
+      showToast('Inquiry sent successfully', 'success');
+    } catch (err) {
+      console.error('Failed to submit inquiry', err);
+      const msg = (err && err.message) ? err.message : 'Failed to send inquiry. Please try again.';
+      showToast(msg, 'error');
+    }
+  };
 
   // While loading show a simple placeholder
   if (property === null) {
@@ -153,6 +187,7 @@ export default function BuyDetailsPage() {
                   propertyId={uiProperty.id}
                   propertyTitle={uiProperty.title}
                   listingType='buy'
+                  onInquire={() => handleInquire(uiProperty.id)}
                 />
               </div>
 
@@ -201,6 +236,36 @@ export default function BuyDetailsPage() {
           </ol>
         </nav>
       </div>
+      {/* Inquiry Modal (property) */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
+              <div>
+                <h3 className="text-2xl font-bold text-charcoal">Inquire about {uiProperty.title}</h3>
+                <p className="text-sm text-gray-600 mt-1">Fill out the form below and the agent will contact you shortly.</p>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Close modal">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label htmlFor="message" className="block text-[14px] font-medium text-charcoal mb-1.5">Message</label>
+                  <textarea id="message" name="message" rows={4} value={formState.message} onChange={handleChange} className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none text-[15px] transition-all duration-200" required />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200">Cancel</button>
+                  <button type="submit" className="flex-1 bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">Send Inquiry</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

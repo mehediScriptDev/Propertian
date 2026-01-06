@@ -180,9 +180,40 @@ export default function ClientInquiriesPage() {
     return words.slice(0, count).join(' ') + '...';
   };
 
-  // We rely on server filtering/pagination. `inquiries` is already the current page items.
-  const filtered = useMemo(() => inquiries, [inquiries]);
-  const pageItems = filtered;
+  // Apply client-side filtering so UI responds even if backend doesn't honor params
+  const filtered = useMemo(() => {
+    const q = (searchQuery || '').toString().trim().toLowerCase();
+    return (inquiries || []).filter((iq) => {
+      if (filterStatus && filterStatus !== 'all') {
+        if ((iq.status || '').toString().toLowerCase() !== filterStatus.toString().toLowerCase()) {
+          return false;
+        }
+      }
+
+      if (q) {
+        const hay = [
+          iq.name,
+          iq.email,
+          iq.phone,
+          iq.property,
+          iq.subject,
+          iq.message,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+
+        if (!hay.includes(q)) return false;
+      }
+
+      return true;
+    });
+  }, [inquiries, filterStatus, searchQuery]);
+
+  // Client-side pagination for the filtered results (inquiries already may be paginated by server)
+  const totalFilteredItems = filtered.length;
+  const totalFilteredPages = Math.max(1, Math.ceil(totalFilteredItems / itemsPerPage));
+  const pageItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="space-y-3 lg:space-y-4.5">

@@ -4,8 +4,9 @@ import React, { useState } from "react";
 import Modal from "@/components/Modal";
 import { Calendar, Copy, Mail, Phone as PhoneIcon } from "lucide-react";
 
-export default function InquiryModal({ isOpen, onClose, inquiry }) {
+export default function InquiryModal({ isOpen, onClose, inquiry, onRespond }) {
   const [copied, setCopied] = useState(false);
+  const [response, setResponse] = useState('');
 
   if (!isOpen || !inquiry) return null;
 
@@ -110,6 +111,22 @@ export default function InquiryModal({ isOpen, onClose, inquiry }) {
           </div>
         </div>
 
+          {/* Response box - allow partner to write a reply below inquiry details (only when no response exists) */}
+          {!inquiry.response && (
+            <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+              <label htmlFor="response" className="block text-sm font-medium text-gray-900 mb-2">Your Response</label>
+              <textarea
+                id="response"
+                name="response"
+                value={response}
+                onChange={(e) => setResponse(e.target.value)}
+                rows={4}
+                placeholder="Write your response here..."
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          )}
+
         <aside className="space-y-4">
           {/* <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <h4 className="text-sm font-semibold text-gray-900 mb-3">Contact</h4>
@@ -151,13 +168,34 @@ export default function InquiryModal({ isOpen, onClose, inquiry }) {
       </div>
 
       <div className="mt-6 sticky bottom-0 z-10 bg-transparent pt-4">
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
             className="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200"
           >
             Close
           </button>
+
+          {!inquiry.response && (
+            <button
+              onClick={async () => {
+                try {
+                  if (onRespond) {
+                    await onRespond(response, inquiry);
+                  } else {
+                    console.log('Respond:', response, 'for inquiry', inquiry?.id || inquiry);
+                  }
+                } finally {
+                  setResponse('');
+                  onClose();
+                }
+              }}
+              disabled={!response || response.trim() === ''}
+              className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white ${response && response.trim() !== '' ? 'bg-[#E6B325] hover:bg-[#d0a31a]' : 'bg-gray-300 cursor-not-allowed'}`}
+            >
+              Respond
+            </button>
+          )}
         </div>
       </div>
     </Modal>
