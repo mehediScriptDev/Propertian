@@ -259,15 +259,15 @@ export default function PartnerInquiriesPage() {
                 <div key={inquiry.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-gray-900 break-words whitespace-normal truncate">{inquiry.property?.title || `Inquiry #${inquiry.id}`}</div>
-                      <div className="text-sm text-gray-500 break-words whitespace-normal truncate">{inquiry.property?.address || ""}</div>
+                      <div className="font-semibold text-gray-900 wrap-break-word whitespace-normal truncate">{inquiry.property?.title || `Inquiry #${inquiry.id}`}</div>
+                      <div className="text-sm text-gray-500 wrap-break-word whitespace-normal truncate">{inquiry.property?.address || ""}</div>
                     </div>
                     <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(inquiry.status)}`}>{inquiry.status}</span>
                   </div>
 
                   <div className="space-y-1 text-sm">
-                    <div className="text-gray-600 font-medium break-words whitespace-pre-wrap">{inquiry.subject}</div>
-                    <div className="text-gray-600 break-words whitespace-pre-wrap">{inquiry.message}</div>
+                    <div className="text-gray-600 font-medium wrap-break-word whitespace-pre-wrap">{inquiry.subject}</div>
+                    <div className="text-gray-600 wrap-break-word whitespace-pre-wrap">{inquiry.message}</div>
                   </div>
 
                   <div className="text-xs text-gray-500">{formatDate(inquiry.created_at)}</div>
@@ -524,24 +524,59 @@ export default function PartnerInquiriesPage() {
                 <button
                   onClick={async () => {
                     if (!responseText || responseText.trim() === '') return;
-                    try {
-                      // Use the respond endpoint with the expected payload
-                      await api.post(`/inquiries/${selectedInquiry.id}/respond`, {
-                        responseMessage: responseText,
-                      });
 
-                      setSelectedInquiry((s) => ({
-                        ...s,
-                        response: responseText,
-                        responded_by: 'You',
-                        responded_at: new Date().toISOString(),
-                        status: 'responded',
-                      }));
-                      setResponseText('');
-                      showToast('Response sent', 'success');
-                    } catch (err) {
-                      console.error('Failed to send response', err);
-                      showToast('Failed to send response', 'error');
+                    // Try a sequence of payload shapes until one succeeds
+                    const candidatePayloads = [
+                      { responseMessage: responseText },
+                      { response_message: responseText },
+                      { response: responseText },
+                      { message: responseText },
+                    ];
+
+                    let lastError = null;
+                    for (const payload of candidatePayloads) {
+                      try {
+                        console.log('Attempting respond POST ->', `/inquiries/${selectedInquiry.id}/respond`, payload);
+                        const resp = await api.post(`/inquiries/${selectedInquiry.id}/respond`, payload);
+                        console.log('Respond succeeded with payload', payload, 'response:', resp);
+
+                        setSelectedInquiry((s) => ({
+                          ...s,
+                          response: responseText,
+                          responded_by: 'You',
+                          responded_at: new Date().toISOString(),
+                          status: 'responded',
+                        }));
+                        setResponseText('');
+                        showToast('Response sent', 'success');
+                        lastError = null;
+                        break; // success, stop trying
+                      } catch (err) {
+                        // capture error and continue trying other shapes if validation failed
+                        console.warn('Respond attempt failed with payload', payload, err?.data || err?.response || err || null);
+                        lastError = err;
+
+                        // If server returned a hard error (not validation), stop trying
+                        const status = err?.status || err?.response?.status || null;
+                        const msg = err?.data?.message || err?.message || '';
+                        const isValidation = msg && msg.toString().toLowerCase().includes('validation');
+                        if (status && status >= 500) {
+                          break;
+                        }
+                        if (!isValidation && status && status !== 422 && status !== 400) {
+                          // unknown non-validation error; stop
+                          break;
+                        }
+                        // otherwise continue to next candidate
+                      }
+                    }
+
+                    if (lastError) {
+                      console.error('All payload attempts failed', lastError, lastError?.data || lastError?.response || null);
+                      const serverMessage = lastError?.data?.message || lastError?.message || 'Failed to send response';
+                      const details = lastError?.data?.errors || lastError?.data?.details || lastError?.data || lastError?.response?.data || null;
+                      const detailText = details ? `: ${JSON.stringify(details)}` : '';
+                      showToast(serverMessage + detailText, 'error');
                     }
                   }}
                   className="px-6 py-2 bg-[#E6B325] hover:bg-[#d4a520] text-black font-semibold rounded-lg transition-colors"
