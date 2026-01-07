@@ -62,6 +62,7 @@ const PropertyDetailPage = () => {
           // phone: formState.phone,
         };
 
+        console.log('Submitting inquiry payload ->', payload);
         await api.post('/inquiries', payload);
 
         setIsModalOpen(false);
@@ -158,7 +159,7 @@ const PropertyDetailPage = () => {
         };
 
         const normalized = {
-          id: p.id,
+          id: p.id || p._id,
           name: p.title || p.name || p.description || '',
           title: p.title || p.name || '',
           developer: p.developerName || p.developer || (p.owner ? `${p.owner.firstName || ''} ${p.owner.lastName || ''}`.trim() : ''),

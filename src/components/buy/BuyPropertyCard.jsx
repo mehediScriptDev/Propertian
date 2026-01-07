@@ -51,7 +51,8 @@ export default function BuyPropertyCard({ property }) {
   // Prefer first image from images array, fall back to any single-image field or a local placeholder
   const image = (images && images.length && images[0]) || property.image || '/buy-rent/thumb.png';
   // console.log(property)
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const showFavorite = !(user?.role === 'admin' || user?.role === 'partner');
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(Boolean(property.isFavorite));
 
@@ -175,14 +176,16 @@ export default function BuyPropertyCard({ property }) {
           <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
             {location}
           </p>
-          <button
-            title={isFavorite ? 'Remove favourite' : 'Add favourite'}
-            onClick={handleToggleFavorite}
-            aria-pressed={isFavorite}
-            className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
-          >
-            {isFavorite ? <FaHeart /> : <AiOutlineHeart />}
-          </button>
+          {showFavorite && (
+            <button
+              title={isFavorite ? 'Remove favourite' : 'Add favourite'}
+              onClick={handleToggleFavorite}
+              aria-pressed={isFavorite}
+              className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
+            >
+              {isFavorite ? <FaHeart /> : <AiOutlineHeart />}
+            </button>
+          )}
         </div>
 
         {/* Title */}

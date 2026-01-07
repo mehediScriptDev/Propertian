@@ -41,7 +41,7 @@ export default function RentDetailsPage() {
         if (!p) throw new Error('Property not found');
 
         const normalized = {
-          id: p.id,
+          id: p.id || p._id,
           title: p.title,
           location: `${p.city || ''}${p.state ? ', ' + p.state : ''}`,
           priceXOF: p.price || p.priceXOF,
@@ -101,11 +101,12 @@ export default function RentDetailsPage() {
         propertyTitle: property?.title,
         message: formState.message,
       };
+      console.log('Submitting inquiry payload ->', payload);
       await api.post('/inquiries', payload);
       setIsModalOpen(false);
       showToast('Inquiry sent successfully', 'success');
     } catch (err) {
-      console.error('Failed to submit inquiry', err);
+      console.error('Failed to submit inquiry', err, err?.response || err?.data || null);
       const msg = (err && err.message) ? err.message : 'Failed to send inquiry. Please try again.';
       showToast(msg, 'error');
     }

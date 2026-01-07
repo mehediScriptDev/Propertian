@@ -62,11 +62,12 @@ export default function BuyDetailsPage() {
         propertyTitle: uiProperty?.title,
         message: formState.message,
       };
+      console.log('Submitting inquiry payload ->', payload);
       await api.post('/inquiries', payload);
       setIsModalOpen(false);
       showToast('Inquiry sent successfully', 'success');
     } catch (err) {
-      console.error('Failed to submit inquiry', err);
+      console.error('Failed to submit inquiry', err, err?.response || err?.data || null);
       const msg = (err && err.message) ? err.message : 'Failed to send inquiry. Please try again.';
       showToast(msg, 'error');
     }
@@ -133,7 +134,7 @@ export default function BuyDetailsPage() {
   );
 
   const uiProperty = {
-    id: property.id,
+    id: property.id || property._id,
     title: property.title,
     description: property.description,
     images,

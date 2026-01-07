@@ -38,7 +38,8 @@ export default function RentalPropertyCard({ property }) {
     bathrooms,
   } = property;
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const showFavorite = !(user?.role === 'admin' || user?.role === 'partner');
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(Boolean(property.isFavorite));
 
@@ -122,33 +123,35 @@ export default function RentalPropertyCard({ property }) {
           <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
             {location}
           </p>
-          <button
-            title={isFavorite ? 'Remove favourite' : 'Add favourite'}
-            onClick={async (e) => {
-              e.preventDefault();
-              e.stopPropagation();
+          {showFavorite && (
+            <button
+              title={isFavorite ? 'Remove favourite' : 'Add favourite'}
+              onClick={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
 
-              if (!isAuthenticated) {
-                const locale = (typeof window !== 'undefined' && window.location.pathname.split('/')[1]) || 'en';
-                router.push(`/${locale}/login`);
-                return;
-              }
+                if (!isAuthenticated) {
+                  const locale = (typeof window !== 'undefined' && window.location.pathname.split('/')[1]) || 'en';
+                  router.push(`/${locale}/login`);
+                  return;
+                }
 
-              const prev = isFavorite;
-              setIsFavorite(!prev);
+                const prev = isFavorite;
+                setIsFavorite(!prev);
 
-              try {
-                await axios.post(`/properties/${id}/favorite`);
-              } catch (err) {
-                console.error('Favorite request failed', err);
-                setIsFavorite(prev);
-              }
-            }}
-            aria-pressed={isFavorite}
-            className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
-          >
-            {isFavorite ? <GoHeartFill /> : <AiOutlineHeart />}
-          </button>
+                try {
+                  await axios.post(`/properties/${id}/favorite`);
+                } catch (err) {
+                  console.error('Favorite request failed', err);
+                  setIsFavorite(prev);
+                }
+              }}
+              aria-pressed={isFavorite}
+              className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
+            >
+              {isFavorite ? <GoHeartFill /> : <AiOutlineHeart />}
+            </button>
+          )}
         </div>
 
         {/* Title */}

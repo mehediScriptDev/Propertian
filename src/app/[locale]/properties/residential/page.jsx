@@ -270,7 +270,7 @@ export default function ResidentialPage() {
             // Three-card skeleton while developments load
             <>
               <div className='col-span-1'>
-                <article className='flex flex-col gap-3 rounded-xl bg-white/50 border border-[#f6efcb] shadow-md overflow-hidden'>
+                <article className='flex flex-col gap-3 rounded-xl bg-white/50 border border-transparent overflow-hidden'>
                   <div className='w-full aspect-video bg-gray-200 animate-pulse' />
                   <div className='p-4'>
                     <div className='h-5 bg-gray-200 rounded w-3/4 mb-2 animate-pulse' />
@@ -282,7 +282,7 @@ export default function ResidentialPage() {
               </div>
 
               <div className='col-span-1'>
-                <article className='flex flex-col gap-3 rounded-xl bg-white/50 border border-[#f6efcb] shadow-md overflow-hidden'>
+                <article className='flex flex-col gap-3 rounded-xl bg-white/50 border border-transparent overflow-hidden'>
                   <div className='w-full aspect-video bg-gray-200 animate-pulse' />
                   <div className='p-4'>
                     <div className='h-5 bg-gray-200 rounded w-3/4 mb-2 animate-pulse' />
@@ -294,7 +294,7 @@ export default function ResidentialPage() {
               </div>
 
               <div className='col-span-1'>
-                <article className='flex flex-col gap-3 rounded-xl bg-white/50 border border-[#f6efcb] shadow-md overflow-hidden'>
+                <article className='flex flex-col gap-3 rounded-xl bg-white/50 border border-transparent overflow-hidden'>
                   <div className='w-full aspect-video bg-gray-200 animate-pulse' />
                   <div className='p-4'>
                     <div className='h-5 bg-gray-200 rounded w-3/4 mb-2 animate-pulse' />
