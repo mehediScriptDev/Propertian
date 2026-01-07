@@ -681,6 +681,7 @@ export default function AddPropertyForm({
                     >
                       <option value="SALE">SALE</option>
                       <option value="RENT">RENT</option>
+                      <option value="DEVELOPMENT">DEVELOPMENT</option>
                     </select>
                   </div>
 
