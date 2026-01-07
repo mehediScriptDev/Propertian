@@ -27,6 +27,7 @@ import {
   Globe,
   Briefcase,
   HelpCircle,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -162,6 +163,11 @@ const navigationConfig = {
       key: 'dashboard.partner.inquiries',
       href: '/dashboard/partner/inquiries',
       icon: Mail,
+    },
+    {
+      key: 'Verifications',
+      href: '/dashboard/partner/verified-properties',
+      icon: ShieldCheck,
     },
     // {
     //   key: 'dashboard.partner.developerPortal',
