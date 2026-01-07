@@ -939,45 +939,123 @@ export default function AddPropertyForm({
                 <div>
                   <label
                     htmlFor="images"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mb-3"
                   >
                     Images *{" "}
                     <span className="text-xs text-gray-500 ml-1">required</span>
                   </label>
-                  <input
-                    id="images"
-                    name="images"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    ref={imagesRef}
-                    onChange={handleImagesChange}
-                    className="mt-1 block w-full"
-                  />
-                  {errors.images && (
-                    <p className="mt-1 text-xs text-red-600">{errors.images}</p>
-                  )}
-                  <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-3">
-                    {imagePreviews.map((src, i) => (
-                      <div
-                        key={src}
-                        className="relative rounded-md overflow-hidden border"
-                      >
-                        <img
-                          src={src}
-                          alt={`preview-${i}`}
-                          className="w-full h-24 object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImageAt(i)}
-                          className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm text-red-600"
-                        >
-                          ×
-                        </button>
+                  
+                  {/* Custom drag-and-drop upload area */}
+                  <div
+                    onClick={() => imagesRef.current?.click()}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.classList.add('border-[#d4af37]', 'bg-[#d4af37]/5');
+                    }}
+                    onDragLeave={(e) => {
+                      e.currentTarget.classList.remove('border-[#d4af37]', 'bg-[#d4af37]/5');
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.classList.remove('border-[#d4af37]', 'bg-[#d4af37]/5');
+                      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                        handleImagesChange({ target: { files: e.dataTransfer.files } });
+                      }
+                    }}
+                    className="relative border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer transition-all duration-200 hover:border-[#d4af37] hover:bg-gray-50 group"
+                  >
+                    <input
+                      id="images"
+                      name="images"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      ref={imagesRef}
+                      onChange={handleImagesChange}
+                      className="hidden"
+                    />
+                    
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      {/* Upload Icon */}
+                      <div className="w-16 h-16 rounded-full bg-gray-100 group-hover:bg-[#d4af37]/10 flex items-center justify-center transition-colors">
+                        <svg className="w-8 h-8 text-gray-400 group-hover:text-[#d4af37] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
                       </div>
-                    ))}
+                      
+                      {/* Text */}
+                      <div>
+                        <p className="text-base font-medium text-gray-700">
+                          <span className="text-[#d4af37] hover:text-[#b8941f]">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          PNG, JPG, JPEG up to 10MB each
+                        </p>
+                      </div>
+                      
+                      {/* Selected count */}
+                      {imagePreviews.length > 0 && (
+                        <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[#d4af37]/10 text-[#d4af37]">
+                          {imagePreviews.length} {imagePreviews.length === 1 ? 'image' : 'images'} selected
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  
+                  {errors.images && (
+                    <p className="mt-2 text-xs text-red-600 flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {errors.images}
+                    </p>
+                  )}
+                  
+                  {/* Image Previews */}
+                  {imagePreviews.length > 0 && (
+                    <div className="mt-6">
+                      <h3 className="text-sm font-medium text-gray-700 mb-3">
+                        Selected Images ({imagePreviews.length})
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {imagePreviews.map((src, i) => (
+                          <div
+                            key={src}
+                            className="relative group rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#d4af37] transition-all"
+                          >
+                            <div className="aspect-square relative bg-gray-100">
+                              <img
+                                src={src}
+                                alt={`preview-${i}`}
+                                className="w-full h-full object-cover"
+                              />
+                              
+                              {/* First image badge */}
+                              {i === 0 && (
+                                <div className="absolute top-2 left-2">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-[#d4af37] text-white shadow-sm">
+                                    Cover Photo
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* Remove button */}
+                              <button
+                                type="button"
+                                onClick={() => removeImageAt(i)}
+                                className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-red-600 hover:bg-red-600 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                title="Remove image"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </section>
 
