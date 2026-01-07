@@ -31,7 +31,7 @@ export default function PartnerAddPropertyPage({ params }) {
       <h1 className='text-4xl font-bold text-gray-900 mb-2'>{translations.title}</h1>
       <p className='text-base text-gray-600'>{translations.subtitle}</p>
 
-      <div className='rounded-lg bg-white shadow-sm overflow-hidden p-4 sm:p-6'>
+      <div className='rounded-lg bg-white shadow-sm overflow-hidden  '>
         {/* Pass defaultVerified=false so partner submissions are not verified */}
         <AddPropertyForm
           translations={translations}

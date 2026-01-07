@@ -405,9 +405,9 @@ export default function AddPropertyForm({
   ];
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <div className=" mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Create Property Listing</h1>
+    <div className="p-4 sm:px-6">
+      <div className="mx-auto">
+        {/* <h1 className="text-2xl font-bold mb-4">Create Property Listing</h1> */}
 
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           {/* Custom success alert */}
@@ -1068,7 +1068,6 @@ export default function AddPropertyForm({
                     <strong>Furnishing:</strong> {form.furnishing}
                   </li>
                   <li>
-                    <strong>Amenities:</strong>{" "}
                     {(form.amenities || []).join(", ") || "—"}
                   </li>
                 </ul>
