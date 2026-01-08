@@ -185,6 +185,65 @@ const navigationConfig = {
       icon: UserCircle,
     },
   ],
+  sponsor: [
+    {
+      key: 'Overview' ,
+      href: '/dashboard/sponsor',
+      icon: Briefcase,
+    },
+    {
+      key: 'Event Submissions',
+      href: '/dashboard/sponsor/submit',
+      icon: Calendar,
+    },
+    {
+      key: 'Assets',
+      href: '/dashboard/sponsor/assets',
+      icon: Image,
+    },
+    {
+      key: 'Approvals',
+      href: '/dashboard/sponsor/approvals',
+      icon: ShieldCheck,
+    },
+    // {
+    //   key: 'Metrics',
+    //   href: '/dashboard/sponsor/metrics',
+    //   icon: Calendar,
+    // },
+    {
+      key: 'dashboard.partner.profile',
+      href: '/dashboard/partner/profile',
+      icon: UserCircle,
+    },
+  ],
+  concierge: [
+    {
+      key: 'Overview',
+      href: '/dashboard/concierge',
+      icon: Briefcase,
+    },
+    {
+      key: 'Service Tickets',
+      href: '/dashboard/concierge/tickets',
+      icon: Mail,
+    },
+    {
+      key: 'Client Services',
+      href: '/dashboard/concierge/services',
+      icon: Users,
+    },
+    {
+      key: 'Schedule',
+      href: '/dashboard/concierge/schedule',
+      icon: Calendar,
+    },
+    // {
+    //   key: 'Reports',
+    //   href: '/dashboard/concierge/reports',
+    //   icon: FileText,
+    // },
+  ],
 };
 
 /**
@@ -204,8 +263,23 @@ export default function Sidebar({ role = 'admin' }) {
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Memoize navigation items to prevent unnecessary re-renders
-  const navigationItems = useMemo(() => navigationConfig[role] || [], [role]);
+  // Decide which navigation set to render.
+  // For partners we may render different menus depending on subrole or path.
+  const navigationItems = useMemo(() => {
+    // Non-partner roles use the static mapping
+    if (role !== 'partner') return navigationConfig[role] || [];
+
+    // Determine partner view: explicit pathname override preferred, then user.subrole
+    const partnerViewFromPath = pathname?.includes('/dashboard/sponsor')
+      ? 'sponsor'
+      : pathname?.includes('/dashboard/concierge')
+      ? 'concierge'
+      : null;
+
+    const effectiveView = partnerViewFromPath || user?.subrole || 'partner';
+
+    return navigationConfig[effectiveView] || navigationConfig.partner;
+  }, [role, pathname, user?.subrole]);
 
   // Close mobile menu when route changes
   if (pathname !== prevPathname) {
@@ -260,6 +334,14 @@ export default function Sidebar({ role = 'admin' }) {
       }
       return pathname === fullHref;
     }
+    // For top-level sponsor/concierge overview links we only want an exact match
+    // so that child routes (eg. /dashboard/sponsor/approvals) don't also
+    // highlight the Overview link. Treat other links as prefix-matching.
+    const exactOnlyRoots = ['/dashboard/sponsor', '/dashboard/concierge'];
+    if (exactOnlyRoots.includes(href)) {
+      return pathname === fullHref;
+    }
+
     return pathname.startsWith(fullHref);
   };
 

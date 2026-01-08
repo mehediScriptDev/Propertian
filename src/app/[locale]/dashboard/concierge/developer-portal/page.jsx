@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
-import Link from "next/link";
 
 // Aggressively lazy load non-critical components
 const StatsCard = dynamic(
@@ -175,32 +174,28 @@ export default function DeveloperPortalPage() {
   // Static stats data - moved outside component for better performance
   const stats = [
     {
-      title: "Active Listings",
-      value: 90,
-      trend: "+15 this week",
-      variant: "success",
-      icon: Building2,
-    },
-    {
-      title: "Verified Properties",
+      title: t("Developer_Portal.TotalProjects"),
       value: 12,
       trend: "+2 this month",
       variant: "primary",
-      icon: CheckCircle,
     },
     {
-      title: "Unverified Properties",
-      value: 78,
+      title: t("Developer_Portal.ActiveListings"),
+      value: 90,
+      trend: "+15 this week",
+      variant: "success",
+    },
+    {
+      title: t("Developer_Portal.UnitsSold"),
+      value: 247,
       trend: "+32 this month",
       variant: "info",
-      icon: XCircle,
     },
     {
-      title: "Pending Verifications",
-      value: "85",
+      title: t("Developer_Portal.TotalRevenue"),
+      value: "8.2M",
       trend: "+18%",
       variant: "warning",
-      icon: Clock,
     },
   ];
 
@@ -268,20 +263,19 @@ export default function DeveloperPortalPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              Verification overview
+              {t("Developer_Portal.DeveloperPortal")}
             </h1>
             <p className="mt-2 text-sm text-gray-600">
-              Manage all your verified property listings in one place.
+              {t("Developer_Portal.title")}
             </p>
           </div>
-          <Link
-          href={'./'}
+          <button
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none"
             aria-label="Add new project"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
-            Submit new property
-          </Link>
+            {t("Developer_Portal.addButton")}
+          </button>
         </div>
       </div>
 
@@ -303,7 +297,6 @@ export default function DeveloperPortalPage() {
               value={stat.value}
               trend={stat.trend}
               variant={stat.variant}
-              icon={stat.icon}
             />
           ))}
         </div>
@@ -313,7 +306,7 @@ export default function DeveloperPortalPage() {
       <div className="rounded-lg bg-white/50 shadow-sm border border-gray-200">
         <div className="border-b border-gray-200 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">My Properties</h2>
+            <h2 className="text-lg font-semibold text-gray-900">My Projects</h2>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               {/* Search */}
               <div className="relative flex-1 sm:w-64">
@@ -343,17 +336,28 @@ export default function DeveloperPortalPage() {
                   className="w-full appearance-none rounded-lg border border-gray-300 py-2 pl-10 pr-10 text-sm transition-colors focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325] sm:w-auto"
                   aria-label="Filter by status"
                 >
-                  <option value="all">All</option>
-                  <option value="all">Verified</option>
-                  <option value="active">Unverified</option>
+                  <option value="all">{t("Developer_Portal.AllStatus")}</option>
+                  <option value="active">{t("Developer_Portal.Active")}</option>
                   <option value="pending">
-                    Pending
+                    {t("Developer_Portal.Pending")}
                   </option>
                   <option value="completed">
-                    Rejected
+                    {t("Developer_Portal.Completed")}
                   </option>
                 </select>
               </div>
+
+              {/* Export Data Button */}
+              <button
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white/50 px-4 py-2 text-sm font-medium text-gray-900 transition-colors hover:border-[#E6B325] hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
+                aria-label="Export data"
+              >
+                <Download
+                  className="h-4 w-4 text-[#E6B325]"
+                  aria-hidden="true"
+                />
+                <span>{t("Developer_Portal.ExportData")}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -370,17 +374,17 @@ export default function DeveloperPortalPage() {
                   {t("Developer_Portal.Location")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Reviewer
-                </th>
-                
-               
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Application {t("Developer_Portal.Status")}
+                  {t("Developer_Portal.Location")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                   {t("Developer_Portal.Status")}
+                  {t("Developer_Portal.Units")}
                 </th>
-                
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  {t("Developer_Portal.Status")}
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  {t("Developer_Portal.LastUpdated")}
+                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                   {t("Developer_Portal.Actions")}
                 </th>
@@ -398,18 +402,21 @@ export default function DeveloperPortalPage() {
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {project.location}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    Admin
+                  <td className="px-6 py-4 text-sm">
+                    <span className="font-medium text-gray-900">
+                      {project.sold}
+                    </span>
+                    <span className="text-gray-500">/{project.units}</span>
                   </td>
-                 
-                   <td className="px-6 py-4">
-                    {getStatusBadge(project.status)}
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                    ${project.revenue}
                   </td>
                   <td className="px-6 py-4">
-                    Pending
+                    {getStatusBadge(project.status)}
                   </td>
-                 
-                 
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {new Date(project.lastUpdated).toLocaleDateString()}
+                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">
                       <button
