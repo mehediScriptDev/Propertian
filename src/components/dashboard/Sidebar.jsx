@@ -213,7 +213,7 @@ const navigationConfig = {
     // },
     {
       key: 'dashboard.partner.profile',
-      href: '/dashboard/partner/profile',
+      href: '/dashboard/sponsor/profile',
       icon: UserCircle,
     },
   ],
@@ -243,6 +243,11 @@ const navigationConfig = {
     //   href: '/dashboard/concierge/reports',
     //   icon: FileText,
     // },
+    {
+      key: 'dashboard.partner.profile',
+      href: '/dashboard/concierge/profile',
+      icon: UserCircle,
+    },
   ],
 };
 
