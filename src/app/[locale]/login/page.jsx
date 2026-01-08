@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import Image from 'next/image';
 import SignInForm from '@/components/auth/SignInForm';
 // DevPartnerLogin is a client component (has "use client") and can be imported directly
-import DevPartnerLogin from '@/components/auth/DevPartnerLogin';
+// import DevPartnerLogin from '@/components/auth/DevPartnerLogin';
 
 export const metadata = {
   title: "Sign In | Q Homes - Your Gateway to Côte d'Ivoire Real Estate",
@@ -54,7 +54,7 @@ export default function LoginPage() {
         <div className='flex flex-col w-full max-w-md flex-1 items-center justify-center'>
           <Suspense fallback={<FormSkeleton />}>
             <SignInForm />
-            <DevPartnerLogin />
+            {/* <DevPartnerLogin /> */}
           </Suspense>
         </div>
       </div>

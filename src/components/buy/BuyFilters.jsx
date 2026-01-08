@@ -25,7 +25,7 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
   });
 
   const [filters, setFilters] = useState({
-    city: initialFilters.city || 'abidjan',
+    city: initialFilters.city || 'any',
     bedrooms: initialFilters.bedrooms || 'any',
     bathrooms: initialFilters.bathrooms || 'any',
     propertyType: initialFilters.propertyType || 'any',
@@ -64,6 +64,7 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
                   onBlur={() => handleDropdownBlur('city')}
                   className='w-full h-9 px-2 pr-7 rounded-lg dark:border-border-dark bg-background-light border border-gray-300 dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-xs appearance-none cursor-pointer outline-none'
                 >
+                  <option value='any'>{t('common.any', 'Any')}</option>
                   <option value='abidjan'>{t('buy.filters.cities.abidjan', 'Abidjan')}</option>
                   <option value='assinie'>{t('buy.filters.cities.assinie', 'Assinie-Mafia')}</option>
                   <option value='yamoussoukro'>{t('buy.filters.cities.yamoussoukro', 'Yamoussoukro')}</option>
@@ -210,7 +211,7 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
               {t('buy.filters.cityLabel')}
             </label>
             <div className='relative'>
-              <select
+                <select
                 id='city-desktop'
                 value={filters.city}
                 onChange={(e) => handleFilterChange('city', e.target.value)}
@@ -218,6 +219,7 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
                 onBlur={() => handleDropdownBlur('city')}
                 className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer outline-none'
               >
+                <option value='any'>{t('common.any', 'Any')}</option>
                 <option value='abidjan'>{t('buy.filters.cities.abidjan', 'Abidjan')}</option>
                 <option value='assinie'>{t('buy.filters.cities.assinie', 'Assinie-Mafia')}</option>
                 <option value='yamoussoukro'>{t('buy.filters.cities.yamoussoukro', 'Yamoussoukro')}</option>

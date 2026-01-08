@@ -125,6 +125,16 @@ const nextConfig = {
       },
     ];
   },
+
+  // Proxy API requests to avoid CORS in development
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://quiahgroup1backend.mtscorporate.com/api/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

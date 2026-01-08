@@ -7,6 +7,7 @@ import BuyHero from '@/components/buy/BuyHero';
 import BuyFilters from '@/components/buy/BuyFilters';
 import BuyPropertyCard from '@/components/buy/BuyPropertyCard';
 import api from '@/lib/api';
+import Link from 'next/link';
 // Use API `properties` as source of truth (fetched below)
 
 export default function BuyPage() {
@@ -15,10 +16,10 @@ export default function BuyPage() {
 
   // Filter state
   const [filters, setFilters] = useState({
-    city: 'abidjan',
+    city: 'any',
     bedrooms: 'any',
     propertyType: 'any',
-    verifiedOnly: true,
+    verifiedOnly: false,
   });
 
   // Sort and display state
@@ -67,8 +68,8 @@ export default function BuyPage() {
       if (property.listingType && property.listingType.toUpperCase() !== 'SALE') return false;
 
       // City filter
-      if (filters.city && property.city && property.city.toLowerCase() !== filters.city.toLowerCase()) {
-        return false;
+      if (filters.city && filters.city !== 'any') {
+        if (!property.city || property.city.toLowerCase() !== filters.city.toLowerCase()) return false;
       }
 
       // Bedrooms filter
@@ -134,12 +135,15 @@ export default function BuyPage() {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
+    // `api.get` returns `response.data` (not the full axios response).
+    // API may return either `{ properties: [...] }` or `{ data: { properties: [...] } }`.
     api.get(`/properties?listingType=SALE`)
-      .then(res => {
+      .then((data) => {
         if (!mounted) return;
-        setProperties(res?.data?.properties || []);
+        const props = data?.data?.properties ?? data?.properties ?? [];
+        setProperties(props);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         if (mounted) setProperties([]);
       })
@@ -300,12 +304,12 @@ export default function BuyPage() {
                   'Our team can help you find the perfect property. Contact us for personalized assistance.'
                 )}
               </p>
-              <a
+              <Link
                 href={`/${locale}/contact`}
                 className='inline-flex items-center justify-center min-w-[140px] px-6 sm:px-8 py-2.5 sm:py-3 bg-primary hover:bg-primary-dark text-white font-semibold text-sm sm:text-base rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
               >
                 {t('buy.cta.button', 'Contact Us')}
-              </a>
+              </Link>
             </div>
           </div>
         </section>

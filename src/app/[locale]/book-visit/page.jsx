@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { getRentPropertyById } from '@/lib/rentProperties';
 import { getResidentialPropertyById } from '@/lib/residentialProperties';
 import axios from '@/lib/axios';
+import { showToast } from '@/components/Toast';
 
 export default function HotelBooking() {
   const [category, setCategory] = useState(() => {
@@ -144,6 +145,11 @@ export default function HotelBooking() {
     };
   }, [derivedPropertyId, derivedCategory]);
 
+  // Keep `property` state in sync when user navigates client-side with query params
+  useEffect(() => {
+    if (derivedPropertyId) setProperty(derivedPropertyId);
+  }, [derivedPropertyId]);
+
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -181,11 +187,25 @@ export default function HotelBooking() {
     if (derivedEnd) payload.endDate = derivedEnd;
     if (totalAmount) payload.totalAmount = Number(totalAmount);
 
+    // Client-side validation: ensure end date is after start date when both provided
+    if (startDate && endDate) {
+      try {
+        const s = new Date(startDate);
+        const en = new Date(endDate);
+        if (isNaN(s) || isNaN(en) || en <= s) {
+          showToast('End date must be after start date.', 'error');
+          return;
+        }
+      } catch (validationErr) {
+        // fallback: let server validate if parsing fails
+      }
+    }
+
     try {
       setSubmitting(true);
       const res = await axios.post('/bookings', payload);
       console.log('Booking response:', res);
-      alert('Request submitted successfully.');
+      showToast('Request submitted successfully.', 'success');
 
       // reset form except property
       setFullName('');
@@ -195,8 +215,20 @@ export default function HotelBooking() {
       setMessage('');
     } catch (err) {
       console.error('Booking error:', err);
-      const msg = err?.message || (err?.data && err.data.message) || 'Failed to submit request.';
-      alert(msg);
+
+      // Prefer server-provided message when present (axios puts body on err.response.data)
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.data?.message;
+
+      // If server returned 5xx, show a friendly message and log details to console
+      const status = err?.response?.status;
+      if (status && status >= 500) {
+        console.error('Server error details:', err?.response?.data);
+        showToast('Server error while submitting request. Please try again later.', 'error');
+      } else if (serverMsg) {
+        showToast(serverMsg, 'error');
+      } else {
+        showToast(err?.message || 'Failed to submit request.', 'error');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -390,75 +422,93 @@ export default function HotelBooking() {
 
           {/* Right Column - Room / Property Details (kept as-is) */}
           <div>
-            <div className="bg-white/50 rounded-lg shadow-sm overflow-hidden">
-              <div className="w-full h-56 relative">
-                <Image
-                  src={propertyData?.image || propertyData?.heroImage || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&h=400&fit=crop'}
-                  alt={propertyData?.title || propertyData?.name || 'Property'}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 800px"
-                  className="object-cover rounded-t-lg"
-                  unoptimized={false}
-                />
-              </div>
-
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
+                <div className="bg-white/50 rounded-lg shadow-sm overflow-hidden">
+                {derivedPropertyId && !propertyData ? (
                   <div>
-                    <h2 className="text-2xl font-bold">{propertyData?.title || propertyData?.name || 'Property'}</h2>
-                    {propertyData?.location || propertyData?.address ? (
-                      <p className="text-sm text-gray-600">{propertyData?.location || propertyData?.address}</p>
-                    ) : null}
-                  </div>
-                  <span className="text-2xl font-bold">{propertyData?.priceUSD ? `$${propertyData.priceUSD}` : propertyData?.priceXOF ? `${propertyData.priceXOF} XOF` : '—'}</span>
-                </div>
-
-                <p className="text-gray-600 mb-6">
-                  {propertyData?.description || propertyData?.overview?.startingPrice || 'No additional details available.'}
-                </p>
-
-                <h3 className="font-semibold mb-4">Room features</h3>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2 text-primary">
-                      <Bed className="w-5 h-5" />
-                      <span className="text-lg font-bold">{propertyData?.bedrooms ?? bedrooms ?? '—'}</span>
-                    </div>
-                    <div className="text-sm text-gray-600">Bedrooms</div>
-                  </div>
-
-                  <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2 text-primary">
-                      <span className="text-lg font-bold">{propertyData?.bathrooms ?? bathrooms ?? '—'}</span>
-                    </div>
-                    <div className="text-sm text-gray-600">Bathrooms</div>
-                  </div>
-
-                  <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2 text-primary">
-                      <Square className="w-5 h-5" />
-                      <span className="text-lg font-bold">{propertyData?.sqft ? `${propertyData.sqft} m²` : size ? `${size} m²` : '—'}</span>
-                    </div>
-                    <div className="text-sm text-gray-600">Size</div>
-                  </div>
-
-                  {garages ? (
-                    <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-2 text-primary">
-                        <ParkingCircle className="w-5 h-5" />
-                        <span className="text-lg font-bold">{propertyData?.garages ?? garages}</span>
+                    <div className="w-full h-56 bg-gray-200 rounded-t-lg animate-pulse" />
+                    <div className="p-6">
+                      <div className="h-6 bg-gray-200 rounded w-3/4 mb-3 animate-pulse" />
+                      <div className="h-4 bg-gray-200 rounded w-1/2 mb-4 animate-pulse" />
+                      <div className="space-y-3">
+                        <div className="h-3 bg-gray-200 rounded w-full animate-pulse" />
+                        <div className="h-3 bg-gray-200 rounded w-full animate-pulse" />
+                        <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse" />
                       </div>
-                      <div className="text-sm text-gray-600">Garages</div>
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-500 italic">No garage info</div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="w-full h-56 relative">
+                      <Image
+                        src={propertyData?.image || propertyData?.heroImage || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&h=400&fit=crop'}
+                        alt={propertyData?.title || propertyData?.name || 'Property'}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 800px"
+                        loading="eager"
+                        className="object-cover rounded-t-lg"
+                        unoptimized={false}
+                      />
                     </div>
-                  )}
-                </div>
+
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h2 className="text-2xl font-bold">{propertyData?.title || propertyData?.name || 'Property'}</h2>
+                          {propertyData?.location || propertyData?.address ? (
+                            <p className="text-sm text-gray-600">{propertyData?.location || propertyData?.address}</p>
+                          ) : null}
+                        </div>
+                        <span className="text-2xl font-bold">{propertyData?.priceUSD ? `$${propertyData.priceUSD}` : propertyData?.priceXOF ? `${propertyData.priceXOF} XOF` : '—'}</span>
+                      </div>
+
+                      <p className="text-gray-600 mb-6">
+                        {propertyData?.description || propertyData?.overview?.startingPrice || 'No additional details available.'}
+                      </p>
+
+                      <h3 className="font-semibold mb-4">Room features</h3>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2 text-primary">
+                            <Bed className="w-5 h-5" />
+                            <span className="text-lg font-bold">{propertyData?.bedrooms ?? bedrooms ?? '—'}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">Bedrooms</div>
+                        </div>
+
+                        <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2 text-primary">
+                            <span className="text-lg font-bold">{propertyData?.bathrooms ?? bathrooms ?? '—'}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">Bathrooms</div>
+                        </div>
+
+                        <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2 text-primary">
+                            <Square className="w-5 h-5" />
+                            <span className="text-lg font-bold">{propertyData?.sqft ? `${propertyData.sqft} m²` : size ? `${size} m²` : '—'}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">Size</div>
+                        </div>
+
+                        {garages ? (
+                          <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
+                            <div className="flex items-center gap-2 text-primary">
+                              <ParkingCircle className="w-5 h-5" />
+                              <span className="text-lg font-bold">{propertyData?.garages ?? garages}</span>
+                            </div>
+                            <div className="text-sm text-gray-600">Garages</div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
+                            <div className="text-sm text-gray-500 italic">No garage info</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
           </div>
         </div>
       </div>

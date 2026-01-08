@@ -60,6 +60,9 @@ const Pagination = memo(
 
     const pageNumbers = generatePageNumbers();
 
+    // How many items are visible on the current page
+    const shownCount = totalItems === 0 ? 0 : Math.max(0, endItem - startItem + 1);
+
     const handlePrevious = () => {
       if (currentPage > 1) {
         onPageChange(currentPage - 1);
@@ -85,8 +88,8 @@ const Pagination = memo(
           {/* Results Info (optional) */}
           {!hideInfo && (
             <div className='text-sm text-gray-700'>
-              {translations.showing} {startItem} {translations.to} {endItem}{' '}
-              {translations.of} {totalItems} {translations.results}
+              {translations.showing} {shownCount} {translations.of} {totalItems}{' '}
+              {translations.results ? translations.results : ''}
             </div>
           )}
 

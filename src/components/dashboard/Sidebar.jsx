@@ -27,6 +27,7 @@ import {
   Globe,
   Briefcase,
   HelpCircle,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -163,6 +164,11 @@ const navigationConfig = {
       href: '/dashboard/partner/inquiries',
       icon: Mail,
     },
+    {
+      key: 'Verifications',
+      href: '/dashboard/partner/verified-properties',
+      icon: ShieldCheck,
+    },
     // {
     //   key: 'dashboard.partner.developerPortal',
     //   href: '/dashboard/partner/developer-portal',
@@ -176,6 +182,70 @@ const navigationConfig = {
     {
       key: 'dashboard.partner.profile',
       href: '/dashboard/partner/profile',
+      icon: UserCircle,
+    },
+  ],
+  sponsor: [
+    {
+      key: 'Overview' ,
+      href: '/dashboard/sponsor',
+      icon: Briefcase,
+    },
+    {
+      key: 'Event Submissions',
+      href: '/dashboard/sponsor/submit',
+      icon: Calendar,
+    },
+    {
+      key: 'Assets',
+      href: '/dashboard/sponsor/assets',
+      icon: Image,
+    },
+    {
+      key: 'Approvals',
+      href: '/dashboard/sponsor/approvals',
+      icon: ShieldCheck,
+    },
+    // {
+    //   key: 'Metrics',
+    //   href: '/dashboard/sponsor/metrics',
+    //   icon: Calendar,
+    // },
+    {
+      key: 'dashboard.partner.profile',
+      href: '/dashboard/sponsor/profile',
+      icon: UserCircle,
+    },
+  ],
+  concierge: [
+    {
+      key: 'Overview',
+      href: '/dashboard/concierge',
+      icon: Briefcase,
+    },
+    {
+      key: 'Service Tickets',
+      href: '/dashboard/concierge/tickets',
+      icon: Mail,
+    },
+    {
+      key: 'Client Services',
+      href: '/dashboard/concierge/services',
+      icon: Users,
+    },
+    {
+      key: 'Schedule',
+      href: '/dashboard/concierge/schedule',
+      icon: Calendar,
+    },
+    // {
+    //   key: 'Reports',
+    //   href: '/dashboard/concierge/reports',
+    //   icon: FileText,
+    // },
+    {
+      key: 'dashboard.partner.profile',
+      href: '/dashboard/concierge/profile',
       icon: UserCircle,
     },
   ],
@@ -198,8 +268,23 @@ export default function Sidebar({ role = 'admin' }) {
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Memoize navigation items to prevent unnecessary re-renders
-  const navigationItems = useMemo(() => navigationConfig[role] || [], [role]);
+  // Decide which navigation set to render.
+  // For partners we may render different menus depending on subrole or path.
+  const navigationItems = useMemo(() => {
+    // Non-partner roles use the static mapping
+    if (role !== 'partner') return navigationConfig[role] || [];
+
+    // Determine partner view: explicit pathname override preferred, then user.subrole
+    const partnerViewFromPath = pathname?.includes('/dashboard/sponsor')
+      ? 'sponsor'
+      : pathname?.includes('/dashboard/concierge')
+      ? 'concierge'
+      : null;
+
+    const effectiveView = partnerViewFromPath || user?.subrole || 'partner';
+
+    return navigationConfig[effectiveView] || navigationConfig.partner;
+  }, [role, pathname, user?.subrole]);
 
   // Close mobile menu when route changes
   if (pathname !== prevPathname) {
@@ -242,8 +327,26 @@ export default function Sidebar({ role = 'admin' }) {
   const isActiveLink = (href) => {
     const fullHref = `/${locale}${href}`;
     if (href === `/dashboard/${role}`) {
+      // For the base dashboard link (e.g. /dashboard/partner) we normally
+      // only mark it active for the exact route. However the partner
+      // properties UI lives at /dashboard/partner and also under
+      // /dashboard/partner/properties/* (for example when adding a
+      // property). Treat those properties subroutes as active for the
+      // base partner link so the sidebar highlights "Properties" when
+      // the user is on either route.
+      if (role === 'partner') {
+        return pathname === fullHref || pathname.startsWith(`${fullHref}/properties`);
+      }
       return pathname === fullHref;
     }
+    // For top-level sponsor/concierge overview links we only want an exact match
+    // so that child routes (eg. /dashboard/sponsor/approvals) don't also
+    // highlight the Overview link. Treat other links as prefix-matching.
+    const exactOnlyRoots = ['/dashboard/sponsor', '/dashboard/concierge'];
+    if (exactOnlyRoots.includes(href)) {
+      return pathname === fullHref;
+    }
+
     return pathname.startsWith(fullHref);
   };
 

@@ -19,7 +19,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${manrope.variable} notranslate`} translate="no">
+    <html lang="en" data-scroll-behavior="smooth" className={`${manrope.variable} notranslate`} translate="no">
       <head>
         <meta name="google" content="notranslate" />
         <link

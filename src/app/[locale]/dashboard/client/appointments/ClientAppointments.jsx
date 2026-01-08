@@ -3,11 +3,12 @@ import React, { useState, useEffect, useRef, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
-import { Plus } from "lucide-react";
+import { Plus, X, AlertTriangle } from "lucide-react";
 import Modal from '@/components/Modal';
 import ConciergeForm from '@/components/concierge/ConciergeForm';
 import ConciergeModal from '@/components/concierge/component/ConciergeModal';
 import api from '@/lib/api';
+import { showToast } from '@/components/Toast';
 
 // Lazy load heavier child components to split bundles
 const AppointmentsHeader = React.lazy(() => import('../../../../../components/dashboard/client/AppointmentsHeader'));
@@ -43,8 +44,29 @@ export default function ClientAppointments() {
         return labels[status] || status;
     };
 
-    const handleDelete = (id) => setAppointments((prev) => prev.filter(apt => apt.id !== id));
     const handleStatusChange = (id, newStatus) => setAppointments((prev) => prev.map(apt => (apt.id === id ? { ...apt, status: newStatus } : apt)));
+
+    // delete confirmation modal state
+    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null });
+
+    const handleDelete = (id) => {
+        // open confirmation modal
+        setDeleteConfirm({ open: true, id });
+    };
+
+    const confirmDelete = async () => {
+        const id = deleteConfirm.id;
+        setDeleteConfirm({ open: false, id: null });
+        try {
+            await api.delete(`/bookings/${id}`);
+            setAppointments((prev) => prev.filter(apt => apt.id !== id));
+            showToast('Booking cancelled', 'success');
+        } catch (err) {
+            console.error('Failed to cancel booking', err);
+            const msg = err?.response?.data?.message || err?.message || 'Failed to cancel booking';
+            showToast(msg, 'error');
+        }
+    };
 
     const handleCreateAppointment = () => {
         const newAppointment = { id: Math.max(...appointments.map(a => a.id), 0) + 1, ...formData, status: 'pending' };
@@ -236,6 +258,46 @@ export default function ClientAppointments() {
             <Suspense fallback={null}>
                 <NewAppointmentModal show={showNewModal} onClose={() => setShowNewModal(false)} formData={formData} setFormData={setFormData} onCreate={handleCreateAppointment} />
             </Suspense>
+
+                        {/* Cancel Booking Confirmation Modal (match inquiries confirm dialog) */}
+                        {deleteConfirm.open && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center">
+                                {/* Backdrop */}
+                                <div
+                                    className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                                    onClick={() => setDeleteConfirm({ open: false, id: null })}
+                                />
+
+                                {/* Dialog */}
+                                <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
+                                    <div className="flex items-start gap-4">
+                                        <div className="p-3 bg-red-100 rounded-full">
+                                            <AlertTriangle className="w-6 h-6 text-red-600" />
+                                        </div>
+
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Cancel booking</h3>
+                                            <p className="text-sm text-gray-600">Are you sure you want to cancel this booking? This action cannot be undone.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-3 mt-6">
+                                        <button
+                                            onClick={() => setDeleteConfirm({ open: false, id: null })}
+                                            className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={confirmDelete}
+                                            className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition"
+                                        >
+                                            Cancel booking
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
             {/* Concierge / Consultation modal (uses the same fields as the concierge page) */}
             <Modal isOpen={showConciergeModal} onClose={() => setShowConciergeModal(false)} title={t('concierge.contact.title') || 'Book a Consultation'} maxWidth='max-w-3xl' showCloseButton={true}>
