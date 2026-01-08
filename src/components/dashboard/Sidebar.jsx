@@ -329,6 +329,14 @@ export default function Sidebar({ role = 'admin' }) {
       }
       return pathname === fullHref;
     }
+    // For top-level sponsor/concierge overview links we only want an exact match
+    // so that child routes (eg. /dashboard/sponsor/approvals) don't also
+    // highlight the Overview link. Treat other links as prefix-matching.
+    const exactOnlyRoots = ['/dashboard/sponsor', '/dashboard/concierge'];
+    if (exactOnlyRoots.includes(href)) {
+      return pathname === fullHref;
+    }
+
     return pathname.startsWith(fullHref);
   };
 
