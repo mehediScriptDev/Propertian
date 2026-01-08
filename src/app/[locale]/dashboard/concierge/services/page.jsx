@@ -3,6 +3,7 @@
 import { use, useState } from "react";
 import { useTranslation } from "@/i18n";
 import Link from 'next/link';
+import StatsCard from "@/components/dashboard/admin/StatsCard";
 import {
   ArrowLeft,
   Users,
@@ -150,50 +151,36 @@ export default function ConciergeServicesPage({ params }) {
         </div>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl bg-white/50 p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Clients</p>
-              <p className="text-2xl font-bold text-gray-900">{clients.length}</p>
-            </div>
-            <Users className="h-8 w-8 text-blue-600" />
+          {/* Stats Overview (reusable StatsCard) */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatsCard
+              title="Total Clients"
+              value={clients.length}
+              variant="primary"
+              icon={Users}
+            />
+
+            <StatsCard
+              title="VIP Clients"
+              value={clients.filter(c => c.status === 'VIP').length}
+              variant="info"
+              icon={Star}
+            />
+
+            <StatsCard
+              title="Total Services"
+              value={clients.reduce((sum, c) => sum + c.totalServices, 0)}
+              variant="success"
+              icon={Building}
+            />
+
+            <StatsCard
+              title="Avg Rating"
+              value={(clients.reduce((sum, c) => sum + c.rating, 0) / clients.length).toFixed(1)}
+              variant="warning"
+              icon={Star}
+            />
           </div>
-        </div>
-        
-        <div className="rounded-xl bg-white/50 p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">VIP Clients</p>
-              <p className="text-2xl font-bold text-gray-900">{clients.filter(c => c.status === 'VIP').length}</p>
-            </div>
-            <Star className="h-8 w-8 text-purple-600" />
-          </div>
-        </div>
-        
-        <div className="rounded-xl bg-white/50 p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Services</p>
-              <p className="text-2xl font-bold text-gray-900">{clients.reduce((sum, c) => sum + c.totalServices, 0)}</p>
-            </div>
-            <Building className="h-8 w-8 text-green-600" />
-          </div>
-        </div>
-        
-        <div className="rounded-xl bg-white/50 p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Avg Rating</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {(clients.reduce((sum, c) => sum + c.rating, 0) / clients.length).toFixed(1)}
-              </p>
-            </div>
-            <Star className="h-8 w-8 text-yellow-600" />
-          </div>
-        </div>
-      </div>
 
       {/* Filters */}
       <div className="rounded-xl bg-white/50 shadow-sm border border-gray-200 p-6">
