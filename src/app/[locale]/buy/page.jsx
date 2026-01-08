@@ -7,6 +7,7 @@ import BuyHero from '@/components/buy/BuyHero';
 import BuyFilters from '@/components/buy/BuyFilters';
 import BuyPropertyCard from '@/components/buy/BuyPropertyCard';
 import api from '@/lib/api';
+import Link from 'next/link';
 // Use API `properties` as source of truth (fetched below)
 
 export default function BuyPage() {
@@ -303,12 +304,12 @@ export default function BuyPage() {
                   'Our team can help you find the perfect property. Contact us for personalized assistance.'
                 )}
               </p>
-              <a
+              <Link
                 href={`/${locale}/contact`}
                 className='inline-flex items-center justify-center min-w-[140px] px-6 sm:px-8 py-2.5 sm:py-3 bg-primary hover:bg-primary-dark text-white font-semibold text-sm sm:text-base rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
               >
                 {t('buy.cta.button', 'Contact Us')}
-              </a>
+              </Link>
             </div>
           </div>
         </section>

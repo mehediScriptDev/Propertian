@@ -11,6 +11,7 @@ import InquiriesTable from '@/components/dashboard/admin/InquiriesTable';
 import Pagination from '@/components/dashboard/Pagination';
 import { get } from '@/lib/api';
 import RecentUserTable from './Components/RecentUserTable';
+import ApprovedPartnersTable from './Components/ApprovedPartnersTable';
 
 export default function AdminDashboardPage({ params }) {
   const { locale } = use(params);
@@ -21,6 +22,8 @@ export default function AdminDashboardPage({ params }) {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [approvedPartners, setApprovedPartners] = useState([]);
+  const [partnersLoading, setPartnersLoading] = useState(false);
   const ITEMS_PER_PAGE = 5;
 
   // Fetch analytics data from API
@@ -41,6 +44,48 @@ export default function AdminDashboardPage({ params }) {
     };
 
     fetchAnalytics();
+  }, []);
+
+  // Fetch approved partners
+  useEffect(() => {
+    const fetchApprovedPartners = async () => {
+      try {
+        setPartnersLoading(true);
+        const response = await get('/partner/approved');
+        
+        if (response.success && response.data) {
+          const partners = Array.isArray(response.data) ? response.data : response.data.partners || [];
+          
+          // Map partner data to table format
+          const mappedPartners = partners.map(partner => ({
+            id: partner.id,
+            name: `${partner.firstName || ''} ${partner.lastName || ''}`.trim() || 'Unknown',
+            companyName: partner.companyName || partner.name || 'N/A',
+            email: partner.email || 'N/A',
+            phone: partner.phone || partner.phoneNumber || null,
+            role: partner.role || 'PARTNER',
+            city: partner.city || null,
+            address: partner.address || null,
+            description: partner.description || null,
+            status: partner.status?.toLowerCase() || 'approved',
+            statusLabel: partner.status === 'APPROVED' ? 'Approved' 
+              : partner.status === 'PENDING' ? 'Pending'
+              : partner.status === 'REJECTED' ? 'Rejected'
+              : 'Approved',
+            dateJoined: partner.createdAt ? new Date(partner.createdAt).toISOString().split('T')[0] : null,
+          }));
+          
+          setApprovedPartners(mappedPartners);
+        }
+      } catch (err) {
+        console.error('Error fetching approved partners:', err);
+        setApprovedPartners([]);
+      } finally {
+        setPartnersLoading(false);
+      }
+    };
+
+    fetchApprovedPartners();
   }, []);
 
   // Stats data from API
@@ -283,6 +328,32 @@ export default function AdminDashboardPage({ params }) {
           onPageChange={handlePageChange}
           translations={paginationTranslations}
         />
+      </div>
+
+      {/* Approved Partners Table */}
+      <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
+        {partnersLoading ? (
+          <div className='flex items-center justify-center py-12'>
+            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-[#d4af37]'></div>
+          </div>
+        ) : (
+          <>
+            <ApprovedPartnersTable
+              title='Approved Partners'
+              partners={approvedPartners.slice(0, 5)}
+            />
+            {approvedPartners.length > 0 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(approvedPartners.length / ITEMS_PER_PAGE)}
+                totalItems={approvedPartners.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={handlePageChange}
+                translations={paginationTranslations}
+              />
+            )}
+          </>
+        )}
       </div>
 
       {/* Inquiries Table */}
