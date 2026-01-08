@@ -53,28 +53,29 @@ export default function PartnerDashboardPage({ params }) {
   // Stats data matching admin dashboard style with SAME colors
   const [statsData, setStatsData] = useState([
     {
-      title: t("Partner.statsData.totalProperties") || "Total Properties",
-      value: 0,
-      trend: "",
-      variant: "primary",
-      icon: Home,
-    },
-    {
-      title: t("Partner.statsData.activeListings") || "Active Listings",
+      title: "Total views",
       value: 0,
       trend: "",
       variant: "success",
       icon: TrendingUp,
     },
     {
-      title: t("Partner.statsData.inactiveListings") || "Inactive Listings",
+      title: "Total clicks",
+      value: 0,
+      trend: "",
+      variant: "primary",
+      icon: Home,
+    },
+    
+    {
+      title:"Total registrations",
       value: 0,
       trend: "",
       variant: "info",
       icon: Eye,
     },
     {
-      title: t("Partner.statsData.totalInquiries") || "Total Inquiries",
+      title: "Cancellations",
       value: 0,
       trend: "",
       variant: "warning",
@@ -101,33 +102,34 @@ export default function PartnerDashboardPage({ params }) {
 
         setStatsData([
           {
-            title: t("Partner.statsData.totalProperties") || "Total Properties",
-            value: props.total ?? 0,
-            trend: "",
-            variant: "primary",
-            icon: Home,
-          },
-          {
-            title: t("Partner.statsData.activeListings") || "Active Listings",
-            value: props.active ?? 0,
-            trend: "",
-            variant: "success",
-            icon: EyeIcon,
-          },
-          {
-            title: t("Partner.statsData.inactiveListings") || "Inactive Listings",
-            value: props.inactive ?? 0,
-            trend: "",
-            variant: "info",
-            icon: EyeOff,
-          },
-          {
-            title: t("Partner.statsData.totalInquiries") || "Total Inquiries",
-            value: inquiriesTotal,
-            trend: "",
-            variant: "warning",
-            icon: MessageSquare,
-          },
+      title: "Total views",
+      value: 0,
+      trend: "",
+      variant: "success",
+      icon: TrendingUp,
+    },
+    {
+      title: "Total clicks",
+      value: 0,
+      trend: "",
+      variant: "primary",
+      icon: Home,
+    },
+    
+    {
+      title:"Total registrations",
+      value: 0,
+      trend: "",
+      variant: "info",
+      icon: Eye,
+    },
+    {
+      title: "Cancellations",
+      value: 0,
+      trend: "",
+      variant: "warning",
+      icon: MessageSquare,
+    },
         ]);
       } catch (err) {
         console.error('Fetch partner stats or inquiries error', err);
@@ -259,9 +261,9 @@ export default function PartnerDashboardPage({ params }) {
             </h1>
             <p className="mt-2 text-sm text-gray-600">{t("Partner.title")}</p>
           </div>
-          <Link href={`/${locale}/dashboard/partner/properties/add`} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none focus:ring-offset-2">
+          <Link href={`sponsor/approvals`} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none focus:ring-offset-2">
             <Plus className="h-4 w-4" aria-hidden="true" />
-            {t("Partner.addButton")}
+            {"Manage requests"}
           </Link>
         </div>
       </div>
@@ -280,13 +282,13 @@ export default function PartnerDashboardPage({ params }) {
         ))}
       </div>
 
-      {/* Recent Properties */}
+      {/* Events */}
       <div className="rounded-xl bg-white/50 shadow-sm border border-gray-200 overflow-hidden">
         <div className="border-b border-gray-200 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">
-                {t("dashboard.partner.AllProperties")}
+                All Events
               </h2>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -347,11 +349,15 @@ export default function PartnerDashboardPage({ params }) {
                     {t("Partner.Properties")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    {t("Partner.Locations")}
+                    Clicks
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    {t("Partner.Price")}
+                    Registrations
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Views
+                  </th>
+
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t("Partner.Status")}
                   </th>
@@ -373,14 +379,17 @@ export default function PartnerDashboardPage({ params }) {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                      {(property.address || "") + (property.city ? ", " + property.city : "")}
+                      400
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
-                      <DollarSign className="h-3.5 w-3.5 text-gray-400" />
-                      {property.price}
+                      400
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
+                      100
                     </div>
                   </td>
                   
