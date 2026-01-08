@@ -179,24 +179,28 @@ export default function DeveloperPortalPage() {
       value: 90,
       trend: "+15 this week",
       variant: "success",
+      icon: Building2,
     },
     {
       title: "Verified Properties",
       value: 12,
       trend: "+2 this month",
       variant: "primary",
+      icon: CheckCircle,
     },
     {
       title: "Unverified Properties",
       value: 78,
       trend: "+32 this month",
       variant: "info",
+      icon: XCircle,
     },
     {
       title: "Pending Verifications",
       value: "85",
       trend: "+18%",
       variant: "warning",
+      icon: Clock,
     },
   ];
 
@@ -299,6 +303,7 @@ export default function DeveloperPortalPage() {
               value={stat.value}
               trend={stat.trend}
               variant={stat.variant}
+              icon={stat.icon}
             />
           ))}
         </div>
