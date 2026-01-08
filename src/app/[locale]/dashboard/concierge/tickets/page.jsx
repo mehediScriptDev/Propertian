@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState } from "react";
 import { useTranslation } from "@/i18n";
 import StatsCard from "@/components/dashboard/admin/StatsCard";
 import Modal from '@/components/Modal';
@@ -22,14 +22,18 @@ import {
   Trash2,
   MessageCircle,
   AlertCircle,
-  Eye
+  Eye,
+  ArrowLeft,
+  Plus,
+  Download,
+  FileText
 } from "lucide-react";
 
-export default function ConciergeDashboard({ params }) {
+export default function ConciergeTicketsPage({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
   
-  // Mock data for demonstration
+  // Extended mock data for tickets page
   const [tickets, setTickets] = useState([
     {
       id: 1,
@@ -44,7 +48,9 @@ export default function ConciergeDashboard({ params }) {
       status: "Assigned",
       description: "Client wants to view 3 bedroom apartments in downtown area with modern amenities.",
       assignedTo: "Sarah Wilson",
-      notes: "Client prefers morning appointments, has specific budget requirements."
+      notes: "Client prefers morning appointments, has specific budget requirements.",
+      estimatedDuration: "2 hours",
+      budget: "$500k - $800k"
     },
     {
       id: 2,
@@ -59,7 +65,9 @@ export default function ConciergeDashboard({ params }) {
       status: "In Review",
       description: "Looking for family home with garden space, 4+ bedrooms, near good schools.",
       assignedTo: null,
-      notes: "Budget up to $800k, flexible move-in date."
+      notes: "Budget up to $800k, flexible move-in date.",
+      estimatedDuration: "1 hour",
+      budget: "Up to $800k"
     },
     {
       id: 3,
@@ -74,7 +82,9 @@ export default function ConciergeDashboard({ params }) {
       status: "Scheduled",
       description: "First-time investor seeking advice on rental property investment opportunities.",
       assignedTo: "Michael Johnson",
-      notes: "Interested in multi-family properties, needs financing guidance."
+      notes: "Interested in multi-family properties, needs financing guidance.",
+      estimatedDuration: "1.5 hours",
+      budget: "$300k - $500k"
     },
     {
       id: 4,
@@ -89,7 +99,9 @@ export default function ConciergeDashboard({ params }) {
       status: "New",
       description: "Relocating from London, needs comprehensive area information and viewing assistance.",
       assignedTo: null,
-      notes: "International client, needs virtual tours initially."
+      notes: "International client, needs virtual tours initially.",
+      estimatedDuration: "3 hours",
+      budget: "$600k - $1M"
     },
     {
       id: 5,
@@ -104,14 +116,70 @@ export default function ConciergeDashboard({ params }) {
       status: "Completed",
       description: "Viewed multiple properties, made decision on 2BR apartment with parking.",
       assignedTo: "Sarah Wilson",
-      notes: "Successfully closed, client satisfied with service."
+      notes: "Successfully closed, client satisfied with service.",
+      estimatedDuration: "1.5 hours",
+      budget: "$350k - $450k"
+    },
+    {
+      id: 6,
+      clientName: "Lisa Anderson",
+      clientEmail: "lisa.anderson@email.com",
+      clientPhone: "+1-555-0987",
+      serviceType: "Market Analysis",
+      location: "Williamsburg",
+      requestDate: "2024-01-18",
+      scheduledDate: null,
+      priority: "Medium",
+      status: "New",
+      description: "Needs detailed market analysis for potential property investment in Williamsburg area.",
+      assignedTo: null,
+      notes: "Looking for trends and growth potential data.",
+      estimatedDuration: "2 hours",
+      budget: "Consultation fee: $200"
+    },
+    {
+      id: 7,
+      clientName: "James Wilson",
+      clientEmail: "james.wilson@email.com",
+      clientPhone: "+1-555-0555",
+      serviceType: "Property Viewing",
+      location: "Midtown",
+      requestDate: "2024-01-13",
+      scheduledDate: "2024-01-21",
+      priority: "High",
+      status: "Scheduled",
+      description: "Corporate relocation, needs luxury apartment viewing for executive.",
+      assignedTo: "Michael Johnson",
+      notes: "Company budget, high-end requirements, quick decision needed.",
+      estimatedDuration: "2.5 hours",
+      budget: "$2M - $3M"
+    },
+    {
+      id: 8,
+      clientName: "Sophie Martinez",
+      clientEmail: "sophie.martinez@email.com",
+      clientPhone: "+1-555-0444",
+      serviceType: "Rental Search",
+      location: "East Village",
+      requestDate: "2024-01-19",
+      scheduledDate: null,
+      priority: "Low",
+      status: "In Review",
+      description: "Young professional looking for studio or 1BR rental in trendy area.",
+      assignedTo: "Sarah Wilson",
+      notes: "Prefers walkable neighborhoods, budget conscious.",
+      estimatedDuration: "1 hour",
+      budget: "$2,500 - $3,500/month"
     }
   ]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
+  const [serviceTypeFilter, setServiceTypeFilter] = useState("all");
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   // Calculate stats
   const stats = {
@@ -128,11 +196,19 @@ export default function ConciergeDashboard({ params }) {
   const filteredTickets = tickets.filter(ticket => {
     const matchesSearch = ticket.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          ticket.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         ticket.location.toLowerCase().includes(searchQuery.toLowerCase());
+                         ticket.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         ticket.clientEmail.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
     const matchesPriority = priorityFilter === 'all' || ticket.priority === priorityFilter;
-    return matchesSearch && matchesStatus && matchesPriority;
+    const matchesServiceType = serviceTypeFilter === 'all' || ticket.serviceType === serviceTypeFilter;
+    return matchesSearch && matchesStatus && matchesPriority && matchesServiceType;
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentTickets = filteredTickets.slice(startIndex, endIndex);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -161,26 +237,41 @@ export default function ConciergeDashboard({ params }) {
       )
     );
   };
+
+  const exportTickets = () => {
+    // This would typically export to CSV or Excel
+    console.log("Exporting tickets:", filteredTickets);
+    // Implementation for actual export functionality
+  };
+
+  const serviceTypes = [...new Set(tickets.map(t => t.serviceType))];
+
   return (
     <div className="space-y-6">
-      {/* Welcome Header */}
-      <div className="rounded-xl bg-white/50 p-6 shadow-sm border border-gray-200">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              Concierge Dashboard
-            </h1>
-            <p className="mt-2 text-sm text-gray-600">
-              Manage client service requests and coordinate property viewings
-            </p>
-          </div>
-          <Link 
-            href={`/${locale}/dashboard/concierge/tickets`}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none focus:ring-offset-2"
+      {/* Header with back button */}
+      <div className="flex items-center gap-4">
+        <Link 
+          href={`/${locale}/dashboard/concierge`}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5 text-gray-600" />
+        </Link>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-gray-900">Service Tickets</h1>
+          <p className="text-sm text-gray-600">Manage and track all client service requests</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={exportTickets}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
           >
-            <Ticket className="h-4 w-4" />
-            View All Tickets
-          </Link>
+            <Download className="h-4 w-4" />
+            Export
+          </button>
+          <button className="inline-flex items-center gap-2 px-4 py-2 bg-[#E6B325] text-white rounded-lg hover:bg-[#d4a017] transition-colors text-sm font-medium">
+            <Plus className="h-4 w-4" />
+            New Ticket
+          </button>
         </div>
       </div>
 
@@ -193,16 +284,16 @@ export default function ConciergeDashboard({ params }) {
           icon={Ticket}
         />
         <StatsCard
-          title="New Requests"
-          value={stats.new}
-          variant="info"
-          icon={AlertCircle}
+          title="Pending Review"
+          value={stats.new + stats.inReview}
+          variant="warning"
+          icon={Clock}
         />
         <StatsCard
-          title="Scheduled"
-          value={stats.scheduled}
-          variant="warning"
-          icon={Calendar}
+          title="Active"
+          value={stats.assigned + stats.scheduled}
+          variant="info"
+          icon={Users}
         />
         <StatsCard
           title="Completed"
@@ -212,59 +303,71 @@ export default function ConciergeDashboard({ params }) {
         />
       </div>
 
-      {/* Recent Tickets Overview */}
-      <div className="rounded-xl bg-white/50 shadow-sm border border-gray-200 overflow-hidden">
-        <div className="border-b border-gray-200 p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Service Tickets</h2>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              {/* Search */}
-              <div className="relative flex-1 sm:w-64">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search tickets..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm transition-colors focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
-                />
-              </div>
-              
-              {/* Filters */}
-              <div className="flex gap-2">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
-                >
-                  <option value="all">All Status</option>
-                  <option value="New">New</option>
-                  <option value="In Review">In Review</option>
-                  <option value="Assigned">Assigned</option>
-                  <option value="Scheduled">Scheduled</option>
-                  <option value="Completed">Completed</option>
-                </select>
-                
-                <select
-                  value={priorityFilter}
-                  onChange={(e) => setPriorityFilter(e.target.value)}
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
-                >
-                  <option value="all">All Priority</option>
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
-                </select>
-              </div>
+      {/* Filters and Search */}
+      <div className="rounded-xl bg-white/50 shadow-sm border border-gray-200 p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search tickets by client, service type, or location..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
+              />
             </div>
           </div>
+          
+          <div className="flex flex-wrap gap-3">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
+            >
+              <option value="all">All Status</option>
+              <option value="New">New</option>
+              <option value="In Review">In Review</option>
+              <option value="Assigned">Assigned</option>
+              <option value="Scheduled">Scheduled</option>
+              <option value="Completed">Completed</option>
+            </select>
+            
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
+            >
+              <option value="all">All Priority</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+            
+            <select
+              value={serviceTypeFilter}
+              onChange={(e) => setServiceTypeFilter(e.target.value)}
+              className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
+            >
+              <option value="all">All Services</option>
+              {serviceTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
         </div>
+      </div>
 
+      {/* Tickets Table */}
+      <div className="rounded-xl bg-white/50 shadow-sm border border-gray-200 overflow-hidden">
         {/* Desktop Table */}
         <div className="hidden lg:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Ticket ID
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Client
                 </th>
@@ -281,6 +384,9 @@ export default function ConciergeDashboard({ params }) {
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Request Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Assigned To
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -289,8 +395,11 @@ export default function ConciergeDashboard({ params }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              {filteredTickets.slice(0, 5).map((ticket) => (
+              {currentTickets.map((ticket) => (
                 <tr key={ticket.id} className="transition-colors hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-medium text-gray-900">#{ticket.id.toString().padStart(4, '0')}</div>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       <div>
@@ -319,6 +428,9 @@ export default function ConciergeDashboard({ params }) {
                     </span>
                   </td>
                   <td className="px-6 py-4">
+                    <div className="text-sm text-gray-900">{new Date(ticket.requestDate).toLocaleDateString()}</div>
+                  </td>
+                  <td className="px-6 py-4">
                     <div className="text-sm text-gray-900">
                       {ticket.assignedTo || <span className="text-gray-400 italic">Unassigned</span>}
                     </div>
@@ -339,15 +451,21 @@ export default function ConciergeDashboard({ params }) {
 
         {/* Mobile Cards */}
         <div className="divide-y divide-gray-200 lg:hidden">
-          {filteredTickets.slice(0, 5).map((ticket) => (
+          {currentTickets.map((ticket) => (
             <div key={ticket.id} className="p-4 hover:bg-gray-50 transition-colors">
               <div className="flex items-start justify-between mb-3">
-                <div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-medium text-gray-900">#{ticket.id.toString().padStart(4, '0')}</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}>
+                      {ticket.status}
+                    </span>
+                  </div>
                   <h3 className="font-medium text-gray-900">{ticket.clientName}</h3>
                   <p className="text-sm text-gray-600">{ticket.serviceType}</p>
                 </div>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}>
-                  {ticket.status}
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(ticket.priority)}`}>
+                  {ticket.priority}
                 </span>
               </div>
               
@@ -362,14 +480,11 @@ export default function ConciergeDashboard({ params }) {
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                  Request Date: {new Date(ticket.requestDate).toLocaleDateString()}
+                  {new Date(ticket.requestDate).toLocaleDateString()}
                 </div>
               </div>
               
-              <div className="flex items-center justify-between">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(ticket.priority)}`}>
-                  {ticket.priority} Priority
-                </span>
+              <div className="flex items-center justify-end">
                 <button
                   onClick={() => setSelectedTicket(ticket)}
                   className="text-[#E6B325] hover:text-[#d4a017] text-sm font-medium"
@@ -382,36 +497,67 @@ export default function ConciergeDashboard({ params }) {
         </div>
 
         {/* Empty State */}
-        {filteredTickets.length === 0 && (
+        {currentTickets.length === 0 && (
           <div className="px-6 py-12 text-center">
             <Ticket className="mx-auto h-12 w-12 text-gray-300" />
             <h3 className="mt-3 text-sm font-medium text-gray-900">No tickets found</h3>
-            <p className="mt-1 text-sm text-gray-500">No service tickets match your current filters.</p>
-          </div>
-        )}
-
-        {/* View All Link */}
-        {filteredTickets.length > 5 && (
-          <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
-            <Link 
-              href={`/${locale}/dashboard/concierge/tickets`}
-              className="text-sm font-medium text-[#E6B325] hover:text-[#d4a017]"
-            >
-              View all {filteredTickets.length} tickets →
-            </Link>
+            <p className="mt-1 text-sm text-gray-500">No tickets match your current search and filter criteria.</p>
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between bg-white/50 rounded-lg border border-gray-200 px-6 py-4">
+          <div className="text-sm text-gray-700">
+            Showing {startIndex + 1} to {Math.min(endIndex, filteredTickets.length)} of {filteredTickets.length} tickets
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Ticket Detail Modal */}
       <Modal
         isOpen={!!selectedTicket}
         onClose={() => setSelectedTicket(null)}
-        title="Service Ticket Details"
-        maxWidth="max-w-2xl"
+        title={`Service Ticket #${selectedTicket?.id.toString().padStart(4, '0')}`}
+        maxWidth="max-w-3xl"
       >
         {selectedTicket && (
           <div className="space-y-6">
+            {/* Status and Priority */}
+            <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+              <div className="flex items-center gap-3">
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedTicket.status)}`}>
+                  {selectedTicket.status}
+                </span>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getPriorityColor(selectedTicket.priority)}`}>
+                  {selectedTicket.priority} Priority
+                </span>
+              </div>
+              <div className="text-sm text-gray-500">
+                Created: {new Date(selectedTicket.requestDate).toLocaleDateString()}
+              </div>
+            </div>
+
             {/* Client Information */}
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-medium text-gray-900 mb-3">Client Information</h3>
@@ -422,11 +568,15 @@ export default function ConciergeDashboard({ params }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-gray-400" />
-                  <span>{selectedTicket.clientEmail}</span>
+                  <a href={`mailto:${selectedTicket.clientEmail}`} className="text-[#E6B325] hover:underline">
+                    {selectedTicket.clientEmail}
+                  </a>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-gray-400" />
-                  <span>{selectedTicket.clientPhone}</span>
+                  <a href={`tel:${selectedTicket.clientPhone}`} className="text-[#E6B325] hover:underline">
+                    {selectedTicket.clientPhone}
+                  </a>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-gray-400" />
@@ -438,32 +588,26 @@ export default function ConciergeDashboard({ params }) {
             {/* Service Details */}
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-medium text-gray-900 mb-3">Service Details</h3>
-              <div className="space-y-3">
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Service Type: </span>
-                  <span className="text-sm text-gray-900">{selectedTicket.serviceType}</span>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-700">Service Type:</span>
+                    <div className="mt-1">{selectedTicket.serviceType}</div>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700">Estimated Duration:</span>
+                    <div className="mt-1">{selectedTicket.estimatedDuration}</div>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700">Budget:</span>
+                    <div className="mt-1">{selectedTicket.budget}</div>
+                  </div>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-700">Description: </span>
-                  <p className="text-sm text-gray-900 mt-1">{selectedTicket.description}</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Priority: </span>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ml-2 ${getPriorityColor(selectedTicket.priority)}`}>
-                      {selectedTicket.priority}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Status: </span>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2 ${getStatusColor(selectedTicket.status)}`}>
-                      {selectedTicket.status}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Request Date: </span>
-                    <span className="text-sm text-gray-900">{new Date(selectedTicket.requestDate).toLocaleDateString()}</span>
-                  </div>
+                  <span className="font-medium text-gray-700">Description:</span>
+                  <p className="mt-1 text-gray-900 bg-gray-50 rounded-lg p-3">
+                    {selectedTicket.description}
+                  </p>
                 </div>
               </div>
             </div>
@@ -471,30 +615,32 @@ export default function ConciergeDashboard({ params }) {
             {/* Assignment & Schedule */}
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-medium text-gray-900 mb-3">Assignment & Schedule</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-sm font-medium text-gray-700">Assigned To: </span>
-                  <span className="text-sm text-gray-900">{selectedTicket.assignedTo || "Not assigned"}</span>
+                  <span className="font-medium text-gray-700">Assigned To:</span>
+                  <div className="mt-1">{selectedTicket.assignedTo || "Not assigned"}</div>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-700">Scheduled Date: </span>
-                  <span className="text-sm text-gray-900">
+                  <span className="font-medium text-gray-700">Scheduled Date:</span>
+                  <div className="mt-1">
                     {selectedTicket.scheduledDate ? new Date(selectedTicket.scheduledDate).toLocaleDateString() : "Not scheduled"}
-                  </span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Notes */}
-            <div>
+            <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-medium text-gray-900 mb-3">Notes</h3>
-              <p className="text-sm text-gray-900 bg-gray-50 rounded-lg p-3">
-                {selectedTicket.notes || "No additional notes available."}
-              </p>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-sm text-gray-900">
+                  {selectedTicket.notes || "No additional notes available."}
+                </p>
+              </div>
             </div>
 
             {/* Status Update Actions */}
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
+            <div className="flex flex-wrap gap-2 pt-2">
               <span className="text-sm font-medium text-gray-700 mr-2">Quick Actions:</span>
               {selectedTicket.status === 'New' && (
                 <button
@@ -528,6 +674,12 @@ export default function ConciergeDashboard({ params }) {
                   Mark Complete
                 </button>
               )}
+              <button className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                Add Note
+              </button>
+              <button className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                Send Message
+              </button>
             </div>
           </div>
         )}

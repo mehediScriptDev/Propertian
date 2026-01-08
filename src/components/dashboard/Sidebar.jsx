@@ -224,20 +224,25 @@ const navigationConfig = {
       icon: Briefcase,
     },
     {
-      key: 'Requested Services',
-      href: '/dashboard/concierge/inquiries',
+      key: 'Service Tickets',
+      href: '/dashboard/concierge/tickets',
       icon: Mail,
     },
     {
-      key: 'My Listings',
-      href: '/dashboard/concierge/my-listings',
-      icon: List,
+      key: 'Client Services',
+      href: '/dashboard/concierge/services',
+      icon: Users,
     },
     {
-      key: 'dashboard.partner.profile',
-      href: '/dashboard/partner/profile',
-      icon: UserCircle,
+      key: 'Schedule',
+      href: '/dashboard/concierge/schedule',
+      icon: Calendar,
     },
+    // {
+    //   key: 'Reports',
+    //   href: '/dashboard/concierge/reports',
+    //   icon: FileText,
+    // },
   ],
 };
 
