@@ -6,6 +6,7 @@ import { useTranslation } from "@/i18n";
 import ProfileDropDown from "../ProfileDropDown";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
 import { PiBuildingApartmentDuotone } from "react-icons/pi";
 import { TbHeartHandshake } from "react-icons/tb";
 import { PiHandshakeDuotone } from "react-icons/pi";
@@ -15,13 +16,18 @@ import { PiHandshakeDuotone } from "react-icons/pi";
  * Production-grade responsive header with user info
  */
 export default function DashboardHeader({ title }) {
-  const { user } = useAuth();
+  const { user, setPartnerSubrole } = useAuth();
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "en";
   const { t } = useTranslation(locale);
-  const isPartner = pathname?.includes("/dashboard/partner");
+  // Show the partner dropdown on partner area as well as sponsor/concierge sub-dashboards
+  const isPartner =
+    pathname?.includes("/dashboard/partner") ||
+    pathname?.includes("/dashboard/sponsor") ||
+    pathname?.includes("/dashboard/concierge");
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     const onDocClick = (e) => {
@@ -73,11 +79,17 @@ export default function DashboardHeader({ title }) {
                   className="absolute z-40 mt-2 w-72 rounded-md border border-gray-200 bg-white shadow-xl py-2"
                 >
                   <li>
-                    <Link
+                    <button
+                      type="button"
                       role="menuitem"
-                      href="#"
                       tabIndex={0}
-                      className="group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors rounded"
+                      onClick={() => {
+                        // Clear partner subrole (default listing view)
+                        setPartnerSubrole(null);
+                        setOpen(false);
+                        router.push(`/${locale}/dashboard/partner`);
+                      }}
+                      className="w-full text-left group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors rounded"
                     >
                       <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-gray-700 transition-colors">
                         <PiBuildingApartmentDuotone className="h-4 w-4" />
@@ -86,14 +98,19 @@ export default function DashboardHeader({ title }) {
                         <span className="text-sm font-medium">Listing Partner</span>
                         <span className="text-xs text-gray-400">Manage your property listings</span>
                       </span>
-                    </Link>
+                    </button>
                   </li>
                   <li>
-                    <Link
+                    <button
+                      type="button"
                       role="menuitem"
-                      href="#"
                       tabIndex={0}
-                      className="group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors rounded"
+                      onClick={() => {
+                        setPartnerSubrole('sponsor');
+                        setOpen(false);
+                        router.push(`/${locale}/dashboard/sponsor`);
+                      }}
+                      className="w-full text-left group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors rounded"
                     >
                       <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-gray-700   transition-colors">
                         <TbHeartHandshake className="h-4 w-4" />
@@ -102,14 +119,19 @@ export default function DashboardHeader({ title }) {
                         <span className="text-sm font-medium">Sponsor</span>
                         <span className="text-xs text-gray-400">Sponsorship & promotions</span>
                       </span>
-                    </Link>
+                    </button>
                   </li>
                   <li>
-                    <Link
+                    <button
+                      type="button"
                       role="menuitem"
-                      href="#"
                       tabIndex={0}
-                      className="group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors rounded"
+                      onClick={() => {
+                        setPartnerSubrole('concierge');
+                        setOpen(false);
+                        router.push(`/${locale}/dashboard/concierge`);
+                      }}
+                      className="w-full text-left group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors rounded"
                     >
                       <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-gray-700   transition-colors">
                         <PiHandshakeDuotone className="h-4 w-4" />
@@ -118,7 +140,7 @@ export default function DashboardHeader({ title }) {
                         <span className="text-sm font-medium">Concierge Partner</span>
                         <span className="text-xs text-gray-400">Concierge & premium services</span>
                       </span>
-                    </Link>
+                    </button>
                   </li>
                 </ul>
               )}

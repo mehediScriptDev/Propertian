@@ -31,7 +31,11 @@ export function AuthProvider({ children }) {
       const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
       if (parsedUser) {
-        setUser(parsedUser);
+        // If a developer override for partner subrole exists in localStorage,
+        // apply it to the user object for UI-only toggles (dev/testing only).
+        const devSubrole = typeof window !== 'undefined' ? window.localStorage.getItem('dev_partner_subrole') : null;
+        const userWithSubrole = devSubrole ? { ...parsedUser, subrole: devSubrole } : parsedUser;
+        setUser(userWithSubrole);
       }
       setLoading(false);
     });
@@ -259,6 +263,22 @@ export function AuthProvider({ children }) {
   };
 
   /**
+   * Set partner subrole (dev-only/local override).
+   * Persists to localStorage and updates user state/cookie for immediate UI changes.
+   */
+  const setPartnerSubrole = (subrole) => {
+    if (typeof window !== 'undefined') {
+      if (subrole) {
+        window.localStorage.setItem('dev_partner_subrole', subrole);
+      } else {
+        window.localStorage.removeItem('dev_partner_subrole');
+      }
+    }
+
+    updateUserData({ subrole });
+  };
+
+  /**
    * Check if user has required role
    * @param {string} requiredRole - Required role for access
    * @returns {boolean}
@@ -271,6 +291,7 @@ export function AuthProvider({ children }) {
     user,
     setUser,
     updateUserData,
+    setPartnerSubrole,
     login,
     logout,
     register,
