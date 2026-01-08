@@ -77,7 +77,7 @@ export default function DashboardHeader({ title }) {
                       role="menuitem"
                       href="#"
                       tabIndex={0}
-                      className="group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors rounded"
+                      className="group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors rounded"
                     >
                       <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-gray-700 transition-colors">
                         <PiBuildingApartmentDuotone className="h-4 w-4" />
@@ -93,7 +93,7 @@ export default function DashboardHeader({ title }) {
                       role="menuitem"
                       href="#"
                       tabIndex={0}
-                      className="group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors rounded"
+                      className="group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors rounded"
                     >
                       <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-gray-700   transition-colors">
                         <TbHeartHandshake className="h-4 w-4" />
@@ -109,7 +109,7 @@ export default function DashboardHeader({ title }) {
                       role="menuitem"
                       href="#"
                       tabIndex={0}
-                      className="group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors rounded"
+                      className="group flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors rounded"
                     >
                       <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-gray-700   transition-colors">
                         <PiHandshakeDuotone className="h-4 w-4" />
