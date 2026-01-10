@@ -22,6 +22,8 @@ import {
   AlertCircle,
   Eye
 } from "lucide-react";
+import QuoteComposer from "@/components/concierge/QuoteComposer";
+import ViewQuoteModal from "@/components/concierge/ViewQuoteModal";
 
 export default function ConciergeDashboard({ params }) {
   const { locale } = use(params);
@@ -110,6 +112,10 @@ export default function ConciergeDashboard({ params }) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [quotes, setQuotes] = useState([]);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [viewQuote, setViewQuote] = useState(null);
+  const [composerTicket, setComposerTicket] = useState(null);
 
   // Calculate stats
   const stats = {
@@ -326,9 +332,34 @@ export default function ConciergeDashboard({ params }) {
               {selectedTicket.status === 'Assigned' && (<button onClick={() => updateTicketStatus(selectedTicket.id, 'Scheduled')} className="px-3 py-1 text-xs bg-indigo-100 text-indigo-800 rounded-md hover:bg-indigo-200 transition-colors">Schedule</button>)}
               {selectedTicket.status === 'Scheduled' && (<button onClick={() => updateTicketStatus(selectedTicket.id, 'Completed')} className="px-3 py-1 text-xs bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors">Mark Complete</button>)}
             </div>
+
+            {/* Quote Actions */}
+            <div className="flex gap-2 pt-4">
+              <button
+                onClick={() => {
+                  setComposerTicket(selectedTicket);
+                  setSelectedTicket(null);
+                  setComposerOpen(true);
+                }}
+                className="min-w-[140px] px-3 py-2 rounded-md bg-[#E6B325] text-sm font-medium text-white"
+              >
+                Create Quote
+              </button>
+              <button onClick={() => setViewQuote(quotes[quotes.length - 1] || null)} className="min-w-[140px] px-3 py-2 rounded-md border border-gray-200 bg-white text-sm font-medium text-gray-700">View Latest Quote</button>
+            </div>
           </div>
         )}
       </Modal>
+
+      <QuoteComposer isOpen={composerOpen} onClose={() => { setComposerOpen(false); setComposerTicket(null); }} ticket={composerTicket} onSend={(quote) => {
+        setQuotes((prev) => [...prev, quote]);
+        setComposerOpen(false);
+        setViewQuote(quote);
+        setComposerTicket(null);
+        if (quote.ticketId) updateTicketStatus(quote.ticketId, 'In Review');
+      }} />
+
+      <ViewQuoteModal isOpen={!!viewQuote} onClose={() => setViewQuote(null)} quote={viewQuote} />
     </div>
   );
 }
