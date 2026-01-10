@@ -438,7 +438,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       Title *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -448,7 +448,7 @@ export default function AddPropertyForm({
                       value={form.title}
                       onChange={handleInputChange}
                       placeholder="e.g. Modern 4-bedroom villa with pool"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
                     />
                     {errors.title && (
                       <p className="mt-1 text-xs text-red-600">
@@ -463,7 +463,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       Description *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -474,7 +474,7 @@ export default function AddPropertyForm({
                       onChange={handleInputChange}
                       placeholder="Add a detailed description of the property"
                       rows={4}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
                     />
                     {errors.description && (
                       <p className="mt-1 text-xs text-red-600">
@@ -490,7 +490,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       Country *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -499,7 +499,7 @@ export default function AddPropertyForm({
                       name="country"
                       value={form.country}
                       onChange={handleCountryChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2 bg-white"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2 bg-white"
                       disabled={locationLoading && countries.length === 0}
                     >
                       <option value="">Select Country</option>
@@ -520,7 +520,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       State *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -529,7 +529,7 @@ export default function AddPropertyForm({
                       name="state"
                       value={form.state}
                       onChange={handleStateChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2 bg-white"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2 bg-white"
                       disabled={!form.country}
                     >
                       <option value="">Select State</option>
@@ -550,7 +550,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       City *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -559,7 +559,7 @@ export default function AddPropertyForm({
                       name="city"
                       value={form.city}
                       onChange={handleCityChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2 bg-white"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2 bg-white"
                       disabled={!form.state}
                     >
                       <option value="">Select City</option>
@@ -578,7 +578,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       Zip Code *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -587,7 +587,7 @@ export default function AddPropertyForm({
                       name="zipCode"
                       value={form.zipCode}
                       onChange={handleZipChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2 bg-white"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2 bg-white"
                       disabled={!form.city}
                     >
                       <option value="">Select Zip Code</option>
@@ -609,7 +609,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       Address *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -619,7 +619,7 @@ export default function AddPropertyForm({
                       value={form.address}
                       onChange={handleInputChange}
                       placeholder="Street address"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
                     />
                     {errors.address && (
                       <p className="mt-1 text-xs text-red-600">
@@ -630,7 +630,7 @@ export default function AddPropertyForm({
                 </div>
               </section>
 
-              <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <section className="bg-white border border-gray-200 rounded-lg p-6 shadow">
                 <h2 className="text-lg font-semibold mb-2">Pricing & Specs</h2>
                 <p className="text-sm text-gray-500 mb-4">
                   Listing type, price and size
@@ -649,7 +649,7 @@ export default function AddPropertyForm({
                       name="propertyType"
                       value={form.propertyType}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2 bg-white"
                     >
                       <option value="HOUSE">House</option>
                       <option value="APARTMENT">Apartment</option>
@@ -677,7 +677,7 @@ export default function AddPropertyForm({
                       name="listingType"
                       value={form.listingType}
                       onChange={handleListingTypeChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:ring-2 focus:ring-[#d4af37]"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
                     >
                       <option value="SALE">SALE</option>
                       <option value="RENT">RENT</option>
@@ -691,7 +691,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       Price *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -703,7 +703,7 @@ export default function AddPropertyForm({
                       value={form.price}
                       onChange={handleNumberChange}
                       placeholder="e.g. 350000"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
                     />
                     {errors.price && (
                       <p className="mt-1 text-xs text-red-600">
@@ -718,7 +718,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       Sqft *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -729,7 +729,7 @@ export default function AddPropertyForm({
                       value={form.sqft}
                       onChange={handleNumberChange}
                       placeholder="e.g. 4500"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
                     />
                     {errors.sqft && (
                       <p className="mt-1 text-xs text-red-600">{errors.sqft}</p>
@@ -742,7 +742,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       Bedrooms *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -753,7 +753,7 @@ export default function AddPropertyForm({
                       value={form.bedrooms}
                       onChange={handleNumberChange}
                       placeholder="e.g. 4"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
                     />
                     {errors.bedrooms && (
                       <p className="mt-1 text-xs text-red-600">
@@ -768,7 +768,7 @@ export default function AddPropertyForm({
                       className="block text-sm font-medium text-gray-700"
                     >
                       Bathrooms *{" "}
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-red-400 ml-1">
                         required
                       </span>
                     </label>
@@ -779,7 +779,7 @@ export default function AddPropertyForm({
                       value={form.bathrooms}
                       onChange={handleNumberChange}
                       placeholder="e.g. 3"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
                     />
                     {errors.bathrooms && (
                       <p className="mt-1 text-xs text-red-600">
@@ -790,7 +790,7 @@ export default function AddPropertyForm({
                 </div>
               </section>
 
-              <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <section className="bg-white border border-gray-200 rounded-lg p-6 shadow">
                 <h2 className="text-lg font-semibold mb-2">Features</h2>
                 <p className="text-sm text-gray-500 mb-4">
                   Amenities and feature lists
@@ -830,7 +830,7 @@ export default function AddPropertyForm({
                       name="furnishing"
                       value={form.furnishing}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:ring-2 focus:ring-[#d4af37]"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border px-3 py-2 focus:ring-2 focus:ring-[#d4af37]"
                     >
                       <option>Unfurnished</option>
                       <option>Furnished</option>
@@ -851,7 +851,7 @@ export default function AddPropertyForm({
                       value={form.interiorFeatures}
                       onChange={handleInputChange}
                       rows={3}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
                       placeholder="Comma separated or newline list"
                     />
                   </div>
@@ -869,7 +869,7 @@ export default function AddPropertyForm({
                       value={form.exteriorFeatures}
                       onChange={handleInputChange}
                       rows={3}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
+                      className="mt-1 block w-full rounded-md border-gray-200 outline-none border focus:ring-2 focus:ring-[#d4af37] px-3 py-2"
                       placeholder="Comma separated or newline list"
                     />
                   </div>
@@ -930,7 +930,7 @@ export default function AddPropertyForm({
                 </div>
               </section>
 
-              <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <section className="bg-white border border-gray-200 rounded-lg p-6 shadow">
                 <h2 className="text-lg font-semibold mb-2">Images</h2>
                 <p className="text-sm text-gray-500 mb-4">
                   Upload images for the listing (multiple allowed)
