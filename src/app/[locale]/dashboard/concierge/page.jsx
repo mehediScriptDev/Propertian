@@ -18,9 +18,7 @@ import {
   Mail,
   User,
   MoreHorizontal,
-  Edit,
   Trash2,
-  MessageCircle,
   AlertCircle,
   Eye
 } from "lucide-react";
@@ -163,275 +161,131 @@ export default function ConciergeDashboard({ params }) {
   };
   return (
     <div className="space-y-6">
-      {/* Welcome Header */}
-      <div className="rounded-xl bg-white/50 p-6 shadow-sm border border-gray-200">
+      {/* Top Header */}
+      <div className="rounded-xl bg-white/50 p-6 shadow-md border border-gray-200">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              Concierge Dashboard
-            </h1>
-            <p className="mt-2 text-sm text-gray-600">
-              Manage client service requests and coordinate property viewings
-            </p>
+            <h1 className="text-3xl text-gray-900 font-bold">Dashboard</h1>
+            <p className="mt-1 text-sm text-gray-600">Overview of service requests, assignments and activity.</p>
           </div>
-          <Link 
-            href={`/${locale}/dashboard/concierge/tickets`}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none focus:ring-offset-2"
-          >
-            <Ticket className="h-4 w-4" />
-            View All Tickets
-          </Link>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/${locale}/dashboard/concierge/tickets`}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2 text-sm font-medium text-white hover:opacity-95"
+            >
+              <Ticket className="h-4 w-4" />
+              Tickets
+            </Link>
+
+            <Link
+              href={`/${locale}/dashboard/concierge/services`}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <Users className="h-4 w-4" />
+              Quotes & Proposals
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Total Tickets"
-          value={stats.total}
-          variant="primary"
-          icon={Ticket}
-        />
-        <StatsCard
-          title="New Requests"
-          value={stats.new}
-          variant="info"
-          icon={AlertCircle}
-        />
-        <StatsCard
-          title="Scheduled"
-          value={stats.scheduled}
-          variant="warning"
-          icon={Calendar}
-        />
-        <StatsCard
-          title="Completed"
-          value={stats.completed}
-          variant="success"
-          icon={CheckCircle}
-        />
+      {/* KPI Cards */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <StatsCard title="Total Tickets" value={stats.total} variant="primary" icon={Ticket} />
+        <StatsCard title="Open / New" value={stats.new + stats.inReview} variant="warning" icon={AlertCircle} />
+        <StatsCard title="Assigned" value={stats.assigned} variant="info" icon={Users} />
+        <StatsCard title="High Priority" value={stats.highPriority} variant="danger" icon={Clock} />
       </div>
 
-      {/* Recent Tickets Overview */}
-      <div className="rounded-xl bg-white/50 shadow-sm border border-gray-200 overflow-hidden">
-        <div className="border-b border-gray-200 p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Service Tickets</h2>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              {/* Search */}
-              <div className="relative flex-1 sm:w-64">
+      <div className="grid gap-6 lg:grid-cols-1">
+        {/* Recent Tickets Panel */}
+        <div className="lg:col-span-2 rounded-xl bg-white/50 shadow-sm border border-gray-200 overflow-hidden">
+          <div className="flex items-center justify-between border-b border-gray-200 p-6">
+            <div>
+              <h2 className="text-lg font-medium text-gray-900">Recent Service Tickets</h2>
+              <p className="mt-1 text-sm text-gray-500">Latest tickets requiring attention.</p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search tickets..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm transition-colors focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
+                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
                 />
               </div>
-              
-              {/* Filters */}
-              <div className="flex gap-2">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
-                >
-                  <option value="all">All Status</option>
-                  <option value="New">New</option>
-                  <option value="In Review">In Review</option>
-                  <option value="Assigned">Assigned</option>
-                  <option value="Scheduled">Scheduled</option>
-                  <option value="Completed">Completed</option>
-                </select>
-                
-                <select
-                  value={priorityFilter}
-                  onChange={(e) => setPriorityFilter(e.target.value)}
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
-                >
-                  <option value="all">All Priority</option>
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
-                </select>
-              </div>
+
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              >
+                <option value="all">All Status</option>
+                <option value="New">New</option>
+                <option value="In Review">In Review</option>
+                <option value="Assigned">Assigned</option>
+                <option value="Scheduled">Scheduled</option>
+                <option value="Completed">Completed</option>
+              </select>
             </div>
           </div>
-        </div>
 
-        {/* Desktop Table */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Client
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Service Type
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Location
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Priority
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Assigned To
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {filteredTickets.slice(0, 5).map((ticket) => (
-                <tr key={ticket.id} className="transition-colors hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{ticket.clientName}</div>
-                        <div className="text-sm text-gray-500">{ticket.clientEmail}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{ticket.serviceType}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                      {ticket.location}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(ticket.priority)}`}>
-                      {ticket.priority}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}>
-                      {ticket.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">
-                      {ticket.assignedTo || <span className="text-gray-400 italic">Unassigned</span>}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => setSelectedTicket(ticket)}
-                      className="text-[#E6B325] hover:text-[#d4a017] text-sm font-medium"
-                    >
-                      View Details
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
+                <tr>
+                  <th className="px-6 py-3 text-left">Client</th>
+                  <th className="px-6 py-3 text-left">Service</th>
+                  <th className="px-6 py-3 text-left">Location</th>
+                  <th className="px-6 py-3 text-left">Priority</th>
+                  <th className="px-6 py-3 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile Cards */}
-        <div className="divide-y divide-gray-200 lg:hidden">
-          {filteredTickets.slice(0, 5).map((ticket) => (
-            <div key={ticket.id} className="p-4 hover:bg-gray-50 transition-colors">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="font-medium text-gray-900">{ticket.clientName}</h3>
-                  <p className="text-sm text-gray-600">{ticket.serviceType}</p>
-                </div>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}>
-                  {ticket.status}
-                </span>
-              </div>
-              
-              <div className="space-y-2 text-sm text-gray-600 mb-3">
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                  {ticket.location}
-                </div>
-                <div className="flex items-center gap-1">
-                  <User className="h-3.5 w-3.5 text-gray-400" />
-                  {ticket.assignedTo || "Unassigned"}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                  Request Date: {new Date(ticket.requestDate).toLocaleDateString()}
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(ticket.priority)}`}>
-                  {ticket.priority} Priority
-                </span>
-                <button
-                  onClick={() => setSelectedTicket(ticket)}
-                  className="text-[#E6B325] hover:text-[#d4a017] text-sm font-medium"
-                >
-                  View Details
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {filteredTickets.length === 0 && (
-          <div className="px-6 py-12 text-center">
-            <Ticket className="mx-auto h-12 w-12 text-gray-300" />
-            <h3 className="mt-3 text-sm font-medium text-gray-900">No tickets found</h3>
-            <p className="mt-1 text-sm text-gray-500">No service tickets match your current filters.</p>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredTickets.slice(0, 8).map((ticket) => (
+                  <tr key={ticket.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900">{ticket.clientName}</div>
+                      <div className="text-sm text-gray-500">{ticket.clientEmail}</div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{ticket.serviceType}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600 flex items-center gap-2"><MapPin className="h-4 w-4 text-gray-400" />{ticket.location}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(ticket.priority)}`}>{ticket.priority}</span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <button onClick={() => setSelectedTicket(ticket)} className="min-w-[110px] px-3 py-2 rounded-md text-sm font-medium text-[#E6B325] border border-[#E6B325] hover:bg-[#E6B325]/5">View Details</button>
+                        <Link href={`/${locale}/dashboard/concierge/tickets`} className="min-w-[110px] px-3 py-2 text-center rounded-md text-sm font-medium bg-[#E6B325] text-white hover:opacity-95">Manage</Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
 
-        {/* View All Link */}
-        {filteredTickets.length > 5 && (
-          <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
-            <Link 
-              href={`/${locale}/dashboard/concierge/tickets`}
-              className="text-sm font-medium text-[#E6B325] hover:text-[#d4a017]"
-            >
-              View all {filteredTickets.length} tickets →
-            </Link>
+          <div className="border-t border-gray-100 p-4 text-right">
+            <Link href={`/${locale}/dashboard/concierge/tickets`} className="text-sm font-medium text-[#E6B325]">View all tickets →</Link>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Ticket Detail Modal */}
-      <Modal
-        isOpen={!!selectedTicket}
-        onClose={() => setSelectedTicket(null)}
-        title="Service Ticket Details"
-        maxWidth="max-w-2xl"
-      >
+      {/* Ticket Detail Modal (preserve existing modal content) */}
+      <Modal isOpen={!!selectedTicket} onClose={() => setSelectedTicket(null)} title="Service Ticket Details" maxWidth="max-w-2xl">
         {selectedTicket && (
           <div className="space-y-6">
             {/* Client Information */}
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-medium text-gray-900 mb-3">Client Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-gray-400" />
-                  <span className="font-medium">{selectedTicket.clientName}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-400" />
-                  <span>{selectedTicket.clientEmail}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <span>{selectedTicket.clientPhone}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <span>{selectedTicket.location}</span>
-                </div>
+                <div className="flex items-center gap-2"><User className="h-4 w-4 text-gray-400" /><span className="font-medium">{selectedTicket.clientName}</span></div>
+                <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-gray-400" /><span>{selectedTicket.clientEmail}</span></div>
+                <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-gray-400" /><span>{selectedTicket.clientPhone}</span></div>
+                <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gray-400" /><span>{selectedTicket.location}</span></div>
               </div>
             </div>
 
@@ -439,31 +293,12 @@ export default function ConciergeDashboard({ params }) {
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-medium text-gray-900 mb-3">Service Details</h3>
               <div className="space-y-3">
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Service Type: </span>
-                  <span className="text-sm text-gray-900">{selectedTicket.serviceType}</span>
-                </div>
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Description: </span>
-                  <p className="text-sm text-gray-900 mt-1">{selectedTicket.description}</p>
-                </div>
+                <div><span className="text-sm font-medium text-gray-700">Service Type: </span><span className="text-sm text-gray-900">{selectedTicket.serviceType}</span></div>
+                <div><span className="text-sm font-medium text-gray-700">Description: </span><p className="text-sm text-gray-900 mt-1">{selectedTicket.description}</p></div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Priority: </span>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ml-2 ${getPriorityColor(selectedTicket.priority)}`}>
-                      {selectedTicket.priority}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Status: </span>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2 ${getStatusColor(selectedTicket.status)}`}>
-                      {selectedTicket.status}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Request Date: </span>
-                    <span className="text-sm text-gray-900">{new Date(selectedTicket.requestDate).toLocaleDateString()}</span>
-                  </div>
+                  <div><span className="text-sm font-medium text-gray-700">Priority: </span><span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ml-2 ${getPriorityColor(selectedTicket.priority)}`}>{selectedTicket.priority}</span></div>
+                  <div><span className="text-sm font-medium text-gray-700">Status: </span><span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2 ${getStatusColor(selectedTicket.status)}`}>{selectedTicket.status}</span></div>
+                  <div><span className="text-sm font-medium text-gray-700">Request Date: </span><span className="text-sm text-gray-900">{new Date(selectedTicket.requestDate).toLocaleDateString()}</span></div>
                 </div>
               </div>
             </div>
@@ -472,62 +307,24 @@ export default function ConciergeDashboard({ params }) {
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-medium text-gray-900 mb-3">Assignment & Schedule</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Assigned To: </span>
-                  <span className="text-sm text-gray-900">{selectedTicket.assignedTo || "Not assigned"}</span>
-                </div>
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Scheduled Date: </span>
-                  <span className="text-sm text-gray-900">
-                    {selectedTicket.scheduledDate ? new Date(selectedTicket.scheduledDate).toLocaleDateString() : "Not scheduled"}
-                  </span>
-                </div>
+                <div><span className="text-sm font-medium text-gray-700">Assigned To: </span><span className="text-sm text-gray-900">{selectedTicket.assignedTo || "Not assigned"}</span></div>
+                <div><span className="text-sm font-medium text-gray-700">Scheduled Date: </span><span className="text-sm text-gray-900">{selectedTicket.scheduledDate ? new Date(selectedTicket.scheduledDate).toLocaleDateString() : "Not scheduled"}</span></div>
               </div>
             </div>
 
             {/* Notes */}
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-3">Notes</h3>
-              <p className="text-sm text-gray-900 bg-gray-50 rounded-lg p-3">
-                {selectedTicket.notes || "No additional notes available."}
-              </p>
+              <p className="text-sm text-gray-900 bg-gray-50 rounded-lg p-3">{selectedTicket.notes || "No additional notes available."}</p>
             </div>
 
             {/* Status Update Actions */}
             <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
               <span className="text-sm font-medium text-gray-700 mr-2">Quick Actions:</span>
-              {selectedTicket.status === 'New' && (
-                <button
-                  onClick={() => updateTicketStatus(selectedTicket.id, 'In Review')}
-                  className="px-3 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition-colors"
-                >
-                  Move to Review
-                </button>
-              )}
-              {selectedTicket.status === 'In Review' && (
-                <button
-                  onClick={() => updateTicketStatus(selectedTicket.id, 'Assigned')}
-                  className="px-3 py-1 text-xs bg-purple-100 text-purple-800 rounded-md hover:bg-purple-200 transition-colors"
-                >
-                  Assign
-                </button>
-              )}
-              {selectedTicket.status === 'Assigned' && (
-                <button
-                  onClick={() => updateTicketStatus(selectedTicket.id, 'Scheduled')}
-                  className="px-3 py-1 text-xs bg-indigo-100 text-indigo-800 rounded-md hover:bg-indigo-200 transition-colors"
-                >
-                  Schedule
-                </button>
-              )}
-              {selectedTicket.status === 'Scheduled' && (
-                <button
-                  onClick={() => updateTicketStatus(selectedTicket.id, 'Completed')}
-                  className="px-3 py-1 text-xs bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors"
-                >
-                  Mark Complete
-                </button>
-              )}
+              {selectedTicket.status === 'New' && (<button onClick={() => updateTicketStatus(selectedTicket.id, 'In Review')} className="px-3 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition-colors">Move to Review</button>)}
+              {selectedTicket.status === 'In Review' && (<button onClick={() => updateTicketStatus(selectedTicket.id, 'Assigned')} className="px-3 py-1 text-xs bg-purple-100 text-purple-800 rounded-md hover:bg-purple-200 transition-colors">Assign</button>)}
+              {selectedTicket.status === 'Assigned' && (<button onClick={() => updateTicketStatus(selectedTicket.id, 'Scheduled')} className="px-3 py-1 text-xs bg-indigo-100 text-indigo-800 rounded-md hover:bg-indigo-200 transition-colors">Schedule</button>)}
+              {selectedTicket.status === 'Scheduled' && (<button onClick={() => updateTicketStatus(selectedTicket.id, 'Completed')} className="px-3 py-1 text-xs bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors">Mark Complete</button>)}
             </div>
           </div>
         )}

@@ -233,11 +233,11 @@ const navigationConfig = {
       href: '/dashboard/concierge/services',
       icon: Users,
     },
-    {
-      key: 'Service history',
-      href: '/dashboard/concierge/schedule',
-      icon: Calendar,
-    },
+    // {
+    //   key: 'Service history',
+    //   href: '/dashboard/concierge/schedule',
+    //   icon: Calendar,
+    // },
     // {
     //   key: 'Reports',
     //   href: '/dashboard/concierge/reports',
