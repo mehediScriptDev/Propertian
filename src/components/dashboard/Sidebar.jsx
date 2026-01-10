@@ -213,36 +213,41 @@ const navigationConfig = {
     // },
     {
       key: 'dashboard.partner.profile',
-      href: '/dashboard/partner/profile',
+      href: '/dashboard/sponsor/profile',
       icon: UserCircle,
     },
   ],
   concierge: [
     {
-      key: 'Overview',
+      key: 'Dashboard',
       href: '/dashboard/concierge',
       icon: Briefcase,
     },
     {
-      key: 'Service Tickets',
+      key: 'Assigned Tickets',
       href: '/dashboard/concierge/tickets',
       icon: Mail,
     },
     {
-      key: 'Client Services',
+      key: 'Quotes & Proposals',
       href: '/dashboard/concierge/services',
       icon: Users,
     },
-    {
-      key: 'Schedule',
-      href: '/dashboard/concierge/schedule',
-      icon: Calendar,
-    },
+    // {
+    //   key: 'Service history',
+    //   href: '/dashboard/concierge/schedule',
+    //   icon: Calendar,
+    // },
     // {
     //   key: 'Reports',
     //   href: '/dashboard/concierge/reports',
     //   icon: FileText,
     // },
+    {
+      key: 'dashboard.partner.profile',
+      href: '/dashboard/concierge/profile',
+      icon: UserCircle,
+    },
   ],
 };
 

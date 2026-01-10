@@ -6,9 +6,6 @@ import {
   Building2,
   Search,
   Filter,
-  Eye,
-  Edit,
-  Trash2,
   Plus,
   Download,
 } from "lucide-react";
@@ -370,16 +367,9 @@ export default function DeveloperPortalPage() {
                   {t("Developer_Portal.Location")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Reviewer
+                  {t("Developer_Portal.Status")}
                 </th>
                 
-               
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Application {t("Developer_Portal.Status")}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                   {t("Developer_Portal.Status")}
-                </th>
                 
                 <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                   {t("Developer_Portal.Actions")}
@@ -398,40 +388,18 @@ export default function DeveloperPortalPage() {
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {project.location}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    Admin
-                  </td>
-                 
-                   <td className="px-6 py-4">
+                  <td className="px-6 py-4">
                     {getStatusBadge(project.status)}
                   </td>
-                  <td className="px-6 py-4">
-                    Pending
-                  </td>
                  
                  
                   <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end">
                       <button
-                        className="rounded p-1.5 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
-                        title="View project"
-                        aria-label="View project"
+                        className="px-4 py-2 bg-[#E6B325] hover:bg-[#d4a520] text-white text-xs font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E6B325]/40"
+                        aria-label="Request verification"
                       >
-                        <Eye className="h-4 w-4 text-gray-600" />
-                      </button>
-                      <button
-                        className="rounded p-1.5 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
-                        title="Edit project"
-                        aria-label="Edit project"
-                      >
-                        <Edit className="h-4 w-4 text-[#E6B325]" />
-                      </button>
-                      <button
-                        className="rounded p-1.5 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-                        title="Delete project"
-                        aria-label="Delete project"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                        Request Verification
                       </button>
                     </div>
                   </td>
@@ -471,26 +439,12 @@ export default function DeveloperPortalPage() {
 
               <div className="flex items-center justify-between">
                 {getStatusBadge(project.status)}
-                <div className="flex items-center gap-2">
-                  <button
-                    className="rounded p-1.5 hover:bg-gray-100"
-                    title="View"
-                  >
-                    <Eye className="h-4 w-4 text-gray-600" />
-                  </button>
-                  <button
-                    className="rounded p-1.5 hover:bg-gray-100"
-                    title="Edit"
-                  >
-                    <Edit className="h-4 w-4 text-[#E6B325]" />
-                  </button>
-                  <button
-                    className="rounded p-1.5 hover:bg-gray-100"
-                    title="Delete"
-                  >
-                    <Trash2 className="h-4 w-4 text-red-600" />
-                  </button>
-                </div>
+                <button
+                  className="px-3 py-1.5 bg-[#E6B325] hover:bg-[#d4a520] text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-[#E6B325]/40"
+                  aria-label="Request verification"
+                >
+                  Request Verification
+                </button>
               </div>
             </div>
           ))}
@@ -520,7 +474,7 @@ export default function DeveloperPortalPage() {
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
             translations={{
-              showing: (t("common.Showing")),
+              showing: ("Showing"),
               to: (t("common.to")),
               of: (t("common.of")),
               results: (t("common.results")),
