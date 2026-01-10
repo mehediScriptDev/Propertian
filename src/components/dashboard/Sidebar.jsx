@@ -219,22 +219,22 @@ const navigationConfig = {
   ],
   concierge: [
     {
-      key: 'Overview',
+      key: 'Dashboard',
       href: '/dashboard/concierge',
       icon: Briefcase,
     },
     {
-      key: 'Service Tickets',
+      key: 'Assigned Tickets',
       href: '/dashboard/concierge/tickets',
       icon: Mail,
     },
     {
-      key: 'Client Services',
+      key: 'Quotes & Proposals',
       href: '/dashboard/concierge/services',
       icon: Users,
     },
     {
-      key: 'Schedule',
+      key: 'Service history',
       href: '/dashboard/concierge/schedule',
       icon: Calendar,
     },
