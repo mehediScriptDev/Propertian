@@ -15,6 +15,7 @@ export default function VerifiedPropertiesPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [replyText, setReplyText] = useState("");
   const messagesEndRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Mock property threads with inquiries
   const propertyThreads = useMemo(
@@ -166,6 +167,7 @@ export default function VerifiedPropertiesPage() {
 
   const selectThread = (thread) => {
     setSelected(thread);
+    setIsOpen(true); // open chat on small/medium devices
     setTimeout(
       () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
       50
@@ -192,7 +194,7 @@ export default function VerifiedPropertiesPage() {
   return (
     <div className="flex gap-4 h-[calc(100vh-8rem)]">
       {/* Left: Inquiry Threads Card */}
-      <div className="w-60 xl:w-96 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+      <div className={`${isOpen ? 'hidden' : 'block'} lg:block w-96 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
         <div className="px-4 py-4 border-b border-gray-200">
           <h3 className="text-sm font-semibold text-gray-900">
             Inquiry Threads
@@ -238,7 +240,7 @@ export default function VerifiedPropertiesPage() {
       </div>
 
       {/* Right: Chat/Detail Card */}
-      <div className="flex-1 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+      <div className={`${isOpen ? 'block' : 'hidden'} lg:block flex-1 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
         {!selected ? (
           <div className="h-full flex items-center justify-center text-gray-400">
             Select a thread to view inquiries
@@ -248,7 +250,7 @@ export default function VerifiedPropertiesPage() {
             {/* Property Info Card */}
             <div className="px-6 py-4 bg-white border-b border-gray-200">
               <div className="flex items-start gap-4">
-                <div className="relative w-20 h-20 rounded-md overflow-hidden bg-gray-200 shrink-0">
+                <div className="relative sm:w-20 sm:h-20 w-14 h-14 rounded-md overflow-hidden bg-gray-200 shrink-0">
                   <Image
                     src={selected.image}
                     alt={selected.propertyName}
@@ -259,23 +261,23 @@ export default function VerifiedPropertiesPage() {
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-base font-semibold text-gray-900">
+                      <h3 className="sm:text-base text-sm font-semibold text-gray-900">
                         {selected.propertyName}
                       </h3>
-                      <div className="text-sm text-gray-500 mt-0.5">
+                      <div className="sm:text-sm text-xs text-gray-500 mt-0.5">
                         {selected.location}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="sm:text-sm text-xs text-gray-500">
                         {selected.city}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setSelected(null)}
-                        className="rounded-full p-2 bg-gray-100 text-[#e6b325] focus:outline-none focus:ring-2 focus:ring-red-200"
+                        onClick={() => { setSelected(null); setIsOpen(false); }} // close chat and show threads on small/medium
+                        className="rounded-full sm:p-2 p-1 bg-gray-100 text-[#e6b325] focus:outline-none focus:ring-2 focus:ring-red-200"
                         aria-label="Close chat"
                       >
-                        <X className="w-5 h-5" />
+                        <X className="sm:w-5 sm:h-5 w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
@@ -284,7 +286,7 @@ export default function VerifiedPropertiesPage() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6 pb-24"> {/* reserve space for sticky input */}
               <div className="w-full">
                 {/* User Inquiries Section */}
                 <div className="mb-8">
@@ -380,28 +382,28 @@ export default function VerifiedPropertiesPage() {
               </div>
             </div>
 
-            {/* Reply Input */}
-            <div className="px-6 py-3 bg-white border-t border-gray-200">
-              <div className="flex items-center gap-2">
+            {/* Reply Input (sticky to bottom) */}
+            <div className="px-6 py-3 bg-white border-t border-gray-200 sticky bottom-0 z-10">
+              <div className="flex items-center flex-col sm:flex-row gap-2">
                 <input
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder="Type your message"
-                  className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="flex-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                 />
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={sendReply}
-                    className="bg-[#e6b325] text-white px-5 py-2 rounded-md text-xs lg:text-sm font-medium hover:bg-gray-800 transition-colors"
+                    className="bg-[#e6b325] text-white px-5 py-2.5 rounded-md text-xs lg:text-sm font-medium hover:bg-gray-800 transition-colors"
                   >
-                    Send Reply
+                    Send
                   </button>
-                  <button className="text-xs lg:text-sm text-gray-600 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                    Close Inquiry
-                  </button>
+                  {/* <button className="text-xs lg:text-sm text-gray-600 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                    Close
+                  </button> */}
                 </div>
               </div>
-              <div className="text-xs text-gray-400 mt-2 text-right">
+              <div className="sm:text-xs text-[9px] text-gray-400 mt-0.5 sm:mt-2 text-left sm:text-right">
                 Admin can view & intervenre to respond 6 from potential buyer.
               </div>
             </div>
