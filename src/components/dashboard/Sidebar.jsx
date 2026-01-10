@@ -46,15 +46,26 @@ const navigationConfig = {
       icon: LayoutDashboard,
     },
     {
+      key: 'dashboard.admin.partnersLink',
+      href: '/dashboard/admin/partners',
+      icon: UserCheck,
+    },
+    {
       key: 'dashboard.admin.usersLink',
       href: '/dashboard/admin/users',
       icon: Users,
     },
     {
-      key: 'dashboard.admin.blogEditorLink',
-      href: '/dashboard/admin/blog-editor',
-      icon: FileText,
+      key: 'dashboard.admin.propertiesLink',
+      href: '/dashboard/admin/properties',
+      icon: Building2,
     },
+    {
+      key: 'dashboard.admin.conciergeRequestsLink',
+      href: '/dashboard/admin/concierge-requests',
+      icon: Bell,
+    },
+    
     // {
     //   key: 'dashboard.admin.mediaLibrary',
     //   href: '/dashboard/admin/media-library',
@@ -70,21 +81,9 @@ const navigationConfig = {
     //   href: '/dashboard/admin/seo-management',
     //   icon: Search,
     // },
-    {
-      key: 'dashboard.admin.propertiesLink',
-      href: '/dashboard/admin/properties',
-      icon: Building2,
-    },
-    {
-      key: 'dashboard.admin.partnersLink',
-      href: '/dashboard/admin/partners',
-      icon: UserCheck,
-    },
-    {
-      key: 'dashboard.admin.conciergeRequestsLink',
-      href: '/dashboard/admin/concierge-requests',
-      icon: Bell,
-    },
+    
+    
+    
     {
       key: 'dashboard.admin.eventManagement',
       href: '/dashboard/admin/event-management',
@@ -94,6 +93,11 @@ const navigationConfig = {
       key: 'All Bookings',
       href: '/dashboard/admin/bookings',
       icon: List,
+    },
+    {
+      key: 'dashboard.admin.blogEditorLink',
+      href: '/dashboard/admin/blog-editor',
+      icon: FileText,
     },
     {
       key: 'Supports Requests',
