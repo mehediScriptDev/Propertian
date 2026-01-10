@@ -28,6 +28,8 @@ import {
   Download,
   FileText
 } from "lucide-react";
+import QuoteComposer from "@/components/concierge/QuoteComposer";
+import ViewQuoteModal from "@/components/concierge/ViewQuoteModal";
 
 export default function ConciergeTicketsPage({ params }) {
   const { locale } = use(params);
@@ -180,6 +182,10 @@ export default function ConciergeTicketsPage({ params }) {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [composerTicket, setComposerTicket] = useState(null);
+  const [viewQuote, setViewQuote] = useState(null);
+  const [quotes, setQuotes] = useState([]);
 
   // Calculate stats
   const stats = {
@@ -247,14 +253,13 @@ export default function ConciergeTicketsPage({ params }) {
   const serviceTypes = [...new Set(tickets.map(t => t.serviceType))];
 
   const handleActionClick = (ticket) => {
-    // Emulate action handlers used by design: create quote, view quote, mark delivered, view details
     if (ticket.status === 'New') {
-      // navigate to create quote - placeholder
-      alert(`Create quote for ${ticket.clientName}`);
+      setComposerTicket(ticket);
+      setComposerOpen(true);
     } else if (ticket.status === 'In Review') {
-      alert(`View quote for ${ticket.clientName}`);
+      const ticketQuote = quotes.find(q => q.ticketId === ticket.id);
+      setViewQuote(ticketQuote || null);
     } else if (ticket.status === 'Scheduled') {
-      // mark delivered
       updateTicketStatus(ticket.id, 'Completed');
     } else {
       setSelectedTicket(ticket);
@@ -476,6 +481,15 @@ export default function ConciergeTicketsPage({ params }) {
           </div>
         )}
       </Modal>
+
+      <QuoteComposer isOpen={composerOpen} onClose={() => { setComposerOpen(false); setComposerTicket(null); }} ticket={composerTicket} onSend={(quote) => {
+        setQuotes((prev) => [...prev, quote]);
+        setComposerOpen(false);
+        setComposerTicket(null);
+        if (quote.ticketId) updateTicketStatus(quote.ticketId, 'In Review');
+      }} />
+
+      <ViewQuoteModal isOpen={!!viewQuote} onClose={() => setViewQuote(null)} quote={viewQuote} />
     </div>
   );
 }
