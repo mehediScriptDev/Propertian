@@ -277,7 +277,7 @@ export default function VerifiedPropertiesPage() {
                         className="rounded-full sm:p-2 p-1 bg-gray-100 text-[#e6b325] focus:outline-none focus:ring-2 focus:ring-red-200"
                         aria-label="Close chat"
                       >
-                        <X className="sm:w-5 sm:h-5 w-3.5 h-3.5" />
+                        <X className="sm:w-5 sm:h-5 w-3.5 h-3.5 " />
                       </button>
                     </div>
                   </div>
