@@ -6,6 +6,9 @@ import { Users, CheckCircle, Clock, FolderOpen } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
 import PartnersFilters from '@/components/dashboard/admin/PartnersFilters';
 import PartnersTable from '@/components/dashboard/admin/PartnersTable';
+import PartnersApplicationsPanel from '@/components/dashboard/admin/PartnersApplicationsPanel';
+import ListingSubmissionsPanel from '@/components/dashboard/admin/ListingSubmissionsPanel';
+import VerificationRequestsPanel from '@/components/dashboard/admin/VerificationRequestsPanel';
 import Pagination from '@/components/dashboard/Pagination';
 import axiosInstance from '@/lib/axios';
 
@@ -18,6 +21,7 @@ export default function AdminPartnersPage({ params }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [verificationFilter, setVerificationFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
+  const [selectedTab, setSelectedTab] = useState('partner_application');
   const [currentPage, setCurrentPage] = useState(1);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -255,38 +259,87 @@ export default function AdminPartnersPage({ params }) {
         ))}
       </div>
 
-      {/* Filters */}
-      <PartnersFilters
-        searchTerm={searchTerm}
-        statusFilter={statusFilter}
-        verificationFilter={verificationFilter}
-        paymentFilter={paymentFilter}
-        onSearchChange={handleSearchChange}
-        onStatusChange={handleStatusChange}
-        onVerificationChange={handleVerificationChange}
-        onPaymentChange={handlePaymentChange}
-        translations={partnersTranslations}
-      />
+      {/* Tabs */}
+      <div className="mb-4">
+        <div className="inline-flex rounded-md bg-gray-100 p-1">
+          <button
+            type="button"
+            aria-pressed={selectedTab === 'partner_application'}
+            onClick={() => setSelectedTab('partner_application')}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${selectedTab === 'partner_application' ? 'bg-[#1E3A5F] shadow text-white ring-2 font-semibold' : 'text-gray-600'}`}
+          >
+            Partner Application
+          </button>
+          <button
+            type="button"
+            aria-pressed={selectedTab === 'listing_submission'}
+            onClick={() => setSelectedTab('listing_submission')}
+            className={`ml-2 px-4 py-2 rounded-md text-sm font-medium ${selectedTab === 'listing_submission' ? 'bg-[#1E3A5F] shadow text-white ring-2 font-semibold' : 'text-gray-600'}`}
+          >
+            Listing Submission
+          </button>
+          <button
+            type="button"
+            aria-pressed={selectedTab === 'verification_requests'}
+            onClick={() => setSelectedTab('verification_requests')}
+            className={`ml-2 px-4 py-2 rounded-md text-sm font-medium ${selectedTab === 'verification_requests' ? 'bg-[#1E3A5F] shadow text-white ring-2 font-semibold' : 'text-gray-600'}`}
+          >
+            Verification Requests
+          </button>
+        </div>
+      </div>
 
-      {/* Partners Table with Pagination */}
-      <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
-        <PartnersTable
+      {/* Panels (table + pagination) per tab */}
+      {selectedTab === 'partner_application' && (
+        <PartnersApplicationsPanel
           partners={filteredApplications}
           loading={loading}
           onDelete={handleDelete}
           onStatusChange={handleStatusUpdate}
           onRefresh={fetchApplications}
-          translations={partnersTranslations}
-        />
-        <Pagination
+          tableTranslations={partnersTranslations}
+          paginationTranslations={paginationTranslations}
           currentPage={currentPage}
           totalPages={pagination.totalPages}
           totalItems={pagination.total}
           itemsPerPage={ITEMS_PER_PAGE}
           onPageChange={handlePageChange}
-          translations={paginationTranslations}
         />
-      </div>
+      )}
+
+      {selectedTab === 'listing_submission' && (
+        <ListingSubmissionsPanel
+          partners={filteredApplications}
+          loading={loading}
+          onDelete={handleDelete}
+          onStatusChange={handleStatusUpdate}
+          onRefresh={fetchApplications}
+          tableTranslations={partnersTranslations}
+          paginationTranslations={paginationTranslations}
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.total}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={handlePageChange}
+        />
+      )}
+
+      {selectedTab === 'verification_requests' && (
+        <VerificationRequestsPanel
+          partners={filteredApplications}
+          loading={loading}
+          onDelete={handleDelete}
+          onStatusChange={handleStatusUpdate}
+          onRefresh={fetchApplications}
+          tableTranslations={partnersTranslations}
+          paginationTranslations={paginationTranslations}
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.total}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={handlePageChange}
+        />
+      )}
     </div>
   );
 }

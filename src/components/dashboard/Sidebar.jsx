@@ -51,7 +51,7 @@ const navigationConfig = {
       icon: UserCheck,
       // New dropdown children for partner management
       children: [
-        { key: 'Listing Partner', href: '/dashboard/admin/partners/listing', icon: List },
+        { key: 'Listing Partner', href: '/dashboard/admin/partners', icon: List },
         { key: 'Sponsor Partner', href: '/dashboard/admin/partners/sponsor', icon: Briefcase },
         { key: 'Concierge Partner', href: '/dashboard/admin/partners/concierge', icon: Mail },
       ],
@@ -80,6 +80,9 @@ const navigationConfig = {
     // {
     //   key: 'dashboard.admin.auditLogsLink',
     //   href: '/dashboard/admin/audit-logs',
+
+
+    
     //   icon: ScrollText,
     // },
     // {
