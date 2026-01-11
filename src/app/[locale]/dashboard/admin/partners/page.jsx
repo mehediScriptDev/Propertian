@@ -54,7 +54,7 @@ export default function AdminPartnersPage({ params }) {
       
       // Add status filter if not 'all'
       if (statusFilter !== 'all') {
-        url += `&status=${statusFilter}`;
+        url += `&status=${statusFilter}`; 
       }
       
       const response = await axiosInstance.get(url);
