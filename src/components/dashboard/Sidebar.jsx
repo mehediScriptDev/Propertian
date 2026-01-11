@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
@@ -51,9 +51,9 @@ const navigationConfig = {
       icon: UserCheck,
       // New dropdown children for partner management
       children: [
-        { key: 'Listing Partner', href: '/dashboard/admin/partners', icon: List },
-        { key: 'Sponsor Partner', href: '/dashboard/admin/partners/sponsor', icon: Briefcase },
-        { key: 'Concierge Partner', href: '/dashboard/admin/partners/concierge', icon: Mail },
+        { key: 'Partner Application', href: '/dashboard/admin/partners?tab=applications', icon: FileText },
+        { key: 'Listing Submission', href: '/dashboard/admin/partners?tab=listing-submissions', icon: List },
+        { key: 'Verification Requests', href: '/dashboard/admin/partners?tab=verification-requests', icon: ShieldCheck },
       ],
     },
     {
@@ -274,6 +274,7 @@ export default function Sidebar({ role = 'admin' }) {
   const { locale, changeLanguage } = useLanguage();
   const { t } = useTranslation(locale);
   const router = useRouter();
+  const searchParams = useSearchParams();
   // const { t } = useMemo(() => useTranslation(locale), [locale]);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -467,8 +468,14 @@ export default function Sidebar({ role = 'admin' }) {
                     <ul className='mt-2 space-y-1 pl-10'>
                       {item.children.map((child) => {
                         const ChildIcon = child.icon;
-                        const childActive = isActiveLink(child.href);
+                        // Support child hrefs with optional query params like ?tab=listing-submissions
+                        const [childPath, childQuery] = child.href.split('?');
+                        const expectedTab = childQuery ? new URLSearchParams(childQuery).get('tab') : null;
+                        const pathActive = isActiveLink(childPath);
+                        const tabActive = expectedTab ? (searchParams ? searchParams.get('tab') === expectedTab : false) : true;
+                        const childActive = pathActive && tabActive;
                         const childHref = `/${locale}${child.href}`;
+
                         return (
                           <li key={child.href}>
                             <Link

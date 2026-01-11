@@ -1,11 +1,10 @@
 'use client';
 
 import { use, useState, useMemo, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslation } from '@/i18n';
 import { Users, CheckCircle, Clock, FolderOpen } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
-import PartnersFilters from '@/components/dashboard/admin/PartnersFilters';
-import PartnersTable from '@/components/dashboard/admin/PartnersTable';
 import PartnersApplicationsPanel from '@/components/dashboard/admin/PartnersApplicationsPanel';
 import ListingSubmissionsPanel from '@/components/dashboard/admin/ListingSubmissionsPanel';
 import VerificationRequestsPanel from '@/components/dashboard/admin/VerificationRequestsPanel';
@@ -21,7 +20,6 @@ export default function AdminPartnersPage({ params }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [verificationFilter, setVerificationFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
-  const [selectedTab, setSelectedTab] = useState('partner_application');
   const [currentPage, setCurrentPage] = useState(1);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +29,15 @@ export default function AdminPartnersPage({ params }) {
     limit: 10,
     totalPages: 1
   });
+
+  // Derive selected tab from `?tab=` query param. Defaults to partner_application.
+  const searchParams = useSearchParams();
+  const tabParam = searchParams ? searchParams.get('tab') : null;
+  const selectedTab = useMemo(() => {
+    if (tabParam === 'listing-submissions') return 'listing_submission';
+    if (tabParam === 'verification-requests') return 'verification_requests';
+    return 'partner_application';
+  }, [tabParam]);
 
   // Constants
   const ITEMS_PER_PAGE = 8;
@@ -259,35 +266,7 @@ export default function AdminPartnersPage({ params }) {
         ))}
       </div>
 
-      {/* Tabs */}
-      <div className="mb-4">
-        <div className="inline-flex rounded-md bg-gray-100 p-1">
-          <button
-            type="button"
-            aria-pressed={selectedTab === 'partner_application'}
-            onClick={() => setSelectedTab('partner_application')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${selectedTab === 'partner_application' ? 'bg-[#1E3A5F] shadow text-white ring-2 font-semibold' : 'text-gray-600'}`}
-          >
-            Partner Application
-          </button>
-          <button
-            type="button"
-            aria-pressed={selectedTab === 'listing_submission'}
-            onClick={() => setSelectedTab('listing_submission')}
-            className={`ml-2 px-4 py-2 rounded-md text-sm font-medium ${selectedTab === 'listing_submission' ? 'bg-[#1E3A5F] shadow text-white ring-2 font-semibold' : 'text-gray-600'}`}
-          >
-            Listing Submission
-          </button>
-          <button
-            type="button"
-            aria-pressed={selectedTab === 'verification_requests'}
-            onClick={() => setSelectedTab('verification_requests')}
-            className={`ml-2 px-4 py-2 rounded-md text-sm font-medium ${selectedTab === 'verification_requests' ? 'bg-[#1E3A5F] shadow text-white ring-2 font-semibold' : 'text-gray-600'}`}
-          >
-            Verification Requests
-          </button>
-        </div>
-      </div>
+      {/* Tabs removed: sidebar controls the active panel via ?tab= */}
 
       {/* Panels (table + pagination) per tab */}
       {selectedTab === 'partner_application' && (
