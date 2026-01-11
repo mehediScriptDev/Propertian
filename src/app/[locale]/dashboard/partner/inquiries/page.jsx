@@ -192,9 +192,9 @@ export default function VerifiedPropertiesPage() {
   };
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-8rem)]">
+    <div className="flex gap-4 h-[calc(100vh-8rem)] relative">
       {/* Left: Inquiry Threads Card */}
-      <div className={`${isOpen ? 'hidden' : 'block'} lg:block w-96 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+      <div className={`${isOpen ? 'hidden' : 'block'} lg:block w-96 rounded-lg overflow-y-scroll bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
         <div className="px-4 py-4 border-b border-gray-200">
           <h3 className="text-sm font-semibold text-gray-900">
             Inquiry Threads
@@ -240,7 +240,7 @@ export default function VerifiedPropertiesPage() {
       </div>
 
       {/* Right: Chat/Detail Card */}
-      <div className={`${isOpen ? 'block' : 'hidden'} lg:block flex-1 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+      <div className={`${isOpen ? 'block' : 'hidden'}  flex-1 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
         {!selected ? (
           <div className="h-full flex items-center justify-center text-gray-400">
             Select a thread to view inquiries
@@ -384,7 +384,7 @@ export default function VerifiedPropertiesPage() {
 
             {/* Reply Input (sticky to bottom) */}
             <div className="px-6 py-3 bg-white border-t border-gray-200 sticky bottom-0 z-10">
-              <div className="flex items-center flex-col sm:flex-row gap-2">
+              <div className="flex items-center gap-2">
                 <input
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
