@@ -52,13 +52,13 @@ export default function DashboardHeader({ title }) {
                 aria-expanded={open}
                 aria-label="Partner dashboard menu"
                 onClick={() => setOpen((s) => !s)}
-                className="inline-flex items-center gap-2 text-xl sm:text-2xl font-semibold text-gray-900 focus:outline-none px-2 py-1 rounded group "
+                className="inline-flex items-center text-xl sm:text-2xl font-semibold text-gray-900 focus:outline-none px-2 py-1 rounded group"
               >
                 <span className="truncate">{title}</span>
                 <svg
-                  className={`h-7 w-7 transform transition-transform duration-200 ease-in-out ${
+                  className={`h-7 w-7 mt-1.5 transform transition-transform duration-200 ease-in-out ${
                     open
-                      ? "rotate-180 text-[#E6B325]"
+                      ? "rotate-180 text-[#E6B325] -mt-1"
                       : "text-gray-500 group-hover:text-[#E6B325]"
                   }`}
                   viewBox="0 0 20 20"

@@ -1,11 +1,13 @@
 'use client';
 
 import { use, useState, useMemo, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslation } from '@/i18n';
 import { Users, CheckCircle, Clock, FolderOpen } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
-import PartnersFilters from '@/components/dashboard/admin/PartnersFilters';
-import PartnersTable from '@/components/dashboard/admin/PartnersTable';
+import PartnersApplicationsPanel from '@/components/dashboard/admin/PartnersApplicationsPanel';
+import ListingSubmissionsPanel from '@/components/dashboard/admin/ListingSubmissionsPanel';
+import VerificationRequestsPanel from '@/components/dashboard/admin/VerificationRequestsPanel';
 import Pagination from '@/components/dashboard/Pagination';
 import axiosInstance from '@/lib/axios';
 
@@ -27,6 +29,15 @@ export default function AdminPartnersPage({ params }) {
     limit: 10,
     totalPages: 1
   });
+
+  // Derive selected tab from `?tab=` query param. Defaults to partner_application.
+  const searchParams = useSearchParams();
+  const tabParam = searchParams ? searchParams.get('tab') : null;
+  const selectedTab = useMemo(() => {
+    if (tabParam === 'listing-submissions') return 'listing_submission';
+    if (tabParam === 'verification-requests') return 'verification_requests';
+    return 'partner_application';
+  }, [tabParam]);
 
   // Constants
   const ITEMS_PER_PAGE = 8;
@@ -255,38 +266,59 @@ export default function AdminPartnersPage({ params }) {
         ))}
       </div>
 
-      {/* Filters */}
-      <PartnersFilters
-        searchTerm={searchTerm}
-        statusFilter={statusFilter}
-        verificationFilter={verificationFilter}
-        paymentFilter={paymentFilter}
-        onSearchChange={handleSearchChange}
-        onStatusChange={handleStatusChange}
-        onVerificationChange={handleVerificationChange}
-        onPaymentChange={handlePaymentChange}
-        translations={partnersTranslations}
-      />
+      {/* Tabs removed: sidebar controls the active panel via ?tab= */}
 
-      {/* Partners Table with Pagination */}
-      <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
-        <PartnersTable
+      {/* Panels (table + pagination) per tab */}
+      {selectedTab === 'partner_application' && (
+        <PartnersApplicationsPanel
           partners={filteredApplications}
           loading={loading}
           onDelete={handleDelete}
           onStatusChange={handleStatusUpdate}
           onRefresh={fetchApplications}
-          translations={partnersTranslations}
-        />
-        <Pagination
+          tableTranslations={partnersTranslations}
+          paginationTranslations={paginationTranslations}
           currentPage={currentPage}
           totalPages={pagination.totalPages}
           totalItems={pagination.total}
           itemsPerPage={ITEMS_PER_PAGE}
           onPageChange={handlePageChange}
-          translations={paginationTranslations}
         />
-      </div>
+      )}
+
+      {selectedTab === 'listing_submission' && (
+        <ListingSubmissionsPanel
+          partners={filteredApplications}
+          loading={loading}
+          onDelete={handleDelete}
+          onStatusChange={handleStatusUpdate}
+          onRefresh={fetchApplications}
+          tableTranslations={partnersTranslations}
+          paginationTranslations={paginationTranslations}
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.total}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={handlePageChange}
+        />
+      )}
+
+      {selectedTab === 'verification_requests' && (
+        <VerificationRequestsPanel
+          partners={filteredApplications}
+          loading={loading}
+          onDelete={handleDelete}
+          onStatusChange={handleStatusUpdate}
+          onRefresh={fetchApplications}
+          tableTranslations={partnersTranslations}
+          paginationTranslations={paginationTranslations}
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.total}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={handlePageChange}
+        />
+      )}
     </div>
   );
 }

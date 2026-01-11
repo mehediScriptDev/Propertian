@@ -85,7 +85,7 @@ const ProfileDropDown = ({ showOnHover = false, useArrow = false }) => {
     >
       {/* trigger button (click or hover based on props) */}
       <div
-        className='relative'
+        className='relative flex items-center lg:border lg:border-gray-200 rounded-full px-3 -py-2 cursor-pointer'
         onMouseEnter={() => {
           if (!showOnHover) return;
           if (closeTimeout.current) {
@@ -105,13 +105,15 @@ const ProfileDropDown = ({ showOnHover = false, useArrow = false }) => {
       >
         <button
           onClick={() => !showOnHover && setOpen((prev) => !prev)}
-          className='relative flex items-center cursor-pointer justify-center sm:w-11 w-8 h-8 sm:h-11 rounded-md px-2 py-1  dark:border-gray-700 hover:border-[#C5A572] dark:hover:border-[#C5A572] transition-all duration-200 group bg-transparent dark:bg-transparent '
+          className='relative flex items-center cursor-pointer justify-center  h-8 rounded-md lg:-ml-2  dark:border-gray-700 hover:border-[#C5A572] dark:hover:border-[#C5A572] transition-all duration-200 group bg-transparent dark:bg-transparent '
           aria-haspopup='true'
           aria-expanded={open}
         >
           {/* Always show a small down arrow trigger (no avatar) */}
-          <User className='w-8 h-8 text-gray-700 dark:text-gray-200' />
+          <User className='w-5 h-5 text-gray-700 dark:text-gray-200' />
+           <p className='text-xs font-semibold hidden lg:block cursor-pointer'>Profile</p>
         </button>
+       
       </div>
 
       {/* dropdown menu with premium styling */}

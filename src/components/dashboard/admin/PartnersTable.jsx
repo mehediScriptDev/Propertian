@@ -417,7 +417,7 @@ const PartnersTable = memo(({ partners, loading, onDelete, onStatusChange, trans
 
           <div className='relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col'>
             {/* Header */}
-            <div className='sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-4 flex items-center justify-between'>
+            <div className='sticky top-0 bg-linear-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-4 flex items-center justify-between'>
               <div className='flex items-center gap-3 flex-1 min-w-0'>
                 <div className='p-2.5 bg-white/20 backdrop-blur-sm rounded-xl'>
                   <FolderOpen className='h-5 w-5 sm:h-6 sm:w-6 text-white' />
@@ -431,7 +431,7 @@ const PartnersTable = memo(({ partners, loading, onDelete, onStatusChange, trans
               </div>
               <button 
                 onClick={handleClose} 
-                className='p-2 rounded-full hover:bg-white/20 transition-colors ml-2 flex-shrink-0'
+                className='p-2 rounded-full hover:bg-white/20 transition-colors ml-2 shrink-0'
               >
                 <X className='h-5 w-5 text-white' />
               </button>

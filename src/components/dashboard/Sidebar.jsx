@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
@@ -46,15 +46,32 @@ const navigationConfig = {
       icon: LayoutDashboard,
     },
     {
+      key: 'dashboard.admin.partnersLink',
+      href: '/dashboard/admin/partners',
+      icon: UserCheck,
+      // New dropdown children for partner management
+      children: [
+        { key: 'Partner Application', href: '/dashboard/admin/partners?tab=applications', icon: FileText },
+        { key: 'Listing Submission', href: '/dashboard/admin/partners?tab=listing-submissions', icon: List },
+        { key: 'Verification Requests', href: '/dashboard/admin/partners?tab=verification-requests', icon: ShieldCheck },
+      ],
+    },
+    {
       key: 'dashboard.admin.usersLink',
       href: '/dashboard/admin/users',
       icon: Users,
     },
     {
-      key: 'dashboard.admin.blogEditorLink',
-      href: '/dashboard/admin/blog-editor',
-      icon: FileText,
+      key: 'dashboard.admin.propertiesLink',
+      href: '/dashboard/admin/properties',
+      icon: Building2,
     },
+    {
+      key: 'dashboard.admin.conciergeRequestsLink',
+      href: '/dashboard/admin/concierge-requests',
+      icon: Bell,
+    },
+    
     // {
     //   key: 'dashboard.admin.mediaLibrary',
     //   href: '/dashboard/admin/media-library',
@@ -63,6 +80,9 @@ const navigationConfig = {
     // {
     //   key: 'dashboard.admin.auditLogsLink',
     //   href: '/dashboard/admin/audit-logs',
+
+
+    
     //   icon: ScrollText,
     // },
     // {
@@ -70,21 +90,9 @@ const navigationConfig = {
     //   href: '/dashboard/admin/seo-management',
     //   icon: Search,
     // },
-    {
-      key: 'dashboard.admin.propertiesLink',
-      href: '/dashboard/admin/properties',
-      icon: Building2,
-    },
-    {
-      key: 'dashboard.admin.partnersLink',
-      href: '/dashboard/admin/partners',
-      icon: UserCheck,
-    },
-    {
-      key: 'dashboard.admin.conciergeRequestsLink',
-      href: '/dashboard/admin/concierge-requests',
-      icon: Bell,
-    },
+    
+    
+    
     {
       key: 'dashboard.admin.eventManagement',
       href: '/dashboard/admin/event-management',
@@ -94,6 +102,11 @@ const navigationConfig = {
       key: 'All Bookings',
       href: '/dashboard/admin/bookings',
       icon: List,
+    },
+    {
+      key: 'dashboard.admin.blogEditorLink',
+      href: '/dashboard/admin/blog-editor',
+      icon: FileText,
     },
     {
       key: 'Supports Requests',
@@ -261,12 +274,14 @@ export default function Sidebar({ role = 'admin' }) {
   const { locale, changeLanguage } = useLanguage();
   const { t } = useTranslation(locale);
   const router = useRouter();
+  const searchParams = useSearchParams();
   // const { t } = useMemo(() => useTranslation(locale), [locale]);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const [expandedMenu, setExpandedMenu] = useState(null);
 
   // Decide which navigation set to render.
   // For partners we may render different menus depending on subrole or path.
@@ -428,6 +443,60 @@ export default function Sidebar({ role = 'admin' }) {
             const Icon = item.icon;
             const isActive = isActiveLink(item.href);
             const fullHref = `/${locale}${item.href}`;
+
+            // If item has children render expandable group
+            if (item.children && item.children.length > 0) {
+              const isExpanded = expandedMenu === item.key;
+              return (
+                <li key={item.href} className=''>
+                  <button
+                    type='button'
+                    onClick={() => setExpandedMenu(isExpanded ? null : item.key)}
+                    aria-expanded={isExpanded}
+                    className={`
+                      group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
+                      transition-all duration-200 ease-in-out
+                      ${isActive ? 'bg-[#1E3A5F] text-white shadow-sm' : 'text-gray-300 hover:bg-[#1A2B42] hover:text-white'}
+                    `}
+                  >
+                    <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-[#E6B325]' : 'text-gray-400 group-hover:text-gray-300'}`} />
+                    <span className='flex-1 truncate'>{t(item.key)}</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''} text-gray-400`} />
+                  </button>
+
+                  {isExpanded && (
+                    <ul className='mt-2 space-y-1 pl-10'>
+                      {item.children.map((child) => {
+                        const ChildIcon = child.icon;
+                        // Support child hrefs with optional query params like ?tab=listing-submissions
+                        const [childPath, childQuery] = child.href.split('?');
+                        const expectedTab = childQuery ? new URLSearchParams(childQuery).get('tab') : null;
+                        const pathActive = isActiveLink(childPath);
+                        const tabActive = expectedTab ? (searchParams ? searchParams.get('tab') === expectedTab : false) : true;
+                        const childActive = pathActive && tabActive;
+                        const childHref = `/${locale}${child.href}`;
+
+                        return (
+                          <li key={child.href}>
+                            <Link
+                              href={childHref}
+                              className={`
+                                group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+                                transition-all duration-200 ease-in-out
+                                ${childActive ? 'bg-[#183044] text-white' : 'text-gray-300 hover:bg-[#122033] hover:text-white'}
+                              `}
+                            >
+                              <ChildIcon className={`h-4 w-4 shrink-0 ${childActive ? 'text-[#E6B325]' : 'text-gray-400'}`} />
+                              <span className='flex-1 truncate'>{t(child.key)}</span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </li>
+              );
+            }
 
             return (
               <li key={item.href}>
