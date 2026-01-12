@@ -467,7 +467,7 @@ export default function AdminInquiriesPage() {
         <div
           className={`${
             isOpen ? 'block' : 'hidden'
-          } lg:block flex-1 rounded-lg bg-white border border-gray-200 shadow-sm flex flex-col overflow-hidden`}
+          }  flex-1 rounded-lg bg-white border border-gray-200 shadow-sm flex flex-col overflow-hidden`}
         >
           {!selected ? (
             <div className="h-full flex items-center justify-center text-gray-400">
@@ -477,7 +477,7 @@ export default function AdminInquiriesPage() {
             <>
               <div className="flex-1 flex flex-col overflow-hidden relative">
                 {/* Scrollable content (header + messages) */}
-                <div className="overflow-y-auto">
+                <div className="overflow-y-auto pb-40">
                   {/* Header with Property & Partner Info (sticky within scroll area) */}
                   <div className="px-6 py-4 bg-white border-b border-gray-200 sticky top-0 z-10">
                     <div className="flex items-start gap-4">
@@ -585,7 +585,7 @@ export default function AdminInquiriesPage() {
                 </div>
 
                 {/* Admin Reply Input (always visible at bottom) */}
-                <div className="px-6 py-3 bg-white border-t bottom-0 sticky border-gray-200">
+                <div className="px-6 py-3 bg-white border-t sticky bottom-0 border-gray-200">
                   <div className="flex items-center gap-2">
                     <input
                       value={replyText}

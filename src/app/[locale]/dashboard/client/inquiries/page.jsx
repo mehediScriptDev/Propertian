@@ -1,530 +1,365 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import dynamic from "next/dynamic";
-import {
-  Search,
-  Filter,
-  Mail,
-  Phone,
-  Calendar,
-  User,
-  Building2,
-  MoreVertical,
-  Eye,
-  Send,
-  Archive,
-    Trash2,
-  AlertTriangle,
-} from "lucide-react";
-import InquiryModal from "@/components/dashboard/InquiryModal";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { Search, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
+import Image from "next/image";
 import api from "@/lib/api";
-import axios from "@/lib/axios";
 import { showToast } from "@/components/Toast";
-
-const Pagination = dynamic(() => import("@/components/dashboard/Pagination"), {
-  ssr: false,
-});
 
 export default function ClientInquiriesPage() {
   const { locale } = useLanguage();
   const { t } = useTranslation(locale);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [selectedInquiry, setSelectedInquiry] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-
+  const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [replyText, setReplyText] = useState("");
+  const messagesEndRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  
-  // Confirmation modal state
-  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, inquiryId: null });
 
-  // Open delete confirmation modal
-  const handleDeleteClick = (e, inquiryId) => {
-    e?.preventDefault();
-    e?.stopPropagation();
-    setDeleteConfirm({ open: true, inquiryId });
-  };
+  // Mock inquiry threads (replace with API call later)
+  const propertyThreads = useMemo(
+    () => [
+      {
+        id: 1,
+        propertyName: "2BR Apartment in Manhattan",
+        location: "Upper East Side",
+        city: "New York",
+        status: "new",
+        image: "/buy-rent/hero.jpg",
+        lastMessage:
+          "Hi, I'm interested in viewing this property. Is it still available?",
+        partnerName: "Smith Realty",
+        partnerAvatar: null,
+        timestamp: "Jan 11, 2026, 10:49 AM",
+        inquiries: [
+          {
+            id: 1,
+            from: "user",
+            text: "Hi, I'm interested in viewing this property. Is it still available?",
+            timestamp: "10:49 AM",
+          },
+        ],
+      },
+      {
+        id: 2,
+        propertyName: "3BR House in Brooklyn",
+        location: "Park Slope",
+        city: "Brooklyn",
+        status: "awaiting",
+        image: "/buy-rent/hero.jpg",
+        lastMessage: "Last message: Yes, we have availability...",
+        partnerName: "Brooklyn Homes",
+        partnerAvatar: null,
+        timestamp: "Jan 10, 2026, 2:30 PM",
+        inquiries: [
+          {
+            id: 1,
+            from: "user",
+            text: "What's the monthly rent?",
+            timestamp: "2:30 PM",
+          },
+          {
+            id: 2,
+            from: "partner",
+            text: "The monthly rent is $3,500. Would you like to schedule a viewing?",
+            timestamp: "3:15 PM",
+          },
+        ],
+      },
+      {
+        id: 3,
+        propertyName: "Studio in Queens",
+        location: "Astoria",
+        city: "Queens",
+        status: "awaiting",
+        image: "/buy-rent/hero.jpg",
+        lastMessage: "Last message: The utilities are included...",
+        partnerName: "Queens Living",
+        partnerAvatar: null,
+        timestamp: "Jan 9, 2026, 11:20 AM",
+        inquiries: [
+          {
+            id: 1,
+            from: "user",
+            text: "Are utilities included in the rent?",
+            timestamp: "11:20 AM",
+          },
+        ],
+      },
+      {
+        id: 4,
+        propertyName: "4BR Townhouse in Staten Island",
+        location: "St. George",
+        city: "Staten Island",
+        status: "closed",
+        image: "/buy-rent/hero.jpg",
+        lastMessage: "Last message: Thank you for your interest...",
+        partnerName: "Island Properties",
+        partnerAvatar: null,
+        timestamp: "Jan 5, 2026, 9:15 AM",
+        inquiries: [],
+      },
+      {
+        id: 5,
+        propertyName: "1BR Condo in Jersey City",
+        location: "Downtown",
+        city: "Jersey City",
+        status: "awaiting",
+        image: "/buy-rent/hero.jpg",
+        lastMessage: "Last message: We can arrange a visit...",
+        partnerName: "Hudson Realty",
+        partnerAvatar: null,
+        timestamp: "Jan 8, 2026, 4:45 PM",
+        inquiries: [],
+      },
+    ],
+    []
+  );
 
-  // Open inquiry detail modal
-  const openInquiry = (inquiry) => {
-    setSelectedInquiry(inquiry);
-  };
-
-  // Confirm and delete inquiry
-  const confirmDelete = async () => {
-    const inquiryId = deleteConfirm.inquiryId;
-    setDeleteConfirm({ open: false, inquiryId: null });
-    
-    try {
-      await api.delete(`/inquiries/${inquiryId}`);
-      setInquiries((prev) =>
-        prev.filter((iq) => (iq.id || iq._id) !== inquiryId)
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return propertyThreads.filter((t) => {
+      if (statusFilter !== "all" && t.status !== statusFilter) return false;
+      if (!q) return true;
+      return (
+        t.propertyName.toLowerCase().includes(q) ||
+        t.location.toLowerCase().includes(q) ||
+        t.partnerName.toLowerCase().includes(q)
       );
-      showToast("Inquiry deleted successfully", "success");
-    } catch (err) {
-      console.error("Inquiry delete failed", err);
-      const msg =
-        err?.response?.data?.message || err?.message || "Failed to delete inquiry";
-      showToast(msg, "error");
-    }
-  };
-
-  useEffect(() => {
-    let mounted = true;
-    const controller = new AbortController();
-
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-
-      const params = {
-        page: currentPage,
-        limit: itemsPerPage,
-      };
-      if (filterStatus && filterStatus !== "all") params.status = filterStatus;
-      if (searchQuery) params.q = searchQuery;
-
-      // Use the canonical endpoint for user inquiries
-      try {
-        const res = await api.get("/inquiries/my-inquiries", {
-          params,
-          signal: controller.signal,
-        });
-        const payload = res;
-
-        const items =
-          payload?.data?.inquiries ||
-          payload?.inquiries ||
-          payload?.data ||
-          payload ||
-          [];
-
-        const mapped = (Array.isArray(items) ? items : []).map((iq) => ({
-          id: iq.id || iq._id,
-          name: iq.user?.name || iq.name || "",
-          email: iq.user?.email || iq.email || "",
-          phone: iq.user?.phone || iq.phone || "",
-          property: iq.property
-            ? iq.property.title || iq.property.address || iq.property
-            : iq.propertyId || "",
-          subject:
-            iq.subject ||
-            (iq.property?.title
-              ? `Inquiry about ${iq.property.title}`
-              : "Property inquiry"),
-          message: iq.message || "",
-          date: iq.createdAt || iq.date || new Date().toISOString(),
-          status: (iq.status || "").toString().toLowerCase(),
-          priority: (iq.priority || "medium").toString().toLowerCase(),
-        }));
-
-        if (!mounted) return;
-
-        setInquiries(mapped);
-
-        const pg = payload?.data?.pagination || payload?.pagination;
-        if (pg) {
-          setTotalItems(pg.totalItems || pg.total || mapped.length);
-          setTotalPages(
-            pg.totalPages ||
-              Math.ceil((pg.totalItems || mapped.length) / itemsPerPage)
-          );
-        } else {
-          setTotalItems(mapped.length);
-          setTotalPages(Math.max(1, Math.ceil(mapped.length / itemsPerPage)));
-        }
-
-        setLoading(false);
-      } catch (err) {
-        // Better error messages for common cases
-        if (err?.status === 403) {
-          setError("Access denied. Insufficient permissions.");
-        } else if (err?.status === 404) {
-          setError("Resource not found: /inquiries/my-inquiries");
-        } else {
-          setError(err?.message || "Failed to load inquiries");
-        }
-        setLoading(false);
-      }
-    };
-
-    const timer = setTimeout(fetchData, 250);
-
-    return () => {
-      mounted = false;
-      controller.abort();
-      clearTimeout(timer);
-    };
-  }, [currentPage, filterStatus, searchQuery]);
+    });
+  }, [propertyThreads, search, statusFilter]);
 
   const getStatusBadge = (status) => {
-    const statusConfig = {
-      new: { bg: "bg-blue-100", text: "text-blue-800", label: "New" },
-      pending: {
-        bg: "bg-yellow-100",
-        text: "text-yellow-800",
-        label: "Pending",
-      },
-      resolved: {
-        bg: "bg-green-100",
-        text: "text-green-800",
-        label: "Resolved",
-      },
-      closed: { bg: "bg-gray-100", text: "text-gray-800", label: "Closed" },
+    const config = {
+      new: { bg: "bg-blue-500", label: "New" },
+      awaiting: { bg: "bg-yellow-400", label: "Awaiting Reply" },
+      closed: { bg: "bg-green-500", label: "Closed" },
     };
-    const cfg = statusConfig[status] || statusConfig.new;
+    const s = config[status] || config.new;
     return (
       <span
-        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}
+        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white ${s.bg}`}
       >
-        {cfg.label}
+        {s.label}
       </span>
     );
   };
 
-  const getPriorityBadge = (priority) => {
-    const cfg = {
-      high: { bg: "bg-red-100", text: "text-red-800", label: "High" },
-      medium: { bg: "bg-orange-100", text: "text-orange-800", label: "Medium" },
-      low: { bg: "bg-gray-100", text: "text-gray-800", label: "Low" },
-    }[priority] || {
-      bg: "bg-gray-100",
-      text: "text-gray-800",
-      label: "Medium",
-    };
-
-    return (
-      <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}
-      >
-        {cfg.label}
-      </span>
+  const selectThread = (thread) => {
+    setSelected(thread);
+    setIsOpen(true);
+    setTimeout(
+      () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
+      50
     );
   };
 
-  const truncateWords = (text = '', count = 5) => {
-    if (!text) return '';
-    const words = text.split(/\s+/).filter(Boolean);
-    if (words.length <= count) return text;
-    return words.slice(0, count).join(' ') + '...';
+  const sendReply = () => {
+    if (!selected || !replyText.trim()) return;
+    const newMsg = {
+      id: Date.now(),
+      from: "user",
+      text: replyText,
+      timestamp: new Date().toLocaleTimeString(),
+    };
+    setSelected({ ...selected, inquiries: [...selected.inquiries, newMsg] });
+    setReplyText("");
+    setTimeout(
+      () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
+      100
+    );
   };
-
-  // Apply client-side filtering so UI responds even if backend doesn't honor params
-  const filtered = useMemo(() => {
-    const q = (searchQuery || '').toString().trim().toLowerCase();
-    return (inquiries || []).filter((iq) => {
-      if (filterStatus && filterStatus !== 'all') {
-        if ((iq.status || '').toString().toLowerCase() !== filterStatus.toString().toLowerCase()) {
-          return false;
-        }
-      }
-
-      if (q) {
-        const hay = [
-          iq.name,
-          iq.email,
-          iq.phone,
-          iq.property,
-          iq.subject,
-          iq.message,
-        ]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase();
-
-        if (!hay.includes(q)) return false;
-      }
-
-      return true;
-    });
-  }, [inquiries, filterStatus, searchQuery]);
-
-  // Client-side pagination for the filtered results (inquiries already may be paginated by server)
-  const totalFilteredItems = filtered.length;
-  const totalFilteredPages = Math.max(1, Math.ceil(totalFilteredItems / itemsPerPage));
-  const pageItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="space-y-3 lg:space-y-4.5">
-      <div className="rounded-lg bg-white/50 p-6 shadow-sm border border-gray-200">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              {t("inquiries") || "My Inquiries"}
-            </h1>
-            <p className="mt-2 text-sm text-gray-600">
-              {t("AllInquiries") || "All your recent inquiries"}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-lg bg-white/50 shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200 p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
-              {t("AllInquiries") || "All Inquiries"}
-            </h2>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="relative flex-1 sm:w-64">
-                <Search
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
-                  aria-hidden="true"
-                />
-                <input
-                  type="text"
-                  placeholder={t("SearchInquiries") || "Search inquiries..."}
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm transition-colors focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]"
-                  aria-label="Search inquiries"
-                />
-              </div>
-
-              <div className="relative">
-                <Filter
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
-                  aria-hidden="true"
-                />
-                <select
-                  value={filterStatus}
-                  onChange={(e) => {
-                    setFilterStatus(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full appearance-none rounded-lg border border-gray-300 py-2 pl-10 pr-10 text-sm transition-colors focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325] sm:w-auto"
-                  aria-label="Filter by status"
-                >
-                  <option value="all">
-                    {t("AllInquiries") || "All Status"}
-                  </option>
-                  <option value="new">
-                    {t("Developer_Inquiry.New") || "New"}
-                  </option>
-                  <option value="pending">
-                    {t("Developer_Inquiry.Pending") || "Pending"}
-                  </option>
-                  <option value="resolved">
-                    {t("Developer_Inquiry.Resolved") || "Resolved"}
-                  </option>
-                  <option value="closed">
-                    {t("Developer_Inquiry.Closed") || "Closed"}
-                  </option>
-                </select>
-              </div>
-            </div>
-          </div>
+    <div className="flex gap-4 h-[calc(100vh-8rem)] relative">
+      {/* Left: Inquiry Threads Card */}
+      <div className={`${isOpen ? 'hidden' : 'block'} lg:block w-96 rounded-lg overflow-y-scroll bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+        <div className="px-4 py-4 border-b border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-900">
+            My Inquiry Threads
+          </h3>
         </div>
 
-        <div className="hidden overflow-x-auto lg:block">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Property Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Message
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Message
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white/50">
-              {pageItems.map((iq) => (
-                <tr key={iq.id} className="transition-colors hover:bg-gray-50">
-                  <td className="px-6 py-4 truncate">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-900">
-                        {iq.property}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 truncate w-72 max-w-[18rem]">
-                    <div className="text-sm font-medium text-gray-900" title={iq.message}>
-                      {truncateWords(iq.message, 5)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 truncate">
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                      {new Date(iq.date).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">{getPriorityBadge(iq.priority)}</td>
-                  <td className="px-6 py-4">{getStatusBadge(iq.status)}</td>
-                  <td className="px-6 py-4 actions-col">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => openInquiry(iq)}
-                        aria-label="View"
-                        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
-                        title="View"
-                      >
-                        <Eye className="w-5 h-5 text-gray-600" aria-hidden="true" />
-                      </button>
-                      <button
-                        onClick={(e) => handleDeleteClick(e, iq.id ?? iq._id)}
-                        aria-label="Delete inquiry"
-                        className="ml-2 p-1 rounded hover:bg-red-50 focus:outline-none"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-5 h-5 text-red-600" aria-hidden="true" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="divide-y divide-gray-200 lg:hidden">
-          {pageItems.map((iq) => (
-            <div key={iq.id} className="p-4 transition-colors hover:bg-gray-50">
-              {console.log(iq)}
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-700 mb-1">
-                    {iq.message}
-                  </p>
-                  <p className="text-xs text-gray-500">{iq.property}</p>
-                </div>
-                <button
-                  className="rounded p-1.5 transition-colors hover:bg-gray-100"
-                  aria-label="More options"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreVertical className="h-4 w-4 text-gray-600" />
-                </button>
+        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {filtered.map((thread) => (
+            <button
+              key={thread.id}
+              onClick={() => selectThread(thread)}
+              className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${
+                selected?.id === thread.id ? "bg-gray-50" : ""
+              }`}
+            >
+              <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
+                {thread.partnerName[0]}
               </div>
-
-              <div className="mb-3 space-y-2">
-                <div className="flex items-center gap-2 text-xs text-gray-600">
-                  <Calendar className="h-3 w-3 text-gray-400" />
-                  {new Date(iq.date).toLocaleDateString()}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-0.5">
+                  <div className="font-medium text-sm text-gray-900 truncate">
+                    {thread.partnerName}
+                  </div>
+                  <div className="text-xs text-gray-500 shrink-0">
+                    {new Date(thread.timestamp).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </div>
                 </div>
+                <div className="text-xs text-gray-600 mb-0.5 truncate">
+                  Property: {thread.propertyName}
+                </div>
+                <div className="text-xs text-gray-500 truncate mb-2">
+                  {thread.lastMessage}
+                </div>
+                {getStatusBadge(thread.status)}
               </div>
-
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center gap-2">
-                  {getPriorityBadge(iq.priority)}
-                  {getStatusBadge(iq.status)}
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    className="rounded p-1.5 transition-colors hover:bg-gray-100"
-                    title="View"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedInquiry(iq);
-                    }}
-                  >
-                    <Eye className="h-4 w-4 text-gray-600" />
-                  </button>
-                  <button
-                    className="rounded transition-colors"
-                    title="Delete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteClick(e, iq.id ?? iq._id);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-red-600" />
-                  </button>
-                </div>
-              </div>
-            </div>
+            </button>
           ))}
         </div>
-
-        {totalItems > itemsPerPage && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-            translations={{
-              showing: t("common.showing"),
-              to: t("common.to"),
-              of: "out of",
-              results: t("common.results"),
-              previous: t("common.previous"),
-              next: t("common.next"),
-            }}
-          />
-        )}
       </div>
 
-      <InquiryModal isOpen={!!selectedInquiry} onClose={() => setSelectedInquiry(null)} inquiry={selectedInquiry} />
-      
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setDeleteConfirm({ open: false, inquiryId: null })}
-          />
-          
-          {/* Dialog */}
-          <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-red-100 rounded-full">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-              </div>
-              
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Delete Inquiry
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Are you sure you want to delete this inquiry? This action cannot be undone.
-                </p>
+      {/* Right: Chat/Detail Card */}
+      <div className={`${isOpen ? 'block' : 'hidden'} flex-1 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+        {!selected ? (
+          <div className="h-full flex items-center justify-center text-gray-400">
+            Select a thread to view conversation
+          </div>
+        ) : (
+          <>
+            {/* Property Info Card */}
+            <div className="px-6 py-4 bg-white border-b border-gray-200">
+              <div className="flex items-start gap-4">
+                <div className="relative sm:w-20 sm:h-20 w-14 h-14 rounded-md overflow-hidden bg-gray-200 shrink-0">
+                  <Image
+                    src={selected.image}
+                    alt={selected.propertyName}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="sm:text-base text-sm font-semibold text-gray-900">
+                        {selected.propertyName}
+                      </h3>
+                      <div className="sm:text-sm text-xs text-gray-500 mt-0.5">
+                        {selected.location}
+                      </div>
+                      <div className="sm:text-sm text-xs text-gray-500">
+                        {selected.city}
+                      </div>
+                      <div className="sm:text-xs text-[10px] text-gray-400 mt-1">
+                        Partner: {selected.partnerName}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => { setSelected(null); setIsOpen(false); }}
+                        className="rounded-full sm:p-2 p-1 bg-gray-100 text-[#e6b325] focus:outline-none focus:ring-2 focus:ring-red-200"
+                        aria-label="Close chat"
+                      >
+                        <X className="sm:w-5 sm:h-5 w-3.5 h-3.5 " />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 mt-6">
-              <button
-                onClick={() => setDeleteConfirm({ open: false, inquiryId: null })}
-                className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition"
-              >
-                Delete
-              </button>
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto p-6 pb-24">
+              <div className="w-full">
+                {/* My Inquiries Section */}
+                <div className="mb-8">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-4">
+                    My Inquiries
+                  </h4>
+                  {selected.inquiries
+                    .filter((m) => m.from === "user")
+                    .map((msg) => (
+                      <div key={msg.id} className="mb-4">
+                        <div className="flex items-start gap-3 justify-end">
+                          <div className="text-right">
+                            <div className="bg-[#3B82F6] text-white rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl">
+                              {msg.text}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1.5">
+                              You, {msg.timestamp}
+                            </div>
+                          </div>
+                          <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
+                            U
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {/* Partner Responses Section */}
+                {selected.inquiries.filter((m) => m.from === "partner").length > 0 && (
+                  <div className="mb-8">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-4">
+                      Partner Responses
+                    </h4>
+                    {selected.inquiries
+                      .filter((m) => m.from === "partner")
+                      .map((msg) => (
+                        <div key={msg.id} className="mb-4">
+                          <div className="flex items-start gap-3">
+                            <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold shrink-0">
+                              {selected.partnerName[0]}
+                            </div>
+                            <div className="flex-1">
+                              <div className="bg-gray-100 rounded-lg px-4 py-2.5 text-sm text-gray-900 max-w-2xl">
+                                {msg.text}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1.5">
+                                {selected.partnerName}, {msg.timestamp}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+
+            {/* Reply Input (sticky to bottom) */}
+            <div className="px-6 py-3 bg-white border-t border-gray-200 sticky bottom-0 z-10">
+              <div className="flex items-center gap-2">
+                <input
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && sendReply()}
+                  placeholder="Type your message"
+                  className="flex-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={sendReply}
+                    className="bg-[#e6b325] text-white px-5 py-2.5 rounded-md text-xs lg:text-sm font-medium hover:bg-gray-800 transition-colors"
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+              <div className="sm:text-xs text-[9px] text-gray-400 mt-0.5 sm:mt-2 text-left sm:text-right">
+                Responses from property partners will appear here.
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
+
