@@ -1,29 +1,31 @@
-"use client";
+'use client';
 
-import { use, useState, useEffect } from "react";
-import { useTranslation } from "@/i18n";
-import StatsCard from "@/components/dashboard/admin/StatsCard";
-import Modal from "@/components/Modal";
-import Link from "next/link";
+import { use, useState, useMemo } from 'react';
+import { useTranslation } from '@/i18n';
+import StatsCard from '@/components/dashboard/admin/StatsCard';
+import Link from 'next/link';
 import {
-  Ticket,
+  Bell,
   Clock,
   CheckCircle,
-  Users,
-  Search,
-  Filter,
+  Briefcase,
+  DollarSign,
+  FileText,
+  TrendingUp,
   Calendar,
   MapPin,
-  Phone,
-  Mail,
   User,
-  MoreHorizontal,
-  Trash2,
-  AlertCircle,
   Eye,
-} from "lucide-react";
-import QuoteComposer from "@/components/concierge/QuoteComposer";
-import ViewQuoteModal from "@/components/concierge/ViewQuoteModal";
+  Ticket,
+  Users,
+  AlertCircle,
+  Search,
+  Mail,
+  Phone
+} from 'lucide-react';
+import QuoteComposer from '@/components/concierge/QuoteComposer';
+import ViewQuoteModal from '@/components/concierge/ViewQuoteModal';
+import Modal from '@/components/Modal';
 
 export default function ConciergeDashboard({ params }) {
   const { locale } = use(params);

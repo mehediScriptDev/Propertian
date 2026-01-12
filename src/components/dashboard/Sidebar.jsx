@@ -28,6 +28,7 @@ import {
   Briefcase,
   HelpCircle,
   ShieldCheck,
+  CheckCircle
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -293,37 +294,37 @@ const navigationConfig = {
     {
       key: "Dashboard",
       href: "/dashboard/concierge",
-      icon: Briefcase,
+      icon: LayoutDashboard,
     },
     {
-      key: "Notifications",
-      href: "/dashboard/concierge/notifications",
+      key: "Service Requests",
+      href: "/dashboard/concierge/requests",
       icon: Bell,
     },
     {
-      key: "Assigned Tickets",
-      href: "/dashboard/concierge/tickets",
-      icon: Mail,
+      key: "My Quotes",
+      href: "/dashboard/concierge/quotes",
+      icon: FileText,
     },
     {
-      key: "Quotes & Proposals",
-      href: "/dashboard/concierge/services",
-      icon: Users,
+      key: "Active Jobs",
+      href: "/dashboard/concierge/jobs",
+      icon: Briefcase,
     },
     // {
-    //   key: 'Service history',
-    //   href: '/dashboard/concierge/schedule',
-    //   icon: Calendar,
-    // },
-    // {
-    //   key: 'Reports',
-    //   href: '/dashboard/concierge/reports',
-    //   icon: FileText,
+    //   key: "Completed",
+    //   href: "/dashboard/concierge/completed",
+    //   icon: CheckCircle,
     // },
     {
-      key: "dashboard.partner.profile",
-      href: "/dashboard/concierge/profile",
-      icon: UserCircle,
+      key: "Notifications",
+      href: "/dashboard/concierge/notifications",
+      icon: MessageSquare,
+    },
+    {
+      key: "Settings",
+      href: "/dashboard/concierge/settings",
+      icon: Settings,
     },
   ],
 };
