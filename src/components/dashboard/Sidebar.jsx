@@ -321,11 +321,11 @@ const navigationConfig = {
       href: "/dashboard/concierge/notifications",
       icon: MessageSquare,
     },
-    {
-      key: "Settings",
-      href: "/dashboard/concierge/settings",
-      icon: Settings,
-    },
+    // {
+    //   key: "Settings",
+    //   href: "/dashboard/concierge/settings",
+    //   icon: Settings,
+    // },
   ],
 };
 
