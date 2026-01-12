@@ -137,7 +137,7 @@ export default function NotificationButton() {
         className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
         aria-label="Notifications"
       >
-        <Bell className="h-5 w-5" />
+        <Bell className="sm:h-6 sm:w-6 w-5 h-5" />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -176,7 +176,7 @@ export default function NotificationButton() {
                 >
                   <div className="flex items-start gap-3">
                     {notification.unread && (
-                      <div className="mt-1.5 h-2 w-2 rounded-full bg-blue-500 shrink-0" />
+                      <div className="mt-1.5 h-2 w-2 rounded-full bg-blue-500 shrink-0"/>
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
