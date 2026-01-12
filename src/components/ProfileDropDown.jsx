@@ -113,7 +113,6 @@ const ProfileDropDown = ({ showOnHover = false, useArrow = false }) => {
           <User className='w-5 h-5 text-gray-700 dark:text-gray-200' />
            <p className='text-xs font-semibold hidden lg:block cursor-pointer'>Profile</p>
         </button>
-       
       </div>
 
       {/* dropdown menu with premium styling */}

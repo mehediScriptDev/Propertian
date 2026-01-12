@@ -1,39 +1,50 @@
 "use client";
 
-import React from 'react';
-import { CheckCircle, X, AlertCircle } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { CheckCircle, AlertCircle } from 'lucide-react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function AlertModal({ open, type = 'success', title = '', message = '', onClose }) {
-  if (!open) return null;
+  const shownRef = useRef(false);
 
-  const Icon = type === 'success' ? CheckCircle : AlertCircle;
+  useEffect(() => {
+    if (open && !shownRef.current) {
+      shownRef.current = true;
 
-  return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 text-center">
-        <div className="flex justify-end">
-          <button onClick={onClose} className="p-1 rounded hover:bg-gray-100">
-            <X className="w-5 h-5 text-gray-600" />
-          </button>
-        </div>
-
-        <div className="flex flex-col items-center gap-4 py-2">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center ${type === 'success' ? 'bg-green-100' : 'bg-red-100'}`}>
-            <Icon className={`w-8 h-8 ${type === 'success' ? 'text-green-600' : 'text-red-600'}`} />
+      const Content = (
+        <div className="flex items-start gap-4">
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${type === 'success' ? 'bg-green-100' : 'bg-red-100'}`}>
+            {type === 'success' ? (
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            ) : (
+              <AlertCircle className="w-6 h-6 text-red-600" />
+            )}
           </div>
-          <h3 className="text-lg font-semibold text-gray-900">{title || (type === 'success' ? 'Success' : 'Error')}</h3>
-          <p className="text-sm text-gray-600">{message}</p>
-
-          <div className="w-full mt-4">
-            <button
-              onClick={onClose}
-              className={`w-full py-2 rounded-lg ${type === 'success' ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700'}`}
-            >
-              OK
-            </button>
+          <div className="text-left">
+            <div className="font-semibold text-gray-900">{title || (type === 'success' ? 'Success' : 'Error')}</div>
+            <div className="text-sm text-gray-600">{message}</div>
           </div>
         </div>
-      </div>
-    </div>
-  );
+      );
+
+      const options = {
+        onClose: () => {
+          shownRef.current = false;
+          if (typeof onClose === 'function') onClose();
+        },
+        autoClose: 5000,
+        closeOnClick: true,
+        pauseOnHover: true,
+      };
+
+      if (type === 'success') {
+        toast.success(Content, options);
+      } else {
+        toast.error(Content, options);
+      }
+    }
+  }, [open, type, title, message, onClose]);
+
+  return <ToastContainer position="top-center" />;
 }

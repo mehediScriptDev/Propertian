@@ -67,8 +67,8 @@ const navigationConfig = {
       icon: Building2,
     },
     {
-      key: 'dashboard.admin.conciergeRequestsLink',
-      href: '/dashboard/admin/concierge-requests',
+      key: 'Concierge Tickets',
+      href: '/dashboard/admin/concierge-tickets',
       icon: Bell,
     },
     
