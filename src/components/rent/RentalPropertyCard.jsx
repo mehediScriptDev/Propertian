@@ -26,6 +26,7 @@ export default function RentalPropertyCard({ property }) {
   const {
     id,
     image,
+    city,
     imageAlt,
     location,
     title,
@@ -121,7 +122,7 @@ export default function RentalPropertyCard({ property }) {
         {/* Location */}
         <div className='flex justify-between'>
           <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
-            {location}
+            {city || location}
           </p>
           {showFavorite && (
             <button
