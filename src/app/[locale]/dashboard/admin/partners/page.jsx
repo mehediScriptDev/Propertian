@@ -183,7 +183,7 @@ export default function AdminPartnersPage({ params }) {
   // Handlers
   const handleSearchChange = useCallback((value) => {
     setSearchTerm(value);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1); 
   }, []);
 
   const handleStatusChange = useCallback((value) => {
@@ -193,12 +193,12 @@ export default function AdminPartnersPage({ params }) {
 
   const handleVerificationChange = useCallback((value) => {
     setVerificationFilter(value);
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1); 
   }, []);
 
   const handlePaymentChange = useCallback((value) => {
     setPaymentFilter(value);
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1); 
   }, []);
 
   const handlePageChange = useCallback((page) => {
@@ -208,7 +208,7 @@ export default function AdminPartnersPage({ params }) {
   const handleDelete = async (id) => {
     try {
       await axiosInstance.delete(`/partner/applications/${id}`);
-      fetchApplications(); // Refresh the list
+      fetchApplications(); 
     } catch (error) {
       console.error('Error deleting application:', error);
     }
@@ -220,7 +220,7 @@ export default function AdminPartnersPage({ params }) {
         status: newStatus,
         adminNotes: `Status changed to ${newStatus}`
       });
-      fetchApplications(); // Refresh the list
+      fetchApplications();
     } catch (error) {
       console.error('Error updating status:', error);
       throw error;
@@ -266,7 +266,7 @@ export default function AdminPartnersPage({ params }) {
         ))}
       </div>
 
-      {/* Tabs removed: sidebar controls the active panel via ?tab= */}
+      
 
       {/* Panels (table + pagination) per tab */}
       {selectedTab === 'partner_application' && (

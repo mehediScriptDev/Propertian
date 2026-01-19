@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '@/lib/axios';
 
 // Inlined CreateEventForm (moved here so it's not a separate component file)
-function CreateEventForm({ onCancel, formId = 'create-event-form', onSubmittingChange }) {
+function CreateEventForm({ onCancel, onSuccess, formId = 'create-event-form', onSubmittingChange }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [eventDate, setEventDate] = useState('');
@@ -19,8 +19,34 @@ function CreateEventForm({ onCancel, formId = 'create-event-form', onSubmittingC
     const [isPublished, setIsPublished] = useState(false);
     const [speakers, setSpeakers] = useState([{ name: '', role: '', bio: '', order: 0 }]);
     const [learningPoints, setLearningPoints] = useState([{ point: '', order: 0 }]);
+    const [images, setImages] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState([]);
+    const imagesRef = React.useRef(null);
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
+
+    React.useEffect(() => {
+        return () => {
+            imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+        };
+    }, [imagePreviews]);
+
+    const handleImagesChange = (e) => {
+        const files = Array.from(e.target.files || []);
+        setImages(files);
+        const previews = files.map((f) => URL.createObjectURL(f));
+        imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+        setImagePreviews(previews);
+    };
+
+    const removeImageAt = (index) => {
+        setImages((prev) => prev.filter((_, i) => i !== index));
+        setImagePreviews((prev) => {
+            const updated = prev.filter((_, i) => i !== index);
+            if (prev[index]) URL.revokeObjectURL(prev[index]);
+            return updated;
+        });
+    };
 
     const normalizeDate = (value) => {
         if (!value) return null;
@@ -58,40 +84,72 @@ function CreateEventForm({ onCancel, formId = 'create-event-form', onSubmittingC
         setSubmitting(true);
         onSubmittingChange?.(true);
 
-        const payload = {
-            title,
-            description,
-            eventDate: eventDate ? normalizeDate(eventDate) : null,
-            endDate: endDate ? normalizeDate(endDate) : null,
-            location,
-            address,
-            city,
-            country,
-            capacity: capacity ? Number(capacity) : undefined,
-            status,
-            eventType,
-            isPublished,
-            speakers: speakers.filter(s => s.name.trim()),
-            learningPoints: learningPoints.filter(lp => lp.point.trim()),
-        };
-        console.log('Submitting event payload:', payload);
-
         try {
+            // Step 1: Upload images first if any
+            let imageUrls = [];
+            if (images.length > 0) {
+                const imageFormData = new FormData();
+                images.forEach((file) => {
+                    imageFormData.append('images', file);
+                });
+
+                console.log('Uploading images...');
+                const uploadResponse = await axios.post('/events/images', imageFormData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                console.log('Image upload response:', uploadResponse.data);
+                imageUrls = uploadResponse.data?.data?.imageUrls || uploadResponse.data?.imageUrls || [];
+            }
+
+            // Step 2: Create event with payload
+            const validSpeakers = speakers.filter(s => s.name.trim());
+            const validLearningPoints = learningPoints.filter(lp => lp.point.trim());
+
+            const payload = {
+                title,
+                description,
+                eventDate: eventDate ? normalizeDate(eventDate) : null,
+                endDate: endDate ? normalizeDate(endDate) : null,
+                location,
+                address,
+                city,
+                country,
+                capacity: capacity ? Number(capacity) : undefined,
+                status,
+                eventType,
+                isPublished,
+                speakers: validSpeakers,
+                learningPoints: validLearningPoints,
+                images: imageUrls,
+            };
+            console.log('Submitting event payload:', payload);
+
             const response = await axios.post('/events', payload);
             console.log('Response from backend:', response.data);
 
-            const message = response.data?.message || 'Event created successfully';
-            alert(message);
+            // Clean up images
+            imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+            if (imagesRef.current) imagesRef.current.value = '';
+
+            // Refresh data before closing modal
+            if (onSuccess) {
+                await onSuccess();
+            }
+
+            // Close modal after refresh completes
             onCancel?.();
         } catch (err) {
             console.error('Create event error:', err);
             console.error('Error response:', err?.response);
             console.error('Error data:', err?.response?.data);
             console.error('Error status:', err?.response?.status);
-            
-            const message = err?.response?.data?.message 
+
+            const message = err?.response?.data?.message
                 || err?.response?.data?.error
-                || err?.message 
+                || err?.message
                 || 'Failed to create event';
             alert(`Error: ${message}\n\nCheck console for details.`);
         } finally {
@@ -173,6 +231,61 @@ function CreateEventForm({ onCancel, formId = 'create-event-form', onSubmittingC
                 </div>
             </div>
 
+            {/* Images Section */}
+            <div>
+                <label htmlFor='images' className='block text-base font-medium text-gray-700 mb-2'>
+                    Event Images
+                </label>
+                <div
+                    onClick={() => imagesRef.current?.click()}
+                    className='relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer transition-all hover:border-primary hover:bg-gray-50'
+                >
+                    <input
+                        id='images'
+                        type='file'
+                        accept='image/*'
+                        multiple
+                        ref={imagesRef}
+                        onChange={handleImagesChange}
+                        className='hidden'
+                    />
+                    <div className='flex flex-col items-center gap-2'>
+                        <svg className='w-10 h-10 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12' />
+                        </svg>
+                        <p className='text-base text-gray-600'>
+                            <span className='text-primary font-medium'>Click to upload</span> or drag and drop
+                        </p>
+                        <p className='text-sm text-gray-500'>PNG, JPG up to 10MB each</p>
+                        {imagePreviews.length > 0 && (
+                            <span className='text-sm font-medium text-primary'>{imagePreviews.length} image(s) selected</span>
+                        )}
+                    </div>
+                </div>
+
+                {imagePreviews.length > 0 && (
+                    <div className='mt-4 grid grid-cols-3 gap-3'>
+                        {imagePreviews.map((src, i) => (
+                            <div key={i} className='relative group rounded-lg overflow-hidden border-2 border-gray-200'>
+                                <img src={src} alt={`preview-${i}`} className='w-full h-24 object-cover' />
+                                {i === 0 && (
+                                    <span className='absolute top-1 left-1 px-2 py-0.5 text-xs font-medium bg-primary text-white rounded'>Cover</span>
+                                )}
+                                <button
+                                    type='button'
+                                    onClick={() => removeImageAt(i)}
+                                    className='absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity'
+                                >
+                                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                                        <path fillRule='evenodd' d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z' clipRule='evenodd' />
+                                    </svg>
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             <div className='grid grid-cols-3 gap-3'>
                 <div>
                     <label className='block text-base font-medium text-gray-700'>Capacity</label>
@@ -184,9 +297,10 @@ function CreateEventForm({ onCancel, formId = 'create-event-form', onSubmittingC
                     <select value={eventType} onChange={(e) => setEventType(e.target.value)} className='mt-1 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-base shadow-sm'>
                         <option value='SEMINAR'>SEMINAR</option>
                         <option value='WORKSHOP'>WORKSHOP</option>
-                        <option value='SHOWCASE'>SHOWCASE</option>
-                        <option value='SUMMIT'>SUMMIT</option>
-                        <option value='OTHER'>OTHER</option>
+                        <option value='WEBINAR'>WEBINAR</option>
+                        <option value='CONFERENCE'>CONFERENCE</option>
+                        <option value='MEETUP'>MEETUP</option>
+                        <option value='NETWORKING'>NETWORKING</option>
                     </select>
                 </div>
                 <div>
@@ -309,7 +423,7 @@ function CreateEventForm({ onCancel, formId = 'create-event-form', onSubmittingC
     );
 }
 
-export default function CreateEventModal({ isOpen, onClose, title, formId = 'create-event-form' }) {
+export default function CreateEventModal({ isOpen, onClose, onSuccess, title, formId = 'create-event-form' }) {
     const [formSubmitting, setFormSubmitting] = useState(false);
 
     useEffect(() => {
@@ -373,7 +487,7 @@ export default function CreateEventModal({ isOpen, onClose, title, formId = 'cre
                     className='px-4 py-5 sm:p-6 overflow-y-auto custom-scrollbar text-gray-900 flex-1'
                     style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}
                 >
-                    <CreateEventForm formId={formId} onCancel={onClose} onSubmittingChange={setFormSubmitting} />
+                    <CreateEventForm formId={formId} onCancel={onClose} onSuccess={onSuccess} onSubmittingChange={setFormSubmitting} />
                 </div>
 
                 {/* Footer - Sticky */}

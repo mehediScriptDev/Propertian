@@ -118,7 +118,6 @@ const Page = () => {
             return;
         }
 
-        // if we already have event with an id (from sessionStorage) skip fetching
         if (event && event.id) {
             setLoading(false);
             return;
