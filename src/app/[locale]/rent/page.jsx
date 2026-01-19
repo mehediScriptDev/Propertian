@@ -7,7 +7,7 @@ import RentHero from '@/components/rent/RentHero';
 import RentalFilters from '@/components/rent/RentalFilters';
 import RentalPropertyCard from '@/components/rent/RentalPropertyCard';
 import { PartnerCTA, FinalCTA } from '@/components/rent/RentCTA';
-import axiosInstance from '@/lib/axios';
+import api from '@/lib/api';
 
 
 
@@ -156,11 +156,10 @@ export default function RentPage() {
     setLoading(true);
     setError(null);
 
-    axiosInstance
-      .get(`/properties?listingType=RENT`)
-      .then((res) => {
-     
-        const props = res?.data?.data?.properties || res?.data?.properties || [];
+    // Use cached GET to avoid re-fetching on frequent page visits (TTL: 5 minutes)
+    api.getCached(`/properties?listingType=RENT`, { ttl: 300000 })
+      .then((data) => {
+        const props = data?.data?.properties || data?.properties || [];
 
         const normalized = props.map((p) => {
          
