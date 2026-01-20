@@ -23,6 +23,7 @@ export default function AdminPartnersPage({ params }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [approvalStats, setApprovalStats] = useState(null);
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -51,14 +52,14 @@ export default function AdminPartnersPage({ params }) {
     try {
       setLoading(true);
       let url = `/partner/applications?page=${currentPage}&limit=${ITEMS_PER_PAGE}`;
-      
+
       // Add status filter if not 'all'
       if (statusFilter !== 'all') {
-        url += `&status=${statusFilter}`; 
+        url += `&status=${statusFilter}`;
       }
-      
+
       const response = await axiosInstance.get(url);
-      
+
       if (response.data.success) {
         setApplications(response.data.data.applications);
         setPagination(response.data.data.pagination);
@@ -119,41 +120,55 @@ export default function AdminPartnersPage({ params }) {
 
   // Calculate stats
   const stats = useMemo(() => {
+    // Prefer server-provided approval stats when available (from /admin/property-approval/stats)
+    if (approvalStats) {
+      const pending = approvalStats.PENDING_APPROVAL ?? approvalStats.PENDING ?? 0;
+      const underReview = approvalStats.NEEDS_REVISION ?? approvalStats.UNDER_REVIEW ?? 0;
+      const approved = approvalStats.APPROVED ?? 0;
+      const total = Object.values(approvalStats).reduce((sum, v) => sum + (Number(v) || 0), 0);
+
+      return [
+        { title: 'Total', value: total, trend: '+0.0%', icon: Users, variant: 'primary' },
+        { title: 'Pending', value: pending, trend: '+0.0%', icon: Clock, variant: 'warning' },
+        { title: 'Under Review', value: underReview, trend: '+0.0%', icon: FolderOpen, variant: 'info' },
+        { title: 'Approved', value: approved, trend: '+0.0%', icon: CheckCircle, variant: 'success' },
+      ];
+    }
+
+    // Fallback to client-side derived values
     const pendingCount = applications.filter((p) => p.status === 'PENDING').length;
     const underReviewCount = applications.filter((p) => p.status === 'UNDER_REVIEW').length;
     const approvedCount = applications.filter((p) => p.status === 'APPROVED').length;
 
     return [
-      {
-        title: 'Total',
-        value: pagination.total,
-        trend: '+8.3%',
-        icon: Users,
-        variant: 'primary',
-      },
-      {
-        title: 'Pending',
-        value: pendingCount,
-        trend: '-5.2%',
-        icon: Clock,
-        variant: 'warning',
-      },
-      {
-        title: 'Under Review',
-        value: underReviewCount,
-        trend: '+12.5%',
-        icon: FolderOpen,
-        variant: 'info',
-      },
-      {
-        title: 'Approved',
-        value: approvedCount,
-        trend: '+15.8%',
-        icon: CheckCircle,
-        variant: 'success',
-      },
+      { title: 'Total', value: pagination.total, trend: '+8.3%', icon: Users, variant: 'primary' },
+      { title: 'Pending', value: pendingCount, trend: '-5.2%', icon: Clock, variant: 'warning' },
+      { title: 'Under Review', value: underReviewCount, trend: '+12.5%', icon: FolderOpen, variant: 'info' },
+      { title: 'Approved', value: approvedCount, trend: '+15.8%', icon: CheckCircle, variant: 'success' },
     ];
-  }, [applications, pagination.total]);
+  }, [applications, pagination.total, approvalStats]);
+
+  // Fetch approval stats from backend when listing-submissions tab is active (or on mount)
+  useEffect(() => {
+    const fetchApprovalStats = async () => {
+      try {
+        const resp = await axiosInstance.get('/admin/property-approval/stats');
+        if (resp?.data?.success) {
+          setApprovalStats(resp.data.data || null);
+          console.log('approval stats:', resp.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch approval stats', err);
+      }
+    };
+
+    if (selectedTab === 'listing_submission') {
+      fetchApprovalStats();
+    } else {
+      // still fetch once on mount so stats show quickly across tabs
+      fetchApprovalStats();
+    }
+  }, [selectedTab]);
 
   // Filter applications
   const filteredApplications = useMemo(() => {
@@ -183,7 +198,7 @@ export default function AdminPartnersPage({ params }) {
   // Handlers
   const handleSearchChange = useCallback((value) => {
     setSearchTerm(value);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   }, []);
 
   const handleStatusChange = useCallback((value) => {
@@ -193,12 +208,12 @@ export default function AdminPartnersPage({ params }) {
 
   const handleVerificationChange = useCallback((value) => {
     setVerificationFilter(value);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   }, []);
 
   const handlePaymentChange = useCallback((value) => {
     setPaymentFilter(value);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   }, []);
 
   const handlePageChange = useCallback((page) => {
@@ -208,7 +223,7 @@ export default function AdminPartnersPage({ params }) {
   const handleDelete = async (id) => {
     try {
       await axiosInstance.delete(`/partner/applications/${id}`);
-      fetchApplications(); 
+      fetchApplications();
     } catch (error) {
       console.error('Error deleting application:', error);
     }
@@ -216,7 +231,7 @@ export default function AdminPartnersPage({ params }) {
 
   const handleStatusUpdate = async (id, newStatus) => {
     try {
-      await axiosInstance.put(`/partner/applications/${id}/status`, { 
+      await axiosInstance.put(`/partner/applications/${id}/status`, {
         status: newStatus,
         adminNotes: `Status changed to ${newStatus}`
       });
@@ -266,7 +281,7 @@ export default function AdminPartnersPage({ params }) {
         ))}
       </div>
 
-      
+
 
       {/* Panels (table + pagination) per tab */}
       {selectedTab === 'partner_application' && (

@@ -21,118 +21,71 @@ export default function ClientInquiriesPage() {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Mock inquiry threads (replace with API call later)
-  const propertyThreads = useMemo(
-    () => [
-      {
-        id: 1,
-        propertyName: "2BR Apartment in Manhattan",
-        location: "Upper East Side",
-        city: "New York",
-        status: "new",
-        image: "/buy-rent/hero.jpg",
-        lastMessage:
-          "Hi, I'm interested in viewing this property. Is it still available?",
-        partnerName: "Smith Realty",
-        partnerAvatar: null,
-        timestamp: "Jan 11, 2026, 10:49 AM",
-        inquiries: [
-          {
-            id: 1,
-            from: "user",
-            text: "Hi, I'm interested in viewing this property. Is it still available?",
-            timestamp: "10:49 AM",
-          },
-        ],
-      },
-      {
-        id: 2,
-        propertyName: "3BR House in Brooklyn",
-        location: "Park Slope",
-        city: "Brooklyn",
-        status: "awaiting",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: Yes, we have availability...",
-        partnerName: "Brooklyn Homes",
-        partnerAvatar: null,
-        timestamp: "Jan 10, 2026, 2:30 PM",
-        inquiries: [
-          {
-            id: 1,
-            from: "user",
-            text: "What's the monthly rent?",
-            timestamp: "2:30 PM",
-          },
-          {
-            id: 2,
-            from: "partner",
-            text: "The monthly rent is $3,500. Would you like to schedule a viewing?",
-            timestamp: "3:15 PM",
-          },
-        ],
-      },
-      {
-        id: 3,
-        propertyName: "Studio in Queens",
-        location: "Astoria",
-        city: "Queens",
-        status: "awaiting",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: The utilities are included...",
-        partnerName: "Queens Living",
-        partnerAvatar: null,
-        timestamp: "Jan 9, 2026, 11:20 AM",
-        inquiries: [
-          {
-            id: 1,
-            from: "user",
-            text: "Are utilities included in the rent?",
-            timestamp: "11:20 AM",
-          },
-        ],
-      },
-      {
-        id: 4,
-        propertyName: "4BR Townhouse in Staten Island",
-        location: "St. George",
-        city: "Staten Island",
-        status: "closed",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: Thank you for your interest...",
-        partnerName: "Island Properties",
-        partnerAvatar: null,
-        timestamp: "Jan 5, 2026, 9:15 AM",
-        inquiries: [],
-      },
-      {
-        id: 5,
-        propertyName: "1BR Condo in Jersey City",
-        location: "Downtown",
-        city: "Jersey City",
-        status: "awaiting",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: We can arrange a visit...",
-        partnerName: "Hudson Realty",
-        partnerAvatar: null,
-        timestamp: "Jan 8, 2026, 4:45 PM",
-        inquiries: [],
-      },
-    ],
-    []
-  );
+  // Fetch inquiries from API and map to UI thread shape
+  useEffect(() => {
+    let mounted = true;
+    const fetchInquiries = async () => {
+      setLoading(true);
+      try {
+        const res = await api.get("/inquiries/my-inquiries?page=1&limit=50");
+        console.log("inquiries response:", res);
+        const items = res?.data?.inquiries || res?.inquiries || [];
+        console.log("inquiries items:", items);
+        const threads = items.map((i) => {
+          const img =
+            i?.properties?.images && i.properties.images.length
+              ? i.properties.images[0]
+              : "/buy-rent/hero.jpg";
+
+          return {
+            id: i.id || i._id || Date.now() + Math.random(),
+            propertyName: i?.properties?.title || i?.properties?.name || "-",
+            location:
+              i?.properties?.address || i?.properties?.state || "",
+            city: i?.properties?.city || "",
+            status: (i?.status || "").toLowerCase() || "new",
+            image: img,
+            lastMessage: i?.message || i?.lastMessage || "",
+            partnerName: i?.partnerName || i?.agentName || "Partner",
+            partnerAvatar: null,
+            timestamp: i?.createdAt || i?.updatedAt || new Date().toISOString(),
+            inquiries: [
+              {
+                id: i.id + "-msg",
+                from: "user",
+                text: i?.message || i?.lastMessage || "",
+                timestamp: new Date(i?.createdAt || Date.now()).toLocaleTimeString(),
+              },
+            ],
+          };
+        });
+
+        if (mounted) setInquiries(threads);
+      } catch (err) {
+        showToast({ type: "error", message: "Failed to load inquiries." });
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchInquiries();
+    return () => {
+      mounted = false;
+    };
+  }, [locale]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return propertyThreads.filter((t) => {
+    return inquiries.filter((t) => {
       if (statusFilter !== "all" && t.status !== statusFilter) return false;
       if (!q) return true;
       return (
-        t.propertyName.toLowerCase().includes(q) ||
-        t.location.toLowerCase().includes(q) ||
-        t.partnerName.toLowerCase().includes(q)
+        (t.propertyName || "").toLowerCase().includes(q) ||
+        (t.location || "").toLowerCase().includes(q) ||
+        (t.partnerName || "").toLowerCase().includes(q)
       );
     });
-  }, [propertyThreads, search, statusFilter]);
+  }, [inquiries, search, statusFilter]);
 
   const getStatusBadge = (status) => {
     const config = {
@@ -190,9 +143,8 @@ export default function ClientInquiriesPage() {
             <button
               key={thread.id}
               onClick={() => selectThread(thread)}
-              className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${
-                selected?.id === thread.id ? "bg-gray-50" : ""
-              }`}
+              className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${selected?.id === thread.id ? "bg-gray-50" : ""
+                }`}
             >
               <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
                 {thread.partnerName[0]}

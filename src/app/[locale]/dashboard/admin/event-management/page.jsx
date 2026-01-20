@@ -1,8 +1,9 @@
 // 'use client';
 
-// import { use, useState, useMemo, useEffect } from 'react';
+// import { useState, useMemo, useEffect } from 'react';
 // import axios from '@/lib/axios';
 // import { useTranslation } from '@/i18n';
+// import { useParams } from 'next/navigation';
 // import CreateEventModal from '@/app/[locale]/dashboard/admin/event-management/components/CreateEventModal';
 // import EventTable from '@/app/[locale]/dashboard/admin/event-management/components/EventTable';
 // import {
@@ -12,29 +13,25 @@
 //   ChevronDown,
 // } from 'lucide-react';
 
-// export default function EventManagement({ params }) {
-//   const { locale } = use(params);
+// export default function EventManagement() {
+//   // ✅ All hooks at the top - NO conditional returns before hooks
+//   const params = useParams();
+//   const locale = params?.locale || 'en';
 //   const { t } = useTranslation(locale);
 
-//   // State for filters and search
 //   const [searchQuery, setSearchQuery] = useState('');
 //   const [filterStatus, setFilterStatus] = useState('all');
-//   // Modal state for creating events
 //   const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-
-
-//   // Events fetched from API
 //   const [events, setEvents] = useState([]);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState(null);
 
+//   // ✅ All state initialization done before any logic
 //   const fetchEvents = async () => {
 //     setLoading(true);
 //     setError(null);
 //     try {
 //       const res = await axios.get('/events');
-//       // assume API returns { success, data }
 //       const data = res?.data?.data ?? res?.data ?? [];
 //       setEvents(Array.isArray(data) ? data : []);
 //     } catch (err) {
@@ -48,7 +45,6 @@
 //     fetchEvents();
 //   }, []);
 
-//   // Filter events based on search and status
 //   const filteredEvents = useMemo(() => {
 //     return events.filter((event) => {
 //       const title = (event.title || '').toString().toLowerCase();
@@ -61,35 +57,23 @@
 //     });
 //   }, [events, searchQuery, filterStatus]);
 
-//   // Status badge styles - Using consistent color scheme
-//   const getStatusStyle = (status) => {
-//     const styles = {
-//       upcoming: 'bg-blue-100 text-blue-800',
-//       ongoing: 'bg-green-100 text-green-800',
-//       completed: 'bg-gray-100 text-gray-800',
-//       draft: 'bg-yellow-100 text-yellow-800',
-//       cancelled: 'bg-red-100 text-red-800',
-//     };
-//     return styles[status] || styles.draft;
-//   };
-
+//   // ✅ Now render logic after all hooks
 //   return (
 //     <div className='space-y-6'>
 //       {/* Page Header */}
-
 //       <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
 //         <div>
 //           <h1 className='text-4xl font-bold text-gray-900 mb-2'>
 //             {t('dashboard.pages.eventManagement.title')}
 //           </h1>
-//           <p className=' text-base text-gray-700'>
+//           <p className='text-base text-gray-700'>
 //             {t('dashboard.pages.eventManagement.subtitle')}
 //           </p>
 //         </div>
 //         <button
 //           type='button'
 //           onClick={() => setIsCreateOpen(true)}
-//           className="inline-flex items-center rounded-md bg-accent  px-5 py-2 text-base font-medium text-white cursor-pointer "
+//           className="inline-flex items-center rounded-md bg-accent px-5 py-2 text-base font-medium text-white cursor-pointer"
 //         >
 //           <Plus className='h-5 w-5' />
 //           {t('dashboard.pages.eventManagement.createEvent')}
@@ -113,6 +97,7 @@
 //               onChange={(e) => setSearchQuery(e.target.value)}
 //             />
 //           </div>
+
 //           {/* Status Filter */}
 //           <div className='relative'>
 //             <select
@@ -144,10 +129,15 @@
 //         </div>
 //       </div>
 
-//       {/* Events Table (moved to EventTable component) */}
-//       <EventTable events={filteredEvents} loading={loading} error={error} t={t} />
+//       {/* Events Table */}
+//       <EventTable 
+//         events={filteredEvents} 
+//         loading={loading} 
+//         error={error} 
+//         t={t} 
+//       />
 
-//       {/* Empty State - Only show when NOT loading and no events */}
+//       {/* Empty State */}
 //       {!loading && filteredEvents.length === 0 && (
 //         <div className='rounded-lg bg-white p-12 shadow-sm'>
 //           <div className='flex flex-col items-center justify-center text-center'>
@@ -171,6 +161,7 @@
 //           </div>
 //         </div>
 //       )}
+      
 //       <CreateEventModal
 //         isOpen={isCreateOpen}
 //         onClose={() => setIsCreateOpen(false)}
@@ -179,7 +170,10 @@
 //       />
 //     </div>
 //   );
-// } 
+// }
+
+
+
 
 
 
@@ -188,10 +182,10 @@
 
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import axios from '@/lib/axios';
 import { useTranslation } from '@/i18n';
-import { useParams } from 'next/navigation'; // ✅ FIX: Use the hook instead of props
+import { useParams } from 'next/navigation';
 import CreateEventModal from '@/app/[locale]/dashboard/admin/event-management/components/CreateEventModal';
 import EventTable from '@/app/[locale]/dashboard/admin/event-management/components/EventTable';
 import {
@@ -201,32 +195,28 @@ import {
   ChevronDown,
 } from 'lucide-react';
 
-export default function EventManagement() { // ✅ FIX: Removed { params } prop
-  const params = useParams(); // ✅ FIX: Get params via hook
+export default function EventManagement() {
+  // ✅ All hooks at the top - NO conditional returns before hooks
+  const params = useParams();
   const locale = params?.locale || 'en';
   const { t } = useTranslation(locale);
 
-  // State for filters and search
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  // Modal state for creating events
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-  // Events fetched from API
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ✅ All state initialization done before any logic
   const fetchEvents = async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await axios.get('/events');
-      // assume API returns { success, data }
       const data = res?.data?.data ?? res?.data ?? [];
-      // Sort by date (newest first) to ensure consistent order
-      const sortedList = Array.isArray(data) ? data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) : [];
-      setEvents(sortedList);
+      console.log('Fetched events:', data); // Debug log
+      setEvents(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err?.response?.data?.message || err.message || 'Failed to load events');
     } finally {
@@ -237,13 +227,7 @@ export default function EventManagement() { // ✅ FIX: Removed { params } prop
   useEffect(() => {
     fetchEvents();
   }, []);
-  
-  const handleCreateSuccess = useCallback(async () => {
-    await fetchEvents();
-    setIsCreateOpen(false);
-  }, []);
 
-  // Filter events based on search and status
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
       const title = (event.title || '').toString().toLowerCase();
@@ -256,6 +240,7 @@ export default function EventManagement() { // ✅ FIX: Removed { params } prop
     });
   }, [events, searchQuery, filterStatus]);
 
+  // ✅ Now render logic after all hooks
   return (
     <div className='space-y-6'>
       {/* Page Header */}
@@ -264,7 +249,7 @@ export default function EventManagement() { // ✅ FIX: Removed { params } prop
           <h1 className='text-4xl font-bold text-gray-900 mb-2'>
             {t('dashboard.pages.eventManagement.title')}
           </h1>
-          <p className=' text-base text-gray-700'>
+          <p className='text-base text-gray-700'>
             {t('dashboard.pages.eventManagement.subtitle')}
           </p>
         </div>
@@ -295,6 +280,7 @@ export default function EventManagement() { // ✅ FIX: Removed { params } prop
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+
           {/* Status Filter */}
           <div className='relative'>
             <select
@@ -327,7 +313,12 @@ export default function EventManagement() { // ✅ FIX: Removed { params } prop
       </div>
 
       {/* Events Table */}
-      <EventTable events={filteredEvents} loading={loading} error={error} t={t} />
+      <EventTable 
+        events={filteredEvents} 
+        loading={loading} 
+        error={error} 
+        t={t} 
+      />
 
       {/* Empty State */}
       {!loading && filteredEvents.length === 0 && (
@@ -356,8 +347,14 @@ export default function EventManagement() { // ✅ FIX: Removed { params } prop
       
       <CreateEventModal
         isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onSuccess={handleCreateSuccess}
+        onClose={() => {
+          setIsCreateOpen(false);
+          // Refresh after modal closes to ensure latest data
+          setTimeout(() => {
+            fetchEvents();
+          }, 100);
+        }}
+        onSuccess={fetchEvents}
         title={t('dashboard.pages.eventManagement.createEvent')}
       />
     </div>

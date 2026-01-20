@@ -158,11 +158,11 @@ const navigationConfig = {
       href: "/dashboard/admin/blog-editor",
       icon: FileText,
     },
-    {
-      key: "Supports Requests",
-      href: "/dashboard/admin/supports",
-      icon: HelpCircle,
-    },
+    // {
+    //   key: "Supports Requests",
+    //   href: "/dashboard/admin/supports",
+    //   icon: HelpCircle,
+    // },
     {
       key: "Partner Directory",
       href: "/dashboard/admin/partner-directory",
@@ -200,11 +200,11 @@ const navigationConfig = {
       href: "/dashboard/user/appointments",
       icon: Calendar,
     },
-    {
-      key: "dashboard.client.tickets",
-      href: "/dashboard/user/tickets",
-      icon: MessageSquare,
-    },
+    // {
+    //   key: "dashboard.client.tickets",
+    //   href: "/dashboard/user/tickets",
+    //   icon: MessageSquare,
+    // },
     // {
     //   key: 'dashboard.client.settings',
     //   href: '/dashboard/client/settings',
@@ -329,10 +329,7 @@ const navigationConfig = {
   ],
 };
 
-/**
- * Sidebar Navigation Component
- * Production-grade responsive sidebar with mobile menu and client-side language switching
- */
+
 export default function Sidebar({ role = "admin" }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
@@ -340,7 +337,6 @@ export default function Sidebar({ role = "admin" }) {
   const { t } = useTranslation(locale);
   const router = useRouter();
   const searchParams = useSearchParams();
-  // const { t } = useMemo(() => useTranslation(locale), [locale]);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -348,8 +344,7 @@ export default function Sidebar({ role = "admin" }) {
   const dropdownRef = useRef(null);
   const [expandedMenu, setExpandedMenu] = useState(null);
 
-  // Decide which navigation set to render.
-  // For partners we may render different menus depending on subrole or path.
+
   const navigationItems = useMemo(() => {
     // Non-partner roles use the static mapping
     if (role !== "partner") return navigationConfig[role] || [];
@@ -407,13 +402,7 @@ export default function Sidebar({ role = "admin" }) {
   const isActiveLink = (href) => {
     const fullHref = `/${locale}${href}`;
     if (href === `/dashboard/${role}`) {
-      // For the base dashboard link (e.g. /dashboard/partner) we normally
-      // only mark it active for the exact route. However the partner
-      // properties UI lives at /dashboard/partner and also under
-      // /dashboard/partner/properties/* (for example when adding a
-      // property). Treat those properties subroutes as active for the
-      // base partner link so the sidebar highlights "Properties" when
-      // the user is on either route.
+   
       if (role === "partner") {
         return (
           pathname === fullHref || pathname.startsWith(`${fullHref}/properties`)

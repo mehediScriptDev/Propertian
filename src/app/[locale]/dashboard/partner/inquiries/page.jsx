@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 import Image from "next/image";
+import api from '@/lib/api';
+import { showToast } from '@/components/Toast';
 
 export default function VerifiedPropertiesPage() {
   const { locale } = useLanguage();
@@ -17,137 +19,94 @@ export default function VerifiedPropertiesPage() {
   const messagesEndRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Mock property threads with inquiries
-  const propertyThreads = useMemo(
-    () => [
-      {
-        id: 1,
-        propertyName: "2BR Apartment in Yopougon",
-        location: "Yopougon Ananeraie",
-        city: "Abidjan",
-        status: "new",
-        image: "/buy-rent/hero.jpg",
-        lastMessage:
-          "Hi owner has like a noymoon ouyning sone. How raza is the side in the san and the nrectaire aw/or frrequal?",
-        userName: "Mara Elham",
-        userAvatar: null,
-        timestamp: "Jan 7, 2026, 10:49 AM",
-        inquiries: [
-          {
-            id: 1,
-            from: "user",
-            text: "Hi owner has like a noymoon ouyning sone. How raza is the side in the san and the nrectaire aw/or frrequal?",
-            timestamp: "12:53 AM",
-          },
-        ],
-      },
-      {
-        id: 2,
-        propertyName: "2BR Apartment in Yopougon",
-        location: "Yopougon Ananeraie",
-        city: "Abidjan",
-        status: "awaiting",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: You must alm at ex...",
-        userName: "Mara Remant",
-        userAvatar: null,
-        timestamp: "Jan 6, 2026, 12:08 PM",
-        inquiries: [
-          {
-            id: 1,
-            from: "user",
-            text: "Interested in viewing",
-            timestamp: "12:08 PM",
-          },
-          {
-            id: 2,
-            from: "partner",
-            text: "Sure, when would you like to visit?",
-            timestamp: "12:31 PM",
-          },
-        ],
-      },
-      {
-        id: 3,
-        propertyName: "2BR Apartment in Yopougon",
-        location: "Yopougon Ananeraie",
-        city: "Abidjan",
-        status: "awaiting",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: You must alm at ex...",
-        userName: "Mara Simens",
-        userAvatar: null,
-        timestamp: "Jan 6, 2026, 12:08 PM",
-        inquiries: [],
-      },
-      {
-        id: 4,
-        propertyName: "2BR Apartment in Yopougon",
-        location: "Yopougon Ananeraie",
-        city: "Abidjan",
-        status: "closed",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: You mashing your...",
-        userName: "Mark Millonary",
-        userAvatar: null,
-        timestamp: "Jan 6, 2026, 10:23 PM",
-        inquiries: [],
-      },
-      {
-        id: 5,
-        propertyName: "2BR Apartment in Yopougon",
-        location: "Yopougon Ananeraie",
-        city: "Abidjan",
-        status: "awaiting",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: Y must ullam at ex...",
-        userName: "Karra Siham",
-        userAvatar: null,
-        timestamp: "Dec 4, 2025, 10:23 PM",
-        inquiries: [],
-      },
-      {
-        id: 6,
-        propertyName: "2BR Apartment in Yopougon",
-        location: "Yopougon Ananeraie",
-        city: "Abidjan",
-        status: "closed",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: Y must ullam at ex...",
-        userName: "Mica Sofonoir",
-        userAvatar: null,
-        timestamp: "Dec 6, 2025, 10:23 PM",
-        inquiries: [],
-      },
-      {
-        id: 7,
-        propertyName: "2BR Apartment in Yopougon",
-        location: "Yopougon Ananeraie",
-        city: "Abidjan",
-        status: "closed",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: Y must ullam at ex...",
-        userName: "Karra Shms",
-        userAvatar: null,
-        timestamp: "Dec 24, 2025, 10:53 AM",
-        inquiries: [],
-      },
-    ],
-    []
-  );
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  // Fetch partner inquiries from backend and map to UI shape
+  useEffect(() => {
+    let mounted = true;
+    const fetchInquiries = async () => {
+      setLoading(true);
+      try {
+        const res = await api.get('/inquiries?page=1&limit=50');
+        console.log('partner inquiries response:', res);
+        const items = res?.data?.inquiries || res?.inquiries || [];
+        console.log('partner inquiries items:', items);
+
+        const threads = items.map((i) => {
+          const img = i?.properties?.images && i.properties.images.length
+            ? i.properties.images[0]
+            : '/buy-rent/hero.jpg';
+
+          const userObj = i?.user || i?.users || i?.createdBy || {};
+          const userName = userObj.firstName
+            ? `${userObj.firstName} ${userObj.lastName || ''}`
+            : userObj.email || 'User';
+
+          let conversation = [];
+          if (Array.isArray(i?.conversation) && i.conversation.length) {
+            conversation = i.conversation
+              .map((m) => ({
+                id: m.id || Date.now() + Math.random(),
+                from: m.from || (m.senderRole === 'AGENT' ? 'partner' : 'user'),
+                text: m.message || m.text || '',
+                createdAt: m.createdAt || m.createdAt || null,
+              }))
+              .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+          } else {
+            conversation = [
+              {
+                id: i.id + '-msg',
+                from: 'user',
+                text: i?.message || i?.lastMessage || '',
+                createdAt: i?.createdAt || Date.now(),
+              },
+            ];
+          }
+
+          return {
+            id: i.id || i._id || Date.now() + Math.random(),
+            propertyName: i?.properties?.title || i?.properties?.name || '-',
+            location: i?.properties?.address || i?.properties?.state || '',
+            city: i?.properties?.city || '',
+            status: (i?.status || '').toLowerCase() || 'new',
+            image: img,
+            lastMessage: i?.message || i?.lastMessage || '',
+            userName,
+            userAvatar: null,
+            timestamp: i?.createdAt || i?.updatedAt || new Date().toISOString(),
+            inquiries: conversation,
+          };
+        });
+
+        if (mounted) setInquiries(threads);
+      } catch (err) {
+        console.error('Failed to fetch partner inquiries', err);
+        showToast({ type: 'error', message: 'Failed to load inquiries.' });
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchInquiries();
+    return () => {
+      mounted = false;
+    };
+  }, [locale]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return propertyThreads.filter((t) => {
+    return inquiries.filter((t) => {
       if (statusFilter !== "all" && t.status !== statusFilter) return false;
       if (!q) return true;
       return (
-        t.propertyName.toLowerCase().includes(q) ||
-        t.location.toLowerCase().includes(q) ||
-        t.userName.toLowerCase().includes(q)
+        (t.propertyName || "").toLowerCase().includes(q) ||
+        (t.location || "").toLowerCase().includes(q) ||
+        (t.userName || "").toLowerCase().includes(q)
       );
     });
-  }, [propertyThreads, search, statusFilter]);
+  }, [inquiries, search, statusFilter]);
 
   const getStatusBadge = (status) => {
     const config = {
@@ -167,7 +126,7 @@ export default function VerifiedPropertiesPage() {
 
   const selectThread = (thread) => {
     setSelected(thread);
-    setIsOpen(true); // open chat on small/medium devices
+    setIsOpen(true)
     setTimeout(
       () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
       50
@@ -176,19 +135,61 @@ export default function VerifiedPropertiesPage() {
 
   const sendReply = () => {
     if (!selected || !replyText.trim()) return;
-    // Optimistic update
+    const messageText = replyText.trim();
+    const optimisticId = `optimistic-${Date.now()}`;
     const newMsg = {
-      id: Date.now(),
+      id: optimisticId,
       from: "partner",
-      text: replyText,
-      timestamp: new Date().toLocaleTimeString(),
+      text: messageText,
+      createdAt: new Date().toISOString(),
     };
-    setSelected({ ...selected, inquiries: [...selected.inquiries, newMsg] });
+
+    // Append optimistic message and sort
+    setSelected((prev) => ({
+      ...prev,
+      inquiries: [...(prev?.inquiries || []), newMsg].sort(
+        (a, b) => new Date(a.createdAt || a.timestamp || 0) - new Date(b.createdAt || b.timestamp || 0)
+      ),
+    }));
+
     setReplyText("");
-    setTimeout(
-      () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
-      100
-    );
+    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+
+    // Send to backend
+    (async () => {
+      setSending(true);
+      try {
+        const payload = { responseMessage: messageText, image: selected.image };
+        const res = await api.post(`/inquiries/${selected.id}/respond`, payload);
+
+        // Map server response to message shape
+        const serverMsg = {
+          id: res?.data?.id || res?.data?._id || `srv-${Date.now()}`,
+          from: 'partner',
+          text: res?.data?.responseMessage || messageText,
+          createdAt: res?.data?.createdAt || new Date().toISOString(),
+          senderName: res?.data?.senderName || 'Partner',
+        };
+
+        // Replace optimistic message with server message
+        setSelected((prev) => ({
+          ...prev,
+          inquiries: (prev?.inquiries || []).map((m) => (m.id === optimisticId ? serverMsg : m)),
+        }));
+
+        showToast({ type: 'success', message: 'Reply sent' });
+      } catch (err) {
+        console.error('Failed to send reply', err);
+        // Remove optimistic message on error
+        setSelected((prev) => ({
+          ...prev,
+          inquiries: (prev?.inquiries || []).filter((m) => m.id !== optimisticId),
+        }));
+        showToast({ type: 'error', message: 'Failed to send reply' });
+      } finally {
+        setSending(false);
+      }
+    })();
   };
 
   return (
@@ -206,9 +207,8 @@ export default function VerifiedPropertiesPage() {
             <button
               key={thread.id}
               onClick={() => selectThread(thread)}
-              className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${
-                selected?.id === thread.id ? "bg-gray-50" : ""
-              }`}
+              className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${selected?.id === thread.id ? "bg-gray-50" : ""
+                }`}
             >
               <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
                 {thread.userName[0]}
@@ -285,100 +285,45 @@ export default function VerifiedPropertiesPage() {
               </div>
             </div>
 
-            {/* Messages Area */}
+            {/* Messages Area (chronological, mixed senders) */}
             <div className="flex-1 overflow-y-auto p-6 pb-24"> {/* reserve space for sticky input */}
               <div className="w-full">
-                {/* User Inquiries Section */}
-                <div className="mb-8">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-4">
-                    User Inquiries
-                  </h4>
-                  {selected.inquiries
-                    .filter((m) => m.from === "user")
+                <div className="p-6 space-y-4">
+                  {((selected.inquiries || [])
+                    .slice()
+                    .sort((a, b) => new Date(a.createdAt || a.timestamp || 0) - new Date(b.createdAt || b.timestamp || 0))
                     .map((msg) => (
-                      <div key={msg.id} className="mb-4">
-                        <div className="flex items-start gap-3">
+                      <div
+                        key={msg.id}
+                        className={`flex items-start gap-3 ${msg.from === 'partner' ? 'justify-end' : ''}`}
+                      >
+                        {msg.from !== 'partner' && (
                           <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold shrink-0">
-                            {selected.userName[0]}
+                            {selected.userName ? selected.userName[0] : 'U'}
                           </div>
-                          <div className="flex-1">
-                            <div className="bg-gray-100 rounded-lg px-4 py-2.5 text-sm text-gray-900 max-w-2xl">
-                              {msg.text}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1.5">
-                              {msg.timestamp}
-                            </div>
+                        )}
+                        <div className={`flex-1 max-w-2xl ${msg.from === 'partner' ? 'text-right' : ''}`}>
+                          <div className="text-xs font-medium text-gray-600 mb-1">
+                            {msg.senderName || (msg.from === 'partner' ? 'Partner' : selected.userName)}
+                          </div>
+                          <div
+                            className={`inline-block rounded-lg px-4 py-2.5 text-sm ${msg.from === 'partner' ? 'bg-[#3B82F6] text-white' : 'bg-gray-100 text-gray-900'}`}
+                          >
+                            {msg.text}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1.5">
+                            {new Date(msg.createdAt || msg.timestamp || Date.now()).toLocaleTimeString()}
                           </div>
                         </div>
-                      </div>
-                    ))}
-                </div>
-
-                {/* User Replies Section */}
-                {selected.inquiries.filter((m) => m.from === "user").length >
-                  0 && (
-                  <div className="mb-8">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-4">
-                      User Replies
-                    </h4>
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold shrink-0">
-                        {selected.userName[0]}
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-sm text-gray-600">
-                          Thenxas a mexoage.
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1.5">
-                          12:59 PM
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Partner Responds Section */}
-                <div className="mb-8">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-4">
-                    Partner Responds
-                  </h4>
-                  {selected.inquiries
-                    .filter((m) => m.from === "partner")
-                    .map((msg) => (
-                      <div key={msg.id} className="mb-4">
-                        <div className="flex items-start gap-3 justify-end">
-                          <div className="text-right">
-                            <div className="bg-[#3B82F6] text-white rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl">
-                              {msg.text}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1.5">
-                              Partner, {msg.timestamp}
-                            </div>
-                          </div>
+                        {msg.from === 'partner' && (
                           <div className="w-9 h-9 rounded-full bg-gray-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
                             P
                           </div>
-                        </div>
+                        )}
                       </div>
-                    ))}
-                  <div className="flex items-start gap-3 justify-end">
-                    <div className="text-right">
-                      <div className="bg-[#3B82F6] text-white rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl">
-                        Hello world need to arminum ponerty coumarins that it a
-                        exiing it. Adme ncnsive respondence that are not able to
-                        recmmeriks.
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1.5">
-                        Partner, 12:33 PM
-                      </div>
-                    </div>
-                    <div className="w-9 h-9 rounded-full bg-gray-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
-                      P
-                    </div>
-                  </div>
+                    )))}
+                  <div ref={messagesEndRef} />
                 </div>
-
-                <div ref={messagesEndRef} />
               </div>
             </div>
 

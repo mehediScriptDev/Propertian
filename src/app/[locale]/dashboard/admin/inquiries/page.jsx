@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, X, MessageSquare, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
 import Image from 'next/image';
+import api from '@/lib/api';
+import { showToast } from '@/components/Toast';
 
 export default function AdminInquiriesPage() {
   const { locale } = useLanguage();
@@ -19,256 +21,91 @@ export default function AdminInquiriesPage() {
   const messagesEndRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Mock inquiry threads from ALL partners
-  const allInquiryThreads = useMemo(
-    () => [
-      {
-        id: 1,
-        propertyName: 'Luxury Penthouse in Downtown Dubai',
-        location: 'Dubai Marina',
-        city: 'Dubai',
-        status: 'new',
-        image: '/buy-rent/hero.jpg',
-        lastMessage: 'Hi, I am interested in viewing this property. Is it still available?',
-        userName: 'Sarah Johnson',
-        userAvatar: null,
-        userEmail: 'sarah.j@email.com',
-        partnerName: 'Elite Properties Ltd',
-        partnerEmail: 'contact@eliteproperties.com',
-        partnerId: 1,
-        timestamp: '2026-01-12T10:30:00Z',
-        inquiries: [
-          {
-            id: 1,
-            from: 'user',
-            senderName: 'Sarah Johnson',
-            text: 'Hi, I am interested in viewing this property. Is it still available?',
-            timestamp: '10:30 AM',
-          },
-        ],
-      },
-      {
-        id: 2,
-        propertyName: 'Modern Villa with Pool',
-        location: 'Palm Jumeirah',
-        city: 'Dubai',
-        status: 'awaiting',
-        image: '/buy-rent/hero.jpg',
-        lastMessage: 'Can you provide more details about the floor plan?',
-        userName: 'Michael Chen',
-        userAvatar: null,
-        userEmail: 'mchen@email.com',
-        partnerName: 'Premium Real Estate',
-        partnerEmail: 'info@premiumre.com',
-        partnerId: 2,
-        timestamp: '2026-01-12T09:15:00Z',
-        inquiries: [
-          {
-            id: 1,
-            from: 'user',
-            senderName: 'Michael Chen',
-            text: 'Can you provide more details about the floor plan?',
-            timestamp: '09:15 AM',
-          },
-          {
-            id: 2,
-            from: 'partner',
-            senderName: 'Premium Real Estate',
-            text: 'Sure! I will send you the complete floor plans and specifications.',
-            timestamp: '09:45 AM',
-          },
-          {
-            id: 3,
-            from: 'user',
-            senderName: 'Michael Chen',
-            text: 'Thank you! Also, what are the payment terms?',
-            timestamp: '10:20 AM',
-          },
-        ],
-      },
-      {
-        id: 3,
-        propertyName: '2BR Apartment in Yopougon',
-        location: 'Yopougon Ananeraie',
-        city: 'Abidjan',
-        status: 'awaiting',
-        image: '/buy-rent/hero.jpg',
-        lastMessage: 'What is the monthly rent including utilities?',
-        userName: 'Amara Koné',
-        userAvatar: null,
-        userEmail: 'amara.kone@email.com',
-        partnerName: 'Abidjan Properties',
-        partnerEmail: 'contact@abidjanprops.com',
-        partnerId: 3,
-        timestamp: '2026-01-11T16:20:00Z',
-        inquiries: [
-          {
-            id: 1,
-            from: 'user',
-            senderName: 'Amara Koné',
-            text: 'What is the monthly rent including utilities?',
-            timestamp: '04:20 PM',
-          },
-        ],
-      },
-      {
-        id: 4,
-        propertyName: 'Beach Front Condo',
-        location: 'JBR',
-        city: 'Dubai',
-        status: 'closed',
-        image: '/buy-rent/hero.jpg',
-        lastMessage: 'Thank you for your assistance. Deal completed.',
-        userName: 'David Williams',
-        userAvatar: null,
-        userEmail: 'dwilliams@email.com',
-        partnerName: 'Elite Properties Ltd',
-        partnerEmail: 'contact@eliteproperties.com',
-        partnerId: 1,
-        timestamp: '2026-01-11T14:00:00Z',
-        inquiries: [
-          {
-            id: 1,
-            from: 'user',
-            senderName: 'David Williams',
-            text: 'I would like to schedule a viewing for this weekend.',
-            timestamp: '02:00 PM',
-          },
-          {
-            id: 2,
-            from: 'partner',
-            senderName: 'Elite Properties Ltd',
-            text: 'Absolutely! How about Saturday at 2 PM?',
-            timestamp: '02:30 PM',
-          },
-          {
-            id: 3,
-            from: 'user',
-            senderName: 'David Williams',
-            text: 'Perfect! See you then.',
-            timestamp: '02:45 PM',
-          },
-          {
-            id: 4,
-            from: 'partner',
-            senderName: 'Elite Properties Ltd',
-            text: 'Looking forward to showing you the property!',
-            timestamp: '03:00 PM',
-          },
-          {
-            id: 5,
-            from: 'user',
-            senderName: 'David Williams',
-            text: 'Thank you for your assistance. Deal completed.',
-            timestamp: '05:30 PM',
-          },
-        ],
-      },
-      {
-        id: 5,
-        propertyName: 'Studio Apartment in Business Bay',
-        location: 'Business Bay',
-        city: 'Dubai',
-        status: 'new',
-        image: '/buy-rent/hero.jpg',
-        lastMessage: 'Is parking included with this unit?',
-        userName: 'Emma Thompson',
-        userAvatar: null,
-        userEmail: 'emma.t@email.com',
-        partnerName: 'City Living Realty',
-        partnerEmail: 'hello@cityliving.com',
-        partnerId: 4,
-        timestamp: '2026-01-12T08:45:00Z',
-        inquiries: [
-          {
-            id: 1,
-            from: 'user',
-            senderName: 'Emma Thompson',
-            text: 'Is parking included with this unit?',
-            timestamp: '08:45 AM',
-          },
-        ],
-      },
-      {
-        id: 6,
-        propertyName: '3BR Family Home in Springs',
-        location: 'The Springs',
-        city: 'Dubai',
-        status: 'awaiting',
-        image: '/buy-rent/hero.jpg',
-        lastMessage: 'Are pets allowed in this community?',
-        userName: 'Robert Martinez',
-        userAvatar: null,
-        userEmail: 'rmartinez@email.com',
-        partnerName: 'Premium Real Estate',
-        partnerEmail: 'info@premiumre.com',
-        partnerId: 2,
-        timestamp: '2026-01-10T11:30:00Z',
-        inquiries: [
-          {
-            id: 1,
-            from: 'user',
-            senderName: 'Robert Martinez',
-            text: 'Are pets allowed in this community?',
-            timestamp: '11:30 AM',
-          },
-          {
-            id: 2,
-            from: 'partner',
-            senderName: 'Premium Real Estate',
-            text: 'Yes, pets are allowed with a small deposit.',
-            timestamp: '12:15 PM',
-          },
-        ],
-      },
-      {
-        id: 7,
-        propertyName: 'Townhouse in Arabian Ranches',
-        location: 'Arabian Ranches',
-        city: 'Dubai',
-        status: 'closed',
-        image: '/buy-rent/hero.jpg',
-        lastMessage: 'Not interested anymore. Thank you.',
-        userName: 'Lisa Anderson',
-        userAvatar: null,
-        userEmail: 'lisa.a@email.com',
-        partnerName: 'Elite Properties Ltd',
-        partnerEmail: 'contact@eliteproperties.com',
-        partnerId: 1,
-        timestamp: '2026-01-09T15:00:00Z',
-        inquiries: [
-          {
-            id: 1,
-            from: 'user',
-            senderName: 'Lisa Anderson',
-            text: 'What are the school options nearby?',
-            timestamp: '03:00 PM',
-          },
-          {
-            id: 2,
-            from: 'partner',
-            senderName: 'Elite Properties Ltd',
-            text: 'There are several excellent schools within 5km radius.',
-            timestamp: '03:30 PM',
-          },
-          {
-            id: 3,
-            from: 'user',
-            senderName: 'Lisa Anderson',
-            text: 'Not interested anymore. Thank you.',
-            timestamp: '04:00 PM',
-          },
-        ],
-      },
-    ],
-    []
-  );
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch inquiries from backend for admin view
+  useEffect(() => {
+    let mounted = true;
+    const fetchInquiries = async () => {
+      setLoading(true);
+      try {
+        const res = await api.get('/inquiries?page=1&limit=50');
+        console.log('admin inquiries response:', res);
+        const items = res?.data?.inquiries || res?.inquiries || [];
+        console.log('admin inquiries items:', items);
+
+        const threads = items.map((i) => {
+          const img = i?.properties?.images && i.properties.images.length
+            ? i.properties.images[0]
+            : '/buy-rent/hero.jpg';
+
+          const partnerObj = i?.users || i?.owner || null;
+          const partnerName = partnerObj
+            ? (partnerObj.firstName ? `${partnerObj.firstName} ${partnerObj.lastName || ''}` : partnerObj.email || 'Partner')
+            : i?.agentName || 'Partner';
+
+          const partnerId = partnerObj?.id || i?.ownerId || i?.partnerId || null;
+
+          const userObj = i?.user || i?.createdBy || {};
+          const userName = userObj.firstName ? `${userObj.firstName} ${userObj.lastName || ''}` : userObj.email || 'Client';
+
+          const conversation = Array.isArray(i?.conversation) && i.conversation.length
+            ? i.conversation.map((m) => ({
+              id: m.id || Date.now() + Math.random(),
+              from: m.from || (m.senderRole === 'AGENT' ? 'partner' : 'user'),
+              senderName: m.senderName || m.sender || (m.from === 'partner' ? partnerName : userName),
+              text: m.message || m.text || '',
+              timestamp: new Date(m.createdAt || Date.now()).toLocaleTimeString(),
+            }))
+            : [
+              {
+                id: i.id + '-msg',
+                from: 'user',
+                senderName: userName,
+                text: i?.message || i?.lastMessage || '',
+                timestamp: new Date(i?.createdAt || Date.now()).toLocaleTimeString(),
+              },
+            ];
+
+          return {
+            id: i.id || i._id || Date.now() + Math.random(),
+            propertyName: i?.properties?.title || i?.properties?.name || '-',
+            location: i?.properties?.address || i?.properties?.state || '',
+            city: i?.properties?.city || '',
+            status: (i?.status || '').toLowerCase() || 'new',
+            image: img,
+            lastMessage: i?.message || i?.lastMessage || '',
+            userName,
+            userEmail: userObj.email || '',
+            partnerName,
+            partnerEmail: partnerObj?.email || i?.partnerEmail || '',
+            partnerId,
+            timestamp: i?.createdAt || i?.updatedAt || new Date().toISOString(),
+            inquiries: conversation,
+          };
+        });
+
+        if (mounted) setInquiries(threads);
+      } catch (err) {
+        console.error('Failed to fetch admin inquiries', err);
+        showToast({ type: 'error', message: 'Failed to load inquiries.' });
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchInquiries();
+    return () => {
+      mounted = false;
+    };
+  }, [locale]);
 
   // Get unique partners for filter
   const partners = useMemo(() => {
     const uniquePartners = [];
     const partnerMap = new Map();
-    allInquiryThreads.forEach((thread) => {
+    inquiries.forEach((thread) => {
       if (!partnerMap.has(thread.partnerId)) {
         partnerMap.set(thread.partnerId, {
           id: thread.partnerId,
@@ -278,33 +115,33 @@ export default function AdminInquiriesPage() {
       }
     });
     return uniquePartners;
-  }, [allInquiryThreads]);
+  }, [inquiries]);
 
   // Filter threads
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return allInquiryThreads.filter((t) => {
+    return inquiries.filter((t) => {
       if (statusFilter !== 'all' && t.status !== statusFilter) return false;
       if (partnerFilter !== 'all' && t.partnerId !== parseInt(partnerFilter))
         return false;
       if (!q) return true;
       return (
-        t.propertyName.toLowerCase().includes(q) ||
-        t.location.toLowerCase().includes(q) ||
-        t.userName.toLowerCase().includes(q) ||
-        t.partnerName.toLowerCase().includes(q)
+        (t.propertyName || '').toLowerCase().includes(q) ||
+        (t.location || '').toLowerCase().includes(q) ||
+        (t.userName || '').toLowerCase().includes(q) ||
+        (t.partnerName || '').toLowerCase().includes(q)
       );
     });
-  }, [allInquiryThreads, search, statusFilter, partnerFilter]);
+  }, [inquiries, search, statusFilter, partnerFilter]);
 
   // Calculate stats
   const stats = useMemo(() => {
-    const total = allInquiryThreads.length;
-    const newCount = allInquiryThreads.filter((t) => t.status === 'new').length;
-    const awaiting = allInquiryThreads.filter((t) => t.status === 'awaiting').length;
-    const closed = allInquiryThreads.filter((t) => t.status === 'closed').length;
+    const total = inquiries.length;
+    const newCount = inquiries.filter((t) => t.status === 'new').length;
+    const awaiting = inquiries.filter((t) => t.status === 'awaiting').length;
+    const closed = inquiries.filter((t) => t.status === 'closed').length;
     return { total, new: newCount, awaiting, closed };
-  }, [allInquiryThreads]);
+  }, [inquiries]);
 
   const getStatusBadge = (status) => {
     const config = {
@@ -413,9 +250,8 @@ export default function AdminInquiriesPage() {
       <div className="flex gap-4 h-[calc(100vh-28rem)] relative">
         {/* Left: Inquiry Threads */}
         <div
-          className={`${
-            isOpen ? 'hidden' : 'block'
-          } lg:block lg:w-96 w-full rounded-lg bg-white border border-gray-200 shadow-sm flex flex-col lg:h-[calc(100vh-28rem)] lg:overflow-y-auto overflow-hidden`}
+          className={`${isOpen ? 'hidden' : 'block'
+            } lg:block lg:w-96 w-full rounded-lg bg-white border border-gray-200 shadow-sm flex flex-col lg:h-[calc(100vh-28rem)] lg:overflow-y-auto overflow-hidden`}
         >
           <div className="px-4 py-4 border-b border-gray-200">
             <h3 className="text-sm font-semibold text-gray-900">
@@ -428,9 +264,8 @@ export default function AdminInquiriesPage() {
               <button
                 key={thread.id}
                 onClick={() => selectThread(thread)}
-                className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${
-                  selected?.id === thread.id ? 'bg-gray-50' : ''
-                }`}
+                className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${selected?.id === thread.id ? 'bg-gray-50' : ''
+                  }`}
               >
                 <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
                   {thread.userName[0]}
@@ -465,9 +300,8 @@ export default function AdminInquiriesPage() {
 
         {/* Right: Chat View */}
         <div
-          className={`${
-            isOpen ? 'block' : 'hidden'
-          }  flex-1 rounded-lg bg-white border border-gray-200 shadow-sm flex flex-col overflow-hidden`}
+          className={`${isOpen ? 'block' : 'hidden'
+            }  flex-1 rounded-lg bg-white border border-gray-200 shadow-sm flex flex-col overflow-hidden`}
         >
           {!selected ? (
             <div className="h-full flex items-center justify-center text-gray-400">
@@ -533,11 +367,10 @@ export default function AdminInquiriesPage() {
                     {selected.inquiries.map((msg) => (
                       <div
                         key={msg.id}
-                        className={`flex items-start gap-3 ${
-                          msg.from === 'partner' || msg.from === 'admin'
+                        className={`flex items-start gap-3 ${msg.from === 'partner' || msg.from === 'admin'
                             ? 'justify-end'
                             : ''
-                        }`}
+                          }`}
                       >
                         {msg.from === 'user' && (
                           <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold shrink-0">
@@ -545,23 +378,21 @@ export default function AdminInquiriesPage() {
                           </div>
                         )}
                         <div
-                          className={`flex-1 max-w-2xl ${
-                            msg.from === 'partner' || msg.from === 'admin'
+                          className={`flex-1 max-w-2xl ${msg.from === 'partner' || msg.from === 'admin'
                               ? 'text-right'
                               : ''
-                          }`}
+                            }`}
                         >
                           <div className="text-xs font-medium text-gray-600 mb-1">
                             {msg.senderName}
                           </div>
                           <div
-                            className={`inline-block rounded-lg px-4 py-2.5 text-sm ${
-                              msg.from === 'user'
+                            className={`inline-block rounded-lg px-4 py-2.5 text-sm ${msg.from === 'user'
                                 ? 'bg-gray-100 text-gray-900'
                                 : msg.from === 'admin'
-                                ? 'bg-red-500 text-white'
-                                : 'bg-blue-500 text-white'
-                            }`}
+                                  ? 'bg-red-500 text-white'
+                                  : 'bg-blue-500 text-white'
+                              }`}
                           >
                             {msg.text}
                           </div>
@@ -571,9 +402,8 @@ export default function AdminInquiriesPage() {
                         </div>
                         {(msg.from === 'partner' || msg.from === 'admin') && (
                           <div
-                            className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0 ${
-                              msg.from === 'admin' ? 'bg-red-500' : 'bg-blue-500'
-                            }`}
+                            className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0 ${msg.from === 'admin' ? 'bg-red-500' : 'bg-blue-500'
+                              }`}
                           >
                             {msg.from === 'admin' ? 'A' : 'P'}
                           </div>
@@ -601,9 +431,7 @@ export default function AdminInquiriesPage() {
                       Send as Admin
                     </button>
                   </div>
-                  {/* <div className="sm:text-xs text-[9px] text-gray-400 mt-2 text-right">
-                    Admin messages appear in red. Use this to moderate or assist conversations.
-                  </div> */}
+
                 </div>
               </div>
             </>
