@@ -205,6 +205,11 @@ const navigationConfig = {
     //   href: "/dashboard/user/tickets",
     //   icon: MessageSquare,
     // },
+    {
+      key: "Notifications",
+      href: "/dashboard/user/notifications",
+      icon: Bell,
+    },
     // {
     //   key: 'dashboard.client.settings',
     //   href: '/dashboard/client/settings',
