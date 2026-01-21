@@ -1,29 +1,32 @@
 'use client';
 
-import { use, useState, useMemo, useCallback, useEffect } from 'react';
+import { use, useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslation } from '@/i18n';
-import { Users, CheckCircle, Clock, FolderOpen } from 'lucide-react';
+import { Users, CheckCircle, Clock, FolderOpen, XCircle, ShieldAlert } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
 import PartnersApplicationsPanel from '@/components/dashboard/admin/PartnersApplicationsPanel';
-import ListingSubmissionsPanel from '@/components/dashboard/admin/ListingSubmissionsPanel';
+import ListingSubmissionsPanel from '@/components/dashboard/admin/ListingSubmissionsPanel'; // Ensure this matches your file name
 import VerificationRequestsPanel from '@/components/dashboard/admin/VerificationRequestsPanel';
-import Pagination from '@/components/dashboard/Pagination';
 import axiosInstance from '@/lib/axios';
 
 export default function AdminPartnersPage({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
 
-  // State
+  // --- State ---
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [verificationFilter, setVerificationFilter] = useState('all');
-  const [paymentFilter, setPaymentFilter] = useState('all');
+  
+  // Data States for Partner Tab
+  const [applications, setApplications] = useState([]); 
+  const [statsData, setStatsData] = useState(null);    
+  
+  // Loading States
+  const [loadingTable, setLoadingTable] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [approvalStats, setApprovalStats] = useState(null);
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -31,218 +34,28 @@ export default function AdminPartnersPage({ params }) {
     totalPages: 1
   });
 
-  // Derive selected tab from `?tab=` query param. Defaults to partner_application.
+  // --- Derive Tab ---
   const searchParams = useSearchParams();
   const tabParam = searchParams ? searchParams.get('tab') : null;
+  
   const selectedTab = useMemo(() => {
     if (tabParam === 'listing-submissions') return 'listing_submission';
     if (tabParam === 'verification-requests') return 'verification_requests';
     return 'partner_application';
   }, [tabParam]);
 
-  // Constants
   const ITEMS_PER_PAGE = 8;
 
-  // Fetch applications from API
-  useEffect(() => {
-    fetchApplications();
-  }, [currentPage, statusFilter]);
 
-  const fetchApplications = async () => {
-    try {
-      setLoading(true);
-      let url = `/partner/applications?page=${currentPage}&limit=${ITEMS_PER_PAGE}`;
-
-      // Add status filter if not 'all'
-      if (statusFilter !== 'all') {
-        url += `&status=${statusFilter}`;
-      }
-
-      const response = await axiosInstance.get(url);
-
-      if (response.data.success) {
-        setApplications(response.data.data.applications);
-        setPagination(response.data.data.pagination);
-      }
-    } catch (error) {
-      console.error('Error fetching partner applications:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Memoized translations
   const partnersTranslations = useMemo(
     () => ({
       title: t('dashboard.admin.partners.title'),
       subtitle: t('dashboard.admin.partners.subtitle'),
-      addPartner: t('dashboard.admin.partners.addPartner'),
-      searchPlaceholder: t('dashboard.admin.partners.searchPlaceholder'),
-      stats: {
-        totalPartners: t('dashboard.admin.partners.stats.totalPartners'),
-        verified: t('dashboard.admin.partners.stats.verified'),
-        pending: t('dashboard.admin.partners.stats.pending'),
-        activeProjects: t('dashboard.admin.partners.stats.activeProjects'),
-      },
-      filters: {
-        verification: t('dashboard.admin.partners.filters.verification'),
-        payment: t('dashboard.admin.partners.filters.payment'),
-        allVerification: t('dashboard.admin.partners.filters.allVerification'),
-        allPayment: t('dashboard.admin.partners.filters.allPayment'),
-      },
-      table: {
-        company: t('dashboard.admin.partners.table.company'),
-        contact: t('dashboard.admin.partners.table.contact'),
-        email: t('dashboard.admin.partners.table.email'),
-        phone: t('dashboard.admin.partners.table.phone'),
-        projects: t('dashboard.admin.partners.table.projects'),
-        verification: t('dashboard.admin.partners.table.verification'),
-        payment: t('dashboard.admin.partners.table.payment'),
-        actions: t('dashboard.admin.partners.table.actions'),
-        view: t('dashboard.admin.partners.table.view'),
-        edit: t('dashboard.admin.partners.table.edit'),
-        delete: t('dashboard.admin.partners.table.delete'),
-        joined: t('dashboard.admin.partners.table.joined'),
-      },
-      verification: {
-        verified: t('dashboard.admin.partners.verification.verified'),
-        pending: t('dashboard.admin.partners.verification.pending'),
-        rejected: t('dashboard.admin.partners.verification.rejected'),
-      },
-      payment: {
-        paid: t('dashboard.admin.partners.payment.paid'),
-        unpaid: t('dashboard.admin.partners.payment.unpaid'),
-        partial: t('dashboard.admin.partners.payment.partial'),
-      },
+      // ... (Rest of your translations)
     }),
     [t]
   );
 
-  // Calculate stats
-  const stats = useMemo(() => {
-    // Prefer server-provided approval stats when available (from /admin/property-approval/stats)
-    if (approvalStats) {
-      const pending = approvalStats.PENDING_APPROVAL ?? approvalStats.PENDING ?? 0;
-      const underReview = approvalStats.NEEDS_REVISION ?? approvalStats.UNDER_REVIEW ?? 0;
-      const approved = approvalStats.APPROVED ?? 0;
-      const total = Object.values(approvalStats).reduce((sum, v) => sum + (Number(v) || 0), 0);
-
-      return [
-        { title: 'Total', value: total, trend: '+0.0%', icon: Users, variant: 'primary' },
-        { title: 'Pending', value: pending, trend: '+0.0%', icon: Clock, variant: 'warning' },
-        { title: 'Under Review', value: underReview, trend: '+0.0%', icon: FolderOpen, variant: 'info' },
-        { title: 'Approved', value: approved, trend: '+0.0%', icon: CheckCircle, variant: 'success' },
-      ];
-    }
-
-    // Fallback to client-side derived values
-    const pendingCount = applications.filter((p) => p.status === 'PENDING').length;
-    const underReviewCount = applications.filter((p) => p.status === 'UNDER_REVIEW').length;
-    const approvedCount = applications.filter((p) => p.status === 'APPROVED').length;
-
-    return [
-      { title: 'Total', value: pagination.total, trend: '+8.3%', icon: Users, variant: 'primary' },
-      { title: 'Pending', value: pendingCount, trend: '-5.2%', icon: Clock, variant: 'warning' },
-      { title: 'Under Review', value: underReviewCount, trend: '+12.5%', icon: FolderOpen, variant: 'info' },
-      { title: 'Approved', value: approvedCount, trend: '+15.8%', icon: CheckCircle, variant: 'success' },
-    ];
-  }, [applications, pagination.total, approvalStats]);
-
-  // Fetch approval stats from backend when listing-submissions tab is active (or on mount)
-  useEffect(() => {
-    const fetchApprovalStats = async () => {
-      try {
-        const resp = await axiosInstance.get('/admin/property-approval/stats');
-        if (resp?.data?.success) {
-          setApprovalStats(resp.data.data || null);
-          console.log('approval stats:', resp.data.data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch approval stats', err);
-      }
-    };
-
-    if (selectedTab === 'listing_submission') {
-      fetchApprovalStats();
-    } else {
-      // still fetch once on mount so stats show quickly across tabs
-      fetchApprovalStats();
-    }
-  }, [selectedTab]);
-
-  // Filter applications
-  const filteredApplications = useMemo(() => {
-    return applications.filter((app) => {
-      const matchesSearch =
-        app.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.companyName?.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesStatus =
-        statusFilter === 'all' || app.status === statusFilter;
-
-      const matchesVerification =
-        verificationFilter === 'all' ||
-        (verificationFilter === 'verified' && app.isVerified) ||
-        (verificationFilter === 'pending' && !app.isVerified);
-
-      const matchesPayment =
-        paymentFilter === 'all' ||
-        (paymentFilter === 'paid' && app.isPaid) ||
-        (paymentFilter === 'unpaid' && !app.isPaid);
-
-      return matchesSearch && matchesStatus && matchesVerification && matchesPayment;
-    });
-  }, [applications, searchTerm, statusFilter, verificationFilter, paymentFilter]);
-
-  // Handlers
-  const handleSearchChange = useCallback((value) => {
-    setSearchTerm(value);
-    setCurrentPage(1);
-  }, []);
-
-  const handleStatusChange = useCallback((value) => {
-    setStatusFilter(value);
-    setCurrentPage(1);
-  }, []);
-
-  const handleVerificationChange = useCallback((value) => {
-    setVerificationFilter(value);
-    setCurrentPage(1);
-  }, []);
-
-  const handlePaymentChange = useCallback((value) => {
-    setPaymentFilter(value);
-    setCurrentPage(1);
-  }, []);
-
-  const handlePageChange = useCallback((page) => {
-    setCurrentPage(page);
-  }, []);
-
-  const handleDelete = async (id) => {
-    try {
-      await axiosInstance.delete(`/partner/applications/${id}`);
-      fetchApplications();
-    } catch (error) {
-      console.error('Error deleting application:', error);
-    }
-  };
-
-  const handleStatusUpdate = async (id, newStatus) => {
-    try {
-      await axiosInstance.put(`/partner/applications/${id}/status`, {
-        status: newStatus,
-        adminNotes: `Status changed to ${newStatus}`
-      });
-      fetchApplications();
-    } catch (error) {
-      console.error('Error updating status:', error);
-      throw error;
-    }
-  };
-
-  // Pagination translations
   const paginationTranslations = useMemo(
     () => ({
       previous: t('common.previous'),
@@ -255,42 +68,180 @@ export default function AdminPartnersPage({ params }) {
     [t]
   );
 
+ 
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoadingStats(true);
+        setStatsData(null); 
+        
+        let url = '';
+
+        // A. Partners Stats
+        if (selectedTab === 'partner_application') {
+            url = '/partner/stats';
+        } 
+        // B. Listings Stats (Keep this if you want stats cards for listings)
+        else if (selectedTab === 'listing_submission') {
+            url = '/admin/property-approval/stats';
+        } 
+        // C. Verification Stats
+        else if (selectedTab === 'verification_requests') {
+            setStatsData({ total: 0, pending: 0, rejected: 0, verified: 0 });
+            setLoadingStats(false);
+            return;
+        }
+
+        if (url) {
+            const response = await axiosInstance.get(url);
+            if (response.data.success) {
+        
+                const data = response.data.data.stats || response.data.data;
+                setStatsData(data);
+            }
+        }
+      } catch (error) {
+        console.error(`Error fetching stats for ${selectedTab}:`, error);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+  }, [selectedTab]);
+
+ 
+  useEffect(() => {
+    const fetchTableData = async () => {
+   
+      if (selectedTab !== 'partner_application') {
+          return; 
+      }
+
+      try {
+        setLoadingTable(true);
+        let url = `/partner/applications?page=${currentPage}&limit=${ITEMS_PER_PAGE}`;
+
+        if (statusFilter !== 'all') {
+          url += `&status=${statusFilter}`;
+        }
+
+        const response = await axiosInstance.get(url);
+        if (response.data.success) {
+          setApplications(response.data.data.applications || []);
+          setPagination(response.data.data.pagination || { total: 0, totalPages: 1 });
+        }
+      } catch (error) {
+        console.error('Error fetching partner applications:', error);
+        setApplications([]);
+      } finally {
+        setLoadingTable(false);
+      }
+    };
+
+    fetchTableData();
+  }, [currentPage, statusFilter, selectedTab]);
+
+
+  const stats = useMemo(() => {
+    const data = statsData || {};
+
+    if (selectedTab === 'partner_application') {
+      return [
+        { title: 'Total Applications', value: data.total || 0, icon: Users, variant: 'primary' },
+        { title: 'Pending', value: data.pending || 0, icon: Clock, variant: 'warning' },
+        { title: 'Under Review', value: data.underReview || 0, icon: FolderOpen, variant: 'info' },
+        { title: 'Approved', value: data.approved || 0, icon: CheckCircle, variant: 'success' },
+      ];
+    }
+
+    if (selectedTab === 'listing_submission') {
+      const pending = data.PENDING_APPROVAL ?? data.PENDING ?? 0;
+      const underReview = data.NEEDS_REVISION ?? data.UNDER_REVIEW ?? 0;
+      const approved = data.APPROVED ?? 0;
+      const total = Object.values(data).reduce((sum, v) => sum + (Number(v) || 0), 0);
+
+      return [
+        { title: 'Total Submissions', value: total, icon: Users, variant: 'primary' },
+        { title: 'Pending Approval', value: pending, icon: Clock, variant: 'warning' },
+        { title: 'Under Review', value: underReview, icon: FolderOpen, variant: 'info' },
+        { title: 'Approved', value: approved, icon: CheckCircle, variant: 'success' },
+      ];
+    }
+
+    // Default empty stats
+    return [
+       { title: 'Total', value: 0, icon: Users, variant: 'primary' },
+       { title: 'Pending', value: 0, icon: Clock, variant: 'warning' },
+       { title: 'Review', value: 0, icon: FolderOpen, variant: 'info' },
+       { title: 'Verified', value: 0, icon: CheckCircle, variant: 'success' },
+    ];
+  }, [statsData, selectedTab]);
+
+  // --- Handlers for Partner Application Tab ---
+  const handlePageChange = (page) => setCurrentPage(page);
+  
+  const handleStatusUpdate = async (id, newStatus) => {
+    try {
+        // Only for Partner Applications
+        await axiosInstance.put(`/partner/applications/${id}/status`, { status: newStatus });
+        window.location.reload(); 
+    } catch (error) {
+        console.error('Update failed', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+        await axiosInstance.delete(`/partner/applications/${id}`);
+        window.location.reload();
+    } catch (error) {
+        console.error('Delete failed', error);
+    }
+  };
+
   return (
     <div className='space-y-4 md:space-y-6'>
       {/* Header */}
-      <div className=''>
+      <div>
         <h1 className='text-4xl font-bold text-gray-900 mb-2'>
-          {partnersTranslations.title}
+          {selectedTab === 'listing_submission' ? 'Listing Submissions' : 
+           selectedTab === 'verification_requests' ? 'Verification Requests' : 
+           (partnersTranslations.title || 'Partner Applications')}
         </h1>
         <p className='text-sm sm:text-base text-gray-700'>
-          {partnersTranslations.subtitle}
+          {partnersTranslations.subtitle || 'Manage your requests here.'}
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6'>
-        {stats.map((stat, index) => (
-          <StatsCard
-            key={index}
-            title={stat.title}
-            value={stat.value}
-            trend={stat.trend}
-            icon={stat.icon}
-            variant={stat.variant}
-          />
-        ))}
+        {loadingStats ? (
+           [...Array(4)].map((_, i) => (
+             <div key={i} className="h-28 bg-gray-50 animate-pulse rounded-xl border border-gray-100" />
+           ))
+        ) : (
+           stats.map((stat, index) => (
+            <StatsCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              variant={stat.variant}
+            />
+          ))
+        )}
       </div>
 
-
-
-      {/* Panels (table + pagination) per tab */}
+      {/* CONTENT PANELS */}
+      
+      {/* 1. Partner Applications (Parent handles fetching) */}
       {selectedTab === 'partner_application' && (
         <PartnersApplicationsPanel
-          partners={filteredApplications}
-          loading={loading}
+          partners={applications}
+          loading={loadingTable}
           onDelete={handleDelete}
           onStatusChange={handleStatusUpdate}
-          onRefresh={fetchApplications}
           tableTranslations={partnersTranslations}
           paginationTranslations={paginationTranslations}
           currentPage={currentPage}
@@ -301,37 +252,18 @@ export default function AdminPartnersPage({ params }) {
         />
       )}
 
+      {/* 2. Listing Submissions (Self-contained Child handles fetching) */}
       {selectedTab === 'listing_submission' && (
-        <ListingSubmissionsPanel
-          partners={filteredApplications}
-          loading={loading}
-          onDelete={handleDelete}
-          onStatusChange={handleStatusUpdate}
-          onRefresh={fetchApplications}
-          tableTranslations={partnersTranslations}
-          paginationTranslations={paginationTranslations}
-          currentPage={currentPage}
-          totalPages={pagination.totalPages}
-          totalItems={pagination.total}
-          itemsPerPage={ITEMS_PER_PAGE}
-          onPageChange={handlePageChange}
-        />
+        <ListingSubmissionsPanel />
       )}
 
+      {/* 3. Verification Requests (Placeholder) */}
       {selectedTab === 'verification_requests' && (
         <VerificationRequestsPanel
-          partners={filteredApplications}
-          loading={loading}
-          onDelete={handleDelete}
-          onStatusChange={handleStatusUpdate}
-          onRefresh={fetchApplications}
+          partners={[]}
+          loading={false}
           tableTranslations={partnersTranslations}
           paginationTranslations={paginationTranslations}
-          currentPage={currentPage}
-          totalPages={pagination.totalPages}
-          totalItems={pagination.total}
-          itemsPerPage={ITEMS_PER_PAGE}
-          onPageChange={handlePageChange}
         />
       )}
     </div>
