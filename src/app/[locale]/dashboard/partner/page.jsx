@@ -5,8 +5,8 @@ import { useTranslation } from "@/i18n";
 import dynamic from "next/dynamic";
 import { get, del, put } from "@/lib/api";
 import StatsCard from "@/components/dashboard/admin/StatsCard";
-import Modal from '@/components/Modal';
-import Link from 'next/link';
+import Modal from "@/components/Modal";
+import Link from "next/link";
 import {
   Eye,
   MapPin,
@@ -38,17 +38,24 @@ export default function PartnerDashboardPage({ params }) {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  });
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null); // { id, title }
   const [showCustomAlert, setShowCustomAlert] = useState(false);
   const [customAlertMsg, setCustomAlertMsg] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [editForm, setEditForm] = useState({ title: "", price: "", status: "" });
+  const [editForm, setEditForm] = useState({
+    title: "",
+    price: "",
+    status: "",
+  });
   const [editing, setEditing] = useState(false);
   const closeModal = () => setSelectedProperty(null);
-  
 
   // Stats data matching admin dashboard style with SAME colors
   const [statsData, setStatsData] = useState([
@@ -87,8 +94,8 @@ export default function PartnerDashboardPage({ params }) {
     const fetchStatsAndInquiries = async () => {
       try {
         const [statsRes, inquiriesRes] = await Promise.all([
-          get('/partner/dashboard/stats'),
-          get('/inquiries/my-inquiries', { params: { page: 1, limit: 1 } }),
+          // get("/partner/dashboard/stats"),
+          get("/inquiries/my-inquiries", { params: { page: 1, limit: 1 } }),
         ]);
 
         const statsPayload = statsRes?.data || statsRes;
@@ -115,7 +122,8 @@ export default function PartnerDashboardPage({ params }) {
             icon: EyeIcon,
           },
           {
-            title: t("Partner.statsData.inactiveListings") || "Inactive Listings",
+            title:
+              t("Partner.statsData.inactiveListings") || "Inactive Listings",
             value: props.inactive ?? 0,
             trend: "",
             variant: "info",
@@ -130,7 +138,7 @@ export default function PartnerDashboardPage({ params }) {
           },
         ]);
       } catch (err) {
-        console.error('Fetch partner stats or inquiries error', err);
+        console.error("Fetch partner stats or inquiries error", err);
       }
     };
 
@@ -143,13 +151,21 @@ export default function PartnerDashboardPage({ params }) {
       setLoading(true);
       setError(null);
       try {
-        const res = await get('/properties/user/my-properties', { params: { page: currentPage, limit: itemsPerPage } });
+        const res = await get("/properties/user/my-properties", {
+          params: { page: currentPage, limit: itemsPerPage },
+        });
         const data = res?.data || res;
         setProperties(data?.properties || []);
-        setPagination(data?.pagination || { currentPage: 1, totalPages: 1, totalItems: data?.properties?.length || 0 });
+        setPagination(
+          data?.pagination || {
+            currentPage: 1,
+            totalPages: 1,
+            totalItems: data?.properties?.length || 0,
+          },
+        );
       } catch (err) {
-        console.error('Fetch properties error', err);
-        setError('Failed to load properties');
+        console.error("Fetch properties error", err);
+        setError("Failed to load properties");
         setProperties([]);
         setPagination({ currentPage: 1, totalPages: 1, totalItems: 0 });
       } finally {
@@ -165,9 +181,15 @@ export default function PartnerDashboardPage({ params }) {
     return properties.filter((property) => {
       const matchesSearch =
         searchQuery === "" ||
-        (property.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ((property.address || "") + " " + (property.city || "")).toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = filterStatus === "all" || (property.status || "").toLowerCase() === filterStatus;
+        (property.title || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        ((property.address || "") + " " + (property.city || ""))
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        filterStatus === "all" ||
+        (property.status || "").toLowerCase() === filterStatus;
       return matchesSearch && matchesStatus;
     });
   }, [properties, searchQuery, filterStatus]);
@@ -195,7 +217,11 @@ export default function PartnerDashboardPage({ params }) {
 
   const openEditModal = (property) => {
     setEditItem(property);
-    setEditForm({ title: property.title || "", price: property.price || "", status: property.status || "" });
+    setEditForm({
+      title: property.title || "",
+      price: property.price || "",
+      status: property.status || "",
+    });
   };
 
   function handleEditChange(e) {
@@ -207,17 +233,25 @@ export default function PartnerDashboardPage({ params }) {
     if (!editItem) return;
     setEditing(true);
     try {
-      const payload = { title: editForm.title, price: editForm.price, status: editForm.status };
+      const payload = {
+        title: editForm.title,
+        price: editForm.price,
+        status: editForm.status,
+      };
       const res = await put(`/properties/${editItem.id}`, payload);
       const updated = res?.data || res;
-      setProperties((p) => p.map((it) => (it.id === editItem.id ? { ...it, ...updated } : it)));
-      setCustomAlertMsg(t('Partner.updateSuccess') || 'Property updated');
+      setProperties((p) =>
+        p.map((it) => (it.id === editItem.id ? { ...it, ...updated } : it)),
+      );
+      setCustomAlertMsg(t("Partner.updateSuccess") || "Property updated");
       setShowCustomAlert(true);
       setTimeout(() => setShowCustomAlert(false), 4000);
       setEditItem(null);
     } catch (err) {
-      console.error('Update property failed', err);
-      setCustomAlertMsg(t('Partner.updateFailed') || 'Failed to update property');
+      console.error("Update property failed", err);
+      setCustomAlertMsg(
+        t("Partner.updateFailed") || "Failed to update property",
+      );
       setShowCustomAlert(true);
       setTimeout(() => setShowCustomAlert(false), 4000);
     } finally {
@@ -232,12 +266,14 @@ export default function PartnerDashboardPage({ params }) {
     try {
       await del(`/properties/${propertyId}`);
       setProperties((p) => p.filter((item) => item.id !== propertyId));
-      setCustomAlertMsg(t('Partner.deleteSuccess') || 'Property deleted');
+      setCustomAlertMsg(t("Partner.deleteSuccess") || "Property deleted");
       setShowCustomAlert(true);
       setTimeout(() => setShowCustomAlert(false), 4000);
     } catch (err) {
-      console.error('Delete property failed', err);
-      setCustomAlertMsg(t('Partner.deleteFailed') || 'Failed to delete property');
+      console.error("Delete property failed", err);
+      setCustomAlertMsg(
+        t("Partner.deleteFailed") || "Failed to delete property",
+      );
       setShowCustomAlert(true);
       setTimeout(() => setShowCustomAlert(false), 4000);
     } finally {
@@ -259,7 +295,10 @@ export default function PartnerDashboardPage({ params }) {
             </h1>
             <p className="mt-2 text-sm text-gray-600">{t("Partner.title")}</p>
           </div>
-          <Link href={`/${locale}/dashboard/partner/properties/add`} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none focus:ring-offset-2">
+          <Link
+            href={`/${locale}/dashboard/partner/properties/add`}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none focus:ring-offset-2"
+          >
             <Plus className="h-4 w-4" aria-hidden="true" />
             {t("Partner.addButton")}
           </Link>
@@ -319,7 +358,9 @@ export default function PartnerDashboardPage({ params }) {
                   aria-label="Filter by status"
                 >
                   <option value="all">{t("Partner.AllStatus")}</option>
-                  <option value="available">{t("common.Available") || 'Available'}</option>
+                  <option value="available">
+                    {t("common.Available") || "Available"}
+                  </option>
                   <option value="pending">{t("Partner.Pending")}</option>
                 </select>
               </div>
@@ -332,7 +373,10 @@ export default function PartnerDashboardPage({ params }) {
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center gap-3">
               <div className="animate-spin h-10 w-10 border-4 border-[#E6B325] border-t-transparent rounded-full"></div>
-              <p className="text-sm font-medium text-gray-700">{t("dashboard.partner.LoadingProperties") || "Loading properties..."}</p>
+              <p className="text-sm font-medium text-gray-700">
+                {t("dashboard.partner.LoadingProperties") ||
+                  "Loading properties..."}
+              </p>
             </div>
           </div>
         )}
@@ -356,121 +400,153 @@ export default function PartnerDashboardPage({ params }) {
                     {t("Partner.Status")}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                    {t("Partner.Actions") || 'Actions'}
+                    {t("Partner.Actions") || "Actions"}
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
                 {currentProperties.map((property) => (
-                <tr
-                  key={property.id}
-                  className="transition-colors hover:bg-gray-50"
-                >
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">
-                      {property.title}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                      {(property.address || "") + (property.city ? ", " + property.city : "")}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
-                      <DollarSign className="h-3.5 w-3.5 text-gray-400" />
-                      {property.price}
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${(property.status || "").toLowerCase() === "available"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
+                  <tr
+                    key={property.id}
+                    className="transition-colors hover:bg-gray-50"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="font-medium text-gray-900">
+                        {property.title}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                        {(property.address || "") +
+                          (property.city ? ", " + property.city : "")}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
+                        <DollarSign className="h-3.5 w-3.5 text-gray-400" />
+                        {property.price}
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          (property.status || "").toLowerCase() === "available"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
                         }`}
-                    >
-                      {(property.status || "").charAt(0).toUpperCase() + (property.status || "").slice(1).toLowerCase()}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="inline-flex items-center gap-2">
-                      <button onClick={() => setSelectedProperty(property)} aria-label={t('Partner.ViewDetails') || 'View details'} className="p-1 rounded hover:bg-gray-100">
-                        <Eye className="h-4 w-4 text-[#6b7280]" />
-                      </button>
+                      >
+                        {(property.status || "").charAt(0).toUpperCase() +
+                          (property.status || "").slice(1).toLowerCase()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <button
+                          onClick={() => setSelectedProperty(property)}
+                          aria-label={
+                            t("Partner.ViewDetails") || "View details"
+                          }
+                          className="p-1 rounded hover:bg-gray-100"
+                        >
+                          <Eye className="h-4 w-4 text-[#6b7280]" />
+                        </button>
 
-                      <button onClick={() => openEditModal(property)} aria-label={t('Partner.Edit') || 'Edit'} className="p-1 rounded hover:bg-gray-100">
-                        <Edit className="h-4 w-4 text-[#6b7280]" />
-                      </button>
+                        <button
+                          onClick={() => openEditModal(property)}
+                          aria-label={t("Partner.Edit") || "Edit"}
+                          className="p-1 rounded hover:bg-gray-100"
+                        >
+                          <Edit className="h-4 w-4 text-[#6b7280]" />
+                        </button>
 
-                      <button onClick={() => handleDelete(property.id, property.title)} aria-label={t('Partner.Delete') || 'Delete'} className="p-1 rounded hover:bg-gray-100">
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        <button
+                          onClick={() =>
+                            handleDelete(property.id, property.title)
+                          }
+                          aria-label={t("Partner.Delete") || "Delete"}
+                          className="p-1 rounded hover:bg-gray-100"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {/* Mobile Cards */}
         {!loading && (
           <div className="divide-y divide-gray-200 lg:hidden">
-          {currentProperties.map((property) => (
-            <div
-              key={property.id}
-              className="p-4 hover:bg-gray-50 transition-colors"
-            >
-              <div className="mb-3">
-                <h3 className="font-medium text-gray-900">{property.title}</h3>
-                <div className="mt-1 flex items-center gap-1 text-sm text-gray-600">
-                  <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                  {(property.address || "") + (property.city ? ", " + property.city : "")}
+            {currentProperties.map((property) => (
+              <div
+                key={property.id}
+                className="p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="mb-3">
+                  <h3 className="font-medium text-gray-900">
+                    {property.title}
+                  </h3>
+                  <div className="mt-1 flex items-center gap-1 text-sm text-gray-600">
+                    <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                    {(property.address || "") +
+                      (property.city ? ", " + property.city : "")}
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3 text-sm mb-3">
-                <div className="flex items-center gap-1 text-gray-600">
-                  <DollarSign className="h-3.5 w-3.5 text-gray-400" />
-                  <span className="font-medium">{property.price}</span>
+                <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                  <div className="flex items-center gap-1 text-gray-600">
+                    <DollarSign className="h-3.5 w-3.5 text-gray-400" />
+                    <span className="font-medium">{property.price}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-gray-600">
+                    <Eye className="h-3.5 w-3.5 text-gray-400" />
+                    {property.views} views
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 text-gray-600">
-                  <Eye className="h-3.5 w-3.5 text-gray-400" />
-                  {property.views} views
-                </div>
-              </div>
 
-              <div className="flex items-center justify-between">
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${property.status === "available"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-yellow-100 text-yellow-800"
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      property.status === "available"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
                     }`}
-                >
-                  {property.status === "available" ? "Available" : "Pending"}
-                </span>
-                <div className="flex items-center gap-1 text-sm text-gray-600">
-                  <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
-                  {property._count?.inquiries ?? '-'} {t("Partner.inquiries")}
+                  >
+                    {property.status === "available" ? "Available" : "Pending"}
+                  </span>
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
+                    {property._count?.inquiries ?? "-"} {t("Partner.inquiries")}
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-end gap-2">
+                  <button
+                    onClick={() => setSelectedProperty(property)}
+                    className="p-1 rounded text-sm font-medium text-[#E6B325] hover:bg-gray-100"
+                  >
+                    <Eye className="h-4 w-4 inline" />
+                  </button>
+                  <button
+                    onClick={() => openEditModal(property)}
+                    className="p-1 rounded hover:bg-gray-100"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(property.id, property.title)}
+                    className="p-1 rounded hover:bg-gray-100"
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </button>
                 </div>
               </div>
-              <div className="mt-3 flex items-center justify-end gap-2">
-                <button onClick={() => setSelectedProperty(property)} className="p-1 rounded text-sm font-medium text-[#E6B325] hover:bg-gray-100">
-                  <Eye className="h-4 w-4 inline" />
-                </button>
-                <button onClick={() => openEditModal(property)} className="p-1 rounded hover:bg-gray-100">
-                  <Edit className="h-4 w-4" />
-                </button>
-                <button onClick={() => handleDelete(property.id, property.title)} className="p-1 rounded hover:bg-gray-100">
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         )}
 
         {/* Empty State */}
@@ -496,7 +572,7 @@ export default function PartnerDashboardPage({ params }) {
             translations={{
               showing: t("Partner.Showing"),
               to: t("Partner.to"),
-              of: 'out of',
+              of: "out of",
               results: t("Partner.results"),
               previous: t("Partner.Previous"),
               next: t("Partner.Next"),
@@ -505,12 +581,23 @@ export default function PartnerDashboardPage({ params }) {
         )}
         {/* Custom Alert (top-right) */}
         {showCustomAlert && (
-          <div role="status" className="fixed top-6 right-6 z-50 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-md shadow-md flex items-start gap-3 max-w-sm">
+          <div
+            role="status"
+            className="fixed top-6 right-6 z-50 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-md shadow-md flex items-start gap-3 max-w-sm"
+          >
             <div className="flex-1">
-              <div className="font-semibold">{customAlertMsg.startsWith('Failed') ? 'Error' : 'Success'}</div>
+              <div className="font-semibold">
+                {customAlertMsg.startsWith("Failed") ? "Error" : "Success"}
+              </div>
               <div className="text-sm">{customAlertMsg}</div>
             </div>
-            <button type="button" onClick={() => setShowCustomAlert(false)} className="text-green-700 font-bold">×</button>
+            <button
+              type="button"
+              onClick={() => setShowCustomAlert(false)}
+              className="text-green-700 font-bold"
+            >
+              ×
+            </button>
           </div>
         )}
 
@@ -518,11 +605,30 @@ export default function PartnerDashboardPage({ params }) {
         {deleteConfirm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-md shadow-lg max-w-md w-full p-6">
-              <h3 className="text-lg font-semibold">{t('common.confirmDeleteTitle') || 'Confirm delete'}</h3>
-              <p className="mt-2 text-sm text-gray-600">{t('common.confirmDeleteMessage') || `Delete "${deleteConfirm.title}"? This action cannot be undone.`}</p>
+              <h3 className="text-lg font-semibold">
+                {t("common.confirmDeleteTitle") || "Confirm delete"}
+              </h3>
+              <p className="mt-2 text-sm text-gray-600">
+                {t("common.confirmDeleteMessage") ||
+                  `Delete "${deleteConfirm.title}"? This action cannot be undone.`}
+              </p>
               <div className="mt-4 flex justify-end gap-3">
-                <button onClick={cancelDelete} disabled={deleting} className="px-4 py-2 rounded border bg-white">{t('common.cancel') || 'Cancel'}</button>
-                <button onClick={confirmDelete} disabled={deleting} className="px-4 py-2 rounded bg-red-600 text-white">{deleting ? (t('common.deleting') || 'Deleting...') : (t('common.delete') || 'Delete')}</button>
+                <button
+                  onClick={cancelDelete}
+                  disabled={deleting}
+                  className="px-4 py-2 rounded border bg-white"
+                >
+                  {t("common.cancel") || "Cancel"}
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleting}
+                  className="px-4 py-2 rounded bg-red-600 text-white"
+                >
+                  {deleting
+                    ? t("common.deleting") || "Deleting..."
+                    : t("common.delete") || "Delete"}
+                </button>
               </div>
             </div>
           </div>
@@ -531,19 +637,42 @@ export default function PartnerDashboardPage({ params }) {
         {editItem && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-md shadow-lg max-w-lg w-full p-6">
-              <h3 className="text-lg font-semibold">{t('Partner.editProperty') || 'Edit Property'}</h3>
+              <h3 className="text-lg font-semibold">
+                {t("Partner.editProperty") || "Edit Property"}
+              </h3>
               <div className="mt-3 grid grid-cols-1 gap-3">
                 <div>
-                  <label className="block text-sm text-gray-700">{t('common.Title') || 'Title'}</label>
-                  <input name="title" value={editForm.title} onChange={handleEditChange} className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2" />
+                  <label className="block text-sm text-gray-700">
+                    {t("common.Title") || "Title"}
+                  </label>
+                  <input
+                    name="title"
+                    value={editForm.title}
+                    onChange={handleEditChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-700">{t('Partner.Price') || 'Price'}</label>
-                  <input name="price" value={editForm.price} onChange={handleEditChange} className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2" />
+                  <label className="block text-sm text-gray-700">
+                    {t("Partner.Price") || "Price"}
+                  </label>
+                  <input
+                    name="price"
+                    value={editForm.price}
+                    onChange={handleEditChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-700">{t('Partner.Status') || 'Status'}</label>
-                  <select name="status" value={editForm.status} onChange={handleEditChange} className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2">
+                  <label className="block text-sm text-gray-700">
+                    {t("Partner.Status") || "Status"}
+                  </label>
+                  <select
+                    name="status"
+                    value={editForm.status}
+                    onChange={handleEditChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2"
+                  >
                     <option value="available">Available</option>
                     <option value="pending">Pending</option>
                     <option value="inactive">Inactive</option>
@@ -551,8 +680,22 @@ export default function PartnerDashboardPage({ params }) {
                 </div>
               </div>
               <div className="mt-4 flex justify-end gap-3">
-                <button onClick={() => setEditItem(null)} disabled={editing} className="px-4 py-2 rounded border bg-white">{t('common.cancel') || 'Cancel'}</button>
-                <button onClick={submitEdit} disabled={editing} className="px-4 py-2 rounded bg-[#E6B325] text-white">{editing ? (t('common.saving') || 'Saving...') : (t('common.save') || 'Save')}</button>
+                <button
+                  onClick={() => setEditItem(null)}
+                  disabled={editing}
+                  className="px-4 py-2 rounded border bg-white"
+                >
+                  {t("common.cancel") || "Cancel"}
+                </button>
+                <button
+                  onClick={submitEdit}
+                  disabled={editing}
+                  className="px-4 py-2 rounded bg-[#E6B325] text-white"
+                >
+                  {editing
+                    ? t("common.saving") || "Saving..."
+                    : t("common.save") || "Save"}
+                </button>
               </div>
             </div>
           </div>
@@ -564,36 +707,78 @@ export default function PartnerDashboardPage({ params }) {
           title={selectedProperty?.title}
           maxWidth="max-w-3xl"
           showCloseButton={false}
-          footer={selectedProperty && (
-            <div className="flex items-center justify-end gap-3">
-              <button onClick={closeModal} className="rounded-md border border-gray-200 px-4 py-2 text-sm bg-white">{t('common.close') || 'Close'}</button>
-            </div>
-          )}
+          footer={
+            selectedProperty && (
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  onClick={closeModal}
+                  className="rounded-md border border-gray-200 px-4 py-2 text-sm bg-white"
+                >
+                  {t("common.close") || "Close"}
+                </button>
+              </div>
+            )
+          }
         >
           {selectedProperty && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                {selectedProperty.images && selectedProperty.images.length > 0 ? (
+                {selectedProperty.images &&
+                selectedProperty.images.length > 0 ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={selectedProperty.images[0]} alt={selectedProperty.title} className="w-full h-56 md:h-64 object-cover rounded" />
+                  <img
+                    src={selectedProperty.images[0]}
+                    alt={selectedProperty.title}
+                    className="w-full h-56 md:h-64 object-cover rounded"
+                  />
                 ) : (
-                  <div className="w-full h-56 md:h-64 bg-gray-100 rounded flex items-center justify-center text-gray-400">{t('Partner.noImage') || 'No image'}</div>
+                  <div className="w-full h-56 md:h-64 bg-gray-100 rounded flex items-center justify-center text-gray-400">
+                    {t("Partner.noImage") || "No image"}
+                  </div>
                 )}
               </div>
               <div className="text-sm text-gray-700">
-                <p className="text-gray-800 mb-3">{selectedProperty.description}</p>
+                <p className="text-gray-800 mb-3">
+                  {selectedProperty.description}
+                </p>
                 <div className="space-y-2">
-                  <div><strong>{t('Partner.Address') || 'Address'}:</strong> {(selectedProperty.address || '') + (selectedProperty.state ? ", " + selectedProperty.state  : "" || '') + (selectedProperty.city ? ', ' + selectedProperty.city : '') + (selectedProperty.country ? ', ' + selectedProperty.country : '')}</div>
-                  <div><strong>{t('Partner.Price') || 'Price'}:</strong> {selectedProperty.price}</div>
-                  <div className="flex gap-4">
-                    <div><strong>{t('Partner.Bedrooms') || 'Bedrooms'}:</strong> {selectedProperty.bedrooms ?? '-'}</div>
-                    <div><strong>{t('Partner.Bathrooms') || 'Bathrooms'}:</strong> {selectedProperty.bathrooms ?? '-'}</div>
-                    <div><strong>{t('Partner.Sqft') || 'Sqft'}:</strong> {selectedProperty.sqft ?? '-'}</div>
+                  <div>
+                    <strong>{t("Partner.Address") || "Address"}:</strong>{" "}
+                    {(selectedProperty.address || "") +
+                      (selectedProperty.state
+                        ? ", " + selectedProperty.state
+                        : "" || "") +
+                      (selectedProperty.city
+                        ? ", " + selectedProperty.city
+                        : "") +
+                      (selectedProperty.country
+                        ? ", " + selectedProperty.country
+                        : "")}
                   </div>
                   <div>
-                    <strong>{t('Partner.Amenities') || 'Amenities'}:</strong>
+                    <strong>{t("Partner.Price") || "Price"}:</strong>{" "}
+                    {selectedProperty.price}
+                  </div>
+                  <div className="flex gap-4">
+                    <div>
+                      <strong>{t("Partner.Bedrooms") || "Bedrooms"}:</strong>{" "}
+                      {selectedProperty.bedrooms ?? "-"}
+                    </div>
+                    <div>
+                      <strong>{t("Partner.Bathrooms") || "Bathrooms"}:</strong>{" "}
+                      {selectedProperty.bathrooms ?? "-"}
+                    </div>
+                    <div>
+                      <strong>{t("Partner.Sqft") || "Sqft"}:</strong>{" "}
+                      {selectedProperty.sqft ?? "-"}
+                    </div>
+                  </div>
+                  <div>
+                    <strong>{t("Partner.Amenities") || "Amenities"}:</strong>
                     <ul className="list-disc ml-5 mt-1 text-sm">
-                      {(selectedProperty.amenities || []).map((a, i) => <li key={i}>{a}</li>)}
+                      {(selectedProperty.amenities || []).map((a, i) => (
+                        <li key={i}>{a}</li>
+                      ))}
                     </ul>
                   </div>
                 </div>

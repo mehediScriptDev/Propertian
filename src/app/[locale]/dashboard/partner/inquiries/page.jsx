@@ -133,7 +133,7 @@ export default function VerifiedPropertiesPage() {
         inquiries: [],
       },
     ],
-    []
+    [],
   );
 
   const filtered = useMemo(() => {
@@ -170,7 +170,7 @@ export default function VerifiedPropertiesPage() {
     setIsOpen(true); // open chat on small/medium devices
     setTimeout(
       () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
-      50
+      50,
     );
   };
 
@@ -187,14 +187,16 @@ export default function VerifiedPropertiesPage() {
     setReplyText("");
     setTimeout(
       () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
-      100
+      100,
     );
   };
 
   return (
     <div className="flex gap-4 h-[calc(100vh-8rem)] relative">
       {/* Left: Inquiry Threads Card */}
-      <div className={`${isOpen ? 'hidden' : 'block'} lg:block w-96 rounded-lg overflow-y-scroll bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+      <div
+        className={`${isOpen ? "hidden" : "block"} lg:block w-96 rounded-lg overflow-y-scroll bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}
+      >
         <div className="px-4 py-4 border-b border-gray-200">
           <h3 className="text-sm font-semibold text-gray-900">
             Inquiry Threads
@@ -240,7 +242,9 @@ export default function VerifiedPropertiesPage() {
       </div>
 
       {/* Right: Chat/Detail Card */}
-      <div className={`${isOpen ? 'block' : 'hidden'}  flex-1 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+      <div
+        className={`${isOpen ? "block" : "hidden"}  flex-1 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}
+      >
         {!selected ? (
           <div className="h-full flex items-center justify-center text-gray-400">
             Select a thread to view inquiries
@@ -273,7 +277,10 @@ export default function VerifiedPropertiesPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => { setSelected(null); setIsOpen(false); }} // close chat and show threads on small/medium
+                        onClick={() => {
+                          setSelected(null);
+                          setIsOpen(false);
+                        }} // close chat and show threads on small/medium
                         className="rounded-full sm:p-2 p-1 bg-gray-100 text-[#e6b325] focus:outline-none focus:ring-2 focus:ring-red-200"
                         aria-label="Close chat"
                       >
@@ -286,7 +293,9 @@ export default function VerifiedPropertiesPage() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-6 pb-24"> {/* reserve space for sticky input */}
+            <div className="flex-1 overflow-y-auto p-6 pb-24">
+              {" "}
+              {/* reserve space for sticky input */}
               <div className="w-full">
                 {/* User Inquiries Section */}
                 <div className="mb-8">

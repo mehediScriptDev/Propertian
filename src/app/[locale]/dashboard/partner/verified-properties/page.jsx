@@ -2,13 +2,7 @@
 
 import { useState, useMemo, useCallback, Suspense } from "react";
 import dynamic from "next/dynamic";
-import {
-  Building2,
-  Search,
-  Filter,
-  Plus,
-  Download,
-} from "lucide-react";
+import { Building2, Search, Filter, Plus, Download } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 import Link from "next/link";
@@ -21,7 +15,7 @@ const StatsCard = dynamic(
       <div className="h-32 rounded-xl bg-gray-200 animate-pulse" />
     ),
     ssr: false, // Don't render on server for faster initial load
-  }
+  },
 );
 
 const Pagination = dynamic(() => import("@/components/dashboard/Pagination"), {
@@ -31,15 +25,15 @@ const Pagination = dynamic(() => import("@/components/dashboard/Pagination"), {
 // Lazy load status badge icons
 const CheckCircle = dynamic(
   () => import("lucide-react").then((mod) => ({ default: mod.CheckCircle })),
-  { ssr: false }
+  { ssr: false },
 );
 const Clock = dynamic(
   () => import("lucide-react").then((mod) => ({ default: mod.Clock })),
-  { ssr: false }
+  { ssr: false },
 );
 const XCircle = dynamic(
   () => import("lucide-react").then((mod) => ({ default: mod.XCircle })),
-  { ssr: false }
+  { ssr: false },
 );
 
 /**
@@ -166,7 +160,7 @@ export default function DeveloperPortalPage() {
         lastUpdated: "2024-11-08",
       },
     ],
-    []
+    [],
   );
 
   // Static stats data - moved outside component for better performance
@@ -272,7 +266,7 @@ export default function DeveloperPortalPage() {
             </p>
           </div>
           <Link
-          href={'./'}
+            href={"./"}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#E6B325] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:text-gray-100 focus:outline-none"
             aria-label="Add new project"
           >
@@ -310,7 +304,9 @@ export default function DeveloperPortalPage() {
       <div className="rounded-lg bg-white/50 shadow-sm border border-gray-200">
         <div className="border-b border-gray-200 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">My Properties</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              My Properties
+            </h2>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               {/* Search */}
               <div className="relative flex-1 sm:w-64">
@@ -343,12 +339,8 @@ export default function DeveloperPortalPage() {
                   <option value="all">All</option>
                   <option value="all">Verified</option>
                   <option value="active">Unverified</option>
-                  <option value="pending">
-                    Pending
-                  </option>
-                  <option value="completed">
-                    Rejected
-                  </option>
+                  <option value="pending">Pending</option>
+                  <option value="completed">Rejected</option>
                 </select>
               </div>
             </div>
@@ -369,8 +361,7 @@ export default function DeveloperPortalPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   {t("Developer_Portal.Status")}
                 </th>
-                
-                
+
                 <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                   {t("Developer_Portal.Actions")}
                 </th>
@@ -391,8 +382,7 @@ export default function DeveloperPortalPage() {
                   <td className="px-6 py-4">
                     {getStatusBadge(project.status)}
                   </td>
-                 
-                 
+
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end">
                       <button
@@ -474,12 +464,12 @@ export default function DeveloperPortalPage() {
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
             translations={{
-              showing: ("Showing"),
-              to: (t("common.to")),
-              of: (t("common.of")),
-              results: (t("common.results")),
-              previous: (t("common.previous")),
-              next: (t("common.next")),
+              showing: "Showing",
+              to: t("common.to"),
+              of: t("common.of"),
+              results: t("common.results"),
+              previous: t("common.previous"),
+              next: t("common.next"),
             }}
           />
         )}
