@@ -20,6 +20,61 @@ export const get = async (url, config = {}) => {
   }
 };
 
+// Simple in-memory GET cache with optional persistence
+const _getCache = new Map();
+
+/**
+ * GET with cache
+ * @param {string} url
+ * @param {object} options - axios config + { ttl } in ms and { persist }
+ */
+export const getCached = async (url, options = {}) => {
+  const { ttl = 0, persist = false, ...config } = options || {};
+  const key = url + '::' + JSON.stringify(config.params || {});
+
+  if (ttl > 0) {
+    // try in-memory cache
+    const entry = _getCache.get(key);
+    if (entry && entry.expiry > Date.now()) {
+      return entry.data;
+    }
+
+    // try sessionStorage if requested
+    if (persist && typeof window !== 'undefined') {
+      try {
+        const raw = sessionStorage.getItem(key);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.expiry && parsed.expiry > Date.now()) {
+            _getCache.set(key, { data: parsed.data, expiry: parsed.expiry });
+            return parsed.data;
+          }
+        }
+      } catch (e) {
+        // ignore storage errors
+      }
+    }
+  }
+
+  // fallback to network
+  const response = await axiosInstance.get(url, config);
+  const data = response.data;
+
+  if (ttl > 0) {
+    const expiry = Date.now() + ttl;
+    _getCache.set(key, { data, expiry });
+    if (persist && typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem(key, JSON.stringify({ data, expiry }));
+      } catch (e) {
+        // ignore storage errors
+      }
+    }
+  }
+
+  return data;
+};
+
 /**
  * POST Request
  * @param {string} url - API endpoint
@@ -92,20 +147,14 @@ export const del = async (url, config = {}) => {
  */
 export const uploadFile = async (url, formData, onUploadProgress = null) => {
   try {
-    // Don't set Content-Type manually - let axios/browser set it with proper boundary
     const config = {};
 
     if (onUploadProgress) {
       config.onUploadProgress = onUploadProgress;
     }
 
-    // Ensure multipart/form-data is used for this request so FormData (files) are encoded correctly.
-    // We set the header here to avoid the global default application/json header interfering.
-    config.headers = {
-      ...(config.headers || {}),
-      "Content-Type": "multipart/form-data",
-    };
 
+    
     console.log("Uploading to:", url);
     const response = await axiosInstance.post(url, formData, config);
     console.log("Upload response:", response.data);
@@ -160,6 +209,7 @@ export const apiCall = async (options) => {
 // Export default object with all methods
 const api = {
   get,
+  getCached,
   post,
   put,
   patch,

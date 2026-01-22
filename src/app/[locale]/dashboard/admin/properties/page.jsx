@@ -15,7 +15,7 @@ export default function PropertiesManagementPage({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
 
-  // Helper to build correct image URL. If the API returns a full URL, use it as-is.
+  // --- Helper: Resolve Image URL ---
   const resolveImageUrl = (imgPath) => {
     if (!imgPath) return "/placeholder-property.jpg";
     if (/^https?:\/\//i.test(imgPath) || imgPath.startsWith("//"))
@@ -28,15 +28,17 @@ export default function PropertiesManagementPage({ params }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Constants
-  const ITEMS_PER_PAGE = 5;
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
 
   // Fetch properties from API
   useEffect(() => {
@@ -83,10 +85,14 @@ export default function PropertiesManagementPage({ params }) {
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchProperties();
-  }, []);
+    } catch (err) {
+      console.error('Error fetching properties:', err);
+      setError('Failed to load properties. Please try again later.');
+      setProperties([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, itemsPerPage, searchTerm, statusFilter]);
 
   // Memoized translations
   const propertiesTranslations = useMemo(
@@ -190,16 +196,21 @@ export default function PropertiesManagementPage({ params }) {
   // Handlers
   const handleSearchChange = useCallback((value) => {
     setSearchTerm(value);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1);
   }, []);
 
   const handleStatusChange = useCallback((value) => {
     setStatusFilter(value);
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1);
   }, []);
 
   const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
+  }, []);
+  
+  const handleItemsPerPageChange = useCallback((newLimit) => {
+    setItemsPerPage(newLimit);
+    setCurrentPage(1);
   }, []);
 
   const handleView = useCallback((property) => {
@@ -321,7 +332,7 @@ export default function PropertiesManagementPage({ params }) {
       {/* Properties Table with Pagination */}
       <div className="rounded-lg bg-white shadow-sm overflow-hidden">
         <PropertiesListTable
-          properties={paginatedProperties}
+          properties={properties}
           translations={propertiesTranslations}
           onView={handleView}
           onEdit={handleEdit}
@@ -349,6 +360,20 @@ export default function PropertiesManagementPage({ params }) {
           onPageChange={handlePageChange}
           translations={paginationTranslations}
         />
+        
+        {(totalItems > 0 || loading) && (
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+                itemsPerPageOptions={[5, 10, 20, 50]}
+                showItemsPerPage={true}
+                translations={paginationTranslations}
+            />
+        )}
       </div>
     </div>
   );

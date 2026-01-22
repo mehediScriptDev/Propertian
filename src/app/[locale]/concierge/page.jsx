@@ -618,6 +618,7 @@ export default function ConciergePage() {
                     required
                   >
                     <option value='relocation'>Relocation</option>
+                    <option value='airportPickup'>Airport pickup</option>
                     <option value='schoolSearch'>School Search</option>
                     <option value='neighborhoodSearch'>Neighborhood Search</option>
                     <option value='corporateRelocation'>Corporate Relocation</option>

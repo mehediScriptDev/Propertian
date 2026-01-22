@@ -63,6 +63,7 @@ export default function SearchBar({ locale = 'en', onSearch }) {
                 </option>
                 <option value='buy'>{t('searchBar.buy')}</option>
                 <option value='rent'>{t('searchBar.rent', 'Rent')}</option>
+                <option value='development'>Development</option>
               </select>
               <div className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2'>
                 <svg className='h-4 w-4 transform transition-transform duration-200 group-focus-within:rotate-180' fill='currentColor' viewBox='0 0 20 20'>

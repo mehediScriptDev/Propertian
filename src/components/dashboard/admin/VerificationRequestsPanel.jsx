@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect, useState } from 'react';
 import { CheckCircle, Clock, XCircle, Eye, Trash2 } from 'lucide-react';
 import Pagination from '@/components/dashboard/Pagination';
 
@@ -30,6 +31,29 @@ const getStatusBadge = (status) => {
   );
 };
 
+function Avatar({ partner, size = 40 }) {
+  const [errored, setErrored] = useState(false);
+  const name = partner?.partnerName || partner?.fullName || partner?.name || '';
+  const imageUrl = partner?.partnerImage || partner?.avatar || partner?.image || partner?.profileImage || partner?.picture || partner?.photo || partner?.documentPreview || '';
+  const initials = name ? name.split(' ').map(s => s[0]).slice(0, 2).join('').toUpperCase() : '—';
+  const sizeClass = size === 40 ? 'h-10 w-10' : 'h-8 w-8';
+
+  return (
+    <div className={`relative flex-shrink-0 ${sizeClass} rounded-full bg-gray-100 overflow-hidden flex items-center justify-center text-sm font-medium text-gray-600`}>
+      {imageUrl && !errored ? (
+        <img
+          src={imageUrl}
+          alt={name || 'avatar'}
+          className="object-cover h-full w-full"
+          onError={() => setErrored(true)}
+        />
+      ) : (
+        <span>{initials}</span>
+      )}
+    </div>
+  );
+}
+
 export default function VerificationRequestsPanel({
   partners,
   loading,
@@ -45,6 +69,9 @@ export default function VerificationRequestsPanel({
   itemsPerPage,
   onPageChange,
 }) {
+  useEffect(() => {
+    console.log('VerificationRequestsPanel partners:', partners);
+  }, [partners]);
   return (
     <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
       {/* <div className="px-4 py-3 border-b bg-gray-50 text-sm font-medium text-charcoal">Verification Requests</div> */}
@@ -79,7 +106,10 @@ export default function VerificationRequestsPanel({
                   <div className='text-sm font-medium text-gray-900'>{p.propertyTitle || p.title || '—'}</div>
                 </td>
                 <td className='px-6 py-4'>
-                  <div className='text-sm text-gray-700'>{p.partnerName || p.fullName || '—'}</div>
+                  <div className='flex items-center gap-3'>
+                    <Avatar partner={p} />
+                    <div className='text-sm text-gray-700'>{p.partnerName || p.fullName || '—'}</div>
+                  </div>
                 </td>
                 <td className='px-6 py-4'>
                   <div className='text-sm text-gray-700'>{formatDate(p.submittedAt || p.createdAt)}</div>
@@ -122,12 +152,15 @@ export default function VerificationRequestsPanel({
         {partners.map((p) => (
           <div key={p.id || p._id} className='p-4 hover:bg-gray-50 transition-colors'>
             <div className='flex items-start justify-between mb-3'>
-              <div>
-                <h3 className='font-medium text-gray-900'>{p.propertyTitle || p.title || '—'}</h3>
-                <div className='text-sm text-gray-700'>{p.partnerName || p.fullName || '—'}</div>
+                <div className='flex items-center gap-3'>
+                  <Avatar partner={p} />
+                  <div>
+                    <h3 className='font-medium text-gray-900'>{p.propertyTitle || p.title || '—'}</h3>
+                    <div className='text-sm text-gray-700'>{p.partnerName || p.fullName || '—'}</div>
+                  </div>
+                </div>
+                <div className='text-sm text-gray-500'>{formatDate(p.submittedAt || p.createdAt)}</div>
               </div>
-              <div className='text-sm text-gray-500'>{formatDate(p.submittedAt || p.createdAt)}</div>
-            </div>
 
             <div className='space-y-3 mb-3'>
               <div>
