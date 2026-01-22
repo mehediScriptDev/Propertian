@@ -100,58 +100,69 @@ export default function VerificationRequestsPanel({
             </tr>
           </thead>
           <tbody className='divide-y divide-gray-200 bg-white'>
-            {partners.map((p) => (
-              <tr key={p.id || p._id} className='hover:bg-gray-50 transition-colors'>
-                <td className='px-6 py-4'>
-                  <div className='text-sm font-medium text-gray-900'>{p.propertyTitle || p.title || '—'}</div>
-                </td>
-                <td className='px-6 py-4'>
-                  <div className='flex items-center gap-3'>
-                    <Avatar partner={p} />
-                    <div className='text-sm text-gray-700'>{p.partnerName || p.fullName || '—'}</div>
-                  </div>
-                </td>
-                <td className='px-6 py-4'>
-                  <div className='text-sm text-gray-700'>{formatDate(p.submittedAt || p.createdAt)}</div>
-                </td>
-                <td className='px-6 py-4'>
-                  <button
-                    onClick={() => (typeof onViewDocument === 'function' ? onViewDocument(p) : window.open(p.documentUrl || '#', '_blank'))}
-                    className='text-sm text-primary underline'
-                  >
-                    View Document
-                  </button>
-                </td>
-                <td className='px-6 py-4'>
-                  {getStatusBadge(p.status)}
-                </td>
-                <td className='pl-2 py-4'>
-                  <select
-                    value={p.status || 'PENDING'}
-                    onChange={(e) => onStatusChange && onStatusChange(p.id || p._id, e.target.value)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium border cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20
-                      ${p.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
-                      ${p.status === 'UNDER_REVIEW' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                      ${p.status === 'APPROVED' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                      ${p.status === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200' : ''}`}
-                  >
-                    <option value="PENDING">Pending</option>
-                    <option value="UNDER_REVIEW">Under Review</option>
-                    <option value="APPROVED">Approved</option>
-                    <option value="REJECTED">Rejected</option>
-                  </select>
+            {partners.length === 0 ? (
+              <tr>
+                <td colSpan={6} className='px-6 py-8 text-center text-sm text-gray-500'>
+                  No verification requests found.
                 </td>
               </tr>
-            ))}
+            ) : (
+              partners.map((p, idx) => (
+                <tr key={p.id || p._id || p.partnerId || p.documentId || idx} className='hover:bg-gray-50 transition-colors'>
+                  <td className='px-6 py-4'>
+                    <div className='text-sm font-medium text-gray-900'>{p.propertyTitle || p.title || '—'}</div>
+                  </td>
+                  <td className='px-6 py-4'>
+                    <div className='flex items-center gap-3'>
+                      <Avatar partner={p} />
+                      <div className='text-sm text-gray-700'>{p.partnerName || p.fullName || '—'}</div>
+                    </div>
+                  </td>
+                  <td className='px-6 py-4'>
+                    <div className='text-sm text-gray-700'>{formatDate(p.submittedAt || p.createdAt)}</div>
+                  </td>
+                  <td className='px-6 py-4'>
+                    <button
+                      onClick={() => (typeof onViewDocument === 'function' ? onViewDocument(p) : window.open(p.documentUrl || '#', '_blank'))}
+                      className='text-sm text-primary underline'
+                    >
+                      View Document
+                    </button>
+                  </td>
+                  <td className='px-6 py-4'>
+                    {getStatusBadge(p.status)}
+                  </td>
+                  <td className='pl-2 py-4'>
+                    <select
+                      value={p.status || 'PENDING'}
+                      onChange={(e) => onStatusChange && onStatusChange(p.id || p._id, e.target.value)}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium border cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20
+                        ${p.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
+                        ${p.status === 'UNDER_REVIEW' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
+                        ${p.status === 'APPROVED' ? 'bg-green-50 text-green-700 border-green-200' : ''}
+                        ${p.status === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200' : ''}`}
+                    >
+                      <option value="PENDING">Pending</option>
+                      <option value="UNDER_REVIEW">Under Review</option>
+                      <option value="APPROVED">Approved</option>
+                      <option value="REJECTED">Rejected</option>
+                    </select>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Mobile Cards */}
       <div className='lg:hidden divide-y divide-gray-200'>
-        {partners.map((p) => (
-          <div key={p.id || p._id} className='p-4 hover:bg-gray-50 transition-colors'>
-            <div className='flex items-start justify-between mb-3'>
+        {partners.length === 0 ? (
+          <div className='p-4 text-center text-sm text-gray-500'>No verification requests found.</div>
+        ) : (
+          partners.map((p, idx) => (
+            <div key={p.id || p._id || p.partnerId || p.documentId || idx} className='p-4 hover:bg-gray-50 transition-colors'>
+              <div className='flex items-start justify-between mb-3'>
                 <div className='flex items-center gap-3'>
                   <Avatar partner={p} />
                   <div>
@@ -162,47 +173,59 @@ export default function VerificationRequestsPanel({
                 <div className='text-sm text-gray-500'>{formatDate(p.submittedAt || p.createdAt)}</div>
               </div>
 
-            <div className='space-y-3 mb-3'>
-              <div>
-                <button
-                  onClick={() => (typeof onViewDocument === 'function' ? onViewDocument(p) : window.open(p.documentUrl || '#', '_blank'))}
-                  className='text-sm text-primary underline'
-                >
-                  View Document
-                </button>
-              </div>
-              <div className='flex items-center justify-between'>
-                <div>{getStatusBadge(p.status)}</div>
+              <div className='space-y-3 mb-3'>
                 <div>
-                  <select
-                    value={p.status || 'PENDING'}
-                    onChange={(e) => onStatusChange && onStatusChange(p.id || p._id, e.target.value)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium border cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20
-                      ${p.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
-                      ${p.status === 'UNDER_REVIEW' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                      ${p.status === 'APPROVED' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                      ${p.status === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200' : ''}`}
+                  <button
+                    onClick={() => (typeof onViewDocument === 'function' ? onViewDocument(p) : window.open(p.documentUrl || '#', '_blank'))}
+                    className='text-sm text-primary underline'
                   >
-                    <option value="PENDING">Pending</option>
-                    <option value="UNDER_REVIEW">Under Review</option>
-                    <option value="APPROVED">Approved</option>
-                    <option value="REJECTED">Rejected</option>
-                  </select>
+                    View Document
+                  </button>
+                </div>
+                <div className='flex items-center justify-between'>
+                  <div>{getStatusBadge(p.status)}</div>
+                  <div>
+                    <select
+                      value={p.status || 'PENDING'}
+                      onChange={(e) => onStatusChange && onStatusChange(p.id || p._id, e.target.value)}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium border cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20
+                        ${p.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
+                        ${p.status === 'UNDER_REVIEW' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
+                        ${p.status === 'APPROVED' ? 'bg-green-50 text-green-700 border-green-200' : ''}
+                        ${p.status === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200' : ''}`}
+                    >
+                      <option value="PENDING">Pending</option>
+                      <option value="UNDER_REVIEW">Under Review</option>
+                      <option value="APPROVED">Approved</option>
+                      <option value="REJECTED">Rejected</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalItems={totalItems}
-        itemsPerPage={itemsPerPage}
-        onPageChange={onPageChange}
-        translations={paginationTranslations}
-      />
+      {/* Safe pagination values to avoid NaN when totalItems is undefined */}
+      {
+        (() => {
+          const safeTotalItems = Number(totalItems) || partners.length || 0;
+          const safeItemsPerPage = Number(itemsPerPage) || 10;
+          const safeTotalPages = Math.max(1, Number(totalPages) || Math.ceil(safeTotalItems / safeItemsPerPage) || 1);
+
+          return (
+            <Pagination
+              currentPage={Math.max(1, Number(currentPage) || 1)}
+              totalPages={safeTotalPages}
+              totalItems={safeTotalItems}
+              itemsPerPage={safeItemsPerPage}
+              onPageChange={onPageChange}
+              translations={paginationTranslations}
+            />
+          );
+        })()
+      }
     </div>
   );
 }

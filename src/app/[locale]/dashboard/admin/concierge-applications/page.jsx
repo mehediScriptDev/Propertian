@@ -11,7 +11,7 @@ import ApproveApplicationModal from '@/components/dashboard/admin/ApproveApplica
 import RejectApplicationModal from '@/components/dashboard/admin/RejectApplicationModal';
 import { getApplications, updateApplicationStatus } from '@/services/conciergeAPI';
 
-// Note: removed mock data - data will be fetched from API
+
 
 export default function ConciergeApplicationsPage({ params }) {
   const { locale } = use(params);

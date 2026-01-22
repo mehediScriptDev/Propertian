@@ -39,7 +39,7 @@ export default function ClientInquiriesPage() {
           const img =
             i?.properties?.images && i.properties.images.length
               ? i.properties.images[0]
-              : "/buy-rent/hero.jpg";
+              : "";
 
           return {
             id: i.id || i._id,

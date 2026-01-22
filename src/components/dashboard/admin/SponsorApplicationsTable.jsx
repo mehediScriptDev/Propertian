@@ -14,7 +14,7 @@ import {
 /**
  * SponsorApplicationsTable - Table component for displaying sponsor applications
  */
-const SponsorApplicationsTable = memo(({ applications, translations, onView, onApprove, onReject, loading = false }) => {
+const SponsorApplicationsTable = memo(({ applications, translations, onView, onApprove, onApproveImmediate, onReject, loading = false }) => {
   // Show loading state
   if (loading) {
     return (
@@ -196,7 +196,7 @@ const SponsorApplicationsTable = memo(({ applications, translations, onView, onA
                       {/* Approve - only show for pending applications */}
                       {normalizedStatus === 'pending' && (
                         <button
-                          onClick={() => onApprove(application)}
+                          onClick={() => (onApproveImmediate ? onApproveImmediate(application) : onApprove(application))}
                           className='p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors'
                           title='Approve'
                         >
@@ -274,7 +274,7 @@ const SponsorApplicationsTable = memo(({ applications, translations, onView, onA
                 {normalizedStatus === 'pending' && (
                   <>
                     <button
-                      onClick={() => onApprove(application)}
+                      onClick={() => (onApproveImmediate ? onApproveImmediate(application) : onApprove(application))}
                       className='px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-lg transition-colors'
                       title='Approve'
                     >
