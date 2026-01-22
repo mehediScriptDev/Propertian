@@ -48,7 +48,7 @@ export default function BlogPage() {
               return (b.createdAt || "");
             }
           })(),
-          image: b.featuredImage ? (b.featuredImage.startsWith("http") ? b.featuredImage : `${(process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")}${b.featuredImage}`) : "/home/placeholder-hero.jpg",
+          image: b.featuredImage ? (b.featuredImage.startsWith("http") ? b.featuredImage : `${(process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")}${b.featuredImage}`) : "",
           snippet: b.excerpt || b.snippet || "",
           alt: b.title,
         }));
