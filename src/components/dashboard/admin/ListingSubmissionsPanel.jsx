@@ -342,7 +342,7 @@ export default function ListingSubmissionsPage() {
         <div className="fixed inset-0 z-40 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50" onClick={closeRejectModal} />
           <div className="relative z-50 w-full max-w-lg mx-4 bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="px-6 py-4 border-b">
+            <div className="px-6 py-4 border-b border-gray-300">
               <h3 className="text-lg font-semibold">Reject Reason</h3>
             </div>
             <div className="p-6">
@@ -351,11 +351,11 @@ export default function ListingSubmissionsPage() {
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
                 rows={5}
-                className="mt-2 w-full border rounded-md p-2 text-sm"
+                className="mt-2 w-full border border-gray-300 rounded-md p-2 text-sm"
                 placeholder="Provide a reason for rejecting this property"
               />
             </div>
-            <div className="px-6 py-4 border-t flex justify-end gap-3">
+            <div className="px-6 py-4 border-t border-gray-300 flex justify-end gap-3">
               <button
                 onClick={closeRejectModal}
                 className="px-4 py-2 rounded-md bg-gray-100 text-sm"

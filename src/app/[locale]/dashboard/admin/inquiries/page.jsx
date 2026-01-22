@@ -1,6 +1,3 @@
-
-
-
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
@@ -41,7 +38,7 @@ export default function AdminInquiriesPage() {
         const threads = items.map((i) => {
           const img = i?.properties?.images && i.properties.images.length
             ? i.properties.images[0]
-            : '/buy-rent/hero.jpg';
+            : '';
 
           const partnerObj = i?.users || i?.owner || null;
           const partnerName = partnerObj
@@ -92,10 +89,10 @@ export default function AdminInquiriesPage() {
     try {
       // API Call based on Image 2: GET /inquiries/:id
       const res = await api.get(`/inquiries/${thread.id}`);
-      
+
       // Accessing conversation from the response structure shown in Image 2
       const conversationData = res?.data?.conversation || res?.conversation || [];
-      
+
       const mappedMessages = conversationData.map((m) => {
         // Determine role based on 'senderRole' or 'isAdmin' flag
         let from = 'user';
@@ -106,19 +103,19 @@ export default function AdminInquiriesPage() {
         }
 
         return {
-            id: m.id || Date.now() + Math.random(),
-            from: from,
-            senderName: m.senderName || (from === 'admin' ? 'Admin' : m.senderRole),
-            text: m.message || '',
-            timestamp: new Date(m.createdAt).toLocaleString(),
-            senderRole: m.senderRole
+          id: m.id || Date.now() + Math.random(),
+          from: from,
+          senderName: m.senderName || (from === 'admin' ? 'Admin' : m.senderRole),
+          text: m.message || '',
+          timestamp: new Date(m.createdAt).toLocaleString(),
+          senderRole: m.senderRole
         };
       });
 
       // Update the selected thread with full conversation
       setSelected(prev => ({
-          ...prev,
-          inquiries: mappedMessages
+        ...prev,
+        inquiries: mappedMessages
       }));
 
     } catch (err) {
@@ -134,9 +131,9 @@ export default function AdminInquiriesPage() {
   // Select Thread Handler
   const selectThread = (thread) => {
     // Set basic info immediately
-    setSelected({ ...thread, inquiries: [] }); 
+    setSelected({ ...thread, inquiries: [] });
     setIsOpen(true);
-    
+
     // Fetch full conversation details
     fetchThreadDetails(thread);
   };
@@ -151,41 +148,41 @@ export default function AdminInquiriesPage() {
   // Send Admin Reply (Image 3 Logic)
   const sendAdminReply = async () => {
     if (!selected || !replyText.trim()) return;
-    
+
     setIsSending(true);
     try {
-        // API Call based on Image 3: POST /inquiries/:id/replies
-        const payload = { message: replyText };
-        const res = await api.post(`/inquiries/${selected.id}/replies`, payload);
+      // API Call based on Image 3: POST /inquiries/:id/replies
+      const payload = { message: replyText };
+      const res = await api.post(`/inquiries/${selected.id}/replies`, payload);
 
-        if (res?.data?.success || res?.success) {
-            const replyData = res.data?.data?.reply || res.data?.reply;
-            
-            // Create new message object from response
-            const newMsg = {
-                id: replyData?.id || Date.now(),
-                from: 'admin',
-                senderName: replyData?.senderName || 'Admin',
-                text: replyData?.message || replyText,
-                timestamp: new Date(replyData?.createdAt || Date.now()).toLocaleString(),
-            };
+      if (res?.data?.success || res?.success) {
+        const replyData = res.data?.data?.reply || res.data?.reply;
 
-            // Update UI
-            setSelected(prev => ({
-                ...prev,
-                inquiries: [...prev.inquiries, newMsg]
-            }));
-            
-            setReplyText('');
-            showToast({ type: 'success', message: 'Reply sent successfully' });
-            
-            setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-        }
+        // Create new message object from response
+        const newMsg = {
+          id: replyData?.id || Date.now(),
+          from: 'admin',
+          senderName: replyData?.senderName || 'Admin',
+          text: replyData?.message || replyText,
+          timestamp: new Date(replyData?.createdAt || Date.now()).toLocaleString(),
+        };
+
+        // Update UI
+        setSelected(prev => ({
+          ...prev,
+          inquiries: [...prev.inquiries, newMsg]
+        }));
+
+        setReplyText('');
+        showToast({ type: 'success', message: 'Reply sent successfully' });
+
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      }
     } catch (err) {
-        console.error("Failed to send reply", err);
-        showToast({ type: 'error', message: 'Failed to send message.' });
+      console.error("Failed to send reply", err);
+      showToast({ type: 'error', message: 'Failed to send message.' });
     } finally {
-        setIsSending(false);
+      setIsSending(false);
     }
   };
 
@@ -320,9 +317,9 @@ export default function AdminInquiriesPage() {
 
           <div className="flex-1 overflow-y-auto">
             {loading ? (
-                  <div className="flex justify-center items-center h-40">
-                      <Loader2 className="w-6 h-6 animate-spin text-gray-400"/>
-                  </div>
+              <div className="flex justify-center items-center h-40">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              </div>
             ) : filtered.map((thread) => (
               <button
                 key={thread.id}
@@ -379,12 +376,16 @@ export default function AdminInquiriesPage() {
                   <div className="px-6 py-4 bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
                     <div className="flex items-start gap-4">
                       <div className="relative sm:w-20 sm:h-20 w-14 h-14 rounded-md overflow-hidden bg-gray-200 shrink-0">
-                        <Image
-                          src={selected.image}
-                          alt={selected.propertyName}
-                          fill
-                          className="object-cover"
-                        />
+                        {selected.image ? (
+                          <Image
+                            src={selected.image}
+                            alt={selected.propertyName}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">{(selected.propertyName || '').charAt(0)}</div>
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
@@ -405,18 +406,18 @@ export default function AdminInquiriesPage() {
                               {selected.userEmail}
                             </div>
                           </div>
-                          
+
                           {/* Actions: Refresh & Close */}
                           <div className="flex items-center gap-2">
-                             <button
-                                onClick={handleRefresh}
-                                disabled={loadingConversation}
-                                className="rounded-full sm:p-2 p-1 bg-gray-100 text-gray-600 hover:text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors"
-                                title="Refresh conversation"
-                             >
-                                <RefreshCw className={`sm:w-5 sm:h-5 w-3.5 h-3.5 ${loadingConversation ? 'animate-spin' : ''}`} />
-                             </button>
-                             
+                            <button
+                              onClick={handleRefresh}
+                              disabled={loadingConversation}
+                              className="rounded-full sm:p-2 p-1 bg-gray-100 text-gray-600 hover:text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors"
+                              title="Refresh conversation"
+                            >
+                              <RefreshCw className={`sm:w-5 sm:h-5 w-3.5 h-3.5 ${loadingConversation ? 'animate-spin' : ''}`} />
+                            </button>
+
                             <button
                               onClick={() => {
                                 setSelected(null);
@@ -435,61 +436,61 @@ export default function AdminInquiriesPage() {
 
                   {/* Messages Area */}
                   {loadingConversation ? (
-                      <div className="flex-1 flex items-center justify-center">
-                          <Loader2 className="w-8 h-8 animate-spin text-primary"/>
-                      </div>
+                    <div className="flex-1 flex items-center justify-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    </div>
                   ) : (
                     <div className="p-6 space-y-4 flex-1">
-                        {selected.inquiries.length === 0 && (
-                            <div className="text-center text-gray-400 text-sm mt-10">No messages found in this conversation.</div>
-                        )}
-                        {selected.inquiries.map((msg) => (
+                      {selected.inquiries.length === 0 && (
+                        <div className="text-center text-gray-400 text-sm mt-10">No messages found in this conversation.</div>
+                      )}
+                      {selected.inquiries.map((msg) => (
                         <div
-                            key={msg.id}
-                            className={`flex items-start gap-3 ${msg.from === 'partner' || msg.from === 'admin'
-                                ? 'justify-end'
-                                : ''
+                          key={msg.id}
+                          className={`flex items-start gap-3 ${msg.from === 'partner' || msg.from === 'admin'
+                            ? 'justify-end'
+                            : ''
                             }`}
                         >
-                            {msg.from === 'user' && (
+                          {msg.from === 'user' && (
                             <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold shrink-0">
-                                {selected.userName[0]}
+                              {selected.userName[0]}
                             </div>
-                            )}
-                            <div
+                          )}
+                          <div
                             className={`flex-1 max-w-2xl ${msg.from === 'partner' || msg.from === 'admin'
-                                ? 'text-right'
-                                : ''
-                                }`}
-                            >
+                              ? 'text-right'
+                              : ''
+                              }`}
+                          >
                             <div className="text-xs font-medium text-gray-600 mb-1">
-                                {msg.senderName}
+                              {msg.senderName}
                             </div>
                             <div
-                                className={`inline-block rounded-lg px-4 py-2.5 text-sm ${msg.from === 'user'
-                                    ? 'bg-gray-100 text-gray-900'
-                                    : msg.from === 'admin'
-                                        ? 'bg-red-500 text-white'
-                                        : 'bg-blue-500 text-white'
+                              className={`inline-block rounded-lg px-4 py-2.5 text-sm ${msg.from === 'user'
+                                ? 'bg-gray-100 text-gray-900'
+                                : msg.from === 'admin'
+                                  ? 'bg-red-500 text-white'
+                                  : 'bg-blue-500 text-white'
                                 }`}
                             >
-                                {msg.text}
+                              {msg.text}
                             </div>
                             <div className="text-xs text-gray-500 mt-1.5">
-                                {msg.timestamp}
+                              {msg.timestamp}
                             </div>
-                            </div>
-                            {(msg.from === 'partner' || msg.from === 'admin') && (
+                          </div>
+                          {(msg.from === 'partner' || msg.from === 'admin') && (
                             <div
-                                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0 ${msg.from === 'admin' ? 'bg-red-500' : 'bg-blue-500'
+                              className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0 ${msg.from === 'admin' ? 'bg-red-500' : 'bg-blue-500'
                                 }`}
                             >
-                                {msg.from === 'admin' ? 'A' : 'P'}
+                              {msg.from === 'admin' ? 'A' : 'P'}
                             </div>
-                            )}
+                          )}
                         </div>
-                        ))}
-                        <div ref={messagesEndRef} />
+                      ))}
+                      <div ref={messagesEndRef} />
                     </div>
                   )}
                 </div>
@@ -510,7 +511,7 @@ export default function AdminInquiriesPage() {
                       disabled={isSending || loadingConversation || !replyText.trim()}
                       className="bg-red-500 text-white px-5 py-2.5 rounded-md text-xs lg:text-sm font-medium hover:bg-red-600 transition-colors disabled:bg-red-300 flex items-center gap-2"
                     >
-                      {isSending ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
+                      {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                       Send as Admin
                     </button>
                   </div>
