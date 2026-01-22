@@ -75,24 +75,22 @@ const ConciergeRequestsFilters = memo(
 
           {/* Date Range Filter */}
           <div className='w-full sm:flex-1'>
-            <div className='flex gap-2 items-center'> 
+            <div className='flex gap-2 items-center'>
               <div className='relative flex-1'>
-                <Calendar className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
                 <input
                   type='date'
                   value={dateRange?.startDate || ''}
                   onChange={(e) => onDateRangeChange({ ...dateRange, startDate: e.target.value })}
-                  className='w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-transparent'
+                  className='w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-transparent'
                 />
               </div>
               <span className='text-gray-500'>-</span>
               <div className='relative flex-1'>
-                <Calendar className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
                 <input
                   type='date'
                   value={dateRange?.endDate || ''}
                   onChange={(e) => onDateRangeChange({ ...dateRange, endDate: e.target.value })}
-                  className='w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-transparent'
+                  className='w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-transparent'
                 />
               </div>
             </div>

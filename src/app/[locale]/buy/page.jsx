@@ -135,9 +135,10 @@ export default function BuyPage() {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    // `api.get` returns `response.data` (not the full axios response).
+    // Use cached GET to avoid re-fetching on frequent page visits (TTL: 5 minutes)
+    // `api.getCached` returns `response.data` (not the full axios response).
     // API may return either `{ properties: [...] }` or `{ data: { properties: [...] } }`.
-    api.get(`/properties?listingType=SALE`)
+    api.getCached(`/properties?listingType=SALE`, { ttl: 300000 })
       .then((data) => {
         if (!mounted) return;
         const props = data?.data?.properties ?? data?.properties ?? [];
