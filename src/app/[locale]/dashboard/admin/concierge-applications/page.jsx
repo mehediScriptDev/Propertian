@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { use, useState, useMemo, useCallback } from 'react';
+import { use, useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from '@/i18n';
 import { FileText, Clock, CheckCircle, XCircle } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
@@ -9,94 +9,9 @@ import Pagination from '@/components/dashboard/Pagination';
 import ViewApplicationModal from '@/components/dashboard/admin/ViewApplicationModal';
 import ApproveApplicationModal from '@/components/dashboard/admin/ApproveApplicationModal';
 import RejectApplicationModal from '@/components/dashboard/admin/RejectApplicationModal';
+import { getApplications, updateApplicationStatus } from '@/services/conciergeAPI';
 
-// Mock concierge partner application data
-const MOCK_APPLICATIONS = [
-  {
-    id: 'conapp001',
-    company_name: 'Elite Concierge Services',
-    contact_person: 'Jennifer Martinez',
-    email: 'jennifer@eliteconcierge.com',
-    phone: '+1 234 567 8900',
-    country: 'United States',
-    applied_date: '2026-01-08T10:30:00Z',
-    status: 'pending',
-    description: 'Premium concierge service provider with 15 years of experience in luxury property management, airport transfers, relocation assistance, and personalized client services.',
-    website: 'https://eliteconcierge.com',
-  },
-  {
-    id: 'conapp002',
-    company_name: 'Global Relocation Experts',
-    contact_person: 'Robert Kim',
-    email: 'robert@globalrelocation.com',
-    phone: '+44 20 7946 0958',
-    country: 'United Kingdom',
-    applied_date: '2026-01-07T14:20:00Z',
-    status: 'approved',
-    description: 'Specialized in international relocation services, including document translation, legal assistance, utility setup, and move-in coordination for expatriates and international clients.',
-    website: 'https://globalrelocation.com',
-  },
-  {
-    id: 'conapp003',
-    company_name: 'Premium Property Assistance',
-    contact_person: 'Maria Santos',
-    email: 'maria@premiumpropertyassist.com',
-    phone: '+971 4 123 4567',
-    country: 'United Arab Emirates',
-    applied_date: '2026-01-06T09:15:00Z',
-    status: 'pending',
-    description: 'Full-service property concierge offering interior design consultation, furniture rental, cleaning services, maintenance, and security installation for high-end properties.',
-    website: 'https://premiumpropertyassist.com',
-  },
-  {
-    id: 'conapp004',
-    company_name: 'Quick Move Services',
-    contact_person: 'Tom Wilson',
-    email: 'tom@quickmove.com',
-    phone: '+1 555 123 4567',
-    country: 'United States',
-    applied_date: '2026-01-05T16:45:00Z',
-    status: 'rejected',
-    description: 'Application rejected due to insufficient documentation and lack of required certifications for concierge services.',
-    website: 'https://quickmove.com',
-  },
-  {
-    id: 'conapp005',
-    company_name: 'VIP Client Solutions',
-    contact_person: 'Sophie Dubois',
-    email: 'sophie@vipclientsolutions.fr',
-    phone: '+33 1 42 68 53 00',
-    country: 'France',
-    applied_date: '2026-01-10T11:30:00Z',
-    status: 'pending',
-    description: 'Luxury concierge service specializing in property viewing coordination, personalized property tours, airport pickup, and white-glove relocation services for international clients.',
-    website: 'https://vipclientsolutions.fr',
-  },
-  {
-    id: 'conapp006',
-    company_name: 'Premier Lifestyle Management',
-    contact_person: 'Alexander Zhang',
-    email: 'alex@premierlifestyle.com',
-    phone: '+65 6789 1234',
-    country: 'Singapore',
-    applied_date: '2026-01-09T13:00:00Z',
-    status: 'approved',
-    description: 'Comprehensive lifestyle and property concierge services including legal assistance, property insurance, rental agreement support, and ongoing property maintenance for luxury real estate clients.',
-    website: 'https://premierlifestyle.com.sg',
-  },
-  {
-    id: 'conapp007',
-    company_name: 'Total Relocation Partners',
-    contact_person: 'Isabella Rossi',
-    email: 'isabella@totalrelocation.it',
-    phone: '+39 02 1234 5678',
-    country: 'Italy',
-    applied_date: '2026-01-11T08:45:00Z',
-    status: 'pending',
-    description: 'International relocation and concierge company providing document translation, visa assistance, property setup services, and cultural integration support for clients moving to new countries.',
-    website: 'https://totalrelocation.it',
-  },
-];
+// Note: removed mock data - data will be fetched from API
 
 export default function ConciergeApplicationsPage({ params }) {
   const { locale } = use(params);
@@ -112,7 +27,8 @@ export default function ConciergeApplicationsPage({ params }) {
   const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
   // State for applications (using mock data)
-  const [applicationsData, setApplicationsData] = useState(MOCK_APPLICATIONS);
+  const [applicationsData, setApplicationsData] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(false);
 
   // Modal states
@@ -150,20 +66,19 @@ export default function ConciergeApplicationsPage({ params }) {
   // Calculate stats
   const stats = useMemo(() => {
     const total = applicationsData.length;
-    const pending = applicationsData.filter((a) => a.status === 'pending').length;
-    const approved = applicationsData.filter((a) => a.status === 'approved').length;
-    const rejected = applicationsData.filter((a) => a.status === 'rejected').length;
+    const pending = applicationsData.filter((a) => (a.status || '').toString().toLowerCase() === 'pending').length;
+    const approved = applicationsData.filter((a) => (a.status || '').toString().toLowerCase() === 'approved').length;
+    const rejected = applicationsData.filter((a) => (a.status || '').toString().toLowerCase() === 'rejected').length;
 
     return { total, pending, approved, rejected };
   }, [applicationsData]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
   const paginatedApplications = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredApplications.slice(startIndex, endIndex);
-  }, [filteredApplications, currentPage, itemsPerPage]);
+    // when server-side pagination is used, applicationsData already contains current page
+    return applicationsData;
+  }, [applicationsData]);
 
   // Handlers
   const handleSearchChange = useCallback((e) => {
@@ -185,6 +100,94 @@ export default function ConciergeApplicationsPage({ params }) {
     setCurrentPage(1);
   }, []);
 
+  // Fetch applications from API whenever pagination/filters/search change
+  useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const params = {
+          page: currentPage,
+          limit: itemsPerPage,
+        };
+
+        if (statusFilter && statusFilter !== 'all') {
+          // API uses uppercase status (e.g. PENDING) per backend convention
+          params.status = statusFilter.toUpperCase();
+        }
+
+        if (searchTerm && searchTerm.trim() !== '') {
+          // include a search param if backend supports it (try "search" and "q")
+          params.search = searchTerm.trim();
+        }
+
+        const response = await getApplications(params, { signal: controller.signal });
+
+        if (!isMounted) return;
+
+        // Response may come in several shapes. Normalize it.
+        const payload = response || {};
+
+        // Possible locations for items: payload.data, payload.items, or payload (array)
+        let items = [];
+        if (Array.isArray(payload)) {
+          items = payload;
+        } else if (Array.isArray(payload.data)) {
+          items = payload.data;
+        } else if (Array.isArray(payload.items)) {
+          items = payload.items;
+        }
+
+        // Normalize backend fields (camelCase) to UI expected snake_case keys
+        const normalize = (it) => {
+          if (!it) return {};
+          const countryFromAddress = typeof it.address === 'string' ? it.address : it.address?.country || '';
+          return {
+            id: it.id || it._id || it.uuid || it.applicationId,
+            company_name: it.companyName || it.company_name || it.company || it.name || '',
+            contact_person: it.contactPerson || it.contact_person || it.contact || it.contactName || '',
+            email: it.email || it.mail || '',
+            phone: it.phone || it.telephone || it.contactPhone || it.mobile || '',
+            country: it.country || it.country_name || countryFromAddress || '',
+            applied_date: it.appliedAt || it.applied_date || it.createdAt || it.created_at || it.updatedAt || it.updated_at || null,
+            status: (it.status || it.applicationStatus || it.state || '').toString(),
+            logo: it.logo || it.image || it.thumbnail || it.avatar || null,
+            description: it.description || it.bio || '',
+            website: it.website || it.url || null,
+            raw: it,
+          };
+        };
+
+        const normalizedItems = items.map(normalize);
+        setApplicationsData(normalizedItems);
+
+        // Try to read total count from pagination / meta / top-level
+        const pagination = payload.pagination || payload.meta || payload.paging || {};
+        const total =
+          pagination.total || pagination.count || pagination.totalItems || payload.total || payload.count || 0;
+
+        setTotalItems(Number(total) || items.length);
+      } catch (err) {
+        if (err?.canceled || err?.message === 'canceled') {
+          // fetch aborted
+        } else {
+          console.error('Failed to fetch applications:', err);
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [currentPage, itemsPerPage, statusFilter, searchTerm]);
+
   // Action handlers
   const handleView = useCallback((application) => {
     setViewApplication(application);
@@ -205,15 +208,36 @@ export default function ConciergeApplicationsPage({ params }) {
   const handleApproveConfirm = useCallback(() => {
     if (!approveApplication) return;
 
-    // Update application status
-    setApplicationsData((prev) =>
-      prev.map((a) =>
-        a.id === approveApplication.id ? { ...a, status: 'approved' } : a
-      )
-    );
+    const doApprove = async () => {
+      setLoading(true);
+      try {
+        // body follows backend conventions (uppercase status)
+        const body = { status: 'APPROVED' };
 
-    setApproveModalOpen(false);
-    setApproveApplication(null);
+        // If our normalized object kept raw id/schema, try to use raw id as fallback
+        const appId = approveApplication.id || approveApplication.raw?.id || approveApplication.raw?._id;
+
+        if (!appId) throw new Error('Application id missing');
+
+        await updateApplicationStatus(appId, body);
+
+        // Optimistically update UI
+        setApplicationsData((prev) =>
+          prev.map((a) =>
+            a.id === (approveApplication.id) ? { ...a, status: 'approved' } : a
+          )
+        );
+
+        setApproveModalOpen(false);
+        setApproveApplication(null);
+      } catch (err) {
+        console.error('Approve failed', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    doApprove();
   }, [approveApplication]);
 
   const handleRejectConfirm = useCallback(() => {
@@ -329,7 +353,7 @@ export default function ConciergeApplicationsPage({ params }) {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={filteredApplications.length}
+          totalItems={totalItems}
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
           onItemsPerPageChange={handleItemsPerPageChange}

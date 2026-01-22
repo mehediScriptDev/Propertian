@@ -1,7 +1,8 @@
 'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
+import { use, useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from '@/i18n';
+import axios from '@/lib/axios';
 import { Bell, Clock, AlertCircle, CheckCircle, UserPlus } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
 import ConciergeRequestsFilters from '@/components/dashboard/admin/ConciergeRequestsFilters';
@@ -10,138 +11,6 @@ import Pagination from '@/components/dashboard/Pagination';
 import AssignModal from '@/components/dashboard/admin/AssignModal';
 import ViewTicketModal from '@/components/dashboard/admin/ViewTicketModal';
 import ConfirmCloseModal from '@/components/dashboard/admin/ConfirmCloseModal';
-
-// Service types for concierge tickets
-const SERVICE_TYPES = [
-  'Airport Pickup',
-  'Relocation Assistance',
-  'Document Translation',
-  'Legal Assistance',
-  'Property Viewing',
-  'Utility Setup',
-  'Property Maintenance',
-  'Interior Design',
-  'Cleaning Services',
-  'Security Installation',
-  'Rental Agreement Support',
-  'Property Insurance',
-];
-
-// Mock ticket data for the redesigned page
-const MOCK_TICKETS = [
-  {
-    id: 'cmid03abc123',
-    user_name: 'John Anderson',
-    user_email: 'john.anderson@email.com',
-    user_phone: '+1 234 567 8900',
-    service_type: 'Airport Pickup',
-    status: 'pending',
-    assigned_to: 'unassigned',
-    created_at: '2026-01-10T08:30:00Z',
-    priority: 'high',
-    property_address: '123 Main Street, Downtown, NY 10001',
-    description: 'Need airport pickup service from JFK to Manhattan apartment. Flight arrives at 3:30 PM on Jan 15th.',
-    image_url: null,
-  },
-  {
-    id: 'cmid04xyz789',
-    user_name: 'Sarah Miller',
-    user_email: 'sarah.miller@email.com',
-    user_phone: '+1 234 567 8901',
-    service_type: 'Relocation Assistance',
-    status: 'assigned',
-    assigned_to: 'internal',
-    created_at: '2026-01-09T14:20:00Z',
-    priority: 'medium',
-    property_address: '456 Park Avenue, Midtown, NY 10022',
-    description: 'Moving from Chicago to New York. Need help with furniture delivery and setup.',
-    image_url: null,
-  },
-  {
-    id: 'cmid05def456',
-    user_name: 'Michael Chen',
-    user_email: 'michael.chen@email.com',
-    user_phone: '+1 234 567 8902',
-    service_type: 'Document Translation',
-    status: 'in-progress',
-    assigned_to: 'partner',
-    created_at: '2026-01-08T10:15:00Z',
-    priority: 'low',
-    property_address: '789 Broadway, SoHo, NY 10003',
-    description: 'Need lease agreement translated from English to Mandarin Chinese.',
-    image_url: null,
-  },
-  {
-    id: 'cmid06ghi789',
-    user_name: 'Emily Rodriguez',
-    user_email: 'emily.rodriguez@email.com',
-    user_phone: '+1 234 567 8903',
-    service_type: 'Legal Assistance',
-    status: 'info-requested',
-    assigned_to: 'internal',
-    created_at: '2026-01-07T16:45:00Z',
-    priority: 'high',
-    property_address: '321 5th Avenue, Manhattan, NY 10016',
-    description: 'Review rental contract before signing. Need legal consultation.',
-    image_url: null,
-  },
-  {
-    id: 'cmid07jkl012',
-    user_name: 'David Thompson',
-    user_email: 'david.thompson@email.com',
-    user_phone: '+1 234 567 8904',
-    service_type: 'Property Viewing',
-    status: 'completed',
-    assigned_to: 'partner',
-    created_at: '2026-01-05T09:00:00Z',
-    priority: 'medium',
-    property_address: '654 West End Avenue, Upper West Side, NY 10025',
-    description: 'Property viewing completed successfully on Jan 6th.',
-    image_url: null,
-  },
-  {
-    id: 'cmid08mno345',
-    user_name: 'Lisa Wang',
-    user_email: 'lisa.wang@email.com',
-    user_phone: '+1 234 567 8905',
-    service_type: 'Utility Setup',
-    status: 'pending',
-    assigned_to: 'unassigned',
-    created_at: '2026-01-11T11:30:00Z',
-    priority: 'medium',
-    property_address: '987 Lexington Avenue, Upper East Side, NY 10021',
-    description: 'Need assistance setting up electricity, internet, and gas for new apartment.',
-    image_url: null,
-  },
-  {
-    id: 'cmid09pqr678',
-    user_name: 'Robert Johnson',
-    user_email: 'robert.johnson@email.com',
-    user_phone: '+1 234 567 8906',
-    service_type: 'Cleaning Services',
-    status: 'assigned',
-    assigned_to: 'partner',
-    created_at: '2026-01-10T13:15:00Z',
-    priority: 'low',
-    property_address: '135 Madison Avenue, Flatiron, NY 10016',
-    description: 'Deep cleaning service needed before move-in date.',
-    image_url: null,
-  },
-  {
-    id: 'cmid10stu901',
-    user_name: 'Amanda Martinez',
-    user_email: 'amanda.martinez@email.com',
-    user_phone: '+1 234 567 8907',
-    service_type: 'Interior Design',
-    status: 'cancelled',
-    assigned_to: 'unassigned',
-    created_at: '2026-01-06T15:20:00Z',
-    priority: 'low',
-    property_address: '246 Hudson Street, West Village, NY 10013',
-    description: 'Client cancelled interior design consultation.',
-    image_url: null,
-  },
-];
 
 export default function ConciergeRequestsPage({ params }) {
   const { locale } = use(params);
@@ -155,12 +24,18 @@ export default function ConciergeRequestsPage({ params }) {
 
   // State for pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50, 100];
 
-  // State for tickets (using mock data)
-  const [ticketsData, setTicketsData] = useState(MOCK_TICKETS);
-  const [loading, setLoading] = useState(false);
+  // State for tickets from API
+  const [ticketsData, setTicketsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 20,
+    totalPages: 0
+  });
 
   // Modal states
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -170,56 +45,67 @@ export default function ConciergeRequestsPage({ params }) {
   const [closeModalOpen, setCloseModalOpen] = useState(false);
   const [closeTicket, setCloseTicket] = useState(null);
 
-  // Filter tickets based on search, status, assigned, and date range
-  const filteredTickets = useMemo(() => {
-    let filtered = [...ticketsData];
+  // Fetch tickets from API
+  const fetchTickets = useCallback(async () => {
+    try {
+      setLoading(true);
 
-    // Search filter
-    if (searchTerm && searchTerm.trim() !== '') {
-      const query = searchTerm.toLowerCase().trim();
-      filtered = filtered.filter((ticket) => {
-        const idMatch = ticket.id.toLowerCase().includes(query);
-        const nameMatch = ticket.user_name.toLowerCase().includes(query);
-        const emailMatch = ticket.user_email.toLowerCase().includes(query);
-        const serviceMatch = ticket.service_type.toLowerCase().includes(query);
-        return idMatch || nameMatch || emailMatch || serviceMatch;
+      // Build query params
+      const params = new URLSearchParams();
+      params.append('page', currentPage.toString());
+      params.append('limit', itemsPerPage.toString());
+
+      if (statusFilter && statusFilter !== 'all') {
+        params.append('status', statusFilter);
+      }
+
+      if (assignedFilter && assignedFilter !== 'all') {
+        params.append('assignedTo', assignedFilter);
+      }
+
+      if (searchTerm && searchTerm.trim()) {
+        params.append('search', searchTerm.trim());
+      }
+
+      // Add sorting
+      params.append('sortBy', 'createdAt');
+      params.append('sortOrder', 'desc');
+
+      const response = await axios.get(`/concierge/tickets?${params.toString()}`);
+
+      if (response.data.success) {
+        setTicketsData(response.data.data || []);
+        setPagination(response.data.pagination || {
+          total: 0,
+          page: currentPage,
+          limit: itemsPerPage,
+          totalPages: 0
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+      setTicketsData([]);
+      setPagination({
+        total: 0,
+        page: currentPage,
+        limit: itemsPerPage,
+        totalPages: 0
       });
+    } finally {
+      setLoading(false);
     }
+  }, [currentPage, itemsPerPage, statusFilter, assignedFilter, searchTerm]);
 
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter((ticket) => ticket.status === statusFilter);
-    }
+  
+  useEffect(() => {
+    fetchTickets();
+  }, [fetchTickets]);
 
-    // Assigned filter
-    if (assignedFilter !== 'all') {
-      filtered = filtered.filter((ticket) => ticket.assigned_to === assignedFilter);
-    }
+  const filteredTickets = ticketsData;
 
-    // Date range filter
-    if (dateRange.startDate || dateRange.endDate) {
-      filtered = filtered.filter((ticket) => {
-        const ticketDate = new Date(ticket.created_at);
-        const start = dateRange.startDate ? new Date(dateRange.startDate) : null;
-        const end = dateRange.endDate ? new Date(dateRange.endDate) : null;
-
-        if (start && end) {
-          return ticketDate >= start && ticketDate <= end;
-        } else if (start) {
-          return ticketDate >= start;
-        } else if (end) {
-          return ticketDate <= end;
-        }
-        return true;
-      });
-    }
-
-    return filtered;
-  }, [ticketsData, searchTerm, statusFilter, assignedFilter, dateRange]);
-
-  // Calculate stats from filtered tickets
+  // Calculate stats from current page data
   const stats = useMemo(() => {
-    const total = ticketsData.length;
+    const total = pagination.total;
     const pending = ticketsData.filter((t) => t.status === 'pending').length;
     const assigned = ticketsData.filter((t) => t.assigned_to !== 'unassigned').length;
 
@@ -231,15 +117,11 @@ export default function ConciergeRequestsPage({ params }) {
     ).length;
 
     return { total, pending, assigned, completedToday };
-  }, [ticketsData]);
+  }, [ticketsData, pagination.total]);
 
-  // Pagination
-  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
-  const paginatedTickets = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredTickets.slice(startIndex, endIndex);
-  }, [filteredTickets, currentPage, itemsPerPage]);
+  // Server-side pagination - no need to slice data
+  const paginatedTickets = filteredTickets;
+  const totalPages = pagination.totalPages;
 
   // Handlers
   const handleSearchChange = useCallback((value) => {
@@ -288,36 +170,49 @@ export default function ConciergeRequestsPage({ params }) {
   }, []);
 
   // Modal handlers
-  const handleAssignConfirm = useCallback((assignType) => {
+  const handleAssignConfirm = useCallback(async (assignType) => {
     if (!assignTicket) return;
 
-    // Update ticket status and assignment
-    setTicketsData((prev) =>
-      prev.map((t) =>
-        t.id === assignTicket.id
-          ? { ...t, assigned_to: assignType, status: 'assigned' }
-          : t
-      )
-    );
+    try {
+      // Update ticket via API
+      await axios.put(`/concierge/tickets/${assignTicket.id}`, {
+        assigned_to: assignType,
+        status: 'assigned'
+      });
+
+      // Refresh tickets from server
+      await fetchTickets();
+    } catch (error) {
+      console.error('Error assigning ticket:', error);
+      alert('Failed to assign ticket');
+    }
 
     setAssignModalOpen(false);
     setAssignTicket(null);
-  }, [assignTicket]);
+  }, [assignTicket, fetchTickets]);
 
-  const handleCloseConfirm = useCallback(() => {
+  const handleCloseConfirm = useCallback(async () => {
     if (!closeTicket) return;
 
-    // Remove ticket from list
-    setTicketsData((prev) => prev.filter((t) => t.id !== closeTicket.id));
+    try {
+      // Delete ticket via API
+      await axios.delete(`/concierge/tickets/${closeTicket.id}`);
+
+      // Refresh tickets from server
+      await fetchTickets();
+    } catch (error) {
+      console.error('Error closing ticket:', error);
+      alert('Failed to close ticket');
+    }
 
     setCloseModalOpen(false);
     setCloseTicket(null);
-  }, [closeTicket]);
+  }, [closeTicket, fetchTickets]);
 
   // Translations
   const conciergeTranslations = useMemo(
     () => ({
-      title:  'Concierge Tickets',
+      title: 'Concierge Tickets',
       subtitle: 'Manage and track concierge service tickets',
       searchPlaceholder: 'Search by ticket ID, user name, email, or service type...',
       filters: {
@@ -439,8 +334,6 @@ export default function ConciergeRequestsPage({ params }) {
       {/* Table with Pagination */}
       <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
         <ConciergeTicketsTable
-        
-        able
           tickets={paginatedTickets}
           translations={conciergeTranslations}
           onView={handleView}
@@ -451,7 +344,7 @@ export default function ConciergeRequestsPage({ params }) {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={filteredTickets.length}
+          totalItems={pagination.total}
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
           onItemsPerPageChange={handleItemsPerPageChange}

@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X, Loader2, Send, RefreshCw } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslation } from "@/i18n";
 import Image from "next/image";
@@ -18,121 +19,100 @@ export default function ClientInquiriesPage() {
   const [replyText, setReplyText] = useState("");
   const messagesEndRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
+  
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingConversation, setLoadingConversation] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
-  // Mock inquiry threads (replace with API call later)
-  const propertyThreads = useMemo(
-    () => [
-      {
-        id: 1,
-        propertyName: "2BR Apartment in Manhattan",
-        location: "Upper East Side",
-        city: "New York",
-        status: "new",
-        image: "/buy-rent/hero.jpg",
-        lastMessage:
-          "Hi, I'm interested in viewing this property. Is it still available?",
-        partnerName: "Smith Realty",
-        partnerAvatar: null,
-        timestamp: "Jan 11, 2026, 10:49 AM",
-        inquiries: [
-          {
-            id: 1,
-            from: "user",
-            text: "Hi, I'm interested in viewing this property. Is it still available?",
-            timestamp: "10:49 AM",
-          },
-        ],
-      },
-      {
-        id: 2,
-        propertyName: "3BR House in Brooklyn",
-        location: "Park Slope",
-        city: "Brooklyn",
-        status: "awaiting",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: Yes, we have availability...",
-        partnerName: "Brooklyn Homes",
-        partnerAvatar: null,
-        timestamp: "Jan 10, 2026, 2:30 PM",
-        inquiries: [
-          {
-            id: 1,
-            from: "user",
-            text: "What's the monthly rent?",
-            timestamp: "2:30 PM",
-          },
-          {
-            id: 2,
-            from: "partner",
-            text: "The monthly rent is $3,500. Would you like to schedule a viewing?",
-            timestamp: "3:15 PM",
-          },
-        ],
-      },
-      {
-        id: 3,
-        propertyName: "Studio in Queens",
-        location: "Astoria",
-        city: "Queens",
-        status: "awaiting",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: The utilities are included...",
-        partnerName: "Queens Living",
-        partnerAvatar: null,
-        timestamp: "Jan 9, 2026, 11:20 AM",
-        inquiries: [
-          {
-            id: 1,
-            from: "user",
-            text: "Are utilities included in the rent?",
-            timestamp: "11:20 AM",
-          },
-        ],
-      },
-      {
-        id: 4,
-        propertyName: "4BR Townhouse in Staten Island",
-        location: "St. George",
-        city: "Staten Island",
-        status: "closed",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: Thank you for your interest...",
-        partnerName: "Island Properties",
-        partnerAvatar: null,
-        timestamp: "Jan 5, 2026, 9:15 AM",
-        inquiries: [],
-      },
-      {
-        id: 5,
-        propertyName: "1BR Condo in Jersey City",
-        location: "Downtown",
-        city: "Jersey City",
-        status: "awaiting",
-        image: "/buy-rent/hero.jpg",
-        lastMessage: "Last message: We can arrange a visit...",
-        partnerName: "Hudson Realty",
-        partnerAvatar: null,
-        timestamp: "Jan 8, 2026, 4:45 PM",
-        inquiries: [],
-      },
-    ],
-    []
-  );
+  // 1. Fetch inquiries list
+  useEffect(() => {
+    let mounted = true;
+    const fetchInquiries = async () => {
+      setLoading(true);
+      try {
+        const res = await api.get("/inquiries/my-inquiries?page=1&limit=50");
+        const responseData = res?.data || res;
+        const items = responseData?.data?.inquiries || responseData?.inquiries || [];
+        
+        const threads = items.map((i) => {
+          const img =
+            i?.properties?.images && i.properties.images.length
+              ? i.properties.images[0]
+              : "/buy-rent/hero.jpg";
+
+          return {
+            id: i.id || i._id,
+            propertyName: i?.properties?.title || i?.properties?.name || "-",
+            location: i?.properties?.address || i?.properties?.state || "",
+            city: i?.properties?.city || "",
+            status: (i?.status || "").toLowerCase() || "new",
+            image: img,
+            lastMessage: i?.message || i?.lastMessage || "",
+            partnerName: i?.partnerName || i?.agentName || "Partner",
+            timestamp: i?.createdAt || i?.updatedAt || new Date().toISOString(),
+            inquiries: [], 
+          };
+        });
+
+        if (mounted) setInquiries(threads);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        showToast({ type: "error", message: "Failed to load inquiries." });
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchInquiries();
+    return () => {
+      mounted = false;
+    };
+  }, [locale]);
+
+  // 2. Fetch conversation details (Refresh Function)
+  const fetchThreadDetails = async (threadId, isBackgroundRefresh = false) => {
+    if (!isBackgroundRefresh) setLoadingConversation(true);
+    try {
+        const res = await api.get(`/inquiries/${threadId}`);
+        const responseData = res?.data || res;
+        const conversationData = responseData?.conversation || responseData?.data?.conversation || [];
+
+        const mappedMessages = conversationData.map(msg => ({
+            id: msg.id,
+            from: msg.senderRole === 'USER' ? 'user' : 'partner',
+            text: msg.message,
+            timestamp: new Date(msg.createdAt).toLocaleString(),
+            senderName: msg.senderName
+        }));
+
+        setSelected(prev => ({
+            ...prev,
+            id: threadId,
+            inquiries: mappedMessages
+        }));
+
+    } catch (err) {
+        console.error("Conversation fetch error:", err);
+        showToast({ type: "error", message: "Failed to refresh conversation." });
+    } finally {
+        if (!isBackgroundRefresh) setLoadingConversation(false);
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    }
+  };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return propertyThreads.filter((t) => {
+    return inquiries.filter((t) => {
       if (statusFilter !== "all" && t.status !== statusFilter) return false;
       if (!q) return true;
       return (
-        t.propertyName.toLowerCase().includes(q) ||
-        t.location.toLowerCase().includes(q) ||
-        t.partnerName.toLowerCase().includes(q)
+        (t.propertyName || "").toLowerCase().includes(q) ||
+        (t.location || "").toLowerCase().includes(q) ||
+        (t.partnerName || "").toLowerCase().includes(q)
       );
     });
-  }, [propertyThreads, search, statusFilter]);
+  }, [inquiries, search, statusFilter]);
 
   const getStatusBadge = (status) => {
     const config = {
@@ -151,34 +131,59 @@ export default function ClientInquiriesPage() {
   };
 
   const selectThread = (thread) => {
-    setSelected(thread);
+    setSelected({ ...thread, inquiries: [] });
     setIsOpen(true);
-    setTimeout(
-      () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
-      50
-    );
+    fetchThreadDetails(thread.id);
   };
 
-  const sendReply = () => {
+  // 3. Send Reply Logic
+  const sendReply = async () => {
     if (!selected || !replyText.trim()) return;
-    const newMsg = {
-      id: Date.now(),
-      from: "user",
-      text: replyText,
-      timestamp: new Date().toLocaleTimeString(),
-    };
-    setSelected({ ...selected, inquiries: [...selected.inquiries, newMsg] });
-    setReplyText("");
-    setTimeout(
-      () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
-      100
-    );
+    
+    const currentMessageText = replyText;
+    setIsSending(true);
+
+    try {
+        const payload = { message: currentMessageText };
+        const res = await api.post(`/inquiries/${selected.id}/replies`, payload);
+        const responseData = res?.data || res;
+
+        const replyData = responseData?.data?.reply || responseData?.reply;
+
+        const newMsg = {
+            id: replyData?.id || Date.now(),
+            from: "user",
+            text: replyData?.message || currentMessageText,
+            timestamp: new Date(replyData?.createdAt || Date.now()).toLocaleString(),
+        };
+
+        setSelected(prev => ({ 
+            ...prev, 
+            inquiries: [...prev.inquiries, newMsg] 
+        }));
+
+        setReplyText("");
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+
+    } catch (err) {
+        console.error("Reply error:", err);
+        showToast({ type: "error", message: "Failed to send message." });
+    } finally {
+        setIsSending(false);
+    }
+  };
+
+  // Manual Refresh Handler
+  const handleRefresh = () => {
+      if (selected?.id) {
+          fetchThreadDetails(selected.id);
+      }
   };
 
   return (
     <div className="flex gap-4 h-[calc(100vh-8rem)] relative">
       {/* Left: Inquiry Threads Card */}
-      <div className={`${isOpen ? 'hidden' : 'block'} lg:block w-96 rounded-lg overflow-y-scroll bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+      <div className={`${isOpen ? 'hidden' : 'block'} lg:block w-96 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
         <div className="px-4 py-4 border-b border-gray-200">
           <h3 className="text-sm font-semibold text-gray-900">
             My Inquiry Threads
@@ -186,40 +191,46 @@ export default function ClientInquiriesPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {filtered.map((thread) => (
-            <button
-              key={thread.id}
-              onClick={() => selectThread(thread)}
-              className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${
-                selected?.id === thread.id ? "bg-gray-50" : ""
-              }`}
-            >
-              <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
-                {thread.partnerName[0]}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2 mb-0.5">
-                  <div className="font-medium text-sm text-gray-900 truncate">
-                    {thread.partnerName}
-                  </div>
-                  <div className="text-xs text-gray-500 shrink-0">
-                    {new Date(thread.timestamp).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </div>
+          {loading ? (
+             <div className="flex justify-center items-center h-40">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+             </div>
+          ) : filtered.length === 0 ? (
+             <div className="p-4 text-center text-gray-500 text-sm">No inquiries found.</div>
+          ) : (
+            filtered.map((thread) => (
+                <button
+                key={thread.id}
+                onClick={() => selectThread(thread)}
+                className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${selected?.id === thread.id ? "bg-gray-50" : ""
+                    }`}
+                >
+                <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
+                    {thread.partnerName[0]}
                 </div>
-                <div className="text-xs text-gray-600 mb-0.5 truncate">
-                  Property: {thread.propertyName}
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-0.5">
+                    <div className="font-medium text-sm text-gray-900 truncate">
+                        {thread.partnerName}
+                    </div>
+                    <div className="text-xs text-gray-500 shrink-0">
+                        {new Date(thread.timestamp).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        })}
+                    </div>
+                    </div>
+                    <div className="text-xs text-gray-600 mb-0.5 truncate">
+                    Property: {thread.propertyName}
+                    </div>
+                    <div className="text-xs text-gray-500 truncate mb-2">
+                    {thread.lastMessage}
+                    </div>
+                    {getStatusBadge(thread.status)}
                 </div>
-                <div className="text-xs text-gray-500 truncate mb-2">
-                  {thread.lastMessage}
-                </div>
-                {getStatusBadge(thread.status)}
-              </div>
-            </button>
-          ))}
+                </button>
+            ))
+          )}
         </div>
       </div>
 
@@ -258,7 +269,18 @@ export default function ClientInquiriesPage() {
                         Partner: {selected.partnerName}
                       </div>
                     </div>
+                    
+                    {/* Header Actions */}
                     <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleRefresh}
+                        disabled={loadingConversation}
+                        className="rounded-full sm:p-2 p-1 bg-gray-100 text-gray-600 hover:text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors"
+                        title="Refresh conversation"
+                      >
+                        <RefreshCw className={`sm:w-5 sm:h-5 w-3.5 h-3.5 ${loadingConversation ? 'animate-spin' : ''}`} />
+                      </button>
+
                       <button
                         onClick={() => { setSelected(null); setIsOpen(false); }}
                         className="rounded-full sm:p-2 p-1 bg-gray-100 text-[#e6b325] focus:outline-none focus:ring-2 focus:ring-red-200"
@@ -273,81 +295,75 @@ export default function ClientInquiriesPage() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-6 pb-24">
-              <div className="w-full">
-                {/* My Inquiries Section */}
-                <div className="mb-8">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-4">
-                    My Inquiries
-                  </h4>
-                  {selected.inquiries
-                    .filter((m) => m.from === "user")
-                    .map((msg) => (
-                      <div key={msg.id} className="mb-4">
-                        <div className="flex items-start gap-3 justify-end">
-                          <div className="text-right">
-                            <div className="bg-[#3B82F6] text-white rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl">
-                              {msg.text}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1.5">
-                              You, {msg.timestamp}
-                            </div>
-                          </div>
-                          <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
-                            U
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-
-                {/* Partner Responses Section */}
-                {selected.inquiries.filter((m) => m.from === "partner").length > 0 && (
-                  <div className="mb-8">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-4">
-                      Partner Responses
-                    </h4>
-                    {selected.inquiries
-                      .filter((m) => m.from === "partner")
-                      .map((msg) => (
-                        <div key={msg.id} className="mb-4">
-                          <div className="flex items-start gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold shrink-0">
-                              {selected.partnerName[0]}
-                            </div>
-                            <div className="flex-1">
-                              <div className="bg-gray-100 rounded-lg px-4 py-2.5 text-sm text-gray-900 max-w-2xl">
-                                {msg.text}
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1.5">
-                                {selected.partnerName}, {msg.timestamp}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+            <div className="flex-1 overflow-y-auto p-6 pb-24 relative">
+              {loadingConversation ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+                      <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
                   </div>
-                )}
-
-                <div ref={messagesEndRef} />
-              </div>
+              ) : (
+                <div className="w-full">
+                    {selected.inquiries.length === 0 && (
+                        <div className="text-center text-gray-400 text-sm mt-10">No messages in this conversation yet.</div>
+                    )}
+                    
+                    {selected.inquiries.map((msg) => (
+                        <div key={msg.id} className="mb-4">
+                            {msg.from === "user" ? (
+                                /* User Message (Right) */
+                                <div className="flex items-start gap-3 justify-end">
+                                    <div className="text-right">
+                                        <div className="bg-[#3B82F6] text-white rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl text-left">
+                                            {msg.text}
+                                        </div>
+                                        <div className="text-xs text-gray-500 mt-1.5">
+                                            You, {msg.timestamp}
+                                        </div>
+                                    </div>
+                                    <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
+                                        U
+                                    </div>
+                                </div>
+                            ) : (
+                                /* Partner Message (Left - Updated Design) */
+                                <div className="flex items-start gap-3">
+                                    <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold shrink-0">
+                                        {selected.partnerName[0]}
+                                    </div>
+                                    <div>
+                                        <div className="bg-gray-100 rounded-lg px-4 py-2.5 text-sm text-gray-900 inline-block max-w-2xl">
+                                            {msg.text}
+                                        </div>
+                                        <div className="text-xs text-gray-500 mt-1.5">
+                                            {msg.senderName || selected.partnerName}, {msg.timestamp}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                </div>
+              )}
             </div>
 
-            {/* Reply Input (sticky to bottom) */}
+            {/* Reply Input */}
             <div className="px-6 py-3 bg-white border-t border-gray-200 sticky bottom-0 z-10">
               <div className="flex items-center gap-2">
                 <input
                   value={replyText}
+                  disabled={isSending}
                   onChange={(e) => setReplyText(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && sendReply()}
+                  onKeyPress={(e) => e.key === 'Enter' && !isSending && sendReply()}
                   placeholder="Type your message"
-                  className="flex-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="flex-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:bg-gray-50"
                 />
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={sendReply}
-                    className="bg-[#e6b325] text-white px-5 py-2.5 rounded-md text-xs lg:text-sm font-medium hover:bg-gray-800 transition-colors"
+                    disabled={isSending || !replyText.trim()}
+                    className="bg-[#e6b325] text-white px-5 py-2.5 rounded-md text-xs lg:text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center gap-2"
                   >
+                    {isSending ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
                     Send
                   </button>
                 </div>
@@ -362,4 +378,3 @@ export default function ClientInquiriesPage() {
     </div>
   );
 }
-
