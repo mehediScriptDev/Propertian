@@ -361,10 +361,11 @@ export default function Sidebar({ role = "admin" }) {
       ? "concierge"
       : null;
 
-    const effectiveView = partnerViewFromPath || user?.subrole || "partner";
+    // subrole overrides are removed; partner view is determined solely by path
+    const effectiveView = partnerViewFromPath || "partner";
 
     return navigationConfig[effectiveView] || navigationConfig.partner;
-  }, [role, pathname, user?.subrole]);
+  }, [role, pathname]);
 
   // Close mobile menu when route changes
   if (pathname !== prevPathname) {

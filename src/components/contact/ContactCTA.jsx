@@ -45,8 +45,6 @@ const ContactCTA = React.memo(
         </div>
       </section>
     );
-
-
   }
 );
 
