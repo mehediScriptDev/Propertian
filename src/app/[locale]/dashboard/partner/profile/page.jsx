@@ -39,6 +39,8 @@ export default function PartnerProfilePage() {
   });
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [profileError, setProfileError] = useState(null);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState(""); // 'success' | 'error' | ''
 
   useEffect(() => {
     let isMounted = true;
@@ -88,7 +90,12 @@ export default function PartnerProfilePage() {
   const handleSave = useCallback(() => {
     // TODO: Add API call to save data
     console.log("Saving profile data:", formData);
+    // Provide lightweight visual confirmation without changing existing save flow
     setIsEditing(false);
+    setMessage(t('PertnerProfile.SaveSuccess') || 'Changes saved');
+    setMessageType('success');
+    // update updated_at timestamp to reflect save
+    setFormData((prev) => ({ ...prev, updated_at: new Date().toISOString() }));
   }, [formData]);
 
   const handleCancel = useCallback(() => {
@@ -161,6 +168,11 @@ export default function PartnerProfilePage() {
             </div>
           )}
         </div>
+        {message && (
+          <div className={`mt-3 px-3 py-2 rounded-md ${messageType === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+            {message}
+          </div>
+        )}
       </div>
 
       {/* Verification Status Cards */}

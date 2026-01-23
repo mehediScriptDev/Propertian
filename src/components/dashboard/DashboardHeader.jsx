@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { PiBuildingApartmentDuotone } from "react-icons/pi";
 import { TbHeartHandshake } from "react-icons/tb";
 import { PiHandshakeDuotone } from "react-icons/pi";
+import NotificationButton from "./NotificationButton";
 
 /**
  * Dashboard Header Component
@@ -153,7 +154,10 @@ export default function DashboardHeader({ title }) {
         </div>
 
         {/* User Badge */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1">
+          {/* Notification Button - visible for admin, partner, concierge */}
+          <NotificationButton />
+          
           <div className="hidden sm:flex items-center gap-2 rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700">
             <ProfileDropDown />
           </div>

@@ -53,7 +53,8 @@ export default function ResidentialPage() {
       setLoadingDevelopments(true);
       setDevError(null);
       try {
-        const res = await api.get('/properties?propertyType=NEW_DEVELOPMENT', { signal: controller.signal });
+        // Use cached GET to avoid refetching on quick revisits (TTL: 5 minutes)
+        const res = await api.getCached('/properties?listingType=DEVELOPMENT', { ttl: 300000, signal: controller.signal });
         // api.get returns response.data from axios; backend may nest under `data`
         const data = res?.data || res;
         let props = data?.properties || data?.data?.properties || data?.data || data?.items || [];
