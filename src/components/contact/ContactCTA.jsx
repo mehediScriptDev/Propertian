@@ -2,9 +2,15 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 const ContactCTA = React.memo(
   ({ title, subtitle, primaryButton, secondaryButton }) => {
+    const params = useParams?.() || {};
+    const locale = params.locale;
+    const conciergeHref = locale ? `/${locale}/concierge#concierge-form` : '/concierge#concierge-form';
+    const faqHref = locale ? `/${locale}/faq` : '/faq';
+
     return (
       <section className=' w-full rounded-xl bg-white/20 py-8 dark:bg-[#D4AF37]/10 border border-gray-200 shadow-sm '>
         <div className='flex flex-col items-center gap-4 px-4 text-center sm:gap-6 sm:px-6 lg:px-8'>
@@ -22,7 +28,7 @@ const ContactCTA = React.memo(
           <div className='mt-2 flex w-full flex-col gap-3 sm:mt-4 sm:w-auto sm:flex-row sm:gap-4'>
             {/* Primary Button */}
             <Link
-              href='/concierge'
+              href={conciergeHref}
               className='flex h-11 min-w-40 items-center justify-center rounded-lg bg-accent px-5 text-[14px] font-bold text-white transition-opacity duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-navy focus:ring-offset-2 dark:bg-[#D4AF37] dark:text-navy sm:h-12 sm:min-w-44 sm:text-base'
             >
               <span>{primaryButton}</span>
@@ -30,7 +36,7 @@ const ContactCTA = React.memo(
 
             {/* Secondary Button */}
             <Link
-              href='/faq'
+              href={faqHref}
               className='flex h-11 min-w-40 items-center justify-center rounded-lg border border-gray-200 bg-navy/5 px-5 text-[14px] font-bold text-navy transition-all duration-200 hover:bg-navy/10 focus:outline-none focus:ring-2 focus:ring-navy focus:ring-offset-2 dark:bg-[#FFFFF0]/10 dark:text-[#FFFFF0] dark:hover:bg-[#FFFFF0]/20 sm:h-12 sm:min-w-44 sm:text-base'
             >
               <span>{secondaryButton}</span>
