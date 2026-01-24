@@ -29,7 +29,7 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 /**
@@ -49,16 +49,39 @@ axiosInstance.interceptors.response.use(
 
       switch (status) {
         case 401:
-          // Unauthorized - clear cookies and redirect to login
-          if (typeof window !== "undefined") {
-            Cookies.remove("token");
-            Cookies.remove("refreshToken");
-            Cookies.remove("user");
+          // Unauthorized - but avoid forcing a logout for certain endpoints
+          // (e.g., change-password may return 401 for wrong current password)
+          // If the original request URL indicates this is an auth action where
+          // we prefer showing an inline error, skip automatic logout/redirect.
+          try {
+            const reqUrl = error?.config?.url || "";
+            const skipAutoLogoutPaths = [
+              "/auth/change-password",
+              "/auth/refresh-token",
+            ];
+            const skip = skipAutoLogoutPaths.some((p) => reqUrl.includes(p));
 
-            // Only redirect if not already on login page
-            if (!window.location.pathname.includes("/login")) {
-              const locale = window.location.pathname.split("/")[1] || "en";
-              window.location.href = `/${locale}/login`;
+            if (!skip && typeof window !== "undefined") {
+              Cookies.remove("token");
+              Cookies.remove("refreshToken");
+              Cookies.remove("user");
+
+              // Only redirect if not already on login page
+              if (!window.location.pathname.includes("/login")) {
+                const locale = window.location.pathname.split("/")[1] || "en";
+                window.location.href = `/${locale}/login`;
+              }
+            }
+          } catch (e) {
+            // If anything goes wrong deciding whether to skip, fall back to existing behaviour
+            if (typeof window !== "undefined") {
+              Cookies.remove("token");
+              Cookies.remove("refreshToken");
+              Cookies.remove("user");
+              if (!window.location.pathname.includes("/login")) {
+                const locale = window.location.pathname.split("/")[1] || "en";
+                window.location.href = `/${locale}/login`;
+              }
             }
           }
           break;
@@ -118,7 +141,7 @@ axiosInstance.interceptors.response.use(
         status: null,
       });
     }
-  }
+  },
 );
 
 export default axiosInstance;

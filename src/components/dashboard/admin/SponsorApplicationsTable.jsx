@@ -14,7 +14,7 @@ import {
 /**
  * SponsorApplicationsTable - Table component for displaying sponsor applications
  */
-const SponsorApplicationsTable = memo(({ applications, translations, onView, onApprove, onReject, loading = false }) => {
+const SponsorApplicationsTable = memo(({ applications, translations, onView, onApprove, onApproveImmediate, onReject, loading = false }) => {
   // Show loading state
   if (loading) {
     return (
@@ -110,170 +110,190 @@ const SponsorApplicationsTable = memo(({ applications, translations, onView, onA
             </tr>
           </thead>
           <tbody className='bg-white divide-y divide-gray-200'>
-            {applications.map((application) => (
-              <tr
-                key={application.id}
-                className='hover:bg-gray-50 transition-colors'
-              >
-                {/* Company Name */}
-                <td className='px-6 py-4'>
-                  <div className='text-sm font-medium text-gray-900'>
-                    {application.company_name}
-                  </div>
-                </td>
+            {applications.map((application) => {
+              const normalizedStatus = (application.status || '').toString().toLowerCase();
+              return (
+                <tr
+                  key={application.id}
+                  className='hover:bg-gray-50 transition-colors'
+                >
+                  {/* Company Name */}
+                  <td className='px-6 py-4'>
+                    <div className='flex items-center gap-3'>
+                      {((application.logo || application.image || application.thumbnail) && (
+                        <img
+                          src={application.logo || application.image || application.thumbnail}
+                          alt={application.company_name}
+                          className='h-10 w-10 rounded-md object-cover border'
+                        />
+                      )) || (
+                          <div className='h-10 w-10 rounded-md bg-gray-100 flex items-center justify-center text-xs text-gray-500'>
+                            {application.company_name ? application.company_name.charAt(0) : '-'}
+                          </div>
+                        )}
 
-                {/* Contact Person */}
-                <td className='px-6 py-4'>
-                  <div className='flex items-center gap-2'>
-                    <User className='h-4 w-4 text-gray-400' />
-                    <span className='text-sm text-gray-900'>
-                      {application.contact_person}
-                    </span>
-                  </div>
-                </td>
+                      <div className='text-sm font-medium text-gray-900'>
+                        {application.company_name}
+                      </div>
+                    </div>
+                  </td>
 
-                {/* Email */}
-                <td className='px-6 py-4'>
-                  <div className='flex items-center gap-2'>
-                    <Mail className='h-4 w-4 text-gray-400' />
-                    <span className='text-sm text-gray-900'>
-                      {application.email}
-                    </span>
-                  </div>
-                </td>
+                  {/* Contact Person */}
+                  <td className='px-6 py-4'>
+                    <div className='flex items-center gap-2'>
+                      <User className='h-4 w-4 text-gray-400' />
+                      <span className='text-sm text-gray-900'>
+                        {application.contact_person}
+                      </span>
+                    </div>
+                  </td>
 
-                {/* Country */}
-                <td className='px-6 py-4'>
-                  <div className='flex items-center gap-2'>
-                    <MapPin className='h-4 w-4 text-gray-400' />
-                    <span className='text-sm text-gray-900'>
-                      {application.country}
-                    </span>
-                  </div>
-                </td>
+                  {/* Email */}
+                  <td className='px-6 py-4'>
+                    <div className='flex items-center gap-2'>
+                      <Mail className='h-4 w-4 text-gray-400' />
+                      <span className='text-sm text-gray-900'>
+                        {application.email}
+                      </span>
+                    </div>
+                  </td>
 
-                {/* Applied Date */}
-                <td className='px-6 py-4 whitespace-nowrap'>
-                  <div className='flex items-center gap-1.5 text-sm text-gray-600'>
-                    <Calendar className='h-4 w-4' />
-                    {formatDate(application.applied_date)}
-                  </div>
-                </td>
+                  {/* Country */}
+                  <td className='px-6 py-4'>
+                    <div className='flex items-center gap-2'>
+                      <MapPin className='h-4 w-4 text-gray-400' />
+                      <span className='text-sm text-gray-900'>
+                        {application.country}
+                      </span>
+                    </div>
+                  </td>
 
-                {/* Status Badge */}
-                <td className='px-6 py-4 whitespace-nowrap'>
-                  {getStatusBadge(application.status)}
-                </td>
+                  {/* Applied Date */}
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='flex items-center gap-1.5 text-sm text-gray-600'>
+                      <Calendar className='h-4 w-4' />
+                      {formatDate(application.applied_date)}
+                    </div>
+                  </td>
 
-                {/* Actions */}
-                <td className='px-6 py-4 whitespace-nowrap'>
-                  <div className='flex items-center gap-2'>
-                    {/* View */}
-                    <button
-                      onClick={() => onView(application)}
-                      className='p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
-                      title='View Details'
-                    >
-                      <Eye className='h-4 w-4' />
-                    </button>
+                  {/* Status Badge */}
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    {getStatusBadge(normalizedStatus)}
+                  </td>
 
-                    {/* Approve - only show for pending applications */}
-                    {application.status === 'pending' && (
+                  {/* Actions */}
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='flex items-center gap-2'>
+                      {/* View */}
                       <button
-                        onClick={() => onApprove(application)}
-                        className='p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors'
-                        title='Approve'
+                        onClick={() => onView(application)}
+                        className='p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
+                        title='View Details'
                       >
-                        <CheckCircle className='h-4 w-4' />
+                        <Eye className='h-4 w-4' />
                       </button>
-                    )}
 
-                    {/* Reject - only show for pending applications */}
-                    {application.status === 'pending' && (
-                      <button
-                        onClick={() => onReject(application)}
-                        className='p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
-                        title='Reject'
-                      >
-                        <XCircle className='h-4 w-4' />
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {/* Approve - only show for pending applications */}
+                      {normalizedStatus === 'pending' && (
+                        <button
+                          onClick={() => (onApproveImmediate ? onApproveImmediate(application) : onApprove(application))}
+                          className='p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors'
+                          title='Approve'
+                        >
+                          <CheckCircle className='h-4 w-4' />
+                        </button>
+                      )}
+
+                      {/* Reject - only show for pending applications */}
+                      {normalizedStatus === 'pending' && (
+                        <button
+                          onClick={() => onReject(application)}
+                          className='p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
+                          title='Reject'
+                        >
+                          <XCircle className='h-4 w-4' />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {/* Mobile Cards */}
       <div className='lg:hidden space-y-4 p-4'>
-        {applications.map((application) => (
-          <div
-            key={application.id}
-            className='bg-white border border-gray-200 rounded-lg p-4 space-y-3'
-          >
-            {/* Header */}
-            <div className='flex items-start justify-between'>
-              <div className='flex-1'>
-                <div className='text-sm font-semibold text-gray-900'>
-                  {application.company_name}
+        {applications.map((application) => {
+          const normalizedStatus = (application.status || '').toString().toLowerCase();
+          return (
+            <div
+              key={application.id}
+              className='bg-white border border-gray-200 rounded-lg p-4 space-y-3'
+            >
+              {/* Header */}
+              <div className='flex items-start justify-between'>
+                <div className='flex-1'>
+                  <div className='text-sm font-semibold text-gray-900'>
+                    {application.company_name}
+                  </div>
+                  <div className='text-xs text-gray-500 mt-1'>
+                    {application.contact_person}
+                  </div>
                 </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  {application.contact_person}
+                {getStatusBadge(normalizedStatus)}
+              </div>
+
+              {/* Details */}
+              <div className='space-y-1.5 pt-2 border-t border-gray-100 text-sm'>
+                <div className='flex items-center gap-2 text-gray-600'>
+                  <Mail className='h-4 w-4 text-gray-400' />
+                  {application.email}
+                </div>
+                <div className='flex items-center gap-2 text-gray-600'>
+                  <MapPin className='h-4 w-4 text-gray-400' />
+                  {application.country}
+                </div>
+                <div className='flex items-center gap-2 text-gray-600'>
+                  <Calendar className='h-4 w-4 text-gray-400' />
+                  {formatDate(application.applied_date)}
                 </div>
               </div>
-              {getStatusBadge(application.status)}
-            </div>
 
-            {/* Details */}
-            <div className='space-y-1.5 pt-2 border-t border-gray-100 text-sm'>
-              <div className='flex items-center gap-2 text-gray-600'>
-                <Mail className='h-4 w-4 text-gray-400' />
-                {application.email}
+              {/* Actions */}
+              <div className='flex items-center gap-2 pt-2 border-t border-gray-100'>
+                <button
+                  onClick={() => onView(application)}
+                  className='flex-1 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1.5'
+                >
+                  <Eye className='h-4 w-4' />
+                  View
+                </button>
+
+                {normalizedStatus === 'pending' && (
+                  <>
+                    <button
+                      onClick={() => (onApproveImmediate ? onApproveImmediate(application) : onApprove(application))}
+                      className='px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-lg transition-colors'
+                      title='Approve'
+                    >
+                      <CheckCircle className='h-4 w-4' />
+                    </button>
+
+                    <button
+                      onClick={() => onReject(application)}
+                      className='px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors'
+                      title='Reject'
+                    >
+                      <XCircle className='h-4 w-4' />
+                    </button>
+                  </>
+                )}
               </div>
-              <div className='flex items-center gap-2 text-gray-600'>
-                <MapPin className='h-4 w-4 text-gray-400' />
-                {application.country}
-              </div>
-              <div className='flex items-center gap-2 text-gray-600'>
-                <Calendar className='h-4 w-4 text-gray-400' />
-                {formatDate(application.applied_date)}
-              </div>
             </div>
-
-            {/* Actions */}
-            <div className='flex items-center gap-2 pt-2 border-t border-gray-100'>
-              <button 
-                onClick={() => onView(application)} 
-                className='flex-1 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1.5'
-              >
-                <Eye className='h-4 w-4' />
-                View
-              </button>
-
-              {application.status === 'pending' && (
-                <>
-                  <button 
-                    onClick={() => onApprove(application)} 
-                    className='px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-lg transition-colors' 
-                    title='Approve'
-                  >
-                    <CheckCircle className='h-4 w-4' />
-                  </button>
-
-                  <button 
-                    onClick={() => onReject(application)} 
-                    className='px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors' 
-                    title='Reject'
-                  >
-                    <XCircle className='h-4 w-4' />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
