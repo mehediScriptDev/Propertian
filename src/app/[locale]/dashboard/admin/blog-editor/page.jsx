@@ -500,108 +500,66 @@ export default function BlogEditor({ params }) {
     setAltText('');
   };
 
- // --- UPDATED PUBLISH HANDLER ---
-  const handlePublish = useCallback(async () => {
-    try {
-      setIsPublishing(true);
-      setPublishError(null);
+const handlePublish = useCallback(async () => {
+  try {
+    setIsPublishing(true);
+    setPublishError(null);
 
-      // 1. Frontend Validation
-      if (!title || !title.trim()) {
-        showToast('Title is required', 'error');
-        setIsPublishing(false);
-        return;
-      }
 
-      if (!content || !content.trim()) {
-        showToast('Content is required', 'error');
-        setIsPublishing(false);
-        return;
-      }
-
-      // 2. FormData Construction
-      const formData = new FormData();
-      formData.append('title', title.trim());
-      
-      const plainTextContent = content.replace(/<[^>]*>?/gm, '');
-      const excerptText = metaDescription?.trim() || plainTextContent.substring(0, 150);
-      formData.append('excerpt', excerptText);
-      
-      formData.append('content', content.trim());
-      formData.append('author', 'Admin User'); 
-      formData.append('tags', tags?.trim() || '');
-      
-      // FIX 1: Ensure status matches Postman (Use 'PUBLISHED' for testing)
-      // If the UI state is 'draft', we force 'PUBLISHED' for the button action, 
-      // or you can explicitly set it to the state value if you trust the dropdown.
-      // For now, let's stick to what worked in Postman:
-      const submitStatus = status === 'draft' ? 'PUBLISHED' : status; 
-      formData.append('status', submitStatus); 
-
-      // 3. Image Handling
-      if (imageUrl instanceof File) {
-        formData.append('featuredImage', imageUrl);
-      } else {
-        // If you are editing and there is an existing image URL, you might not need to send it again.
-        // But for creating new, check if backend REQUIRES it.
-        console.log("No new file selected for featuredImage");
-      }
-
-      // Debug: Log what we are sending
-      console.log("--- Sending Payload ---");
-      for (var pair of formData.entries()) {
-          console.log(pair[0]+ ': ' + pair[1]); 
-      }
-
-      // 4. API Request
-      const response = await uploadFile('/blog', formData);
-      // handlePublish ফাংশনের success ব্লকের ভিতরে
-if (response && response.success) {
-    console.log("✅ SERVER SAVED DATA:", response.data); // এই লাইনটি চেক করুন
-    alert(`Saved Successfully! ID: ${response.data?.blog?.id}`); // পপআপে ID দেখাচ্ছে কিনা দেখুন
-    showToast(response.message); 
-    resetForm();
-}
-
-      // // 5. Success Handling
-      // if (response && response.success) {
-        
-      //   showToast(response.message); 
-      //   resetForm();
-      // } else {
-      //   throw new Error(response.message );
-      // }
-
-    } catch (err) {
-      console.error('Publish Error:', err);
-
-      let errorMsg = err.message || 'An unexpected error occurred';
-      
-      // FIX 2: Extract Specific Backend Validation Errors
-      if (err.response && err.response.data) {
-          const data = err.response.data;
-          
-          // Case A: Top level message
-          if (data.message) {
-              errorMsg = data.message;
-          }
-
-          // Case B: Validation errors object (e.g. { title: "Title is required" })
-          if (data.errors) {
-              // Create a list of errors to show user
-              const validationErrors = Object.values(data.errors).join(', ');
-              if (validationErrors) {
-                  errorMsg = `${data.message}: ${validationErrors}`;
-              }
-          }
-      }
-
-      setPublishError(errorMsg);
-      showToast(errorMsg, 'error');
-    } finally {
+    if (!title || !title.trim()) {
+      showToast('Title is required', 'error');
       setIsPublishing(false);
+      return;
     }
-  }, [title, content, metaDescription, tags, imageUrl, status]);
+
+    if (!content || !content.trim()) {
+      showToast('Content is required', 'error');
+      setIsPublishing(false);
+      return;
+    }
+
+
+    const formData = new FormData();
+    formData.append('title', title.trim());
+    
+    const plainTextContent = content.replace(/<[^>]*>?/gm, '');
+    const excerptText = metaDescription?.trim() || plainTextContent.substring(0, 150);
+    formData.append('excerpt', excerptText);
+    
+    formData.append('content', content.trim());
+    formData.append('author', 'Admin User'); 
+    formData.append('tags', tags?.trim() || '');
+    
+    const submitStatus = status === 'draft' ? 'PUBLISHED' : status; 
+    formData.append('status', submitStatus); 
+
+    if (imageUrl instanceof File) {
+      formData.append('featuredImage', imageUrl);
+    }
+
+
+    const response = await uploadFile('/blog', formData);
+
+   
+    if (response && response.success) {
+      console.log(" SERVER SAVED DATA:", response.data); 
+      
+      showToast(response.message || 'Blog post created successfully!'); 
+      
+    
+      resetForm();
+    }
+
+  } catch (err) {
+    console.error('Publish Error:', err);
+    let errorMsg = err.response?.data?.message || err.message || 'An unexpected error occurred';
+    
+    setPublishError(errorMsg);
+    showToast(errorMsg, 'error');
+  } finally {
+    setIsPublishing(false);
+  }
+}, [title, content, metaDescription, tags, imageUrl, status]);
   return (
     <div className='space-y-4 md:space-y-6'>
       {/* Header */}
