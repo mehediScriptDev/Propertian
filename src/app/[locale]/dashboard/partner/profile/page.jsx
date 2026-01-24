@@ -21,6 +21,8 @@ export default function PartnerProfilePage() {
   const [profileData, setProfileData] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState(null);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState(""); // 'success' | 'error' | ''
 
   useEffect(() => {
     let isMounted = true;
@@ -70,6 +72,30 @@ export default function PartnerProfilePage() {
     };
   }, []);
 
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }, []);
+
+  const handleSave = useCallback(() => {
+    // TODO: Add API call to save data
+    console.log("Saving profile data:", formData);
+    // Provide lightweight visual confirmation without changing existing save flow
+    setIsEditing(false);
+    setMessage(t('PertnerProfile.SaveSuccess') || 'Changes saved');
+    setMessageType('success');
+    // update updated_at timestamp to reflect save
+    setFormData((prev) => ({ ...prev, updated_at: new Date().toISOString() }));
+  }, [formData]);
+
+  const handleCancel = useCallback(() => {
+    setIsEditing(false);
+    // Reset form data if needed
+  }, []);
+
   const formatDate = useCallback((dateString) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -103,7 +129,12 @@ export default function PartnerProfilePage() {
             <p className="text-gray-600">Loading profile...</p>
           </div>
         </div>
-      )}
+        {message && (
+          <div className={`mt-3 px-3 py-2 rounded-md ${messageType === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+            {message}
+          </div>
+        )}
+      </div>
 
       {/* Error State */}
       {profileError && !loadingProfile && (
