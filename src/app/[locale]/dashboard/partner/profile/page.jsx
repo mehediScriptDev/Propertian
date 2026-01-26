@@ -24,6 +24,10 @@ export default function PartnerProfilePage() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState(""); // 'success' | 'error' | ''
 
+  // Local form and edit state used by the profile form handlers
+  const [formData, setFormData] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
+
   useEffect(() => {
     let isMounted = true;
     async function fetchProfile() {
@@ -72,6 +76,11 @@ export default function PartnerProfilePage() {
     };
   }, []);
 
+  // Initialize formData when profileData is loaded
+  useEffect(() => {
+    if (profileData) setFormData(profileData);
+  }, [profileData]);
+
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -81,7 +90,7 @@ export default function PartnerProfilePage() {
   }, []);
 
   const handleSave = useCallback(() => {
-    // TODO: Add API call to save data
+   
     console.log("Saving profile data:", formData);
     // Provide lightweight visual confirmation without changing existing save flow
     setIsEditing(false);
@@ -128,13 +137,13 @@ export default function PartnerProfilePage() {
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-[#E6B325]"></div>
             <p className="text-gray-600">Loading profile...</p>
           </div>
+          {message && (
+            <div className={`mt-3 px-3 py-2 rounded-md ${messageType === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+              {message}
+            </div>
+          )}
         </div>
-        {message && (
-          <div className={`mt-3 px-3 py-2 rounded-md ${messageType === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-            {message}
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Error State */}
       {profileError && !loadingProfile && (
