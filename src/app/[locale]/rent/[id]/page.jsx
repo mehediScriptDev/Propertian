@@ -36,9 +36,13 @@ export default function RentDetailsPage() {
     axiosInstance
       .get(`/properties/${id}`)
       .then((res) => {
-        
         const p = res?.data?.data?.property || res?.data?.data || res?.data?.property || res?.data || null;
         if (!p) throw new Error('Property not found');
+
+        // only allow viewing of approved listings
+        if (String(p.approvalStatus || '').toUpperCase() !== 'APPROVED') {
+          throw new Error('Property not available');
+        }
 
         const normalized = {
           id: p.id || p._id,
@@ -66,6 +70,7 @@ export default function RentDetailsPage() {
             furnishing: p.isFurnished ? t('rent.property.rental.furnishing', 'Fully Furnished') : t('rent.propertyCard.unfurnished'),
             deposit: t('rent.property.rental.deposit', '2 Months Deposit'),
           },
+          approvalStatus: p.approvalStatus || null,
         };
 
         if (mounted) setProperty(normalized);
@@ -168,11 +173,18 @@ export default function RentDetailsPage() {
           {/* Left Content */}
           <div className="lg:col-span-2 space-y-3.5 lg:space-y-6">
             {/* Image Gallery */}
-            <Suspense
-              fallback={<div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />}
-            >
-              <ImageGallery images={property.images} alt={property.title} />
-            </Suspense>
+            <div className="relative">
+              {property?.approvalStatus && String(property.approvalStatus).toUpperCase() === 'APPROVED' && (
+                <span className="absolute top-4 left-4 z-20 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+                  APPROVED
+                </span>
+              )}
+              <Suspense
+                fallback={<div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />}
+              >
+                <ImageGallery images={property.images} alt={property.title} />
+              </Suspense>
+            </div>
 
             {/* Tabs (Overview / Features / Location / etc.) */}
             <section className="bg-white/50 dark:bg-card-dark rounded-lg shadow-sm p-6">
