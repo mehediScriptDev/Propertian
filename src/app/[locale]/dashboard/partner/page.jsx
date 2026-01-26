@@ -389,6 +389,9 @@ export default function PartnerDashboardPage({ params }) {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     {t("Partner.Properties")}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -411,6 +414,9 @@ export default function PartnerDashboardPage({ params }) {
                     key={property.id}
                     className="transition-colors hover:bg-gray-50"
                   >
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-600">{property.id}</div>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="font-medium text-gray-900">
                         {property.title}
@@ -491,6 +497,7 @@ export default function PartnerDashboardPage({ params }) {
                   <h3 className="font-medium text-gray-900">
                     {property.title}
                   </h3>
+                  <div className="text-xs text-gray-500">ID: {property.id}</div>
                   <div className="mt-1 flex items-center gap-1 text-sm text-gray-600">
                     <MapPin className="h-3.5 w-3.5 text-gray-400" />
                     {(property.address || "") +
@@ -503,10 +510,7 @@ export default function PartnerDashboardPage({ params }) {
                     <DollarSign className="h-3.5 w-3.5 text-gray-400" />
                     <span className="font-medium">{property.price}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-gray-600">
-                    <Eye className="h-3.5 w-3.5 text-gray-400" />
-                    {property.views} views
-                  </div>
+
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -518,10 +522,7 @@ export default function PartnerDashboardPage({ params }) {
                   >
                     {property.status === "available" ? "Available" : "Pending"}
                   </span>
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
-                    <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
-                    {property._count?.inquiries ?? "-"} {t("Partner.inquiries")}
-                  </div>
+
                 </div>
                 <div className="mt-3 flex items-center justify-end gap-2">
                   <button
@@ -797,7 +798,7 @@ export default function PartnerDashboardPage({ params }) {
             </div>
           )}
         </Modal>
-        
+
       </div>
     </div>
   );
