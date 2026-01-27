@@ -17,11 +17,11 @@ export default function AdminPartnersPage({ params }) {
   // --- State ---
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  
+
   // Data States for Partner Tab
-  const [applications, setApplications] = useState([]); 
-  const [statsData, setStatsData] = useState(null);    
-  
+  const [applications, setApplications] = useState([]);
+  const [statsData, setStatsData] = useState(null);
+
   // Loading States
   const [loadingTable, setLoadingTable] = useState(true);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -34,10 +34,16 @@ export default function AdminPartnersPage({ params }) {
     totalPages: 1
   });
 
+  // Verification Requests state (admin)
+  const [verificationRequests, setVerificationRequests] = useState([]);
+  const [loadingVerifications, setLoadingVerifications] = useState(true);
+  const [verifPage, setVerifPage] = useState(1);
+  const [verifPagination, setVerifPagination] = useState({ total: 0, page: 1, limit: 20, totalPages: 1 });
+
   // --- Derive Tab ---
   const searchParams = useSearchParams();
   const tabParam = searchParams ? searchParams.get('tab') : null;
-  
+
   const selectedTab = useMemo(() => {
     if (tabParam === 'listing-submissions') return 'listing_submission';
     if (tabParam === 'verification-requests') return 'verification_requests';
@@ -45,6 +51,7 @@ export default function AdminPartnersPage({ params }) {
   }, [tabParam]);
 
   const ITEMS_PER_PAGE = 8;
+  const VERIF_ITEMS_PER_PAGE = 20;
 
 
   const partnersTranslations = useMemo(
@@ -68,37 +75,37 @@ export default function AdminPartnersPage({ params }) {
     [t]
   );
 
- 
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoadingStats(true);
-        setStatsData(null); 
-        
+        setStatsData(null);
+
         let url = '';
 
         // A. Partners Stats
         if (selectedTab === 'partner_application') {
-            url = '/partner/stats';
-        } 
+          url = '/partner/stats';
+        }
         // B. Listings Stats (Keep this if you want stats cards for listings)
         else if (selectedTab === 'listing_submission') {
-            url = '/admin/property-approval/stats';
-        } 
+          url = '/admin/property-approval/stats';
+        }
         // C. Verification Stats
         else if (selectedTab === 'verification_requests') {
-            setStatsData({ total: 0, pending: 0, rejected: 0, verified: 0 });
-            setLoadingStats(false);
-            return;
+          setStatsData({ total: 0, pending: 0, rejected: 0, verified: 0 });
+          setLoadingStats(false);
+          return;
         }
 
         if (url) {
-            const response = await axiosInstance.get(url);
-            if (response.data.success) {
-        
-                const data = response.data.data.stats || response.data.data;
-                setStatsData(data);
-            }
+          const response = await axiosInstance.get(url);
+          if (response.data.success) {
+
+            const data = response.data.data.stats || response.data.data;
+            setStatsData(data);
+          }
         }
       } catch (error) {
         console.error(`Error fetching stats for ${selectedTab}:`, error);
@@ -110,37 +117,76 @@ export default function AdminPartnersPage({ params }) {
     fetchStats();
   }, [selectedTab]);
 
- 
+
   useEffect(() => {
     const fetchTableData = async () => {
-   
-      if (selectedTab !== 'partner_application') {
-          return; 
+      // Partner applications
+      if (selectedTab === 'partner_application') {
+        try {
+          setLoadingTable(true);
+          let url = `/partner/applications?page=${currentPage}&limit=${ITEMS_PER_PAGE}`;
+
+          if (statusFilter !== 'all') {
+            url += `&status=${statusFilter}`;
+          }
+
+          const response = await axiosInstance.get(url);
+          if (response.data.success) {
+            setApplications(response.data.data.applications || []);
+            setPagination(response.data.data.pagination || { total: 0, totalPages: 1 });
+          }
+        } catch (error) {
+          console.error('Error fetching partner applications:', error);
+          setApplications([]);
+        } finally {
+          setLoadingTable(false);
+        }
       }
 
-      try {
-        setLoadingTable(true);
-        let url = `/partner/applications?page=${currentPage}&limit=${ITEMS_PER_PAGE}`;
-
-        if (statusFilter !== 'all') {
-          url += `&status=${statusFilter}`;
+      // Verification requests (admin)
+      if (selectedTab === 'verification_requests') {
+        try {
+          setLoadingVerifications(true);
+          const resp = await axiosInstance.get(`/verifications/admin?page=${verifPage}&limit=${VERIF_ITEMS_PER_PAGE}`);
+          if (resp.data && resp.data.success) {
+            const data = resp.data.data || {};
+            setVerificationRequests(data.verifications || data.verifications || []);
+            setVerifPagination(data.pagination || { total: 0, totalPages: 1, page: verifPage, limit: VERIF_ITEMS_PER_PAGE });
+          } else {
+            setVerificationRequests([]);
+          }
+        } catch (err) {
+          console.error('Error fetching verification requests:', err);
+          setVerificationRequests([]);
+        } finally {
+          setLoadingVerifications(false);
         }
-
-        const response = await axiosInstance.get(url);
-        if (response.data.success) {
-          setApplications(response.data.data.applications || []);
-          setPagination(response.data.data.pagination || { total: 0, totalPages: 1 });
-        }
-      } catch (error) {
-        console.error('Error fetching partner applications:', error);
-        setApplications([]);
-      } finally {
-        setLoadingTable(false);
       }
     };
 
     fetchTableData();
-  }, [currentPage, statusFilter, selectedTab]);
+  }, [currentPage, statusFilter, selectedTab, verifPage]);
+
+  // Handlers for verification requests (admin)
+  const handleVerifStatusChange = async (id, newStatus) => {
+    try {
+      // Use admin route for updating verification status (matches backend)
+      await axiosInstance.put(`/verifications/admin/${id}/status`, { status: newStatus });
+      // refresh current page
+      const resp = await axiosInstance.get(`/verifications/admin?page=${verifPage}&limit=${VERIF_ITEMS_PER_PAGE}`);
+      if (resp.data && resp.data.success) {
+        const data = resp.data.data || {};
+        setVerificationRequests(data.verifications || []);
+        setVerifPagination(data.pagination || { total: 0, totalPages: 1, page: verifPage, limit: VERIF_ITEMS_PER_PAGE });
+      }
+    } catch (err) {
+      console.error('Failed to update verification status', err);
+    }
+  };
+
+  const handleVerifPageChange = (page) => {
+    setVerifPage(page);
+  };
 
 
   const stats = useMemo(() => {
@@ -171,32 +217,32 @@ export default function AdminPartnersPage({ params }) {
 
     // Default empty stats
     return [
-       { title: 'Total', value: 0, icon: Users, variant: 'primary' },
-       { title: 'Pending', value: 0, icon: Clock, variant: 'warning' },
-       { title: 'Review', value: 0, icon: FolderOpen, variant: 'info' },
-       { title: 'Verified', value: 0, icon: CheckCircle, variant: 'success' },
+      { title: 'Total', value: 0, icon: Users, variant: 'primary' },
+      { title: 'Pending', value: 0, icon: Clock, variant: 'warning' },
+      { title: 'Review', value: 0, icon: FolderOpen, variant: 'info' },
+      { title: 'Verified', value: 0, icon: CheckCircle, variant: 'success' },
     ];
   }, [statsData, selectedTab]);
 
   // --- Handlers for Partner Application Tab ---
   const handlePageChange = (page) => setCurrentPage(page);
-  
+
   const handleStatusUpdate = async (id, newStatus) => {
     try {
-        // Only for Partner Applications
-        await axiosInstance.put(`/partner/applications/${id}/status`, { status: newStatus });
-        window.location.reload(); 
+      // Only for Partner Applications
+      await axiosInstance.put(`/partner/applications/${id}/status`, { status: newStatus });
+      window.location.reload();
     } catch (error) {
-        console.error('Update failed', error);
+      console.error('Update failed', error);
     }
   };
 
   const handleDelete = async (id) => {
     try {
-        await axiosInstance.delete(`/partner/applications/${id}`);
-        window.location.reload();
+      await axiosInstance.delete(`/partner/applications/${id}`);
+      window.location.reload();
     } catch (error) {
-        console.error('Delete failed', error);
+      console.error('Delete failed', error);
     }
   };
 
@@ -205,9 +251,9 @@ export default function AdminPartnersPage({ params }) {
       {/* Header */}
       <div>
         <h1 className='text-4xl font-bold text-gray-900 mb-2'>
-          {selectedTab === 'listing_submission' ? 'Listing Submissions' : 
-           selectedTab === 'verification_requests' ? 'Verification Requests' : 
-           (partnersTranslations.title || 'Partner Applications')}
+          {selectedTab === 'listing_submission' ? 'Listing Submissions' :
+            selectedTab === 'verification_requests' ? 'Verification Requests' :
+              (partnersTranslations.title || 'Partner Applications')}
         </h1>
         <p className='text-sm sm:text-base text-gray-700'>
           {partnersTranslations.subtitle || 'Manage your requests here.'}
@@ -217,11 +263,11 @@ export default function AdminPartnersPage({ params }) {
       {/* Stats Cards */}
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6'>
         {loadingStats ? (
-           [...Array(4)].map((_, i) => (
-             <div key={i} className="h-28 bg-gray-50 animate-pulse rounded-xl border border-gray-100" />
-           ))
+          [...Array(4)].map((_, i) => (
+            <div key={i} className="h-28 bg-gray-50 animate-pulse rounded-xl border border-gray-100" />
+          ))
         ) : (
-           stats.map((stat, index) => (
+          stats.map((stat, index) => (
             <StatsCard
               key={index}
               title={stat.title}
@@ -234,7 +280,7 @@ export default function AdminPartnersPage({ params }) {
       </div>
 
       {/* CONTENT PANELS */}
-      
+
       {/* 1. Partner Applications (Parent handles fetching) */}
       {selectedTab === 'partner_application' && (
         <PartnersApplicationsPanel
@@ -260,10 +306,25 @@ export default function AdminPartnersPage({ params }) {
       {/* 3. Verification Requests (Placeholder) */}
       {selectedTab === 'verification_requests' && (
         <VerificationRequestsPanel
-          partners={[]}
-          loading={false}
+          partners={verificationRequests}
+          loading={loadingVerifications}
+          onDelete={async (id) => {
+            try {
+              await axiosInstance.delete(`/verifications/${id}`);
+              const resp = await axiosInstance.get(`/verifications/admin?page=${verifPage}&limit=${VERIF_ITEMS_PER_PAGE}`);
+              if (resp.data && resp.data.success) setVerificationRequests(resp.data.data.verifications || []);
+            } catch (err) {
+              console.error('Failed to delete verification', err);
+            }
+          }}
+          onStatusChange={handleVerifStatusChange}
           tableTranslations={partnersTranslations}
           paginationTranslations={paginationTranslations}
+          currentPage={verifPage}
+          totalPages={verifPagination.totalPages}
+          totalItems={verifPagination.total}
+          itemsPerPage={VERIF_ITEMS_PER_PAGE}
+          onPageChange={handleVerifPageChange}
         />
       )}
     </div>

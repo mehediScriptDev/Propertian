@@ -30,10 +30,13 @@ export default function PartnerInquiriesPage() {
     const fetchInquiries = async () => {
       setLoading(true);
       try {
-        // API: Get inquiries list for sidebar
-        const res = await api.get("/inquiries/my-inquiries?page=1&limit=50");
+        // API: Get inquiries list for sidebar (use admin/all inquiries endpoint to match Postman)
+        const res = await api.get("/inquiries");
+        
         const responseData = res?.data || res;
-        const items = responseData?.data?.inquiries || responseData?.inquiries || [];
+       
+        const items = responseData?.data?.inquiries || responseData?.inquiries || responseData?.data?.data?.inquiries || [];
+      
 
         const threads = items.map((i) => {
           const img =
@@ -57,14 +60,14 @@ export default function PartnerInquiriesPage() {
             lastMessage: i?.message || i?.lastMessage || "",
             userName,
             timestamp: i?.createdAt || i?.updatedAt || new Date().toISOString(),
-            inquiries: [], // Initially empty, will be filled by fetchThreadDetails
+            inquiries: [],
           };
         });
 
         if (mounted) setInquiries(threads);
       } catch (err) {
         console.error("Fetch error:", err);
-        showToast({ type: "error", message: "Failed to load inquiries." });
+        showToast('Failed to load inquiries.', 'error');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -83,32 +86,26 @@ export default function PartnerInquiriesPage() {
       // API Call: GET /inquiries/:id to get ALL previous conversations
       const res = await api.get(`/inquiries/${threadId}`);
       const responseData = res?.data || res;
-      
-      // Access the 'conversation' array from the response
-      // Structure based on your image: { ..., conversation: [...] }
       const conversationData = responseData?.conversation || responseData?.data?.conversation || [];
 
       console.log("Full Conversation Data:", conversationData);
 
       const mappedMessages = conversationData.map((msg) => {
-        // Role Mapping:
-        // 'USER' -> Client (Left)
-        // 'SUPER_ADMIN' / 'ADMIN' -> Admin (Left)
-        // 'AGENT' / 'PARTNER' -> Me (Right)
-        
+       
+
         let from = 'partner'; // Default assume it's me
-        
+
         if (msg.senderRole === 'USER') {
-            from = 'client';
+          from = 'client';
         } else if (msg.senderRole === 'SUPER_ADMIN' || msg.senderRole === 'ADMIN') {
-            from = 'admin';
+          from = 'admin';
         } else if (msg.senderRole === 'PARTNER' || msg.senderRole === 'AGENT') {
-            from = 'partner';
+          from = 'partner';
         }
 
         return {
           id: msg.id,
-          from: from, 
+          from: from,
           text: msg.message,
           timestamp: new Date(msg.createdAt).toLocaleString(),
           senderName: msg.senderName,
@@ -128,7 +125,7 @@ export default function PartnerInquiriesPage() {
 
     } catch (err) {
       console.error("Conversation fetch error:", err);
-      showToast({ type: "error", message: "Failed to load conversation history." });
+      showToast('Failed to load conversation history.', 'error');
     } finally {
       if (!isBackgroundRefresh) setLoadingConversation(false);
       setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
@@ -168,8 +165,8 @@ export default function PartnerInquiriesPage() {
     // 1. Set basic info from list first
     setSelected({ ...thread, inquiries: [] });
     setIsOpen(true);
-    
-    // 2. Immediately fetch the full history from API
+
+   
     fetchThreadDetails(thread.id);
   };
 
@@ -207,7 +204,7 @@ export default function PartnerInquiriesPage() {
 
     } catch (err) {
       console.error("Reply error:", err);
-      showToast({ type: "error", message: "Failed to send reply." });
+      showToast('Failed to send reply.', 'error');
     } finally {
       setIsSending(false);
     }
@@ -231,43 +228,43 @@ export default function PartnerInquiriesPage() {
 
         <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {loading ? (
-             <div className="flex justify-center items-center h-40">
-                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-             </div>
+            <div className="flex justify-center items-center h-40">
+              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+            </div>
           ) : filtered.length === 0 ? (
-             <div className="p-4 text-center text-gray-500 text-sm">No inquiries found.</div>
+            <div className="p-4 text-center text-gray-500 text-sm">No inquiries found.</div>
           ) : (
             filtered.map((thread) => (
-                <button
+              <button
                 key={thread.id}
                 onClick={() => selectThread(thread)}
                 className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${selected?.id === thread.id ? "bg-gray-50" : ""
-                    }`}
-                >
+                  }`}
+              >
                 <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
-                    {thread.userName[0]}
+                  {thread.userName[0]}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-0.5">
+                  <div className="flex items-center justify-between gap-2 mb-0.5">
                     <div className="font-medium text-sm text-gray-900 truncate">
-                        {thread.userName}
+                      {thread.userName}
                     </div>
                     <div className="text-xs text-gray-500 shrink-0">
-                        {new Date(thread.timestamp).toLocaleDateString("en-US", {
+                      {new Date(thread.timestamp).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
-                        })}
+                      })}
                     </div>
-                    </div>
-                    <div className="text-xs text-gray-600 mb-0.5 truncate">
+                  </div>
+                  <div className="text-xs text-gray-600 mb-0.5 truncate">
                     Property: {thread.propertyName}
-                    </div>
-                    <div className="text-xs text-gray-500 truncate mb-2">
+                  </div>
+                  <div className="text-xs text-gray-500 truncate mb-2">
                     {thread.lastMessage}
-                    </div>
-                    {getStatusBadge(thread.status)}
+                  </div>
+                  {getStatusBadge(thread.status)}
                 </div>
-                </button>
+              </button>
             ))
           )}
         </div>
@@ -285,12 +282,18 @@ export default function PartnerInquiriesPage() {
             <div className="px-6 py-4 bg-white border-b border-gray-200">
               <div className="flex items-start gap-4">
                 <div className="relative sm:w-20 sm:h-20 w-14 h-14 rounded-md overflow-hidden bg-gray-200 shrink-0">
-                  <Image
-                    src={selected.image}
-                    alt={selected.propertyName}
-                    fill
-                    className="object-cover"
-                  />
+                  {selected.image ? (
+                    <Image
+                      src={selected.image}
+                      alt={selected.propertyName || 'property image'}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-sm text-gray-500">
+                      No image
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
@@ -305,7 +308,7 @@ export default function PartnerInquiriesPage() {
                         {selected.city}
                       </div>
                     </div>
-                    
+
                     {/* Header Actions: Refresh & Close */}
                     <div className="flex items-center gap-2">
                       <button
@@ -333,51 +336,51 @@ export default function PartnerInquiriesPage() {
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-6 pb-24 relative">
               {loadingConversation ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
-                      <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-                  </div>
+                <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                </div>
               ) : (
                 <div className="w-full">
-                    {selected.inquiries.length === 0 && (
-                        <div className="text-center text-gray-400 text-sm mt-10">No messages in this conversation yet.</div>
-                    )}
-                    
-                    {selected.inquiries.map((msg) => (
-                        <div key={msg.id} className="mb-4">
-                            {msg.from === "partner" ? (
-                                /* Partner Message (Right - Me) */
-                                <div className="flex items-start gap-3 justify-end">
-                                    <div className="text-right">
-                                        <div className="bg-[#3B82F6] text-white rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl text-left">
-                                            {msg.text}
-                                        </div>
-                                        <div className="text-xs text-gray-500 mt-1.5">
-                                            You, {msg.timestamp}
-                                        </div>
-                                    </div>
-                                    <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
-                                        P
-                                    </div>
-                                </div>
-                            ) : (
-                                /* Client or Admin Message (Left - Them) */
-                                <div className="flex items-start gap-3">
-                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 ${msg.from === 'admin' ? 'bg-red-100 text-red-600' : 'bg-gray-300 text-gray-700'}`}>
-                                        {msg.from === 'admin' ? 'A' : (selected.userName ? selected.userName[0] : 'U')}
-                                    </div>
-                                    <div>
-                                        <div className={`rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl ${msg.from === 'admin' ? 'bg-red-50 text-red-900 border border-red-100' : 'bg-gray-100 text-gray-900'}`}>
-                                            {msg.text}
-                                        </div>
-                                        <div className="text-xs text-gray-500 mt-1.5">
-                                            {msg.senderName || (msg.from === 'admin' ? 'Admin' : selected.userName)}, {msg.timestamp}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                  {selected.inquiries.length === 0 && (
+                    <div className="text-center text-gray-400 text-sm mt-10">No messages in this conversation yet.</div>
+                  )}
+
+                  {selected.inquiries.map((msg) => (
+                    <div key={msg.id} className="mb-4">
+                      {msg.from === "partner" ? (
+                        /* Partner Message (Right - Me) */
+                        <div className="flex items-start gap-3 justify-end">
+                          <div className="text-right">
+                            <div className="bg-[#3B82F6] text-white rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl text-left">
+                              {msg.text}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1.5">
+                              You, {msg.timestamp}
+                            </div>
+                          </div>
+                          <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
+                            P
+                          </div>
                         </div>
-                    ))}
-                    <div ref={messagesEndRef} />
+                      ) : (
+                        /* Client or Admin Message (Left - Them) */
+                        <div className="flex items-start gap-3">
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 ${msg.from === 'admin' ? 'bg-red-100 text-red-600' : 'bg-gray-300 text-gray-700'}`}>
+                            {msg.from === 'admin' ? 'A' : (selected.userName ? selected.userName[0] : 'U')}
+                          </div>
+                          <div>
+                            <div className={`rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl ${msg.from === 'admin' ? 'bg-red-50 text-red-900 border border-red-100' : 'bg-gray-100 text-gray-900'}`}>
+                              {msg.text}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1.5">
+                              {msg.senderName || (msg.from === 'admin' ? 'Admin' : selected.userName)}, {msg.timestamp}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
                 </div>
               )}
             </div>
@@ -399,7 +402,7 @@ export default function PartnerInquiriesPage() {
                     disabled={isSending || !replyText.trim()}
                     className="bg-[#e6b325] text-white px-5 py-2.5 rounded-md text-xs lg:text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center gap-2"
                   >
-                    {isSending ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
+                    {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     Send
                   </button>
                 </div>
