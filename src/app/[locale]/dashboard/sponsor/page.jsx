@@ -17,8 +17,6 @@ import {
   Filter,
   Home,
   TrendingUp,
-  EyeIcon,
-  EyeOff,
   Edit,
   Trash2,
 } from "lucide-react";
@@ -83,7 +81,7 @@ export default function PartnerDashboardPage({ params }) {
     },
   ]);
 
-  // Fetch partner dashboard stats and inquiries count together and populate stat cards
+
   useEffect(() => {
     const fetchStatsAndInquiries = async () => {
       try {
