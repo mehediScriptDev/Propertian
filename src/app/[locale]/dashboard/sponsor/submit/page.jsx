@@ -42,7 +42,7 @@ export default function EventManagement({ params }) {
           limit: 10
         }
       });
-    
+
       const raw = res?.data;
       let items = [];
       if (Array.isArray(raw)) items = raw;

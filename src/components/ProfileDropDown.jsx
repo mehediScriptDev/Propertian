@@ -111,7 +111,7 @@ const ProfileDropDown = ({ showOnHover = false, useArrow = false }) => {
         >
           {/* Always show a small down arrow trigger (no avatar) */}
           <User className='w-5 h-5 text-gray-700 dark:text-gray-200' />
-           <p className='text-xs font-semibold hidden lg:block cursor-pointer'>Profile</p>
+          <p className='text-xs font-semibold hidden lg:block cursor-pointer'>Profile</p>
         </button>
       </div>
 
@@ -154,7 +154,28 @@ const ProfileDropDown = ({ showOnHover = false, useArrow = false }) => {
             </Link>
           ) : (
             <Link
-              href={`/${locale}/dashboard/${user?.role || 'admin'}`}
+              href={(() => {
+                // Map frontend role values to dashboard paths
+                const r = (user?.role || 'admin')?.toString?.();
+                switch (r) {
+                  case 'admin':
+                    return `/${locale}/dashboard/admin`;
+                  case 'user':
+                  case 'client':
+                    return `/${locale}/dashboard/user`;
+                  case 'partner':
+                    return `/${locale}/dashboard/partner`;
+                  case 'sponsor':
+                    return `/${locale}/dashboard/sponsor`;
+                  case 'concierge_partner':
+                  case 'concierge-partner':
+                    return `/${locale}/dashboard/concierge`;
+                  case 'listing_partner':
+                    return `/${locale}/dashboard/partner`;
+                  default:
+                    return `/${locale}/dashboard/user`;
+                }
+              })()}
               className='flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-[#f6efcb] dark:hover:bg-[#1A2B42] rounded-lg transition-all duration-150 group'
             >
               <LayoutDashboard className='w-5 h-5 group-hover:scale-110 transition-transform' />

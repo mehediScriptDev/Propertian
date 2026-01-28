@@ -1,159 +1,195 @@
 'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
+import { use, useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from '@/i18n';
-import { Bell, Check, CheckCheck, Trash2, Filter } from 'lucide-react';
+import { Bell, Check, CheckCheck, Trash2, Filter, Ticket, CheckCircle, DollarSign, FileText, MessageSquare, CreditCard, Settings } from 'lucide-react';
 import Pagination from '@/components/dashboard/Pagination';
-
-// Mock notification data for Concierge Partner
-const CONCIERGE_NOTIFICATIONS = [
-  {
-    id: 1,
-    type: 'ticket_assigned',
-    title: 'New Ticket Assigned',
-    message: 'You have been assigned ticket #CON-2045 - Airport pickup service for VIP client',
-    time: '10 minutes ago',
-    timestamp: '2026-01-12T14:25:00Z',
-    unread: true,
-    actionUrl: '/dashboard/concierge/tickets',
-  },
-  {
-    id: 2,
-    type: 'quote_approved',
-    title: 'Quote Approved',
-    message: 'Your quote for relocation service (Ticket #CON-2038) was approved by the client',
-    time: '2 hours ago',
-    timestamp: '2026-01-12T12:35:00Z',
-    unread: true,
-    actionUrl: '/dashboard/concierge/tickets',
-  },
-  {
-    id: 3,
-    type: 'ticket_updated',
-    title: 'Ticket Updated',
-    message: 'Admin updated ticket #CON-2040 - Please review the new requirements',
-    time: '4 hours ago',
-    timestamp: '2026-01-12T10:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/concierge/tickets',
-  },
-  {
-    id: 4,
-    type: 'quote_request',
-    title: 'Quote Request',
-    message: 'Admin requested a quote for ticket #CON-2035 - Property setup service',
-    time: '6 hours ago',
-    timestamp: '2026-01-12T08:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/concierge/tickets',
-  },
-  {
-    id: 5,
-    type: 'service_completed',
-    title: 'Service Marked Complete',
-    message: 'Client confirmed completion of ticket #CON-2030 - Moving assistance service',
-    time: '1 day ago',
-    timestamp: '2026-01-11T14:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/concierge/tickets',
-  },
-  {
-    id: 6,
-    type: 'client_message',
-    title: 'New Client Message',
-    message: 'Client sent a message regarding ticket #CON-2042',
-    time: '1 day ago',
-    timestamp: '2026-01-11T10:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/concierge/tickets',
-  },
-  {
-    id: 7,
-    type: 'payment_received',
-    title: 'Payment Received',
-    message: 'Payment received for ticket #CON-2025 - Translation services',
-    time: '2 days ago',
-    timestamp: '2026-01-10T14:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/concierge/tickets',
-  },
-  {
-    id: 8,
-    type: 'system',
-    title: 'Profile Verification Required',
-    message: 'Please update your service credentials for continued concierge operations',
-    time: '3 days ago',
-    timestamp: '2026-01-09T14:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/concierge/profile',
-  },
-];
+import axiosInstance from '@/lib/axios';
+import { showToast } from '@/components/Toast';
 
 export default function ConciergeNotificationsPage({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
 
-  const [notifications, setNotifications] = useState(CONCIERGE_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState([]);
   const [filterType, setFilterType] = useState('all'); // all, unread, read
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [serverPagination, setServerPagination] = useState({ totalPages: 1, totalItems: 0 });
+  const [globalUnreadCount, setGlobalUnreadCount] = useState(0);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newMessage, setNewMessage] = useState('');
+  const [newType, setNewType] = useState('system');
+  const [newActionUrl, setNewActionUrl] = useState('');
 
-  // Filter notifications
+  // Filter notifications (server can already filter by unread, but keep client-side fallback)
   const filteredNotifications = useMemo(() => {
-    if (filterType === 'unread') {
-      return notifications.filter((n) => n.unread);
-    } else if (filterType === 'read') {
-      return notifications.filter((n) => !n.unread);
-    }
+    if (filterType === 'unread') return notifications.filter((n) => n.unread === true);
+    if (filterType === 'read') return notifications.filter((n) => !n.unread);
     return notifications;
   }, [notifications, filterType]);
 
-  // Pagination
-  const totalPages = Math.ceil(filteredNotifications.length / itemsPerPage);
+  const totalPages = serverPagination.totalPages ?? Math.ceil(filteredNotifications.length / itemsPerPage);
   const paginatedNotifications = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return filteredNotifications.slice(start, start + itemsPerPage);
   }, [filteredNotifications, currentPage]);
 
-  // Handlers
-  const handleMarkAsRead = useCallback((id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
-    );
+  // Handlers (optimistic UI updates + backend calls)
+  const handleMarkAsRead = useCallback(async (id) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, unread: false } : n)));
+    setGlobalUnreadCount((c) => Math.max(0, c - 1));
+    try {
+      // Prefer single-item endpoint if available: PUT /notifications/:id/read
+      await axiosInstance.put(`/notifications/${id}/read`);
+    } catch (err) {
+      // Fallback to batch endpoint if single endpoint doesn't exist
+      try {
+        await axiosInstance.put('/notifications/mark-read', { ids: [id] });
+      } catch (err2) {
+        console.error('Mark as read failed', err2 || err);
+        showToast({ type: 'error', message: 'Failed to mark notification as read' });
+      }
+    }
   }, []);
 
-  const handleMarkAllAsRead = useCallback(() => {
+  const handleMarkAllAsRead = useCallback(async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    setGlobalUnreadCount(0);
+    try {
+      await axiosInstance.put('/notifications/mark-all-read');
+      showToast({ type: 'success', message: 'All notifications marked as read' });
+    } catch (err) {
+      console.error('Mark all as read failed', err);
+      showToast({ type: 'error', message: 'Failed to mark all as read' });
+    }
   }, []);
 
-  const handleDelete = useCallback((id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  const handleDelete = useCallback(async (id) => {
+    setNotifications((prev) => {
+      const n = prev.find((x) => x.id === id);
+      if (n && n.unread) setGlobalUnreadCount((c) => Math.max(0, c - 1));
+      return prev.filter((x) => x.id !== id);
+    });
+    try {
+      await axiosInstance.delete(`/notifications/${id}`);
+      showToast({ type: 'success', message: 'Notification deleted' });
+    } catch (err) {
+      console.error('Delete notification failed', err);
+      showToast({ type: 'error', message: 'Failed to delete notification' });
+    }
   }, []);
+
+  // Create a new notification (minimal test UI)
+  const handleAddNotification = useCallback(async (e) => {
+    e?.preventDefault?.();
+    const payload = {
+      title: newTitle,
+      message: newMessage,
+      type: newType,
+      actionUrl: newActionUrl || undefined,
+    };
+    try {
+      setLoadingNotifications(true);
+      const resp = await axiosInstance.post('/notifications', payload);
+      showToast({ type: 'success', message: 'Notification created' });
+      // Refresh list after creation
+      const created = resp?.data || resp;
+      if (created && created.id) {
+        setNotifications((prev) => [created, ...prev]);
+        setServerPagination((p) => ({ ...p, totalItems: (p.totalItems || 0) + 1 }));
+        if (created.unread) setGlobalUnreadCount((c) => c + 1);
+      } else {
+        // fallback: attempt to refetch current page
+        try {
+          const params = { page: currentPage, limit: itemsPerPage, unreadOnly: filterType === 'unread' };
+          const listResp = await axiosInstance.get('/notifications', { params });
+          const payload2 = listResp?.data || listResp;
+          const data2 = payload2?.data || payload2;
+          const notificationsList = data2?.notifications || data2 || [];
+          setNotifications(Array.isArray(notificationsList) ? notificationsList : []);
+          const p = data2?.pagination || {};
+          setServerPagination({ totalPages: p.totalPages || 1, totalItems: p.totalItems || (notificationsList && notificationsList.length) || 0 });
+          if (typeof data2?.unreadCount === 'number') setGlobalUnreadCount(data2.unreadCount);
+        } catch (errFetch) {
+          console.error('Refetch after create failed', errFetch);
+        }
+      }
+      setNewTitle('');
+      setNewMessage('');
+      setNewType('system');
+      setNewActionUrl('');
+      setShowAddForm(false);
+    } catch (err) {
+      console.error('Create notification failed', err);
+      showToast({ type: 'error', message: 'Failed to create notification' });
+    } finally {
+      setLoadingNotifications(false);
+    }
+  }, [newTitle, newMessage, newType, newActionUrl, currentPage, itemsPerPage, filterType]);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
   const getNotificationIcon = (type) => {
+    const baseClass = 'h-5 w-5 text-gray-500';
     switch (type) {
       case 'ticket_assigned':
-        return '🎫';
+        return <Ticket className={baseClass} />;
       case 'quote_approved':
-        return '✅';
+        return <CheckCircle className={baseClass} />;
       case 'quote_request':
-        return '💰';
+        return <DollarSign className={baseClass} />;
       case 'ticket_updated':
-        return '📝';
+        return <FileText className={baseClass} />;
       case 'service_completed':
-        return '🎉';
+        return <Check className={baseClass} />;
       case 'client_message':
-        return '💬';
+        return <MessageSquare className={baseClass} />;
       case 'payment_received':
-        return '💳';
+        return <CreditCard className={baseClass} />;
       case 'system':
-        return '⚙️';
+        return <Settings className={baseClass} />;
       default:
-        return '🔔';
+        return <Bell className={baseClass} />;
     }
   };
+
+  // Fetch notifications from backend
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      setLoadingNotifications(true);
+      try {
+        const params = {
+          page: currentPage,
+          limit: itemsPerPage,
+          unreadOnly: filterType === 'unread',
+        };
+
+        const resp = await axiosInstance.get('/notifications', { params });
+        const payload = resp?.data || resp;
+        const data = payload?.data || payload;
+
+        // Backend may return { data: { notifications: [...], pagination: {...}, unreadCount } }
+        const notificationsList = data?.notifications || data || [];
+        setNotifications(Array.isArray(notificationsList) ? notificationsList : []);
+
+        const p = data?.pagination || {};
+        setServerPagination({ totalPages: p.totalPages || 1, totalItems: p.totalItems || (notificationsList && notificationsList.length) || 0 });
+
+        if (typeof data?.unreadCount === 'number') setGlobalUnreadCount(data.unreadCount);
+      } catch (err) {
+        console.error('Failed to fetch notifications', err);
+        setNotifications([]);
+        setServerPagination({ totalPages: 1, totalItems: 0 });
+      } finally {
+        setLoadingNotifications(false);
+      }
+    };
+
+    fetchNotifications();
+  }, [currentPage, itemsPerPage, filterType]);
 
   return (
     <div className="space-y-6">
@@ -162,14 +198,12 @@ export default function ConciergeNotificationsPage({ params }) {
         <div>
           <h1 className="text-4xl font-bold text-gray-900">Notifications</h1>
           <p className="text-sm text-gray-700 mt-2">
-            {unreadCount > 0
-              ? `You have ${unreadCount} unread notification${
-                  unreadCount > 1 ? 's' : ''
-                }`
+            {globalUnreadCount > 0
+              ? `You have ${globalUnreadCount} unread notification${globalUnreadCount > 1 ? 's' : ''}`
               : 'All caught up!'}
           </p>
         </div>
-        {unreadCount > 0 && (
+        {globalUnreadCount > 0 && (
           <button
             onClick={handleMarkAllAsRead}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
@@ -180,46 +214,101 @@ export default function ConciergeNotificationsPage({ params }) {
         )}
       </div>
 
+      {/* Add Notification form toggle */}
+      <div>
+        <button
+          onClick={() => setShowAddForm((s) => !s)}
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-gray-100 text-sm text-gray-700 hover:bg-gray-200"
+        >
+          {showAddForm ? 'Close' : 'New notification'}
+        </button>
+      </div>
+
+      {showAddForm && (
+        <form onSubmit={handleAddNotification} className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="Title"
+              className="px-3 py-2 border rounded-lg w-full"
+              required
+            />
+            <select
+              value={newType}
+              onChange={(e) => setNewType(e.target.value)}
+              className="px-3 py-2 border rounded-lg w-full"
+            >
+              <option value="system">system</option>
+              <option value="ticket_assigned">ticket_assigned</option>
+              <option value="quote_approved">quote_approved</option>
+              <option value="quote_request">quote_request</option>
+              <option value="ticket_updated">ticket_updated</option>
+              <option value="service_completed">service_completed</option>
+              <option value="client_message">client_message</option>
+              <option value="payment_received">payment_received</option>
+            </select>
+            <input
+              value={newActionUrl}
+              onChange={(e) => setNewActionUrl(e.target.value)}
+              placeholder="Action URL (optional)"
+              className="px-3 py-2 border rounded-lg w-full"
+            />
+            <textarea
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Message"
+              className="px-3 py-2 border rounded-lg w-full"
+              rows={2}
+              required
+            />
+          </div>
+          <div className="mt-3 flex items-center gap-2">
+            <button type="submit" className="px-4 py-2 bg-primary text-white rounded-md">Create</button>
+            <button type="button" onClick={() => setShowAddForm(false)} className="px-4 py-2 border rounded-md">Cancel</button>
+          </div>
+        </form>
+      )}
+
       {/* Filters */}
       <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-4">
         <Filter className="h-5 w-5 text-gray-400" />
         <div className="flex gap-2">
           <button
             onClick={() => setFilterType('all')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              filterType === 'all'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${filterType === 'all'
+              ? 'bg-primary text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             All ({notifications.length})
           </button>
           <button
             onClick={() => setFilterType('unread')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              filterType === 'unread'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${filterType === 'unread'
+              ? 'bg-primary text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
-            Unread ({unreadCount})
+            Unread ({globalUnreadCount})
           </button>
           <button
             onClick={() => setFilterType('read')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              filterType === 'read'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${filterType === 'read'
+              ? 'bg-primary text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
-            Read ({notifications.length - unreadCount})
+            Read ({Math.max(0, notifications.length - globalUnreadCount)})
           </button>
         </div>
       </div>
 
       {/* Notifications List */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        {paginatedNotifications.length === 0 ? (
+        {loadingNotifications ? (
+          <div className="px-6 py-12 text-center text-gray-500">Loading...</div>
+        ) : paginatedNotifications.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <Bell className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">No notifications found</p>
@@ -229,9 +318,8 @@ export default function ConciergeNotificationsPage({ params }) {
             {paginatedNotifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`p-4 sm:p-6 hover:bg-gray-50 transition-colors ${
-                  notification.unread ? 'bg-blue-50/50' : ''
-                }`}
+                className={`p-4 sm:p-6 hover:bg-gray-50 transition-colors ${notification.unread ? 'bg-blue-50/50' : ''
+                  }`}
               >
                 <div className="flex items-start gap-4">
                   {/* Icon */}
@@ -300,16 +388,16 @@ export default function ConciergeNotificationsPage({ params }) {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={filteredNotifications.length}
+          totalItems={serverPagination.totalItems || filteredNotifications.length}
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           translations={{
-            showing: 'Showing',
-            to: 'to',
-            of: 'of',
-            results: 'notifications',
-            previous: 'Previous',
-            next: 'Next',
+            pagination: {
+              showing: t('common.Showing') || 'Showing',
+              of: t('common.of') || 'of',
+              previous: t('common.Previous') || 'Previous',
+              next: t('common.Next') || 'Next',
+            },
           }}
         />
       )}

@@ -129,15 +129,12 @@ export default function ConciergePage() {
     const payload = {
       clientName: formState.fullName,
       clientEmail: formState.email,
-      clientPhone: formattedPhone,
+      phone: formattedPhone,
       serviceType: SERVICE_TYPE_MAP[formState.serviceNeeded] || formState.serviceNeeded,
-      countryOfResidence: countryName,
-      preferredDateTime: preferredDateISO,
-      moveTimeframe: MOVE_TIMEFRAME_MAP[formState.moveTiming] || formState.moveTiming,
-      description: formState.planDetails,
+      message: formState.planDetails,
+      preferredDate: preferredDateISO,
     };
 
-    // Log final mapped payload to console for easy comparison with Postman
     console.log('Submitting concierge payload (mapped):', payload);
 
     try {
