@@ -8,18 +8,26 @@ import Modal from '@/components/Modal';
 import { del, put } from '@/lib/api';
 import Pagination from '@/components/dashboard/Pagination';
 
-export default function EventTable({ events = [], loading = false, error, t }) {
-    // Show loading state
-    if (loading) {
-        return (
-            <div className="relative min-h-[400px] flex items-center justify-center">
-                <div className="flex flex-col items-center gap-3">
-                    <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
-                    <p className="text-sm font-medium text-gray-700">Loading events...</p>
-                </div>
-            </div>
-        );
-    }
+export default function EventTable({ events = [], loading = false, error, t, onDataChanged }) {
+    // ✅ ALL HOOKS AT THE TOP - BEFORE ANY CONDITIONAL RETURNS
+    const [currentPage, setCurrentPage] = useState(1);
+    const [localEvents, setLocalEvents] = useState(events || []);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [selectedEditEvent, setSelectedEditEvent] = useState(null);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [selectedDeleteEvent, setSelectedDeleteEvent] = useState(null);
+    const [deletingId, setDeletingId] = useState(null);
+
+    const router = useRouter();
+    const params = useParams();
+    const locale = params?.locale || '';
+
+    const itemsPerPage = 6;
+
+    useEffect(() => {
+        setCurrentPage(1);
+        setLocalEvents(events || []);
+    }, [events]);
 
     const getStatusStyle = (status) => {
         const styles = {
@@ -31,21 +39,6 @@ export default function EventTable({ events = [], loading = false, error, t }) {
         };
         return styles[status] || styles.draft;
     };
-
-    const [currentPage, setCurrentPage] = useState(1);
-    // keep a local copy so we can update UI immediately after delete
-    const [localEvents, setLocalEvents] = useState(events || []);
-
-    const itemsPerPage = 6;
-
-    useEffect(() => {
-        setCurrentPage(1);
-        setLocalEvents(events || []);
-    }, [events]);
-
-    const router = useRouter();
-    const params = useParams();
-    const locale = params?.locale || '';
 
     const openDetails = (event) => {
         const id = event?.id || event?._id;
@@ -67,13 +60,11 @@ export default function EventTable({ events = [], loading = false, error, t }) {
         return localEvents.slice(start, start + itemsPerPage);
     }, [localEvents, currentPage, itemsPerPage]);
 
-    // view now navigates to details page by id using `openDetails`
-
-    const [isEditOpen, setIsEditOpen] = useState(false);
-    const [selectedEditEvent, setSelectedEditEvent] = useState(null);
-    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-    const [selectedDeleteEvent, setSelectedDeleteEvent] = useState(null);
-    const [deletingId, setDeletingId] = useState(null);
+    const handlePageChange = (page) => {
+        if (!page || typeof page !== 'number') return;
+        console.debug('EventTable: page change ->', page);
+        setCurrentPage(page);
+    };
 
     const openEditModal = (event) => {
         setSelectedEditEvent(event);
@@ -108,19 +99,21 @@ export default function EventTable({ events = [], loading = false, error, t }) {
             const res = await del(`/events/${id}`, { data: payload });
             console.log('delete response:', res);
 
-            // remove from local list so UI updates instantly
             setLocalEvents((prev) => prev.filter((ev) => (ev.id || ev._id) !== id));
 
-            // adjust current page if needed
             const newTotal = Math.max(0, localEvents.length - 1);
             const newTotalPages = Math.max(1, Math.ceil(newTotal / itemsPerPage));
             if (currentPage > newTotalPages) setCurrentPage(newTotalPages);
 
-            // close modal
             closeConfirm();
 
-            // still refresh server data in background
             try { router.refresh(); } catch (e) { /* ignore */ }
+
+            // Refresh parent component data
+            if (onDataChanged) {
+                console.log('📝 Event deleted, refreshing parent data...');
+                onDataChanged();
+            }
         } catch (err) {
             console.error('Delete failed', err);
             const msg = err?.response?.data?.message || err?.message || 'Delete failed';
@@ -130,7 +123,6 @@ export default function EventTable({ events = [], loading = false, error, t }) {
         }
     };
 
-    // Pagination translations
     const paginationTranslations = useMemo(
         () => ({
             previous: t('common.previous'),
@@ -143,6 +135,18 @@ export default function EventTable({ events = [], loading = false, error, t }) {
         [t]
     );
 
+    // ✅ NOW RENDER - ALL HOOKS DONE
+    if (loading) {
+        return (
+            <div className="relative min-h-[400px] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+                    <p className="text-sm font-medium text-gray-700">Loading events...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
             {/* Card Header */}
@@ -154,35 +158,38 @@ export default function EventTable({ events = [], loading = false, error, t }) {
 
             {/* Mobile cards (visible on small screens) */}
             <div className='md:hidden px-4 py-4 space-y-4'>
-                {pagedEvents.map((event) => (
-                    <div key={event.id} className='bg-white border border-gray-100 rounded-lg shadow-sm p-4'>
-                        <div className='flex items-center justify-between'>
-                            <div className='flex-1 min-w-0'>
-                                <div className='text-sm font-medium text-gray-900 truncate'>{event.title}</div>
-                                <div className='text-xs text-gray-500 mt-1'>{event.eventDate ? new Date(event.eventDate).toLocaleDateString() : ''}</div>
+                {pagedEvents.map((event, __idx) => {
+                    const cardKey = event?.id || event?._id || `ev-${(currentPage - 1) * itemsPerPage + __idx}`;
+                    return (
+                        <div key={cardKey} className='bg-white border border-gray-100 rounded-lg shadow-sm p-4'>
+                            <div className='flex items-center justify-between'>
+                                <div className='flex-1 min-w-0'>
+                                    <div className='text-sm font-medium text-gray-900 truncate'>{event.title}</div>
+                                    <div className='text-xs text-gray-500 mt-1'>{event.eventDate ? new Date(event.eventDate).toLocaleDateString() : ''}</div>
 
-                                <div className='mt-2 flex items-center justify-between'>
-                                    <div className='text-sm text-gray-700 capitalize truncate'>{(event.eventType || event.type || '-').toLowerCase()}</div>
-                                    <div className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getStatusStyle((event.status || '').toLowerCase())}`}>{t ? (t(`dashboard.pages.eventManagement.status.${(event.status || '').toLowerCase()}`) || event.status || '-') : (event.status || '-')}</div>
+                                    <div className='mt-2 flex items-center justify-between'>
+                                        <div className='text-sm text-gray-700 capitalize truncate'>{(event.eventType || event.type || '-').toLowerCase()}</div>
+                                        <div className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getStatusStyle((event.status || '').toLowerCase())}`}>{t ? (t(`dashboard.pages.eventManagement.status.${(event.status || '').toLowerCase()}`) || event.status || '-') : (event.status || '-')}</div>
+                                    </div>
+
+                                    <div className='mt-2 text-xs text-gray-500 truncate'>{event.location || event.address || '-'}</div>
                                 </div>
 
-                                <div className='mt-2 text-xs text-gray-500 truncate'>{event.location || event.address || '-'}</div>
-                            </div>
-
-                            <div className='flex items-center gap-3 ml-3'>
-                                <button className='inline-flex items-center text-gray-500 hover:text-gray-700' aria-label='View' onClick={() => openDetails(event)}>
-                                    <Eye className='h-4 w-4' />
-                                </button>
-                                <button className='inline-flex items-center text-blue-500 hover:text-blue-700' aria-label='Edit' onClick={() => openEditModal(event)}>
-                                    <Edit className='h-4 w-4' />
-                                </button>
-                                <button className='inline-flex items-center text-red-500 hover:text-red-700' aria-label='Delete' onClick={() => openConfirm(event)}>
-                                    <Trash2 className='h-4 w-4' />
-                                </button>
+                                <div className='flex items-center gap-3 ml-3'>
+                                    <button className='inline-flex items-center text-gray-500 hover:text-gray-700' aria-label='View' onClick={() => openDetails(event)}>
+                                        <Eye className='h-4 w-4' />
+                                    </button>
+                                    <button className='inline-flex items-center text-blue-500 hover:text-blue-700' aria-label='Edit' onClick={() => openEditModal(event)}>
+                                        <Edit className='h-4 w-4' />
+                                    </button>
+                                    <button className='inline-flex items-center text-red-500 hover:text-red-700' aria-label='Delete' onClick={() => openConfirm(event)}>
+                                        <Trash2 className='h-4 w-4' />
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Table (visible on md and larger) */}
@@ -199,35 +206,38 @@ export default function EventTable({ events = [], loading = false, error, t }) {
                         </tr>
                     </thead>
                     <tbody className='divide-y divide-gray-200 bg-white'>
-                        {pagedEvents.map((event) => (
-                            <tr key={event.id} className='hover:bg-gray-50 transition-colors'>
-                                <td className='px-6 py-6'>
-                                    <div className='text-sm font-medium text-gray-900'>{event.title}</div>
-                                    <div className='text-xs text-gray-500 mt-1'>{event.eventDate ? new Date(event.eventDate).toLocaleDateString() : ''}</div>
-                                </td>
-                                <td className='px-6 py-6 text-sm text-gray-700 capitalize'>{(event.eventType || event.type || '').toLowerCase()}</td>
-                                <td className='px-6 py-6 text-sm text-gray-700'>{event.eventDate ? new Date(event.eventDate).toLocaleString() : event.date || '-'}</td>
-                                <td className='px-6 py-6 text-sm text-gray-700'>{event.location || event.address || '-'}</td>
-                                <td className='px-6 py-6'>
-                                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle((event.status || '').toLowerCase())}`}>
-                                        {t ? (t(`dashboard.pages.eventManagement.status.${(event.status || '').toLowerCase()}`) || event.status || '-') : (event.status || '-')}
-                                    </span>
-                                </td>
-                                <td className='px-6 py-6'>
-                                    <div className='flex items-center gap-4'>
-                                        <button className='inline-flex items-center text-gray-500 hover:text-gray-700' aria-label='View' onClick={() => openDetails(event)}>
-                                            <Eye className='h-4 w-4' />
-                                        </button>
-                                        <button className='inline-flex items-center text-blue-500 hover:text-blue-700' aria-label='Edit' onClick={() => openEditModal(event)}>
-                                            <Edit className='h-4 w-4' />
-                                        </button>
-                                        <button className='inline-flex cursor-pointer items-center text-red-500 hover:text-red-700' aria-label='Delete' onClick={() => openConfirm(event)}>
-                                            <Trash2 className='h-4 w-4' />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
+                        {pagedEvents.map((event, __idx) => {
+                            const rowKey = event?.id || event?._id || `ev-${(currentPage - 1) * itemsPerPage + __idx}`;
+                            return (
+                                <tr key={rowKey} className='hover:bg-gray-50 transition-colors'>
+                                    <td className='px-6 py-6'>
+                                        <div className='text-sm font-medium text-gray-900'>{event.title}</div>
+                                        <div className='text-xs text-gray-500 mt-1'>{event.eventDate ? new Date(event.eventDate).toLocaleDateString() : ''}</div>
+                                    </td>
+                                    <td className='px-6 py-6 text-sm text-gray-700 capitalize'>{(event.eventType || event.type || '').toLowerCase()}</td>
+                                    <td className='px-6 py-6 text-sm text-gray-700'>{event.eventDate ? new Date(event.eventDate).toLocaleString() : event.date || '-'}</td>
+                                    <td className='px-6 py-6 text-sm text-gray-700'>{event.location || event.address || '-'}</td>
+                                    <td className='px-6 py-6'>
+                                        <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle((event.status || '').toLowerCase())}`}>
+                                            {t ? (t(`dashboard.pages.eventManagement.status.${(event.status || '').toLowerCase()}`) || event.status || '-') : (event.status || '-')}
+                                        </span>
+                                    </td>
+                                    <td className='px-6 py-6'>
+                                        <div className='flex items-center gap-4'>
+                                            <button className='inline-flex items-center text-gray-500 hover:text-gray-700' aria-label='View' onClick={() => openDetails(event)}>
+                                                <Eye className='h-4 w-4' />
+                                            </button>
+                                            <button className='inline-flex items-center text-blue-500 hover:text-blue-700' aria-label='Edit' onClick={() => openEditModal(event)}>
+                                                <Edit className='h-4 w-4' />
+                                            </button>
+                                            <button className='inline-flex cursor-pointer items-center text-red-500 hover:text-red-700' aria-label='Delete' onClick={() => openConfirm(event)}>
+                                                <Trash2 className='h-4 w-4' />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
@@ -237,7 +247,6 @@ export default function EventTable({ events = [], loading = false, error, t }) {
                 onClose={closeEditModal}
                 event={selectedEditEvent}
                 onSave={async (updated) => {
-                    // Call API PUT /events/:id with minimal payload
                     const id = updated?.id || updated?._id;
                     if (!id) {
                         alert('Missing event id');
@@ -245,7 +254,6 @@ export default function EventTable({ events = [], loading = false, error, t }) {
                     }
 
                     try {
-                        // Build payload as requested
                         const payload = {
                             title: updated.title,
                             capacity: updated.capacity,
@@ -253,17 +261,19 @@ export default function EventTable({ events = [], loading = false, error, t }) {
                             status: (updated.status || '').toString().toUpperCase(),
                         };
 
-                        // send PUT request
                         await put(`/events/${encodeURIComponent(id)}`, payload);
-
-                        // update local list for immediate UI feedback
                         setLocalEvents((prev) => prev.map((ev) => ((ev.id || ev._id) === id ? { ...ev, ...updated } : ev)));
-
-                        // close modal
                         closeEditModal();
 
-                        // refresh server data in background
-                        try { router.refresh(); } catch (e) { /* ignore */ }
+                        // Refresh server data in background
+                        try {
+                            router.refresh();
+                            // Refresh parent component data
+                            if (onDataChanged) {
+                                console.log('📝 Event updated, refreshing parent data...');
+                                setTimeout(() => onDataChanged(), 100);
+                            }
+                        } catch (e) { /* ignore */ }
                     } catch (err) {
                         console.error('Update failed', err);
                         const msg = err?.response?.data?.message || err?.message || 'Update failed';
@@ -279,7 +289,7 @@ export default function EventTable({ events = [], loading = false, error, t }) {
                     totalPages={totalPages}
                     totalItems={totalItems}
                     itemsPerPage={itemsPerPage}
-                    onPageChange={(p) => setCurrentPage(p)}
+                    onPageChange={handlePageChange}
                     translations={paginationTranslations}
                 />
             </div>
@@ -306,6 +316,5 @@ export default function EventTable({ events = [], loading = false, error, t }) {
                 </div>
             </Modal>
         </div>
-
     );
 }

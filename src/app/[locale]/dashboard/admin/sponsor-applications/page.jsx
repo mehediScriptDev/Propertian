@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from '@/i18n';
 import { FileText, Clock, CheckCircle, XCircle } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
@@ -9,85 +9,12 @@ import Pagination from '@/components/dashboard/Pagination';
 import ViewApplicationModal from '@/components/dashboard/admin/ViewApplicationModal';
 import ApproveApplicationModal from '@/components/dashboard/admin/ApproveApplicationModal';
 import RejectApplicationModal from '@/components/dashboard/admin/RejectApplicationModal';
+import { get, put } from '@/lib/api';
 
-// Mock sponsor application data
-const MOCK_APPLICATIONS = [
-  {
-    id: 'app001',
-    company_name: 'Luxury Real Estate Group',
-    contact_person: 'Sarah Johnson',
-    email: 'sarah@luxuryrealestate.com',
-    phone: '+1 234 567 8900',
-    country: 'United States',
-    applied_date: '2026-01-08T10:30:00Z',
-    status: 'pending',
-    description: 'We are a premier luxury real estate company specializing in high-end properties across major cities. We would like to sponsor property showcase events and exclusive open houses.',
-    website: 'https://luxuryrealestate.com',
-  },
-  {
-    id: 'app002',
-    company_name: 'Modern Living Developments',
-    contact_person: 'Michael Chen',
-    email: 'michael@modernliving.com',
-    phone: '+1 234 567 8901',
-    country: 'Canada',
-    applied_date: '2026-01-07T14:20:00Z',
-    status: 'approved',
-    description: 'Modern Living Developments focuses on sustainable and innovative residential projects. We want to host educational webinars and community events.',
-    website: 'https://modernliving.com',
-  },
-  {
-    id: 'app003',
-    company_name: 'Global Property Solutions',
-    contact_person: 'Emma Williams',
-    email: 'emma@globalpropsolutions.com',
-    phone: '+44 20 1234 5678',
-    country: 'United Kingdom',
-    applied_date: '2026-01-06T09:15:00Z',
-    status: 'pending',
-    description: 'International property management and investment company looking to sponsor networking events for investors and developers.',
-    website: 'https://globalpropsolutions.com',
-  },
-  {
-    id: 'app004',
-    company_name: 'Urban Development Corp',
-    contact_person: 'David Rodriguez',
-    email: 'david@urbandevelopment.com',
-    phone: '+1 555 123 4567',
-    country: 'United States',
-    applied_date: '2026-01-05T16:45:00Z',
-    status: 'rejected',
-    description: 'Incomplete business information and unclear sponsorship goals.',
-    website: 'https://urbandevelopment.com',
-  },
-  {
-    id: 'app005',
-    company_name: 'Prime Properties International',
-    contact_person: 'Lisa Anderson',
-    email: 'lisa@primeproperties.com',
-    phone: '+61 2 9876 5432',
-    country: 'Australia',
-    applied_date: '2026-01-10T11:30:00Z',
-    status: 'pending',
-    description: 'Leading property development company with projects in Sydney, Melbourne, and Brisbane. Interested in sponsoring property investment seminars.',
-    website: 'https://primeproperties.com.au',
-  },
-  {
-    id: 'app006',
-    company_name: 'Skyline Realty Partners',
-    contact_person: 'James Thompson',
-    email: 'james@skylinerealty.com',
-    phone: '+1 312 555 7890',
-    country: 'United States',
-    applied_date: '2026-01-09T13:00:00Z',
-    status: 'approved',
-    description: 'Established real estate firm with 20+ years experience. Looking to sponsor luxury property showcases and investor meetups.',
-    website: 'https://skylinerealty.com',
-  },
-];
+// Applications will be loaded from the API
 
 export default function SponsorApplicationsPage({ params }) {
-  const { locale } = use(params);
+  const { locale } = React.use(params) || {};
   const { t } = useTranslation(locale);
 
   // State for filters
@@ -99,9 +26,59 @@ export default function SponsorApplicationsPage({ params }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
-  // State for applications (using mock data)
-  const [applicationsData, setApplicationsData] = useState(MOCK_APPLICATIONS);
+  // State for applications (loaded from API)
+  const [applicationsData, setApplicationsData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Helper to resolve image URLs (absolute or relative)
+  const resolveImageUrl = (imgPath) => {
+    if (!imgPath) return null;
+    if (/^https?:\/\//i.test(imgPath) || imgPath.startsWith("//")) return imgPath;
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    return `${base.replace(/\/$/, "")}/${String(imgPath).replace(/^\//, "")}`;
+  };
+
+  // Fetch sponsor applications from API
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchApplications() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await get(`/partner/applications?page=1&limit=1000`);
+        const apps = res?.data?.applications || res?.applications || [];
+
+        const mapped = (apps || []).map((item) => ({
+          id: item.id || item._id || item.applicationId,
+          company_name: item.company_name || item.companyName || item.fullName || item.fullname || item.name || '',
+          contact_person: item.contact_person || item.contactPerson || item.fullName || item.fullname || '',
+          email: item.email || item.userEmail || '',
+          phone: item.phone || item.contactNumber || item.phoneNumber || '',
+          country: item.country || item.cityCountry || item.countryName || '',
+          applied_date: item.applied_date || item.createdAt || item.created_at || item.createdAt || '',
+          status: (item.status || '').toLowerCase(),
+          description: item.description || item.message || item.adminNotes || '',
+          website: item.website || item.url || '',
+          image: resolveImageUrl(item.photo || item.image || item.profileImage || item.photos?.[0] || item.media?.[0]),
+        }));
+
+        if (mounted) setApplicationsData(mapped);
+      } catch (err) {
+        console.error('Failed to load sponsor applications:', err);
+        if (mounted) setError(err?.message || 'Failed to load applications');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    fetchApplications();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Modal states
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -182,6 +159,23 @@ export default function SponsorApplicationsPage({ params }) {
   const handleApprove = useCallback((application) => {
     setApproveApplication(application);
     setApproveModalOpen(true);
+  }, []);
+
+  // Immediate approve (update via API) — called when clicking check button directly
+  const handleApproveImmediate = useCallback(async (application) => {
+    if (!application?.id) return;
+    try {
+      setLoading(true);
+      // API expects status value like 'APPROVED'
+      await put(`/partner/applications/${application.id}/status`, { status: 'APPROVED' });
+      // update local state
+      setApplicationsData((prev) => prev.map((a) => (a.id === application.id ? { ...a, status: 'approved' } : a)));
+    } catch (err) {
+      console.error('Failed to approve application:', err);
+      // Optionally show error toast
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const handleReject = useCallback((application) => {
@@ -311,6 +305,7 @@ export default function SponsorApplicationsPage({ params }) {
           applications={paginatedApplications}
           onView={handleView}
           onApprove={handleApprove}
+          onApproveImmediate={handleApproveImmediate}
           onReject={handleReject}
           loading={loading}
         />
