@@ -6,7 +6,9 @@ import { useTranslation } from '@/i18n';
 import BuyHero from '@/components/buy/BuyHero';
 import BuyFilters from '@/components/buy/BuyFilters';
 import BuyPropertyCard from '@/components/buy/BuyPropertyCard';
-import { BUY_PROPERTIES } from '@/lib/buyProperties';
+import api from '@/lib/api';
+import Link from 'next/link';
+// Use API `properties` as source of truth (fetched below)
 
 export default function BuyPage() {
   const { locale } = useLanguage();
@@ -14,16 +16,18 @@ export default function BuyPage() {
 
   // Filter state
   const [filters, setFilters] = useState({
-    city: 'abidjan',
+    city: 'any',
     bedrooms: 'any',
     propertyType: 'any',
-    verifiedOnly: true,
+    verifiedOnly: false,
   });
 
   // Sort and display state
   const [sortBy, setSortBy] = useState('newest');
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const [displayCount, setDisplayCount] = useState(3);
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Inject structured data for SEO (match rent page behavior)
   useEffect(() => {
@@ -57,20 +61,23 @@ export default function BuyPage() {
     };
   }, [locale]);
 
-  // Apply filters
+  // Apply filters — use fetched `properties` and only include SALE listings
   const filteredProperties = useMemo(() => {
-    return BUY_PROPERTIES.filter((property) => {
+    return properties.filter((property) => {
+      // only show SALE listings
+      if (property.listingType && property.listingType.toUpperCase() !== 'SALE') return false;
+
       // City filter
-      if (filters.city && property.city.toLowerCase() !== filters.city.toLowerCase()) {
-        return false;
+      if (filters.city && filters.city !== 'any') {
+        if (!property.city || property.city.toLowerCase() !== filters.city.toLowerCase()) return false;
       }
 
       // Bedrooms filter
       if (filters.bedrooms !== 'any') {
         if (filters.bedrooms === '5+') {
-          if (property.bedrooms < 5) return false;
+          if ((property.bedrooms || 0) < 5) return false;
         } else {
-          if (property.bedrooms !== parseInt(filters.bedrooms)) return false;
+          if ((property.bedrooms || 0) !== parseInt(filters.bedrooms)) return false;
         }
       }
 
@@ -79,14 +86,14 @@ export default function BuyPage() {
         return false;
       }
 
-      // Verified only filter
-      if (filters.verifiedOnly && !property.isVerified) {
+      // Verified only filter - API uses `featured` flag
+      if (filters.verifiedOnly && !property.featured) {
         return false;
       }
 
       return true;
     });
-  }, [filters]);
+  }, [filters, properties]);
 
   // Apply sorting
   const sortedProperties = useMemo(() => {
@@ -110,6 +117,8 @@ export default function BuyPage() {
   const displayedProperties = sortedProperties.slice(0, displayCount);
   const hasMore = displayCount < sortedProperties.length;
 
+
+
   const handleLoadMore = () => {
     // Match rent behavior: show all remaining
     setDisplayCount(sortedProperties.length);
@@ -120,6 +129,31 @@ export default function BuyPage() {
     setFilters(newFilters);
     setDisplayCount(3);
   };
+
+
+  // properties fetch
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    // Use cached GET to avoid re-fetching on frequent page visits (TTL: 5 minutes)
+    // `api.getCached` returns `response.data` (not the full axios response).
+    // API may return either `{ properties: [...] }` or `{ data: { properties: [...] } }`.
+    api.getCached(`/properties?listingType=SALE`, { ttl: 300000 })
+      .then((data) => {
+        if (!mounted) return;
+        const props = data?.data?.properties ?? data?.properties ?? [];
+        setProperties(props);
+      })
+      .catch((err) => {
+        console.error(err);
+        if (mounted) setProperties([]);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => { mounted = false; };
+  }, []);
 
   return (
     <main className='w-full'>
@@ -161,7 +195,7 @@ export default function BuyPage() {
                   onChange={(e) => setSortBy(e.target.value)}
                   onFocus={() => setSortDropdownOpen(true)}
                   onBlur={() => setSortDropdownOpen(false)}
-                  className='appearance-none rounded-lg border border-gray-300 dark:border-gray-600 bg-[#fafafa] dark:bg-card-dark shadow-sm focus:border-primary focus:ring-2 focus:ring-primary text-sm pl-4 pr-10 py-0.5 sm:py-2 cursor-pointer w-[110px] sm:min-w-[180px]'
+                  className='appearance-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-card-dark shadow-xs focus:border-primary focus:ring-1 outline-none focus:ring-primary text-sm pl-4 pr-10 py-0.5 sm:py-2 cursor-pointer w-[110px] sm:min-w-[180px]'
                   aria-label='Sort properties'
                 >
                   <option value='newest'>
@@ -179,9 +213,8 @@ export default function BuyPage() {
                 </select>
                 <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none'>
                   <svg
-                    className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
-                      sortDropdownOpen ? 'rotate-180' : ''
-                    }`}
+                    className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${sortDropdownOpen ? 'rotate-180' : ''
+                      }`}
                     fill='none'
                     stroke='currentColor'
                     viewBox='0 0 24 24'
@@ -199,7 +232,21 @@ export default function BuyPage() {
           </div>
 
           {/* Properties Grid */}
-          {displayedProperties.length > 0 ? (
+          {loading ? (
+            <div className='text-center py-12'>
+              <div className='inline-flex items-center gap-3'>
+                <svg className='animate-spin h-6 w-6 text-gray-600' viewBox='0 0 24 24'>
+                  <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' fill='none'></circle>
+                  <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z'></path>
+                </svg>
+                <span className='text-gray-700'>{(() => {
+                  const key = 'buy.results.loading';
+                  const res = t(key);
+                  return res === key ? 'Loading properties...' : res;
+                })()}</span>
+              </div>
+            </div>
+          ) : properties.length > 0 ? (
             <>
               <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 xl:gap-6'>
                 {displayedProperties.map((property) => (
@@ -246,8 +293,8 @@ export default function BuyPage() {
         </section>
 
         {/* CTA Section */}
-        <section className='w-full px-4 sm:px-6 lg:px-8 pb-16'>
-          <div className='p-6 sm:p-8 rounded-2xl bg-[#fafafa] dark:from-primary/20 dark:to-secondary/20 border border-primary/20 dark:border-primary/30'>
+        <section className='w-full px-4 sm:px-6 lg:px-8 pb-8'>
+          <div className='p-6 sm:p-8 rounded-2xl bg-white/50 dark:from-primary/20 dark:to-secondary/20 border border-gray-200 shadow-sm dark:border-primary/30'>
             <div className='text-center max-w-3xl mx-auto'>
               <h3 className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4'>
                 {t('buy.cta.title', "Can't find what you're looking for?")}
@@ -258,12 +305,12 @@ export default function BuyPage() {
                   'Our team can help you find the perfect property. Contact us for personalized assistance.'
                 )}
               </p>
-              <a
+              <Link
                 href={`/${locale}/contact`}
                 className='inline-flex items-center justify-center min-w-[140px] px-6 sm:px-8 py-2.5 sm:py-3 bg-primary hover:bg-primary-dark text-white font-semibold text-sm sm:text-base rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
               >
                 {t('buy.cta.button', 'Contact Us')}
-              </a>
+              </Link>
             </div>
           </div>
         </section>

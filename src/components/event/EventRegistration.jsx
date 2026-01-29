@@ -2,13 +2,16 @@
 
 import { memo, useState, useCallback } from 'react';
 import { Linkedin, Facebook, Twitter } from 'lucide-react';
+import axios from '@/lib/axios';
+import { showToast } from '@/components/Toast';
 
-const EventRegistration = memo(({ translations }) => {
+const EventRegistration = memo(({ translations, event }) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -19,16 +22,52 @@ const EventRegistration = memo(({ translations }) => {
   }, []);
 
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
-      console.log('Registration submitted:', formData);
-      // Handle form submission
+      if (isSubmitting) return; // prevent double submit
+
+      if (!event?.id) {
+        console.warn('No event selected for registration');
+        showToast('Event not selected. Please wait a moment and try again.', 'error');
+        return
+      }
+
+      const payload = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        eventId: event.id,
+        // include image path and related fields from the event
+        image: event.image ?? null,
+        imageFields: {
+          title: event.title ?? null,
+          eventId: event.id ?? null,
+        },
+      }
+
+      try {
+        setIsSubmitting(true)
+        const url = `/events/${event.id}/register`
+        const res = await axios.post(url, payload)
+        console.log('Registration response:', res)
+        // show a success toast message
+        showToast('Registration successful! We look forward to seeing you at the event.', 'success');
+        setFormData({ fullName: '', email: '', phone: '' })
+      } catch (err) {
+        // axiosInstance rejects with an object containing { message, status, data }
+        console.error('Registration failed', err)
+        const serverMessage =
+          err?.message || err?.data?.message || err?.response?.data?.message || 'Registration failed. Please try again.'
+        showToast(serverMessage, 'error');
+      } finally {
+        setIsSubmitting(false)
+      }
     },
-    [formData]
+    [formData, event]
   );
 
   return (
-    <div className='bg-linear-to-br from-gray-50 to-white rounded-xl p-6 sm:p-8 border border-gray-200'>
+    <div className='bg-white/50 rounded-xl p-6 sm:p-8 border border-gray-200'>
       <h2 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
         {translations.title}
       </h2>
@@ -93,10 +132,14 @@ const EventRegistration = memo(({ translations }) => {
 
         <button
           type='submit'
-          className='w-full bg-[#E6B325] hover:bg-[#d4a420] text-[#0F1B2E] font-semibold px-6 py-4 rounded-lg text-lg transition-all duration-300 transform hover:scale-[1.02] shadow-md hover:shadow-lg'
+          disabled={isSubmitting || !event?.id}
+          className={`w-full font-semibold px-6 py-4 rounded-lg text-sm lg:text-lg transition-all duration-300 transform shadow-md disabled:opacity-60 disabled:cursor-not-allowed ${isSubmitting ? 'bg-gray-300 text-gray-700' : 'bg-[#E6B325] hover:bg-[#d4a420] text-[#0F1B2E] hover:scale-[1.02] hover:shadow-lg'}`}
         >
-          {translations.submit}
+          {isSubmitting ? (translations.submit + '...') : translations.submit}
         </button>
+        {!event?.id && (
+          <p className='text-xs text-gray-500 mt-2'>Please wait — loading event details before registration.</p>
+        )}
       </form>
 
       {/* Social Share */}

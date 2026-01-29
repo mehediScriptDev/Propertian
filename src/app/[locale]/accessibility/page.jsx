@@ -1,5 +1,6 @@
 import AccessibilityStatement from "@/components/accessibility/AccessibilityStatement";
 import React from "react";
+import { ACCESSIBILITY_EMAIL } from '@/config/emails';
 
 const accessibility = {
   pageTitle: "Accessibility Statement",
@@ -44,8 +45,8 @@ const accessibility = {
       contactMethods: [
         {
           type: "Email",
-          value: "accessibility@qhomes.ci",
-          link: "mailto:accessibility@qhomes.ci",
+          value: ACCESSIBILITY_EMAIL,
+          link: `mailto:${ACCESSIBILITY_EMAIL}`,
         },
         {
           type: "Phone",

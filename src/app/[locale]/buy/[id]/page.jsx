@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslation } from '@/i18n';
@@ -10,92 +10,171 @@ import PropertyFeatures from '@/components/property/PropertyFeatures';
 import ContactActions from '@/components/property/ContactActions';
 import PropertyTabs from '@/components/property/PropertyTabs';
 import RentalOverview from '@/components/property/RentalOverview';
-import { getBuyPropertyById } from '@/lib/buyProperties';
+import axios from 'axios';
+import api from '@/lib/api';
+import { showToast } from '@/components/Toast';
+import { X } from 'lucide-react';
 
 export default function BuyDetailsPage() {
+  const [property, setProperty] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formState, setFormState] = useState({ fullName: '', email: '', phone: '', message: '' });
+  console.log(property)
+
   const params = useParams();
   const locale = params?.locale || 'en';
   const id = params?.id;
   const { t } = useTranslation(locale);
+  useEffect(() => {
+    if (!id) return;
 
-  // Get the selected property from shared dataset
-  const base = getBuyPropertyById(id);
+    const apiUrl =
+      (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')) ||
+      'https://quiahgroup1backend.mtscorporate.com/api';
 
-  // If not found, render a simple fallback
-  if (!base) {
+    axios
+      .get(`${apiUrl}/properties/${id}`)
+      .then((res) => {
+        // support different response shapes: { data: { property } } or { data: property } or { property }
+        const payload =
+          res?.data?.data?.property ?? res?.data?.data ?? res?.data ?? res;
+        setProperty(payload);
+      })
+      .catch((err) => console.error('Fetch property error', err));
+  }, [id]);
+
+  const handleInquire = (id) => {
+    // open modal for current property
+    setFormState((s) => ({ ...s, message: `I am interested in ${uiProperty?.title || ''}. Please send me more information.` }));
+    setIsModalOpen(true);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormState((s) => ({ ...s, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        propertyId: uiProperty?.id,
+        propertyTitle: uiProperty?.title,
+        message: formState.message,
+      };
+      console.log('Submitting inquiry payload ->', payload);
+      await api.post('/inquiries', payload);
+      setIsModalOpen(false);
+      showToast('Inquiry sent successfully', 'success');
+    } catch (err) {
+      console.error('Failed to submit inquiry', err, err?.response || err?.data || null);
+      const msg = (err && err.message) ? err.message : 'Failed to send inquiry. Please try again.';
+      showToast(msg, 'error');
+    }
+  };
+
+  // While loading show a skeleton placeholder for better UX
+  if (property === null) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <div className="max-w-3xl mx-auto px-4 py-16 text-center text-gray-700">
-          <h1 className="text-2xl font-semibold mb-2">{t('buy.noResults')}</h1>
-          <Link href={`/${locale}/buy`} className="text-primary underline">{t('common.back')}</Link>
+      <main className='min-h-screen bg-background-light'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+          <div className='grid grid-cols-1 lg:grid-cols-3 lg:gap-6 gap-3.5'>
+            <div className='lg:col-span-2 space-y-3.5 lg:space-y-6'>
+              <div className='w-full h-96 bg-gray-200 rounded-lg animate-pulse' />
+              <section className='bg-white/50 rounded-lg shadow-sm p-6'>
+                <div className='h-6 bg-gray-200 rounded w-3/4 mb-3 animate-pulse' />
+                <div className='h-4 bg-gray-200 rounded w-1/2 mb-4 animate-pulse' />
+                <div className='space-y-3'>
+                  <div className='h-3 bg-gray-200 rounded w-full animate-pulse' />
+                  <div className='h-3 bg-gray-200 rounded w-full animate-pulse' />
+                  <div className='h-3 bg-gray-200 rounded w-2/3 animate-pulse' />
+                </div>
+              </section>
+            </div>
+
+            <div className='lg:col-span-1 lg:space-y-6 space-y-3.5'>
+              <div className='sticky top-22 lg:space-y-6 space-y-3.5'>
+                <div className='bg-white/50 border border-[#f6efcb] rounded-lg shadow-sm p-6'>
+                  <div className='h-6 bg-gray-200 rounded w-3/4 mb-3 animate-pulse' />
+                  <div className='h-4 bg-gray-200 rounded w-1/2 mb-4 animate-pulse' />
+                  <div className='h-10 bg-gray-200 rounded w-full mb-2 animate-pulse' />
+                </div>
+                <div className='bg-white/50 border border-[#f6efcb] rounded-lg shadow-sm p-6'>
+                  <div className='h-4 bg-gray-200 rounded w-full mb-2 animate-pulse' />
+                  <div className='h-4 bg-gray-200 rounded w-3/4 mb-2 animate-pulse' />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     );
   }
 
-  const mockProperty = {
-    id: base.id,
-    title: base.title,
-    location: base.location,
-    price: base.priceXOF,
-    priceUSD: base.priceUSD,
-    developer: 'KOF Builders',
-    status: base.isVerified ? t('buy.property.status') : undefined,
-    images: [
-      base.image,
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&h=800&fit=crop',
-    ],
+  if (!property || !property.id) {
+    return (
+      <main className='min-h-screen bg-gray-50'>
+        <div className='max-w-3xl mx-auto px-4 py-16 text-center text-gray-700'>
+          <h1 className='text-2xl font-semibold mb-2'>{t('buy.noResults')}</h1>
+          <Link href={`/${locale}/buy`} className='text-primary underline'>
+            {t('common.back')}
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  // Build UI-friendly property object from API payload
+  const apiOrigin =
+    (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/?$/, '')) ||
+    'https://quiahgroup1backend.mtscorporate.com';
+
+  const images = (property.images || []).map((img) =>
+    typeof img === 'string' && !img.startsWith('http') ? `${apiOrigin}${img}` : img
+  );
+
+  const uiProperty = {
+    id: property.id || property._id,
+    title: property.title,
+    description: property.description,
+    images,
     features: {
-      bedrooms: base.bedrooms,
-      bathrooms: base.bathrooms,
-      area: base.area,
-      garages: 2,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      area: property.sqft || property.area || 0,
+      garages: property.garages || 0,
     },
-    description: t('buy.property.description'),
-    highlights: [
-      t('buy.property.highlights.pool'),
-      t('buy.property.highlights.living'),
-      t('buy.property.highlights.kitchen'),
-      t('buy.property.highlights.master'),
-      t('buy.property.highlights.security'),
-      t('buy.property.highlights.proximity'),
-    ],
-    interiorFeatures: [
-      t('buy.property.interior.kitchen'),
-      t('buy.property.interior.ac'),
-      t('buy.property.interior.wardrobes'),
-      t('buy.property.interior.flooring'),
-      t('buy.property.interior.internet'),
-      t('buy.property.interior.generator'),
-    ],
-    exteriorFeatures: [
-      t('buy.property.exterior.pool'),
-      t('buy.property.exterior.garden'),
-      t('buy.property.exterior.gated'),
-      t('buy.property.exterior.parking'),
-      t('buy.property.exterior.entertainment'),
-      t('buy.property.exterior.cctv'),
-    ],
-    locationDescription: t('buy.property.locationDesc'),
-    developerDescription: t('buy.property.developerDesc'),
+    interiorFeatures: property.interiorFeatures,
+    exteriorFeatures: property.exteriorFeatures,
+    developer: property.developerName || (property.owner ? `${property.owner.firstName} ${property.owner.lastName}` : undefined),
+    developerDescription: property.developerInfo,
     rental: {
-      duration: t('buy.property.rental.duration'),
-      furnishing: t('buy.property.rental.furnishing'),
-      deposit: t('buy.property.rental.deposit'),
+      duration: property.rentalDuration,
+      furnishing: property.furnishing,
+      deposit: property.rentalTerms,
     },
+    location: property.city ? `${property.city}${property.state ? ', ' + property.state : ''}` : property.address,
+    price: Number(property.price) || 0,
+    // Compute an approximate USD value when backend doesn't provide one.
+    // You can override the conversion rate with NEXT_PUBLIC_XOF_TO_USD (client-safe env var).
+    priceUSD:
+      property.priceUSD && !Number.isNaN(Number(property.priceUSD))
+        ? Number(property.priceUSD)
+        : (() => {
+          const rate = Number(process.env.NEXT_PUBLIC_XOF_TO_USD) || 600; // XOF per USD
+          const xof = Number(property.price) || 0;
+          return rate > 0 ? Math.round(xof / rate) : undefined;
+        })(),
+    status: property.status || (property.featured ? 'Featured' : undefined),
   };
 
   return (
-    <main className='min-h-screen bg-gray-50'>
+    <main className='min-h-screen bg-background-light'>
       {/* Container with max-width for better readability */}
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+        <div className='grid grid-cols-1 lg:grid-cols-3 lg:gap-6 gap-3.5'>
           {/* Main Content Area - Left Side (2/3 width on large screens) */}
-          <div className='lg:col-span-2 space-y-6'>
+          <div className='lg:col-span-2 space-y-3.5 lg:space-y-6'>
             {/* Image Gallery */}
             <Suspense
               fallback={
@@ -103,44 +182,46 @@ export default function BuyDetailsPage() {
               }
             >
               <ImageGallery
-                images={mockProperty.images}
-                alt={mockProperty.title}
+                images={uiProperty.images}
+                alt={uiProperty.title}
               />
             </Suspense>
 
             {/* Tabbed Content */}
-            <section className='bg-white rounded-lg shadow-sm p-6'>
-              <PropertyTabs property={mockProperty} />
+            <section className='bg-white/50 rounded-lg shadow-sm p-6'>
+              <PropertyTabs property={uiProperty} />
             </section>
           </div>
 
           {/* Sidebar - Right Side (1/3 width on large screens) */}
-          <div className='lg:col-span-1 space-y-6'>
+          <div className='lg:col-span-1 lg:space-y-6 space-y-3.5'>
             {/* Property Info Card - Sticky on larger screens */}
-            <div className='sticky top-8 space-y-6'>
+            <div className='sticky top-22 lg:space-y-6 space-y-3.5'>
               {/* Combined Property Header and Contact Actions Card */}
-              <div className='bg-white rounded-lg shadow-sm p-6'>
+              <div className='bg-white/50 border border-[#f6efcb] rounded-lg shadow-sm p-6'>
                 <PropertyHeader
-                  title={mockProperty.title}
-                  location={mockProperty.location}
-                  price={mockProperty.price}
-                  priceUSD={mockProperty.priceUSD}
-                  developer={mockProperty.developer}
-                  status={mockProperty.status}
+                  title={uiProperty.title}
+                  location={uiProperty.location}
+                  price={uiProperty.price}
+                  priceUSD={uiProperty.priceUSD}
+                  developer={uiProperty.developer}
+                  status={uiProperty.status}
                 />
 
                 {/* Divider */}
                 <div className='my-6 border-t border-gray-200'></div>
 
                 <ContactActions
-                  propertyId={mockProperty.id}
-                  propertyTitle={mockProperty.title}
+                  propertyId={uiProperty.id}
+                  propertyTitle={uiProperty.title}
+                  listingType='buy'
+                  onInquire={() => handleInquire(uiProperty.id)}
                 />
               </div>
 
               {/* Rental Overview */}
-              {mockProperty.rental && (
-                <RentalOverview rental={mockProperty.rental} />
+              {uiProperty.rental && (
+                <RentalOverview rental={uiProperty.rental} />
               )}
             </div>
           </div>
@@ -178,11 +259,41 @@ export default function BuyDetailsPage() {
               </svg>
             </li>
             <li className='text-gray-900 font-medium truncate max-w-xs'>
-              {mockProperty.title}
+              {uiProperty.title}
             </li>
           </ol>
         </nav>
       </div>
+      {/* Inquiry Modal (property) */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
+              <div>
+                <h3 className="text-2xl font-bold text-charcoal">Inquire about {uiProperty.title}</h3>
+                <p className="text-sm text-gray-600 mt-1">Fill out the form below and the agent will contact you shortly.</p>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Close modal">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label htmlFor="message" className="block text-[14px] font-medium text-charcoal mb-1.5">Message</label>
+                  <textarea id="message" name="message" rows={4} value={formState.message} onChange={handleChange} className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none text-[15px] transition-all duration-200" required />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200">Cancel</button>
+                  <button type="submit" className="flex-1 bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">Send Inquiry</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

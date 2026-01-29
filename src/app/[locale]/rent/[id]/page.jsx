@@ -1,19 +1,19 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "@/i18n";
 import ImageGallery from "@/components/property/ImageGallery";
-import PropertyHeader from "@/components/property/PropertyHeader";
-import PropertyFeatures from "@/components/property/PropertyFeatures"; // (If used inside tabs component)
+import PropertyHeader from "@/components/property/PropertyHeader";// (If used inside tabs component)
 import ContactActions from "@/components/property/ContactActions";
 import PropertyTabs from "@/components/property/PropertyTabs";
 import RentalOverview from "@/components/property/RentalOverview";
-import { getRentPropertyById } from "@/lib/rentProperties";
+import axiosInstance from "@/lib/axios";
+import api from '@/lib/api';
+import { showToast } from '@/components/Toast';
+import { X } from 'lucide-react';
 
-// Rent Details Page
-// Mirrors the Buy details UI but uses rental-focused mock data & translation keys
 export default function RentDetailsPage() {
   // Extract locale & id from the route using useParams hook
   const params = useParams();
@@ -21,110 +21,189 @@ export default function RentDetailsPage() {
   const id = params?.id;
   const { t } = useTranslation(locale);
 
-  // Get the selected property from shared dataset
-  const base = getRentPropertyById(id);
+  const [property, setProperty] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formState, setFormState] = useState({ fullName: '', email: '', phone: '', message: '' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // If not found, render a simple fallback
-  if (!base) {
+  useEffect(() => {
+    let mounted = true;
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+
+    axiosInstance
+      .get(`/properties/${id}`)
+      .then((res) => {
+        
+        const p = res?.data?.data?.property || res?.data?.data || res?.data?.property || res?.data || null;
+        if (!p) throw new Error('Property not found');
+
+        const normalized = {
+          id: p.id || p._id,
+          title: p.title,
+          location: `${p.city || ''}${p.state ? ', ' + p.state : ''}`,
+          priceXOF: p.price || p.priceXOF,
+          priceUSD: p.priceUSD || null,
+          developer: t('rent.property.manager'),
+          status: p.featured || p.isVerified ? t('rent.property.status') : undefined,
+          images: (p.images && p.images.length ? p.images : p.image ? [p.image] : []),
+          features: {
+            bedrooms: p.bedrooms,
+            bathrooms: p.bathrooms,
+            area: p.sqft || p.area || null,
+            garages: p.garages || null,
+          },
+          description: p.description || t('rent.property.description'),
+          highlights: [],
+          interiorFeatures: p.interiorFeatures || [],
+          exteriorFeatures: p.exteriorFeatures || [],
+          locationDescription: p.locationDescription || t('rent.property.locationDesc'),
+          managerDescription: p.managerDescription || t('rent.property.managerDesc', 'Professionally managed for comfort and reliability.'),
+          rental: {
+            duration: p.duration || p.rentalDuration || null,
+            furnishing: p.isFurnished ? t('rent.property.rental.furnishing', 'Fully Furnished') : t('rent.propertyCard.unfurnished'),
+            deposit: t('rent.property.rental.deposit', '2 Months Deposit'),
+          },
+        };
+
+        if (mounted) setProperty(normalized);
+      })
+      .catch((err) => {
+        console.error('Failed to load property', err);
+        if (mounted) setError(err.message || 'Failed to load property');
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [id, t]);
+
+  const handleInquire = (id) => {
+    setFormState((s) => ({ ...s, message: `I am interested in ${property?.title || ''}. Please send me more information.` }));
+    setIsModalOpen(true);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormState((s) => ({ ...s, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        propertyId: property?.id,
+        propertyTitle: property?.title,
+        message: formState.message,
+      };
+      console.log('Submitting inquiry payload ->', payload);
+      await api.post('/inquiries', payload);
+      setIsModalOpen(false);
+      showToast('Inquiry sent successfully', 'success');
+    } catch (err) {
+      console.error('Failed to submit inquiry', err, err?.response || err?.data || null);
+      const msg = (err && err.message) ? err.message : 'Failed to send inquiry. Please try again.';
+      showToast(msg, 'error');
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background-light dark:bg-neutral-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-6 gap-3.5">
+            <div className="lg:col-span-2 space-y-3.5 lg:space-y-6">
+              <div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+              <section className="bg-white/50 dark:bg-card-dark rounded-lg shadow-sm p-6">
+                <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded w-3/4 mb-3 animate-pulse" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2 mb-4 animate-pulse" />
+                <div className="space-y-3">
+                  <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-full animate-pulse" />
+                  <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-full animate-pulse" />
+                  <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-2/3 animate-pulse" />
+                </div>
+              </section>
+            </div>
+
+            <div className="lg:col-span-1 lg:space-y-6 space-y-3.5">
+              <div className="sticky top-22 lg:space-y-6 space-y-3.5">
+                <div className="bg-white/50 border border-[#f6efcb] dark:bg-card-dark rounded-lg shadow-sm p-6">
+                  <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded w-3/4 mb-3 animate-pulse" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2 mb-4 animate-pulse" />
+                  <div className="h-10 bg-gray-200 dark:bg-gray-600 rounded w-full mb-2 animate-pulse" />
+                </div>
+                <div className="bg-white/50 border border-[#f6efcb] dark:bg-card-dark rounded-lg shadow-sm p-6">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-full mb-2 animate-pulse" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4 mb-2 animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !property) {
     return (
       <main className="min-h-screen bg-gray-50 dark:bg-neutral-900">
         <div className="max-w-3xl mx-auto px-4 py-16 text-center text-gray-700 dark:text-gray-300">
           <h1 className="text-2xl font-semibold mb-2">{t('rent.listings.noResults')}</h1>
+          <p className='text-sm text-gray-600 mb-4'>{error}</p>
           <Link href={`/${locale}/rent`} className="text-primary underline">{t('common.back')}</Link>
         </div>
       </main>
     );
   }
 
-  // Build the details object using the selected card's data
-  const mockProperty = {
-    id: base.id,
-    title: base.title,
-    location: base.location,
-    priceXOF: base.priceXOF,
-    priceUSD: base.priceUSD,
-    developer: t("rent.property.manager"),
-    status: base.isVerified ? t("rent.property.status") : undefined,
-    images: [
-      base.image,
-      // add a couple of safe fallbacks for the gallery
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop",
-    ],
-    features: {
-      bedrooms: base.bedrooms,
-      bathrooms: base.bathrooms,
-      area: 180,
-      garages: 1,
-    },
-    description: t("rent.property.description"),
-    highlights: [
-      t("rent.property.highlights.security"),
-      base.isFurnished ? t("rent.property.highlights.furnished") : t("rent.property.highlights.parking"),
-      t("rent.property.highlights.internet"),
-      t("rent.property.highlights.parking"),
-    ],
-    interiorFeatures: [
-      t("rent.property.interior.ac"),
-      t("rent.property.interior.kitchen"),
-      t("rent.property.interior.wardrobes"),
-      t("rent.property.interior.internet"),
-    ],
-    exteriorFeatures: [
-      t("rent.property.exterior.gated"),
-      t("rent.property.exterior.parking"),
-      t("rent.property.exterior.security"),
-      t("rent.property.exterior.entertainment"),
-    ],
-    locationDescription: t("rent.property.locationDesc"),
-    managerDescription: t("rent.property.managerDesc", "Professionally managed for comfort and reliability."),
-    rental: {
-      duration: base.duration === 'short-term' ? t("rent.property.rental.duration", "Short-term") : t("rent.property.rental.duration", "Long-term"),
-      furnishing: base.isFurnished ? t("rent.property.rental.furnishing", "Fully Furnished") : t("rent.propertyCard.unfurnished"),
-      deposit: t("rent.property.rental.deposit", "2 Months Deposit"),
-    },
-  };
-
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-neutral-900">
+    <main className="min-h-screen bg-background-light dark:bg-neutral-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-6 gap-3.5">
           {/* Left Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-3.5 lg:space-y-6">
             {/* Image Gallery */}
             <Suspense
               fallback={<div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />}
             >
-              <ImageGallery images={mockProperty.images} alt={mockProperty.title} />
+              <ImageGallery images={property.images} alt={property.title} />
             </Suspense>
 
             {/* Tabs (Overview / Features / Location / etc.) */}
-            <section className="bg-white dark:bg-card-dark rounded-lg shadow-sm p-6">
-              <PropertyTabs property={mockProperty} />
+            <section className="bg-white/50 dark:bg-card-dark rounded-lg shadow-sm p-6">
+              <PropertyTabs property={property} />
             </section>
           </div>
 
           {/* Right Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="sticky top-8 space-y-6">
-              <div className="bg-white dark:bg-card-dark rounded-lg shadow-sm p-6">
+          <div className="lg:col-span-1 lg:space-y-6 space-y-3.5">
+            <div className="sticky top-22 lg:space-y-6 space-y-3.5">
+              <div className="bg-white/50 border border-[#f6efcb] dark:bg-card-dark rounded-lg shadow-sm p-6">
                 <PropertyHeader
-                  title={mockProperty.title}
-                  location={mockProperty.location}
-                  price={mockProperty.priceXOF}
-                  priceUSD={mockProperty.priceUSD}
-                  developer={mockProperty.developer}
-                  status={mockProperty.status}
+                  title={property.title}
+                  location={property.location}
+                  price={property.priceXOF}
+                  priceUSD={property.priceUSD}
+                  developer={property.developer}
+                  status={property.status}
                 />
                 <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
                 <ContactActions
-                  propertyId={mockProperty.id}
-                  propertyTitle={mockProperty.title}
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  listingType='rent'
+                  onInquire={() => handleInquire(property.id)}
                 />
               </div>
 
               {/* Rental Overview */}
-              {mockProperty.rental && <RentalOverview rental={mockProperty.rental} />}
+
+              {property.rental && <RentalOverview rental={property.rental} />}
             </div>
           </div>
         </div>
@@ -161,11 +240,40 @@ export default function RentDetailsPage() {
               </svg>
             </li>
             <li className="text-gray-900 dark:text-gray-200 font-medium truncate max-w-xs">
-              {mockProperty.title}
+              {property.title}
             </li>
           </ol>
         </nav>
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
+              <div>
+                <h3 className="text-2xl font-bold text-charcoal">Inquire about {property.title}</h3>
+                <p className="text-sm text-gray-600 mt-1">Fill out the form below and the agent will contact you shortly.</p>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Close modal">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label htmlFor="message" className="block text-[14px] font-medium text-charcoal mb-1.5">Message</label>
+                  <textarea id="message" name="message" rows={4} value={formState.message} onChange={handleChange} className="w-full px-4 py-3 bg-background-light border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none text-[15px] transition-all duration-200" required />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200">Cancel</button>
+                  <button type="submit" className="flex-1 bg-primary hover:bg-primary-dark text-charcoal font-semibold px-6 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">Send Inquiry</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

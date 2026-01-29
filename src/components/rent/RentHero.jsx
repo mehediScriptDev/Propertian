@@ -15,13 +15,13 @@ export default function RentHero() {
 
   return (
     <section
-      className='relative w-full sm:min-h-[480px] flex flex-col items-center justify-center rounded-xl overflow-hidden p-6'
+      className='relative w-full min-h-50 sm:min-h-60 lg:min-h-[480px] flex flex-col items-center justify-center rounded-xl overflow-hidden p-6'
       aria-label='Rent properties hero section'
     >
       {/* Background Image */}
       <div className='absolute inset-0 z-0'>
         <Image
-          src='https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&q=80'
+          src='/buy-rent/thumbnail.jpg'
           alt='Modern living room with city skyline view'
           fill
           sizes='100vw'
@@ -31,7 +31,7 @@ export default function RentHero() {
         />
         {/* Gradient Overlay */}
         <div
-          className='absolute inset-0 bg-linear-to-b from-gray-900/40 via-gray-900/60 to-gray-900/70'
+          className='absolute inset-0 bg-linear-to-b from-gray-900/35 to-gray-900/35'
           aria-hidden='true'
         />
       </div>

@@ -14,7 +14,7 @@ const AboutHero = memo(({ title, subtitle }) => {
       aria-labelledby='about-hero-title'
     >
       {/* Background Image with Overlay */}
-      <div className='relative h-[480px] w-full'>
+      <div className='relative min-h-50 sm:min-h-60 lg:min-h-[480px] flex items-center justify-center w-full'>
         <Image
           src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80'
           alt="Panoramic view of modern architecture in Abidjan, Côte d'Ivoire at dusk"
@@ -33,13 +33,13 @@ const AboutHero = memo(({ title, subtitle }) => {
           <div className='max-w-4xl space-y-4'>
             <h1
               id='about-hero-title'
-              className='text-[28px] font-black leading-[1.2] tracking-[-0.015em] text-white sm:text-[36px] md:text-[48px] lg:text-[64px]'
+              className='text-white  font-black leading-tight tracking-[-0.033em] text-2xl sm:text-3xl lg:text-5xl'
             >
               {title}
             </h1>
-            <p className='text-sm font-normal leading-relaxed text-gray-200 sm:text-base md:text-lg'>
+            {/* <p className='text-sm font-normal leading-relaxed text-gray-200 sm:text-base md:text-lg'>
               {subtitle}
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

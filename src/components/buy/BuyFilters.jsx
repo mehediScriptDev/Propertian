@@ -20,12 +20,14 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
   const [openDropdowns, setOpenDropdowns] = useState({
     city: false,
     bedrooms: false,
+    bathrooms: false,
     propertyType: false,
   });
 
   const [filters, setFilters] = useState({
-    city: initialFilters.city || 'abidjan',
+    city: initialFilters.city || 'any',
     bedrooms: initialFilters.bedrooms || 'any',
+    bathrooms: initialFilters.bathrooms || 'any',
     propertyType: initialFilters.propertyType || 'any',
     priceRange: initialFilters.priceRange || 50,
     verifiedOnly: initialFilters.verifiedOnly ?? true,
@@ -44,10 +46,10 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
 
   return (
     <>
-      <div className='p-4 rounded-xl bg-[#fafafa] dark:bg-card-dark shadow-sm border border-gray-200 dark:border-border-dark'>
+      <div className='p-4 rounded-xl bg-white/50 dark:bg-card-dark shadow-sm border border-gray-200 dark:border-border-dark'>
         {/* Mobile stacked layout */}
         <div className='flex flex-col gap-3 lg:hidden'>
-          <div className='grid grid-cols-3 gap-2'>
+          <div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
             {/* City */}
             <div className='flex flex-col'>
               <label htmlFor='city-mobile' className='text-[10px] font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1'>
@@ -60,8 +62,9 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
                   onChange={(e) => { handleFilterChange('city', e.target.value); applyFilters(); }}
                   onFocus={() => handleDropdownFocus('city')}
                   onBlur={() => handleDropdownBlur('city')}
-                  className='w-full h-9 px-2 pr-7 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1 outline-none focus:ring-primary focus:border-primary text-xs appearance-none cursor-pointer'
+                  className='w-full h-9 px-2 pr-7 rounded-lg dark:border-border-dark bg-background-light border border-gray-300 dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-xs appearance-none cursor-pointer outline-none'
                 >
+                  <option value='any'>{t('common.any', 'Any')}</option>
                   <option value='abidjan'>{t('buy.filters.cities.abidjan', 'Abidjan')}</option>
                   <option value='assinie'>{t('buy.filters.cities.assinie', 'Assinie-Mafia')}</option>
                   <option value='yamoussoukro'>{t('buy.filters.cities.yamoussoukro', 'Yamoussoukro')}</option>
@@ -86,7 +89,7 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
                   onChange={(e) => { handleFilterChange('bedrooms', e.target.value); applyFilters(); }}
                   onFocus={() => handleDropdownFocus('bedrooms')}
                   onBlur={() => handleDropdownBlur('bedrooms')}
-                  className='w-full h-9 px-2 pr-7 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1  focus:ring-primary focus:border-primary text-xs appearance-none cursor-pointer'
+                  className='w-full h-9 px-2 pr-7 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1  focus:ring-primary focus:border-primary text-xs appearance-none cursor-pointer outline-none!'
                 >
                   <option value='any'>{t('buy.filters.bedrooms.any', 'Any')}</option>
                   <option value='1'>{t('buy.filters.bedrooms.one', '1')}</option>
@@ -95,6 +98,33 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
                 </select>
                 <div className='absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none'>
                   <svg className={`w-3 h-3 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${openDropdowns.bedrooms ? 'rotate-180' : ''}`} fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Bathrooms */}
+            <div className='flex flex-col'>
+              <label htmlFor='bathrooms-mobile' className='text-[10px] font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1'>
+                {t('buy.filters.bathroomsLabel', 'Bathrooms')}
+              </label>
+              <div className='relative'>
+                <select
+                  id='bathrooms-mobile'
+                  value={filters.bathrooms}
+                  onChange={(e) => { handleFilterChange('bathrooms', e.target.value); applyFilters(); }}
+                  onFocus={() => handleDropdownFocus('bathrooms')}
+                  onBlur={() => handleDropdownBlur('bathrooms')}
+                  className='w-full h-9 px-2 pr-7 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1  focus:ring-primary focus:border-primary text-xs appearance-none cursor-pointer outline-none!'
+                >
+                  <option value='any'>{t('buy.filters.bathrooms.any', 'Any')}</option>
+                  <option value='1'>{t('buy.filters.bathrooms.one', '1')}</option>
+                  <option value='2'>{t('buy.filters.bathrooms.two', '2')}</option>
+                  <option value='3+'>{t('buy.filters.bathrooms.threePlus', '3+')}</option>
+                </select>
+                <div className='absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none'>
+                  <svg className={`w-3 h-3 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${openDropdowns.bathrooms ? 'rotate-180' : ''}`} fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
                   </svg>
                 </div>
@@ -181,14 +211,15 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
               {t('buy.filters.cityLabel')}
             </label>
             <div className='relative'>
-              <select
+                <select
                 id='city-desktop'
                 value={filters.city}
                 onChange={(e) => handleFilterChange('city', e.target.value)}
                 onFocus={() => handleDropdownFocus('city')}
                 onBlur={() => handleDropdownBlur('city')}
-                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer'
+                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer outline-none'
               >
+                <option value='any'>{t('common.any', 'Any')}</option>
                 <option value='abidjan'>{t('buy.filters.cities.abidjan', 'Abidjan')}</option>
                 <option value='assinie'>{t('buy.filters.cities.assinie', 'Assinie-Mafia')}</option>
                 <option value='yamoussoukro'>{t('buy.filters.cities.yamoussoukro', 'Yamoussoukro')}</option>
@@ -213,7 +244,7 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
                 onChange={(e) => handleFilterChange('bedrooms', e.target.value)}
                 onFocus={() => handleDropdownFocus('bedrooms')}
                 onBlur={() => handleDropdownBlur('bedrooms')}
-                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer'
+                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer outline-none'
               >
                 <option value='any'>{t('buy.filters.bedrooms.any', 'Any')}</option>
                 <option value='1'>{t('buy.filters.bedrooms.one', '1')}</option>
@@ -222,6 +253,34 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
               </select>
               <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none'>
                 <svg className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${openDropdowns.bedrooms ? 'rotate-180' : ''}`} fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                </svg>
+              </div>
+            </div>
+          </div>
+          
+
+          {/* Bathrooms */}
+          <div className='shrink-0 w-[140px]'>
+            <label htmlFor='bathrooms-desktop' className='text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 block mb-2'>
+              {t('buy.filters.bathroomsLabel', 'Bathrooms')}
+            </label>
+            <div className='relative'>
+              <select
+                id='bathrooms-desktop'
+                value={filters.bathrooms}
+                onChange={(e) => handleFilterChange('bathrooms', e.target.value)}
+                onFocus={() => handleDropdownFocus('bathrooms')}
+                onBlur={() => handleDropdownBlur('bathrooms')}
+                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer outline-none'
+              >
+                <option value='any'>{t('buy.filters.bathrooms.any', 'Any')}</option>
+                <option value='1'>{t('buy.filters.bathrooms.one', '1')}</option>
+                <option value='2'>{t('buy.filters.bathrooms.two', '2')}</option>
+                <option value='3+'>{t('buy.filters.bathrooms.threePlus', '3+')}</option>
+              </select>
+              <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none'>
+                <svg className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${openDropdowns.bathrooms ? 'rotate-180' : ''}`} fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
                 </svg>
               </div>
@@ -240,7 +299,7 @@ export default function BuyFilters({ onFilterChange, initialFilters = {} }) {
                 onChange={(e) => handleFilterChange('propertyType', e.target.value)}
                 onFocus={() => handleDropdownFocus('propertyType')}
                 onBlur={() => handleDropdownBlur('propertyType')}
-                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-primary text-sm appearance-none cursor-pointer'
+                className='w-full h-10 px-3 pr-10 rounded-lg border border-gray-300 dark:border-border-dark bg-[#FFFFF0] dark:bg-background-dark focus:ring-1 focus:ring-primary focus:border-primary text-sm appearance-none outline-none cursor-pointer'
               >
                 <option value='any'>{t('buy.filters.any', 'Any')}</option>
                 <option value='villa'>{t('buy.propertyTypes.villa', 'Villa')}</option>

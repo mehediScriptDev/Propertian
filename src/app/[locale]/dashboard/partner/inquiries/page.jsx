@@ -1,722 +1,420 @@
-'use client';
-import { useState, useMemo } from 'react';
-import dynamic from 'next/dynamic';
-import { Search, Filter, Eye, MessageSquare } from 'lucide-react';
 
-const Pagination = dynamic(() => import('@/components/dashboard/Pagination'), {
-  ssr: false,
-});
+
+
+
+"use client";
+
+import { useState, useMemo, useRef, useEffect } from "react";
+import { Search, X, Loader2, Send, RefreshCw } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslation } from "@/i18n";
+import Image from "next/image";
+import api from "@/lib/api";
+import { showToast } from "@/components/Toast";
 
 export default function PartnerInquiriesPage() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [selectedInquiry, setSelectedInquiry] = useState(null);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const itemsPerPage = 5;
+  const { locale } = useLanguage();
+  const { t } = useTranslation(locale);
 
-  // Mock data based on database schema
-  const inquiries = useMemo(
-    () => [
-      {
-        id: 1,
-        user_id: 'USR001',
-        property_id: 'PROP101',
-        property_development_id: 'DEV201',
-        partner_id: 'PART301',
-        inquiry_type: 'General',
-        full_name: 'John Smith',
-        email: 'john.smith@email.com',
-        phone: '+1-555-0101',
-        subject: 'Property Investment Inquiry',
-        message:
-          'I am interested in investing in your luxury development project.',
-        status: 'pending',
-        response: null,
-        responded_by: null,
-        responded_at: null,
-        created_at: '2024-11-08T10:30:00Z',
-        updated_at: '2024-11-08T10:30:00Z',
-      },
-      {
-        id: 2,
-        user_id: 'USR002',
-        property_id: 'PROP102',
-        property_development_id: null,
-        partner_id: 'PART301',
-        inquiry_type: 'Viewing',
-        full_name: 'Sarah Johnson',
-        email: 'sarah.j@email.com',
-        phone: '+1-555-0102',
-        subject: 'Schedule Property Viewing',
-        message: 'Would like to schedule a viewing for the downtown apartment.',
-        status: 'responded',
-        response:
-          'Thank you for your interest. We have scheduled your viewing for next week.',
-        responded_by: 'ADMIN001',
-        responded_at: '2024-11-07T14:20:00Z',
-        created_at: '2024-11-07T09:15:00Z',
-        updated_at: '2024-11-07T14:20:00Z',
-      },
-      {
-        id: 3,
-        user_id: 'USR003',
-        property_id: null,
-        property_development_id: 'DEV202',
-        partner_id: 'PART301',
-        inquiry_type: 'Pricing',
-        full_name: 'Michael Chen',
-        email: 'michael.chen@email.com',
-        phone: '+1-555-0103',
-        subject: 'Payment Plan Details',
-        message: 'Can you provide more details about the payment plan options?',
-        status: 'pending',
-        response: null,
-        responded_by: null,
-        responded_at: null,
-        created_at: '2024-11-08T15:45:00Z',
-        updated_at: '2024-11-08T15:45:00Z',
-      },
-      {
-        id: 4,
-        user_id: 'USR004',
-        property_id: 'PROP103',
-        property_development_id: null,
-        partner_id: 'PART301',
-        inquiry_type: 'Documentation',
-        full_name: 'Emily Davis',
-        email: 'emily.davis@email.com',
-        phone: '+1-555-0104',
-        subject: 'Property Documents Request',
-        message: 'I need copies of the property title and survey documents.',
-        status: 'in-progress',
-        response: 'We are preparing the documents for you.',
-        responded_by: 'ADMIN002',
-        responded_at: '2024-11-06T11:30:00Z',
-        created_at: '2024-11-06T08:20:00Z',
-        updated_at: '2024-11-06T11:30:00Z',
-      },
-      {
-        id: 5,
-        user_id: 'USR005',
-        property_id: 'PROP104',
-        property_development_id: 'DEV203',
-        partner_id: 'PART301',
-        inquiry_type: 'General',
-        full_name: 'Robert Wilson',
-        email: 'robert.w@email.com',
-        phone: '+1-555-0105',
-        subject: 'Investment Opportunity',
-        message: 'Looking for investment opportunities in your projects.',
-        status: 'responded',
-        response:
-          'Thank you for reaching out. Our team will contact you shortly with investment options.',
-        responded_by: 'ADMIN001',
-        responded_at: '2024-11-05T16:00:00Z',
-        created_at: '2024-11-05T13:10:00Z',
-        updated_at: '2024-11-05T16:00:00Z',
-      },
-      {
-        id: 6,
-        user_id: 'USR006',
-        property_id: 'PROP105',
-        property_development_id: null,
-        partner_id: 'PART301',
-        inquiry_type: 'Viewing',
-        full_name: 'Lisa Anderson',
-        email: 'lisa.anderson@email.com',
-        phone: '+1-555-0106',
-        subject: 'Weekend Viewing Request',
-        message: 'Is it possible to schedule a viewing during the weekend?',
-        status: 'pending',
-        response: null,
-        responded_by: null,
-        responded_at: null,
-        created_at: '2024-11-08T17:30:00Z',
-        updated_at: '2024-11-08T17:30:00Z',
-      },
-      {
-        id: 7,
-        user_id: 'USR007',
-        property_id: null,
-        property_development_id: 'DEV204',
-        partner_id: 'PART301',
-        inquiry_type: 'Pricing',
-        full_name: 'David Martinez',
-        email: 'david.m@email.com',
-        phone: '+1-555-0107',
-        subject: 'Unit Pricing Information',
-        message: 'What are the current prices for 2-bedroom units?',
-        status: 'pending',
-        response: null,
-        responded_by: null,
-        responded_at: null,
-        created_at: '2024-11-08T12:00:00Z',
-        updated_at: '2024-11-08T12:00:00Z',
-      },
-      {
-        id: 8,
-        user_id: 'USR008',
-        property_id: 'PROP106',
-        property_development_id: null,
-        partner_id: 'PART301',
-        inquiry_type: 'General',
-        full_name: 'Jennifer Lee',
-        email: 'jennifer.lee@email.com',
-        phone: '+1-555-0108',
-        subject: 'Property Features Question',
-        message: 'Does the property include parking and storage facilities?',
-        status: 'responded',
-        response:
-          'Yes, the property includes 2 parking spaces and a storage unit.',
-        responded_by: 'ADMIN003',
-        responded_at: '2024-11-04T10:15:00Z',
-        created_at: '2024-11-04T09:00:00Z',
-        updated_at: '2024-11-04T10:15:00Z',
-      },
-      {
-        id: 9,
-        user_id: 'USR009',
-        property_id: 'PROP107',
-        property_development_id: 'DEV205',
-        partner_id: 'PART301',
-        inquiry_type: 'Documentation',
-        full_name: 'James Brown',
-        email: 'james.brown@email.com',
-        phone: '+1-555-0109',
-        subject: 'Legal Documentation',
-        message: 'Need information about legal procedures for purchase.',
-        status: 'in-progress',
-        response: 'Our legal team is preparing the information for you.',
-        responded_by: 'ADMIN002',
-        responded_at: '2024-11-03T14:30:00Z',
-        created_at: '2024-11-03T11:20:00Z',
-        updated_at: '2024-11-03T14:30:00Z',
-      },
-      {
-        id: 10,
-        user_id: 'USR010',
-        property_id: 'PROP108',
-        property_development_id: null,
-        partner_id: 'PART301',
-        inquiry_type: 'Viewing',
-        full_name: 'Patricia Garcia',
-        email: 'patricia.g@email.com',
-        phone: '+1-555-0110',
-        subject: 'Virtual Tour Request',
-        message: 'Can I get a virtual tour of the property?',
-        status: 'pending',
-        response: null,
-        responded_by: null,
-        responded_at: null,
-        created_at: '2024-11-08T16:20:00Z',
-        updated_at: '2024-11-08T16:20:00Z',
-      },
-    ],
-    []
-  );
+  const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [replyText, setReplyText] = useState("");
+  const messagesEndRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Filter inquiries
-  const filteredInquiries = useMemo(() => {
-    return inquiries.filter((inquiry) => {
-      const matchesSearch =
-        inquiry.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inquiry.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inquiry.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inquiry.inquiry_type.toLowerCase().includes(searchQuery.toLowerCase());
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingConversation, setLoadingConversation] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
-      const matchesFilter =
-        filterStatus === 'all' || inquiry.status === filterStatus;
+  // 1. Fetch Partner Inquiries List (Summary List)
+  useEffect(() => {
+    let mounted = true;
+    const fetchInquiries = async () => {
+      setLoading(true);
+      try {
+        // API: Get inquiries list for sidebar
+        const res = await api.get("/inquiries/my-inquiries?page=1&limit=50");
+        const responseData = res?.data || res;
+        const items = responseData?.data?.inquiries || responseData?.inquiries || [];
 
-      return matchesSearch && matchesFilter;
+        const threads = items.map((i) => {
+          const img =
+            i?.properties?.images && i.properties.images.length
+              ? i.properties.images[0]
+              : "";
+
+          // User Info
+          const userObj = i?.user || i?.users || i?.createdBy || {};
+          const userName = userObj.firstName
+            ? `${userObj.firstName} ${userObj.lastName || ""}`
+            : userObj.email || "Client";
+
+          return {
+            id: i.id || i._id,
+            propertyName: i?.properties?.title || i?.properties?.name || "-",
+            location: i?.properties?.address || i?.properties?.state || "",
+            city: i?.properties?.city || "",
+            status: (i?.status || "").toLowerCase() || "new",
+            image: img,
+            lastMessage: i?.message || i?.lastMessage || "",
+            userName,
+            timestamp: i?.createdAt || i?.updatedAt || new Date().toISOString(),
+            inquiries: [], // Initially empty, will be filled by fetchThreadDetails
+          };
+        });
+
+        if (mounted) setInquiries(threads);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        showToast({ type: "error", message: "Failed to load inquiries." });
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchInquiries();
+    return () => {
+      mounted = false;
+    };
+  }, [locale]);
+
+  // 2. Fetch Full Conversation Details (ID Wise)
+  const fetchThreadDetails = async (threadId, isBackgroundRefresh = false) => {
+    if (!isBackgroundRefresh) setLoadingConversation(true);
+    try {
+      // API Call: GET /inquiries/:id to get ALL previous conversations
+      const res = await api.get(`/inquiries/${threadId}`);
+      const responseData = res?.data || res;
+      
+      // Access the 'conversation' array from the response
+      // Structure based on your image: { ..., conversation: [...] }
+      const conversationData = responseData?.conversation || responseData?.data?.conversation || [];
+
+      console.log("Full Conversation Data:", conversationData);
+
+      const mappedMessages = conversationData.map((msg) => {
+        // Role Mapping:
+        // 'USER' -> Client (Left)
+        // 'SUPER_ADMIN' / 'ADMIN' -> Admin (Left)
+        // 'AGENT' / 'PARTNER' -> Me (Right)
+        
+        let from = 'partner'; // Default assume it's me
+        
+        if (msg.senderRole === 'USER') {
+            from = 'client';
+        } else if (msg.senderRole === 'SUPER_ADMIN' || msg.senderRole === 'ADMIN') {
+            from = 'admin';
+        } else if (msg.senderRole === 'PARTNER' || msg.senderRole === 'AGENT') {
+            from = 'partner';
+        }
+
+        return {
+          id: msg.id,
+          from: from, 
+          text: msg.message,
+          timestamp: new Date(msg.createdAt).toLocaleString(),
+          senderName: msg.senderName,
+          senderRole: msg.senderRole
+        };
+      });
+
+      // Sort by time just in case
+      mappedMessages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+      // Update the selected thread with the FULL conversation history
+      setSelected((prev) => ({
+        ...prev,
+        id: threadId,
+        inquiries: mappedMessages,
+      }));
+
+    } catch (err) {
+      console.error("Conversation fetch error:", err);
+      showToast({ type: "error", message: "Failed to load conversation history." });
+    } finally {
+      if (!isBackgroundRefresh) setLoadingConversation(false);
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    }
+  };
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return inquiries.filter((t) => {
+      if (statusFilter !== "all" && t.status !== statusFilter) return false;
+      if (!q) return true;
+      return (
+        (t.propertyName || "").toLowerCase().includes(q) ||
+        (t.location || "").toLowerCase().includes(q) ||
+        (t.userName || "").toLowerCase().includes(q)
+      );
     });
-  }, [inquiries, searchQuery, filterStatus]);
-
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredInquiries.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentInquiries = filteredInquiries.slice(startIndex, endIndex);
-
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleFilterChange = (e) => {
-    setFilterStatus(e.target.value);
-    setCurrentPage(1);
-  };
+  }, [inquiries, search, statusFilter]);
 
   const getStatusBadge = (status) => {
-    const statusConfig = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      'in-progress': 'bg-blue-100 text-blue-800',
-      responded: 'bg-green-100 text-green-800',
+    const config = {
+      new: { bg: "bg-blue-500", label: "New" },
+      awaiting: { bg: "bg-yellow-400", label: "Awaiting Reply" },
+      closed: { bg: "bg-green-500", label: "Closed" },
     };
-    return statusConfig[status] || 'bg-gray-100 text-gray-800';
+    const s = config[status] || config.new;
+    return (
+      <span
+        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white ${s.bg}`}
+      >
+        {s.label}
+      </span>
+    );
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const selectThread = (thread) => {
+    // 1. Set basic info from list first
+    setSelected({ ...thread, inquiries: [] });
+    setIsOpen(true);
+    
+    // 2. Immediately fetch the full history from API
+    fetchThreadDetails(thread.id);
+  };
+
+  // 3. Send Reply Logic
+  const sendReply = async () => {
+    if (!selected || !replyText.trim()) return;
+
+    const currentMessageText = replyText;
+    setIsSending(true);
+
+    try {
+      const payload = { message: currentMessageText };
+      // API: POST /inquiries/:id/replies
+      const res = await api.post(`/inquiries/${selected.id}/replies`, payload);
+      const responseData = res?.data || res;
+
+      const replyData = responseData?.data?.reply || responseData?.reply;
+
+      // Construct new message
+      const newMsg = {
+        id: replyData?.id || Date.now(),
+        from: "partner",
+        text: replyData?.message || currentMessageText,
+        timestamp: new Date(replyData?.createdAt || Date.now()).toLocaleString(),
+      };
+
+      // Append new message to the existing list
+      setSelected((prev) => ({
+        ...prev,
+        inquiries: [...prev.inquiries, newMsg],
+      }));
+
+      setReplyText("");
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+
+    } catch (err) {
+      console.error("Reply error:", err);
+      showToast({ type: "error", message: "Failed to send reply." });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    if (selected?.id) {
+      fetchThreadDetails(selected.id);
+    }
   };
 
   return (
-    <div className='space-y-6'>
-      <div className='rounded-lg bg-white p-8 shadow-sm'>
-        <h2 className='mb-4 text-3xl font-bold text-gray-900'>Inquiries</h2>
-        <p className='text-gray-600'>
-          View and respond to property inquiries from potential buyers.
-        </p>
-      </div>
-
-      <div className='rounded-lg bg-white p-6 shadow-sm'>
-        {/* Search and Filter */}
-        <div className='mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-          <div className='relative flex-1 max-w-md'>
-            <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
-            <input
-              type='text'
-              placeholder='Search by name, email, or subject...'
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className='w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]/20'
-            />
-          </div>
-
-          <div className='relative w-full sm:w-auto'>
-            <Filter className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 pointer-events-none z-10' />
-            <select
-              value={filterStatus}
-              onChange={handleFilterChange}
-              onFocus={() => setIsFilterOpen(true)}
-              onBlur={() => setIsFilterOpen(false)}
-              className='appearance-none w-full sm:w-auto rounded-md border border-gray-300 bg-white pl-9 pr-10 py-2 text-sm text-gray-700 font-medium hover:border-gray-400 focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]/20 cursor-pointer transition-colors'
-            >
-              <option value='all'>All Status</option>
-              <option value='pending'>Pending</option>
-              <option value='in-progress'>In Progress</option>
-              <option value='responded'>Responded</option>
-            </select>
-            <svg
-              className={`absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 pointer-events-none transition-transform duration-200 z-10 ${
-                isFilterOpen ? 'rotate-180' : 'rotate-0'
-              }`}
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='M19 9l-7 7-7-7'
-              />
-            </svg>
-          </div>
+    <div className="flex gap-4 h-[calc(100vh-8rem)] relative">
+      {/* Left: Inquiry Threads Card */}
+      <div className={`${isOpen ? 'hidden' : 'block'} lg:block w-96 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+        <div className="px-4 py-4 border-b border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-900">
+            Inquiry Threads
+          </h3>
         </div>
 
-        {/* Desktop Table */}
-        <div className='hidden md:block overflow-x-auto'>
-          <table className='w-full'>
-            <thead>
-              <tr className='border-b border-gray-200 bg-gray-50'>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-900'>
-                  ID
-                </th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-900'>
-                  Contact Info
-                </th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-900'>
-                  Type
-                </th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-900'>
-                  Subject
-                </th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-900'>
-                  Status
-                </th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-900'>
-                  Date
-                </th>
-                <th className='px-4 py-3 text-left text-sm font-semibold text-gray-900'>
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className='divide-y divide-gray-200'>
-              {currentInquiries.map((inquiry) => (
-                <tr key={inquiry.id} className='hover:bg-gray-50'>
-                  <td className='px-4 py-4 text-sm text-gray-900'>
-                    #{inquiry.id}
-                  </td>
-                  <td className='px-4 py-4'>
-                    <div className='text-sm'>
-                      <div className='font-medium text-gray-900'>
-                        {inquiry.full_name}
-                      </div>
-                      <div className='text-gray-500'>{inquiry.email}</div>
-                      <div className='text-gray-500'>{inquiry.phone}</div>
-                    </div>
-                  </td>
-                  <td className='px-4 py-4'>
-                    <span className='inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800'>
-                      {inquiry.inquiry_type}
-                    </span>
-                  </td>
-                  <td className='px-4 py-4 text-sm text-gray-900 max-w-xs truncate'>
-                    {inquiry.subject}
-                  </td>
-                  <td className='px-4 py-4'>
-                    <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(
-                        inquiry.status
-                      )}`}
-                    >
-                      {inquiry.status}
-                    </span>
-                  </td>
-                  <td className='px-4 py-4 text-sm text-gray-500'>
-                    {formatDate(inquiry.created_at)}
-                  </td>
-                  <td className='px-4 py-4'>
-                    <button
-                      onClick={() => setSelectedInquiry(inquiry)}
-                      className='inline-flex items-center gap-1 text-[#E6B325] hover:text-[#d4a520]'
-                    >
-                      <Eye className='h-4 w-4' />
-                      <span className='text-sm font-medium'>View</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile Cards */}
-        <div className='md:hidden space-y-4'>
-          {currentInquiries.map((inquiry) => (
-            <div
-              key={inquiry.id}
-              className='border border-gray-200 rounded-lg p-4 space-y-3'
-            >
-              <div className='flex items-start justify-between'>
-                <div>
-                  <div className='font-semibold text-gray-900'>
-                    {inquiry.full_name}
-                  </div>
-                  <div className='text-sm text-gray-500'>#{inquiry.id}</div>
-                </div>
-                <span
-                  className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadge(
-                    inquiry.status
-                  )}`}
+        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {loading ? (
+             <div className="flex justify-center items-center h-40">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+             </div>
+          ) : filtered.length === 0 ? (
+             <div className="p-4 text-center text-gray-500 text-sm">No inquiries found.</div>
+          ) : (
+            filtered.map((thread) => (
+                <button
+                key={thread.id}
+                onClick={() => selectThread(thread)}
+                className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gray-200 hover:bg-gray-50 transition-colors ${selected?.id === thread.id ? "bg-gray-50" : ""
+                    }`}
                 >
-                  {inquiry.status}
-                </span>
-              </div>
-
-              <div className='space-y-1 text-sm'>
-                <div className='text-gray-600'>{inquiry.email}</div>
-                <div className='text-gray-600'>{inquiry.phone}</div>
-              </div>
-
-              <div className='flex items-center gap-2'>
-                <span className='inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800'>
-                  {inquiry.inquiry_type}
-                </span>
-              </div>
-
-              <div className='text-sm text-gray-900 font-medium'>
-                {inquiry.subject}
-              </div>
-
-              <div className='text-xs text-gray-500'>
-                {formatDate(inquiry.created_at)}
-              </div>
-
-              <button
-                onClick={() => setSelectedInquiry(inquiry)}
-                className='w-full flex items-center justify-center gap-2 bg-[#E6B325] hover:bg-[#d4a520] text-black font-medium px-4 py-2 rounded-lg transition-colors'
-              >
-                <Eye className='h-4 w-4' />
-                View Details
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {currentInquiries.length === 0 && (
-          <div className='text-center py-12'>
-            <MessageSquare className='mx-auto h-12 w-12 text-gray-400' />
-            <h3 className='mt-2 text-sm font-medium text-gray-900'>
-              No inquiries found
-            </h3>
-            <p className='mt-1 text-sm text-gray-500'>
-              Try adjusting your search or filter criteria.
-            </p>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {currentInquiries.length > 0 && (
-          <div className='mt-6'>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={filteredInquiries.length}
-              itemsPerPage={itemsPerPage}
-              onPageChange={setCurrentPage}
-              translations={{
-                showing: 'Showing',
-                to: 'to',
-                of: 'of',
-                results: 'results',
-                previous: 'Previous',
-                next: 'Next',
-              }}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Inquiry Detail Modal */}
-      {selectedInquiry && (
-        <div
-          className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm'
-          onClick={() => setSelectedInquiry(null)}
-        >
-          <div
-            className='relative w-full max-w-3xl mx-4 bg-white rounded-2xl shadow-2xl'
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className='flex items-center justify-between p-6 border-b border-gray-200'>
-              <h3 className='text-xl font-semibold text-gray-900'>
-                Inquiry Details
-              </h3>
-              <button
-                onClick={() => setSelectedInquiry(null)}
-                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors'
-              >
-                <svg
-                  className='w-5 h-5 text-gray-500'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    d='M6 18L18 6M6 6l12 12'
-                  />
-                </svg>
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className='p-6 max-h-[70vh] overflow-y-auto space-y-6'>
-              {/* Basic Info */}
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-1'>
-                    Inquiry ID
-                  </label>
-                  <div className='text-gray-900'>#{selectedInquiry.id}</div>
+                <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
+                    {thread.userName[0]}
                 </div>
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-1'>
-                    Status
-                  </label>
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadge(
-                      selectedInquiry.status
-                    )}`}
-                  >
-                    {selectedInquiry.status}
-                  </span>
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-0.5">
+                    <div className="font-medium text-sm text-gray-900 truncate">
+                        {thread.userName}
+                    </div>
+                    <div className="text-xs text-gray-500 shrink-0">
+                        {new Date(thread.timestamp).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        })}
+                    </div>
+                    </div>
+                    <div className="text-xs text-gray-600 mb-0.5 truncate">
+                    Property: {thread.propertyName}
+                    </div>
+                    <div className="text-xs text-gray-500 truncate mb-2">
+                    {thread.lastMessage}
+                    </div>
+                    {getStatusBadge(thread.status)}
                 </div>
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-1'>
-                    Inquiry Type
-                  </label>
-                  <span className='inline-flex rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-800'>
-                    {selectedInquiry.inquiry_type}
-                  </span>
-                </div>
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-1'>
-                    Created At
-                  </label>
-                  <div className='text-gray-900'>
-                    {formatDate(selectedInquiry.created_at)}
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Information */}
-              <div className='border-t pt-6'>
-                <h4 className='text-lg font-semibold text-gray-900 mb-4'>
-                  Contact Information
-                </h4>
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
-                      Full Name
-                    </label>
-                    <div className='text-gray-900'>
-                      {selectedInquiry.full_name}
-                    </div>
-                  </div>
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
-                      Email
-                    </label>
-                    <div className='text-gray-900'>{selectedInquiry.email}</div>
-                  </div>
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
-                      Phone
-                    </label>
-                    <div className='text-gray-900'>{selectedInquiry.phone}</div>
-                  </div>
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
-                      User ID
-                    </label>
-                    <div className='text-gray-900'>
-                      {selectedInquiry.user_id}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Property Information */}
-              <div className='border-t pt-6'>
-                <h4 className='text-lg font-semibold text-gray-900 mb-4'>
-                  Property Information
-                </h4>
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  {selectedInquiry.property_id && (
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Property ID
-                      </label>
-                      <div className='text-gray-900'>
-                        {selectedInquiry.property_id}
-                      </div>
-                    </div>
-                  )}
-                  {selectedInquiry.property_development_id && (
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Development ID
-                      </label>
-                      <div className='text-gray-900'>
-                        {selectedInquiry.property_development_id}
-                      </div>
-                    </div>
-                  )}
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
-                      Partner ID
-                    </label>
-                    <div className='text-gray-900'>
-                      {selectedInquiry.partner_id}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Inquiry Details */}
-              <div className='border-t pt-6'>
-                <h4 className='text-lg font-semibold text-gray-900 mb-4'>
-                  Inquiry Details
-                </h4>
-                <div className='space-y-4'>
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
-                      Subject
-                    </label>
-                    <div className='text-gray-900'>
-                      {selectedInquiry.subject}
-                    </div>
-                  </div>
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
-                      Message
-                    </label>
-                    <div className='text-gray-900 bg-gray-50 rounded-lg p-4'>
-                      {selectedInquiry.message}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Response Information */}
-              {selectedInquiry.response && (
-                <div className='border-t pt-6'>
-                  <h4 className='text-lg font-semibold text-gray-900 mb-4'>
-                    Response
-                  </h4>
-                  <div className='space-y-4'>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Response Message
-                      </label>
-                      <div className='text-gray-900 bg-green-50 rounded-lg p-4'>
-                        {selectedInquiry.response}
-                      </div>
-                    </div>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Responded By
-                        </label>
-                        <div className='text-gray-900'>
-                          {selectedInquiry.responded_by}
-                        </div>
-                      </div>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Responded At
-                        </label>
-                        <div className='text-gray-900'>
-                          {formatDate(selectedInquiry.responded_at)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className='flex justify-end gap-3 p-6 border-t border-gray-200'>
-              <button
-                onClick={() => setSelectedInquiry(null)}
-                className='px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg transition-colors'
-              >
-                Close
-              </button>
-              {selectedInquiry.status === 'pending' && (
-                <button className='px-6 py-2 bg-[#E6B325] hover:bg-[#d4a520] text-black font-semibold rounded-lg transition-colors'>
-                  Respond
                 </button>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Right: Chat/Detail Card */}
+      <div className={`${isOpen ? 'block' : 'hidden'} flex-1 rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+        {!selected ? (
+          <div className="h-full flex items-center justify-center text-gray-400">
+            Select a thread to view inquiries
+          </div>
+        ) : (
+          <>
+            {/* Property Info Card */}
+            <div className="px-6 py-4 bg-white border-b border-gray-200">
+              <div className="flex items-start gap-4">
+                <div className="relative sm:w-20 sm:h-20 w-14 h-14 rounded-md overflow-hidden bg-gray-200 shrink-0">
+                  <Image
+                    src={selected.image}
+                    alt={selected.propertyName}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="sm:text-base text-sm font-semibold text-gray-900">
+                        {selected.propertyName}
+                      </h3>
+                      <div className="sm:text-sm text-xs text-gray-500 mt-0.5">
+                        {selected.location}
+                      </div>
+                      <div className="sm:text-sm text-xs text-gray-500">
+                        {selected.city}
+                      </div>
+                    </div>
+                    
+                    {/* Header Actions: Refresh & Close */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleRefresh}
+                        disabled={loadingConversation}
+                        className="rounded-full sm:p-2 p-1 bg-gray-100 text-gray-600 hover:text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors"
+                        title="Refresh conversation"
+                      >
+                        <RefreshCw className={`sm:w-5 sm:h-5 w-3.5 h-3.5 ${loadingConversation ? 'animate-spin' : ''}`} />
+                      </button>
+
+                      <button
+                        onClick={() => { setSelected(null); setIsOpen(false); }}
+                        className="rounded-full sm:p-2 p-1 bg-gray-100 text-[#e6b325] focus:outline-none focus:ring-2 focus:ring-red-200"
+                        aria-label="Close chat"
+                      >
+                        <X className="sm:w-5 sm:h-5 w-3.5 h-3.5 " />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto p-6 pb-24 relative">
+              {loadingConversation ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+                      <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                  </div>
+              ) : (
+                <div className="w-full">
+                    {selected.inquiries.length === 0 && (
+                        <div className="text-center text-gray-400 text-sm mt-10">No messages in this conversation yet.</div>
+                    )}
+                    
+                    {selected.inquiries.map((msg) => (
+                        <div key={msg.id} className="mb-4">
+                            {msg.from === "partner" ? (
+                                /* Partner Message (Right - Me) */
+                                <div className="flex items-start gap-3 justify-end">
+                                    <div className="text-right">
+                                        <div className="bg-[#3B82F6] text-white rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl text-left">
+                                            {msg.text}
+                                        </div>
+                                        <div className="text-xs text-gray-500 mt-1.5">
+                                            You, {msg.timestamp}
+                                        </div>
+                                    </div>
+                                    <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
+                                        P
+                                    </div>
+                                </div>
+                            ) : (
+                                /* Client or Admin Message (Left - Them) */
+                                <div className="flex items-start gap-3">
+                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 ${msg.from === 'admin' ? 'bg-red-100 text-red-600' : 'bg-gray-300 text-gray-700'}`}>
+                                        {msg.from === 'admin' ? 'A' : (selected.userName ? selected.userName[0] : 'U')}
+                                    </div>
+                                    <div>
+                                        <div className={`rounded-lg px-4 py-2.5 text-sm inline-block max-w-2xl ${msg.from === 'admin' ? 'bg-red-50 text-red-900 border border-red-100' : 'bg-gray-100 text-gray-900'}`}>
+                                            {msg.text}
+                                        </div>
+                                        <div className="text-xs text-gray-500 mt-1.5">
+                                            {msg.senderName || (msg.from === 'admin' ? 'Admin' : selected.userName)}, {msg.timestamp}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
+
+            {/* Reply Input */}
+            <div className="px-6 py-3 bg-white border-t border-gray-200 sticky bottom-0 z-10">
+              <div className="flex items-center gap-2">
+                <input
+                  value={replyText}
+                  disabled={isSending}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && !isSending && sendReply()}
+                  placeholder="Type your message"
+                  className="flex-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:bg-gray-50"
+                />
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={sendReply}
+                    disabled={isSending || !replyText.trim()}
+                    className="bg-[#e6b325] text-white px-5 py-2.5 rounded-md text-xs lg:text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {isSending ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
+                    Send
+                  </button>
+                </div>
+              </div>
+              <div className="sm:text-xs text-[9px] text-gray-400 mt-0.5 sm:mt-2 text-left sm:text-right">
+                Respond to potential buyers.
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

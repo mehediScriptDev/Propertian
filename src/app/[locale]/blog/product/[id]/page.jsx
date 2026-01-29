@@ -1,99 +1,186 @@
-"use client";
 import BlogPost from "@/components/blog/BlogPost";
+import { get } from "@/lib/api";
 
-const articleData = {
-  title: "Top 5 Emerging Neighborhoods in Abidjan for 2024",
-  subtitle:
-    "Discover the hidden gems and investment hotspots in Côte d'Ivoire's bustling economic capital.",
-  author: "Jane Doe",
-  publishedDate: "August 15, 2024",
-  readTime: "7 min read",
-  heroImage:
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuDJ0Hz_fURKgBi8b8t_yTQ3lFiQjv0oySFe_xHwTPERW99n5Ia61q-aFYOhUO0o7CLkV2jZ6af5VhWKJRoKXmrA5K-g6T6FSLOBOLDHQR5BUAtrM30gEI1UUrpe09RaV48yQl_a9qOPPpkG1BJ9wEeBapiKB-vLSmfZ1JVg_W0EvXUXDczvr3MWniAKfnup5NQo37o3txwu8Us6bes6XQDgsS81FFXd0p0I0TtBCTZESGe176hmh2G5D-YB_hrk7eX6poH-T54xQnY",
-  sections: [
-    {
-      heading: "1. Cocody - Angré",
-      content:
-        "Once considered a distant suburb, Angré has transformed into one of the most sought-after residential areas in Abidjan. It boasts a mix of modern villas and upscale apartments, catering to a growing middle and upper class. With its numerous restaurants, international schools, and shopping centers, Angré offers a high quality of life with all the necessary amenities at your doorstep.",
-      blockquote: `"The growth in Angré has been phenomenal. It perfectly blends residential tranquility with commercial vibrancy, making it a prime spot for both families and young professionals."`,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuD3TfmGBSyBzPyyfiR84-AngIMNSX1kL595o93KElzBVsScPMNKcNqEchZ0CduT4ZaT_If6OMKvZOXMAB1bNF3XI1KWEcW5RWMjc3YFk8kgjeBDO-UmMs7OtG4C1Nq9447Ua7q_j47J835PezkLEfEIVIwHhY0V3gSKh1vPSVtLMqERD5zRTUz9LObacwuwaDvUhKQixT0xCJsNqTT2LyZ0WBysUPg5v5CiCB2yC94D9inntJ7RL_3Zi43F-llKSRVkHPZcXC4FahU",
-    },
-    {
-      heading: "2. Zone 4 - Biétry",
-      content:
-        "Known for its expatriate community and lively nightlife, Zone 4 continues to evolve. The Biétry area, in particular, is seeing a surge in luxury waterfront developments along the lagoon. Its strategic location near the airport and the city center, combined with an eclectic mix of international cuisine and entertainment options, makes it a perennial favorite for those seeking a dynamic urban lifestyle.",
-    },
-    {
-      heading: "3. Bingerville",
-      content:
-        "Located on the outskirts of Abidjan, Bingerville is experiencing a residential boom. It offers a more serene and spacious alternative to the bustling city center.",
-      list: [
-        "More affordable land and property prices.",
-        "Development of new infrastructure, including roads and public services.",
-        "Proximity to the new industrial zones, creating employment opportunities.",
-        "A quieter, more family-friendly environment with green spaces.",
-      ],
-    },
-    {
-      heading: "4. Riviera Palmeraie",
-      content:
-        "This vast residential area is known for its organized layout and secure gated communities. Palmeraie is ideal for families looking for security and community living. The neighborhood is self-sufficient, with its own schools, clinics, and supermarkets. Recent infrastructure upgrades have improved connectivity to other parts of Abidjan, increasing its appeal.",
-    },
-    {
-      heading: "5. Port-Bouët (around the new bridge)",
-      content:
-        "The construction of the fourth bridge has been a game-changer for the Port-Bouët area. Previously disconnected, this district is now an emerging hub with significant investment potential. Its proximity to the Vridi industrial zone and the international airport makes it attractive for commercial and residential real estate development. Early investors are poised to benefit from the area's anticipated appreciation in value.",
-    },
-  ],
-};
+// Generate metadata server-side for better SEO and social cards
+export async function generateMetadata({ params, searchParams }) {
+  // params may be a Promise in some Next.js environments — await it.
+  const resolvedParams = await params;
+  // prefer route params, but fall back to search params if params is empty
+  const id = (resolvedParams && resolvedParams.id) ?? (searchParams && searchParams.id);
 
-const relatedArticles = [
-  {
-    id: "first-home-guide-cote-divoire",
-    title: "A Guide to Buying Your First Home in Côte d'Ivoire",
-    description:
-      "Navigating the property market can be daunting. Here are the essential steps for first-time homebuyers.",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuC8OzwXCVD_jk6Bh3osqbYzwCXBjyLOVjLvRwN88DFB7KNKq4_Hrrqhn96fHkKigI-vFf-DjKy2NaWWIhb1DJGch_rd90bpTECjbNzYJSakwhoOy5Hhc32bnuRu0xG3FFNiI85v4co6dByrMf5JJV-GSV0T4xXG01K_VZKDYFp4PJJmaxWdFSfTnO50EzLVEfArJTwsVQN-hpksNNwwC9x3FbOPFhxkkyXkgwuPMHRGAiq7pICAbg7ojCAbEUmeR_oQDAhI3sB0iqk",
-    imageAlt: "Modern living room interior",
-    slug: "/blog/first-home-guide-cote-divoire",
-    category: "Buying Guide",
-    publishedDate: "2024-08-10",
-    readTime: "5 min read",
-  },
-  {
-    id: "property-taxes-abidjan",
-    title: "Understanding Property Taxes in Abidjan",
-    description:
-      "A simple breakdown of the taxes you can expect to pay as a property owner in the economic capital.",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBZ3vN-_VXIeRMayaeao1NnazecYGQoJ8zbF1rgadH1laNPVG2uGu3ENEAsdo59FIGmsZ5KQ-Puqdt0LK2DlxBBVXd_6Qf1mKBAMNN6vgCH9_ZnQKc6p07e8zDSADY9IyvESUBkhVjCGbl9N9QeIj4XP0H6l21C1Wopmph4KbcgP18f9K0bDgXdVEox9G6c3vKcy0HpjO5jhnVFJZvqpFJ5Z3OgaVnkAMYs0BFs7nI7VDcJtCJE8Yxt6HRhW1S9FmlupZ-JX14hdzQ",
-    imageAlt: "Close up of a house key in a lock",
-    slug: "/blog/property-taxes-abidjan",
-    category: "Finance",
-    publishedDate: "2024-08-12",
-    readTime: "4 min read",
-  },
-  {
-    id: "interior-design-trends-2024",
-    title: "2024 Interior Design Trends for Ivorian Homes",
-    description:
-      "Discover the latest trends in home decor, blending local craftsmanship with modern aesthetics.",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuB_d3ktsTMsRp5zVIt5uAgvWNUzuGJjfLxmzRzMkM0XXWzbwa-VrtMx-Q_0blrWrmBZh2qUBdSh6xczJV2nOO0pwDHU4pALasnOTC_9sp5DhYP1YlajOcMbGtCIGfDgFWDFhMvuNPM66tMw9yYRcnR2jdXOS5P9fPQFXfwT500UIsRuHtssLXH34VC5pXfXPMuK--IXcAT_mUZvZXbGazIFy_ldGfi9H3OlLoKox6OMDNo_oFxmzfl0YLtALsvkQtIGZgA_DsbFl_c",
-    imageAlt: "Luxury modern kitchen with minimalist design",
-    slug: "/blog/interior-design-trends-2024",
-    category: "Design",
-    publishedDate: "2024-08-14",
-    readTime: "6 min read",
-  },
-];
+  let blog = null;
+  try {
+    // Try endpoint for single blog first
+    const single = await get(`/blog/${id}`);
+    // API may return { success:true, data: { blog: {...} } } or { data: {...} }
+    blog = single?.data?.blog || single?.blog || single?.data || single;
+  } catch (e) {
+    try {
+      // fallback to list endpoint and find by id
+      const list = await get(`/blog`, { params: { id } });
+      const items = list?.data?.blogs || list?.blogs || (Array.isArray(list) ? list : null);
+      if (Array.isArray(items)) blog = items.find((b) => String(b.id) === String(id));
+    } catch (err) {
+      // give up; blog remains null
+      blog = null;
+    }
+  }
 
-export default function SingleProductPage() {
+  if (!blog) {
+    return {
+      title: "Article not found - Blog",
+      description: "The requested article was not found.",
+    };
+  }
+
+  const title = blog.title;
+  const description = blog.subtitle || blog.snippet || "";
+  const image = blog.heroImage || blog.image;
+
+  // Build a locale-aware canonical path (no domain so it's safe in dev)
+  const localePrefix = resolvedParams && resolvedParams.locale ? `/${resolvedParams.locale}` : "";
+  const canonicalPath = `${localePrefix}/blog/product/${id}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: image ? [{ url: image }] : [],
+    },
+    // provide a canonical path so crawlers see a canonical link
+    alternates: {
+      canonical: canonicalPath,
+    },
+  };
+}
+
+export default async function SingleProductPage({ params, searchParams }) {
+  // params may be a Promise — unwrap it before accessing properties
+  const resolvedParams = await params;
+  const id = (resolvedParams && resolvedParams.id) ?? (searchParams && searchParams.id);
+
+  let blog = null;
+  try {
+    const single = await get(`/blog/${id}`);
+    blog = single?.data?.blog || single?.blog || single?.data || single;
+  } catch (e) {
+    try {
+      const list = await get(`/blog`, { params: { id } });
+      const items = list?.data?.blogs || list?.blogs || (Array.isArray(list) ? list : null);
+      if (Array.isArray(items)) blog = items.find((b) => String(b.id) === String(id));
+    } catch (err) {
+      blog = null;
+    }
+  }
+
+  if (!blog) {
+    const serverDebug = { params: resolvedParams || {}, searchParams: searchParams || {}, blogId: id };
+    return (
+      <div>
+        <BlogPost articleData={null} relatedArticles={[]} locale={resolvedParams?.locale} serverDebug={serverDebug} />
+      </div>
+    );
+  }
+
+  const articleData = {
+    // preserve all useful API fields so the Article UI can display them
+    id: blog.id,
+    slug: blog.slug || "",
+    title: blog.title,
+    subtitle: blog.subtitle || blog.snippet || blog.excerpt || "",
+    excerpt: blog.excerpt || blog.snippet || "",
+    author: blog.author || "",
+    // Format dates server-side to Day Month Year using resolved locale when available
+    publishedDate: (() => {
+      try {
+        const raw = blog.publishedAt || blog.publishedDate || blog.date || "";
+        const d = raw ? new Date(raw) : null;
+        if (!d || Number.isNaN(d.getTime())) return raw;
+        return d.toLocaleDateString(resolvedParams?.locale || undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+      } catch (e) {
+        return (blog.publishedAt || blog.publishedDate || blog.date || "");
+      }
+    })(),
+    createdAt: (() => {
+      try {
+        const raw = blog.createdAt || "";
+        const d = raw ? new Date(raw) : null;
+        if (!d || Number.isNaN(d.getTime())) return raw;
+        return d.toLocaleDateString(resolvedParams?.locale || undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+      } catch (e) {
+        return (blog.createdAt || "");
+      }
+    })(),
+    updatedAt: (() => {
+      try {
+        const raw = blog.updatedAt || "";
+        const d = raw ? new Date(raw) : null;
+        if (!d || Number.isNaN(d.getTime())) return raw;
+        return d.toLocaleDateString(resolvedParams?.locale || undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+      } catch (e) {
+        return (blog.updatedAt || "");
+      }
+    })(),
+    readTime: blog.readTime || "",
+    heroImage: blog.featuredImage || blog.heroImage || blog.image,
+    featuredImage: blog.featuredImage || blog.heroImage || blog.image,
+    tags: Array.isArray(blog.tags) ? blog.tags : [],
+    content: blog.content || blog.body || blog.html || null,
+    sections: Array.isArray(blog.sections) && blog.sections.length > 0
+      ? blog.sections
+      : (
+        blog.content
+          ? [{ heading: blog.title, content: blog.content, image: blog.featuredImage || blog.image }]
+          : [{ heading: blog.title, content: blog.snippet || blog.excerpt || "", image: blog.image }]
+      ),
+  };
+
+  // JSON-LD structured data for this article (server-rendered)
+  // Validate published date before calling toISOString to avoid RangeError
+  let isoDatePublished;
+  try {
+    const d = new Date(articleData.publishedDate);
+    if (!Number.isNaN(d.getTime())) isoDatePublished = d.toISOString();
+  } catch (e) {
+    isoDatePublished = undefined;
+  }
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: articleData.title,
+    description: articleData.excerpt || articleData.subtitle,
+    author: articleData.author || undefined,
+    image: articleData.heroImage || articleData.featuredImage || undefined,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${(resolvedParams && resolvedParams.locale) ? `/${resolvedParams.locale}` : ''}/blog/product/${blog.id}`,
+    },
+  };
+
+  if (isoDatePublished) jsonLd.datePublished = isoDatePublished;
+  if (Array.isArray(articleData.tags) && articleData.tags.length > 0) jsonLd.keywords = articleData.tags.join(", ");
+
+  // related articles: try fetching nearby articles, fallback to empty
+  let relatedArticles = [];
+  try {
+    const list = await get(`/blog`, { params: { page: 1, limit: 10, status: 'PUBLISHED' } });
+    const items = list?.data?.blogs || list?.blogs || (Array.isArray(list) ? list : []);
+    relatedArticles = Array.isArray(items) ? items.filter((b) => String(b.id) !== String(blog.id)).slice(0, 3) : [];
+  } catch (e) {
+    relatedArticles = [];
+  }
+
   return (
     <div>
-      <BlogPost articleData={articleData} relatedArticles={relatedArticles} />
+      {/* JSON-LD for crawlers / rich results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <BlogPost articleData={articleData} relatedArticles={relatedArticles} locale={resolvedParams?.locale} />
     </div>
   );
 }

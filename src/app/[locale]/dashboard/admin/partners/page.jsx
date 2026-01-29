@@ -1,253 +1,61 @@
 'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
+import { use, useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslation } from '@/i18n';
-import { Users, CheckCircle, Clock, FolderOpen } from 'lucide-react';
+import { Users, CheckCircle, Clock, FolderOpen, XCircle, ShieldAlert } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
-import PartnersFilters from '@/components/dashboard/admin/PartnersFilters';
-import PartnersTable from '@/components/dashboard/admin/PartnersTable';
-import Pagination from '@/components/dashboard/Pagination';
-
-// Mock partners data - deterministic generation based on DB schema
-const generateMockPartners = () => {
-  const companies = [
-    'KOF Builders & Developers',
-    'Prime Properties CI',
-    'Ivory Coast Realty Group',
-    'Coastal Properties Ltd',
-    'Urban Living CI',
-    'Abidjan Elite Homes',
-    'West Africa Construction',
-    'Horizon Developments',
-    'Prestige Real Estate CI',
-    'Modern Living Solutions',
-    'Atlantic Coast Builders',
-    'Golden Gate Properties',
-  ];
-
-  const contactPersons = [
-    'Jean-Paul Kouassi',
-    'Marie-Claire Diabate',
-    'Ibrahim Traore',
-    'Sophie Mensah',
-    "David N'Guessan",
-    'Fatou Diallo',
-    'Eric Koffi',
-    'Aminata Toure',
-    'Laurent Yao',
-    'Grace Ouattara',
-    'Michel Bamba',
-    'Awa Sanogo',
-  ];
-
-  const projects = [
-    ['Riviera Golf Residences', 'Plateau Business Center'],
-    [
-      'Cocody Modern Apartments',
-      'Marcory Luxury Villas',
-      'Yopougon Family Homes',
-    ],
-    ['Grand-Bassam Beach Resort'],
-    ['Abidjan Sky Tower', 'Plateau Office Complex', 'Cocody Commercial Plaza'],
-    ['Affordable Housing Project'],
-    ['Riviera Palm Villas', 'Angré Premium Residences'],
-    ['Industrial Park Yopougon'],
-    ['Eco-Friendly Homes Cocody', 'Smart City Development'],
-    ['Luxury Beachfront Villas'],
-    ['Mixed-Use Development Plateau'],
-    ['Coastal Living Complex'],
-    ['Golden Residences Marcory', 'Prestige Towers Plateau'],
-  ];
-
-  return companies.map((company, index) => ({
-    id: index + 1,
-    company_name: company,
-    contact_person: contactPersons[index],
-    email: `${contactPersons[index]
-      .toLowerCase()
-      .replace(/\s+/g, '.')}@${company.toLowerCase().replace(/\s+/g, '')}.ci`,
-    phone_number:
-      index % 3 === 0
-        ? null
-        : `+225 ${String(index + 10).padStart(2, '0')} ${String(
-            index + 20
-          ).padStart(2, '0')} ${String(index + 30).padStart(2, '0')} ${String(
-            index + 40
-          ).padStart(2, '0')}`,
-    project_names: projects[index],
-    package:
-      index % 4 === 0 ? 'premium' : index % 3 === 0 ? 'standard' : 'basic',
-    documents:
-      index % 5 !== 0 ? ['business_license.pdf', 'tax_clearance.pdf'] : [],
-    is_verified: index % 3 !== 2,
-    is_paid: index % 4 !== 3,
-    created_at: new Date(
-      Date.now() - index * 15 * 24 * 60 * 60 * 1000
-    ).toISOString(),
-    updated_at: new Date(
-      Date.now() - index * 5 * 24 * 60 * 60 * 1000
-    ).toISOString(),
-  }));
-};
+import PartnersApplicationsPanel from '@/components/dashboard/admin/PartnersApplicationsPanel';
+import ListingSubmissionsPanel from '@/components/dashboard/admin/ListingSubmissionsPanel'; // Ensure this matches your file name
+import VerificationRequestsPanel from '@/components/dashboard/admin/VerificationRequestsPanel';
+import axiosInstance from '@/lib/axios';
 
 export default function AdminPartnersPage({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
 
-  // State
+  // --- State ---
   const [searchTerm, setSearchTerm] = useState('');
-  const [verificationFilter, setVerificationFilter] = useState('all');
-  const [paymentFilter, setPaymentFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  
+  // Data States for Partner Tab
+  const [applications, setApplications] = useState([]); 
+  const [statsData, setStatsData] = useState(null);    
+  
+  // Loading States
+  const [loadingTable, setLoadingTable] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
+
   const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1
+  });
 
-  // Constants
-  const ITEMS_PER_PAGE = 5;
+  // --- Derive Tab ---
+  const searchParams = useSearchParams();
+  const tabParam = searchParams ? searchParams.get('tab') : null;
+  
+  const selectedTab = useMemo(() => {
+    if (tabParam === 'listing-submissions') return 'listing_submission';
+    if (tabParam === 'verification-requests') return 'verification_requests';
+    return 'partner_application';
+  }, [tabParam]);
 
-  // Memoized translations
+  const ITEMS_PER_PAGE = 8;
+
+
   const partnersTranslations = useMemo(
     () => ({
       title: t('dashboard.admin.partners.title'),
       subtitle: t('dashboard.admin.partners.subtitle'),
-      addPartner: t('dashboard.admin.partners.addPartner'),
-      searchPlaceholder: t('dashboard.admin.partners.searchPlaceholder'),
-      stats: {
-        totalPartners: t('dashboard.admin.partners.stats.totalPartners'),
-        verified: t('dashboard.admin.partners.stats.verified'),
-        pending: t('dashboard.admin.partners.stats.pending'),
-        activeProjects: t('dashboard.admin.partners.stats.activeProjects'),
-      },
-      filters: {
-        verification: t('dashboard.admin.partners.filters.verification'),
-        payment: t('dashboard.admin.partners.filters.payment'),
-        allVerification: t('dashboard.admin.partners.filters.allVerification'),
-        allPayment: t('dashboard.admin.partners.filters.allPayment'),
-      },
-      table: {
-        company: t('dashboard.admin.partners.table.company'),
-        contact: t('dashboard.admin.partners.table.contact'),
-        email: t('dashboard.admin.partners.table.email'),
-        phone: t('dashboard.admin.partners.table.phone'),
-        projects: t('dashboard.admin.partners.table.projects'),
-        verification: t('dashboard.admin.partners.table.verification'),
-        payment: t('dashboard.admin.partners.table.payment'),
-        actions: t('dashboard.admin.partners.table.actions'),
-        view: t('dashboard.admin.partners.table.view'),
-        edit: t('dashboard.admin.partners.table.edit'),
-        delete: t('dashboard.admin.partners.table.delete'),
-        joined: t('dashboard.admin.partners.table.joined'),
-      },
-      verification: {
-        verified: t('dashboard.admin.partners.verification.verified'),
-        pending: t('dashboard.admin.partners.verification.pending'),
-        rejected: t('dashboard.admin.partners.verification.rejected'),
-      },
-      payment: {
-        paid: t('dashboard.admin.partners.payment.paid'),
-        unpaid: t('dashboard.admin.partners.payment.unpaid'),
-        partial: t('dashboard.admin.partners.payment.partial'),
-      },
+      // ... (Rest of your translations)
     }),
     [t]
   );
 
-  // Mock partners data
-  const partners = useMemo(() => generateMockPartners(), []);
-
-  // Calculate stats
-  const stats = useMemo(() => {
-    const verifiedCount = partners.filter((p) => p.is_verified).length;
-    const pendingCount = partners.filter((p) => !p.is_verified).length;
-    const totalProjects = partners.reduce(
-      (sum, p) => sum + (p.project_names?.length || 0),
-      0
-    );
-
-    return [
-      {
-        label: partnersTranslations.stats.totalPartners,
-        value: String(partners.length),
-        trend: '+8.3%',
-        icon: Users,
-        variant: 'primary',
-      },
-      {
-        label: partnersTranslations.stats.verified,
-        value: String(verifiedCount),
-        trend: '+12.5%',
-        icon: CheckCircle,
-        variant: 'success',
-      },
-      {
-        label: partnersTranslations.stats.pending,
-        value: String(pendingCount),
-        trend: '-5.2%',
-        icon: Clock,
-        variant: 'warning',
-      },
-      {
-        label: partnersTranslations.stats.activeProjects,
-        value: String(totalProjects),
-        trend: '+15.8%',
-        icon: FolderOpen,
-        variant: 'info',
-      },
-    ];
-  }, [partners, partnersTranslations]);
-
-  // Filter partners
-  const filteredPartners = useMemo(() => {
-    return partners.filter((partner) => {
-      const matchesSearch =
-        partner.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        partner.contact_person
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        partner.email.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesVerification =
-        verificationFilter === 'all' ||
-        (verificationFilter === 'verified' && partner.is_verified) ||
-        (verificationFilter === 'pending' && !partner.is_verified) ||
-        (verificationFilter === 'rejected' && false); // No rejected in mock data
-
-      const matchesPayment =
-        paymentFilter === 'all' ||
-        (paymentFilter === 'paid' && partner.is_paid) ||
-        (paymentFilter === 'unpaid' && !partner.is_paid) ||
-        (paymentFilter === 'partial' && false); // No partial in mock data
-
-      return matchesSearch && matchesVerification && matchesPayment;
-    });
-  }, [partners, searchTerm, verificationFilter, paymentFilter]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredPartners.length / ITEMS_PER_PAGE);
-  const paginatedPartners = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredPartners.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredPartners, currentPage]);
-
-  // Handlers
-  const handleSearchChange = useCallback((value) => {
-    setSearchTerm(value);
-    setCurrentPage(1); // Reset to first page on search
-  }, []);
-
-  const handleVerificationChange = useCallback((value) => {
-    setVerificationFilter(value);
-    setCurrentPage(1); // Reset to first page on filter change
-  }, []);
-
-  const handlePaymentChange = useCallback((value) => {
-    setPaymentFilter(value);
-    setCurrentPage(1); // Reset to first page on filter change
-  }, []);
-
-  const handlePageChange = useCallback((page) => {
-    setCurrentPage(page);
-  }, []);
-
-  // Pagination translations
   const paginationTranslations = useMemo(
     () => ({
       previous: t('common.previous'),
@@ -260,58 +68,204 @@ export default function AdminPartnersPage({ params }) {
     [t]
   );
 
+ 
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoadingStats(true);
+        setStatsData(null); 
+        
+        let url = '';
+
+        // A. Partners Stats
+        if (selectedTab === 'partner_application') {
+            url = '/partner/stats';
+        } 
+        // B. Listings Stats (Keep this if you want stats cards for listings)
+        else if (selectedTab === 'listing_submission') {
+            url = '/admin/property-approval/stats';
+        } 
+        // C. Verification Stats
+        else if (selectedTab === 'verification_requests') {
+            setStatsData({ total: 0, pending: 0, rejected: 0, verified: 0 });
+            setLoadingStats(false);
+            return;
+        }
+
+        if (url) {
+            const response = await axiosInstance.get(url);
+            if (response.data.success) {
+        
+                const data = response.data.data.stats || response.data.data;
+                setStatsData(data);
+            }
+        }
+      } catch (error) {
+        console.error(`Error fetching stats for ${selectedTab}:`, error);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+  }, [selectedTab]);
+
+ 
+  useEffect(() => {
+    const fetchTableData = async () => {
+   
+      if (selectedTab !== 'partner_application') {
+          return; 
+      }
+
+      try {
+        setLoadingTable(true);
+        let url = `/partner/applications?page=${currentPage}&limit=${ITEMS_PER_PAGE}`;
+
+        if (statusFilter !== 'all') {
+          url += `&status=${statusFilter}`;
+        }
+
+        const response = await axiosInstance.get(url);
+        if (response.data.success) {
+          setApplications(response.data.data.applications || []);
+          setPagination(response.data.data.pagination || { total: 0, totalPages: 1 });
+        }
+      } catch (error) {
+        console.error('Error fetching partner applications:', error);
+        setApplications([]);
+      } finally {
+        setLoadingTable(false);
+      }
+    };
+
+    fetchTableData();
+  }, [currentPage, statusFilter, selectedTab]);
+
+
+  const stats = useMemo(() => {
+    const data = statsData || {};
+
+    if (selectedTab === 'partner_application') {
+      return [
+        { title: 'Total Applications', value: data.total || 0, icon: Users, variant: 'primary' },
+        { title: 'Pending', value: data.pending || 0, icon: Clock, variant: 'warning' },
+        { title: 'Under Review', value: data.underReview || 0, icon: FolderOpen, variant: 'info' },
+        { title: 'Approved', value: data.approved || 0, icon: CheckCircle, variant: 'success' },
+      ];
+    }
+
+    if (selectedTab === 'listing_submission') {
+      const pending = data.PENDING_APPROVAL ?? data.PENDING ?? 0;
+      const underReview = data.NEEDS_REVISION ?? data.UNDER_REVIEW ?? 0;
+      const approved = data.APPROVED ?? 0;
+      const total = Object.values(data).reduce((sum, v) => sum + (Number(v) || 0), 0);
+
+      return [
+        { title: 'Total Submissions', value: total, icon: Users, variant: 'primary' },
+        { title: 'Pending Approval', value: pending, icon: Clock, variant: 'warning' },
+        { title: 'Under Review', value: underReview, icon: FolderOpen, variant: 'info' },
+        { title: 'Approved', value: approved, icon: CheckCircle, variant: 'success' },
+      ];
+    }
+
+    // Default empty stats
+    return [
+       { title: 'Total', value: 0, icon: Users, variant: 'primary' },
+       { title: 'Pending', value: 0, icon: Clock, variant: 'warning' },
+       { title: 'Review', value: 0, icon: FolderOpen, variant: 'info' },
+       { title: 'Verified', value: 0, icon: CheckCircle, variant: 'success' },
+    ];
+  }, [statsData, selectedTab]);
+
+  // --- Handlers for Partner Application Tab ---
+  const handlePageChange = (page) => setCurrentPage(page);
+  
+  const handleStatusUpdate = async (id, newStatus) => {
+    try {
+        // Only for Partner Applications
+        await axiosInstance.put(`/partner/applications/${id}/status`, { status: newStatus });
+        window.location.reload(); 
+    } catch (error) {
+        console.error('Update failed', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+        await axiosInstance.delete(`/partner/applications/${id}`);
+        window.location.reload();
+    } catch (error) {
+        console.error('Delete failed', error);
+    }
+  };
+
   return (
     <div className='space-y-4 md:space-y-6'>
       {/* Header */}
-      <div className='bg-linear-to-r from-[#1e3a5f] to-[#2d5078] rounded-lg p-4 sm:p-6 md:p-8 shadow-lg'>
-        <h1 className='text-2xl sm:text-3xl font-bold text-white mb-2'>
-          {partnersTranslations.title}
+      <div>
+        <h1 className='text-4xl font-bold text-gray-900 mb-2'>
+          {selectedTab === 'listing_submission' ? 'Listing Submissions' : 
+           selectedTab === 'verification_requests' ? 'Verification Requests' : 
+           (partnersTranslations.title || 'Partner Applications')}
         </h1>
-        <p className='text-sm sm:text-base text-white/80'>
-          {partnersTranslations.subtitle}
+        <p className='text-sm sm:text-base text-gray-700'>
+          {partnersTranslations.subtitle || 'Manage your requests here.'}
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6'>
-        {stats.map((stat, index) => (
-          <StatsCard
-            key={index}
-            label={stat.label}
-            value={stat.value}
-            trend={stat.trend}
-            icon={stat.icon}
-            variant={stat.variant}
-          />
-        ))}
+        {loadingStats ? (
+           [...Array(4)].map((_, i) => (
+             <div key={i} className="h-28 bg-gray-50 animate-pulse rounded-xl border border-gray-100" />
+           ))
+        ) : (
+           stats.map((stat, index) => (
+            <StatsCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              variant={stat.variant}
+            />
+          ))
+        )}
       </div>
 
-      {/* Filters */}
-      <PartnersFilters
-        searchTerm={searchTerm}
-        verificationFilter={verificationFilter}
-        paymentFilter={paymentFilter}
-        onSearchChange={handleSearchChange}
-        onVerificationChange={handleVerificationChange}
-        onPaymentChange={handlePaymentChange}
-        translations={partnersTranslations}
-      />
-
-      {/* Partners Table with Pagination */}
-      <div className='rounded-lg bg-white shadow-sm overflow-hidden'>
-        <PartnersTable
-          partners={paginatedPartners}
-          translations={partnersTranslations}
-        />
-        <Pagination
+      {/* CONTENT PANELS */}
+      
+      {/* 1. Partner Applications (Parent handles fetching) */}
+      {selectedTab === 'partner_application' && (
+        <PartnersApplicationsPanel
+          partners={applications}
+          loading={loadingTable}
+          onDelete={handleDelete}
+          onStatusChange={handleStatusUpdate}
+          tableTranslations={partnersTranslations}
+          paginationTranslations={paginationTranslations}
           currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={filteredPartners.length}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.total}
           itemsPerPage={ITEMS_PER_PAGE}
           onPageChange={handlePageChange}
-          translations={paginationTranslations}
         />
-      </div>
+      )}
+
+      {/* 2. Listing Submissions (Self-contained Child handles fetching) */}
+      {selectedTab === 'listing_submission' && (
+        <ListingSubmissionsPanel />
+      )}
+
+      {/* 3. Verification Requests (Placeholder) */}
+      {selectedTab === 'verification_requests' && (
+        <VerificationRequestsPanel
+          partners={[]}
+          loading={false}
+          tableTranslations={partnersTranslations}
+          paginationTranslations={paginationTranslations}
+        />
+      )}
     </div>
   );
 }

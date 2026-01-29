@@ -29,8 +29,50 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'placehold.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'quiahgroup1backend.mtscorporate.com',
+        pathname: '/api/uploads/**',
+      },
+      // Allow example.com used in some external test images
+      {
+        protocol: "https",
+        hostname: "example.com",
+        pathname: "/**",
+      },
+      // Allow images served from the public CDN host used by MTS
+      {
+        protocol: 'https',
+        hostname: 'img.mtscorporate.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: "https",
+        hostname: "quiahgroup1backend.mtscorporate.com",
+        pathname: "/uploads/**",
+      },
+      // Allow partner logos served from example.com (fix runtime error)
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+        pathname: '/**',
+      },
+      // Optional: allow any HTTPS host for images used by partners
+      // Uncomment if partner logos come from various domains
+      // {
+      //   protocol: 'https',
+      //   hostname: '**',
+      //   pathname: '/**',
+      // },
     ],
     formats: ['image/avif', 'image/webp'],
+     qualities: [75, 85],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
@@ -45,7 +87,7 @@ const nextConfig = {
   generateEtags: true,
 
   // Performance optimization
-  swcMinify: true,
+  // swcMinify: true,
 
   // Experimental features for better performance
   experimental: {
@@ -80,6 +122,16 @@ const nextConfig = {
             value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
+      },
+    ];
+  },
+
+  // Proxy API requests to avoid CORS in development
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://quiahgroup1backend.mtscorporate.com/api/:path*',
       },
     ];
   },

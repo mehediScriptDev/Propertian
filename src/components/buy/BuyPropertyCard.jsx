@@ -1,9 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/i18n';
+import { useAuth } from '@/contexts/AuthContext';
+import axios from '@/lib/axios';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FaHeart } from 'react-icons/fa';
+import { AiOutlineHeart } from "react-icons/ai";
+import { Check, Home, Bed, ShowerHead, Ruler } from 'lucide-react';
 
 /**
  * BuyPropertyCard Component
@@ -18,22 +25,67 @@ export default function BuyPropertyCard({ property }) {
 
   const {
     id,
-    image,
-    imageAlt,
-    location,
-    title,
-    priceXOF,
-    priceUSD,
-    isVerified = false,
-    propertyType = 'house',
-    bedrooms,
+    city,
+    address,
     bathrooms,
-    area,
+    bedrooms,
+    description,
+    title,
+    country,
+    developerInfo,
+    developerName,
+    furnishing,
+    images,
+    propertyType,
+    // 1. Rename API fields to match component variables
+    featured: isVerified = false, // API has 'featured', you want 'isVerified'
+    price: priceXOF,              // API has 'price', you want 'priceXOF'
+    sqft: area,                   // API has 'sqft', you want 'area'
+    state,                        // Need this to build 'location'
   } = property;
+
+  // 2. Create derived / calculated fields
+  const location = state ? `${city}, ${state}` : city || '';
+  const priceUSD = priceXOF ? Math.round(Number(priceXOF) / 610) : 0; // Calculate USD from XOF
+  const imageAlt = title; // Use title as alt text
+  // Prefer first image from images array, fall back to any single-image field or a local placeholder
+  const image = (images && images.length && images[0]) || property.image || '/buy-rent/thumb.png';
+  // console.log(property)
+  const { isAuthenticated, user } = useAuth();
+  const showFavorite = !(user?.role === 'admin' || user?.role === 'partner');
+  const router = useRouter();
+  const [isFavorite, setIsFavorite] = useState(Boolean(property.isFavorite));
 
   // Format price with thousand separators
   const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR').format(price);
+  };
+
+  // Map property type keys to English labels (avoid translation keys showing)
+  const mapPropertyType = (pt) => {
+    if (!pt) return '';
+    const key = String(pt).toLowerCase();
+    switch (key) {
+      case 'villa':
+      case 'villas':
+      case 'vlla':
+        return 'Villa';
+      case 'apartment':
+      case 'apartments':
+        return 'Apartment';
+      case 'house':
+      case 'homes':
+        return 'House';
+      case 'land':
+        return 'Land';
+      case 'studio':
+        return 'Studio';
+      case 'commercial':
+        return 'Commercial';
+      default:
+        // Fallback: capitalize the first letter
+        return key.charAt(0).toUpperCase() + key.slice(1);
+    }
   };
 
   // WhatsApp message handler
@@ -48,9 +100,37 @@ export default function BuyPropertyCard({ property }) {
     );
   };
 
+  // Toggle favorite - requires authentication
+  const handleToggleFavorite = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      // redirect to login page (preserve locale)
+      const locale = (typeof window !== 'undefined' && window.location.pathname.split('/')[1]) || 'en';
+      router.push(`/${locale}/login`);
+      return;
+    }
+
+    // optimistic UI
+    const prev = isFavorite;
+    setIsFavorite(!prev);
+
+    try {
+      const res = await axios.post(`/properties/${id}/favorite`);
+      // axios wrapper returns response; we don't strictly need to use res.data here
+      // but could check success if backend returns structured response
+      return res;
+    } catch (err) {
+      console.error('Favorite request failed', err);
+      // revert optimistic update
+      setIsFavorite(prev);
+    }
+  };
+
   return (
     <article
-      className='flex flex-col gap-3 rounded-xl bg-background-light dark:bg-card-dark shadow-md border border-[#f6efcb] dark:border-border-dark overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1'
+      className='flex flex-col gap-3 rounded-xl bg-white/50 dark:bg-card-dark shadow-md border border-[#f6efcb] dark:border-border-dark overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1'
       aria-label={`${title} property for sale`}
     >
       {/* Property Image */}
@@ -71,18 +151,7 @@ export default function BuyPropertyCard({ property }) {
               className='flex items-center gap-1 bg-[#D4AF37] text-white text-xs font-bold px-2.5 py-1.5 rounded-full shadow-md'
               aria-label='Verified property'
             >
-              <svg
-                className='w-3.5 h-3.5'
-                fill='currentColor'
-                viewBox='0 0 20 20'
-                aria-hidden='true'
-              >
-                <path
-                  fillRule='evenodd'
-                  d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                  clipRule='evenodd'
-                />
-              </svg>
+              <Check className='w-3.5 h-3.5' aria-hidden='true' />
               <span>{t('buy.propertyCard.verified', 'Verified')}</span>
             </span>
           )}
@@ -91,18 +160,11 @@ export default function BuyPropertyCard({ property }) {
         {/* Property Type Badge - Top Right */}
         <div className='absolute top-3 right-3'>
           <span
-            className='flex items-center gap-1 bg-gray-700/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md capitalize'
-            aria-label={`${propertyType} property`}
+            className='flex items-center gap-1 bg-gray-700/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md'
+            aria-label={`${mapPropertyType(propertyType)} property`}
           >
-            <svg
-              className='w-3.5 h-3.5'
-              fill='currentColor'
-              viewBox='0 0 20 20'
-              aria-hidden='true'
-            >
-              <path d='M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z' />
-            </svg>
-            <span>{t(`buy.propertyTypes.${propertyType}`, propertyType)}</span>
+            <Home className='w-3.5 h-3.5' aria-hidden='true' />
+            <span>{mapPropertyType(propertyType)}</span>
           </span>
         </div>
       </div>
@@ -110,9 +172,21 @@ export default function BuyPropertyCard({ property }) {
       {/* Property Details */}
       <div className='p-4 flex flex-col grow'>
         {/* Location */}
-        <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
-          {location}
-        </p>
+        <div className='flex justify-between'>
+          <p className='text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-normal line-clamp-1'>
+            {location}
+          </p>
+          {showFavorite && (
+            <button
+              title={isFavorite ? 'Remove favourite' : 'Add favourite'}
+              onClick={handleToggleFavorite}
+              aria-pressed={isFavorite}
+              className={`cursor-pointer hover:scale-125 text-2xl p-0 leading-none inline-flex items-center justify-center ${isFavorite ? 'text-accent' : 'text-gray-400 dark:text-gray-300'}`}
+            >
+              {isFavorite ? <FaHeart /> : <AiOutlineHeart />}
+            </button>
+          )}
+        </div>
 
         {/* Title */}
         <h3 className='text-xl lg:text-2xl font-bold leading-snug mt-1 line-clamp-1 text-gray-900 dark:text-white'>
@@ -124,14 +198,7 @@ export default function BuyPropertyCard({ property }) {
           <div className='flex items-center gap-2 sm:gap-3 mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300'>
             {bedrooms && (
               <div className='flex items-center gap-1'>
-                <svg
-                  className='w-4 h-4'
-                  fill='currentColor'
-                  viewBox='0 0 20 20'
-                  aria-hidden='true'
-                >
-                  <path d='M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z' />
-                </svg>
+                <Bed className='w-4 h-4' aria-hidden='true' />
                 <span>
                   {bedrooms} {bedrooms > 1 ? 'beds' : 'bed'}
                 </span>
@@ -139,18 +206,7 @@ export default function BuyPropertyCard({ property }) {
             )}
             {bathrooms && (
               <div className='flex items-center gap-1'>
-                <svg
-                  className='w-4 h-4'
-                  fill='currentColor'
-                  viewBox='0 0 20 20'
-                  aria-hidden='true'
-                >
-                  <path
-                    fillRule='evenodd'
-                    d='M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z'
-                    clipRule='evenodd'
-                  />
-                </svg>
+                <ShowerHead className='w-4 h-4' aria-hidden='true' />
                 <span>
                   {bathrooms} {bathrooms > 1 ? 'baths' : 'bath'}
                 </span>
@@ -158,14 +214,7 @@ export default function BuyPropertyCard({ property }) {
             )}
             {area && (
               <div className='flex items-center gap-1'>
-                <svg
-                  className='w-4 h-4'
-                  fill='currentColor'
-                  viewBox='0 0 20 20'
-                  aria-hidden='true'
-                >
-                  <path d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z' />
-                </svg>
+                <Ruler className='w-4 h-4' aria-hidden='true' />
                 <span>{area} m²</span>
               </div>
             )}
@@ -193,7 +242,7 @@ export default function BuyPropertyCard({ property }) {
             {t('buy.propertyCard.viewDetails', 'View Details')}
           </Link>
           <Link
-            href={`/${locale}/book-visit?property=${id}`}
+            href={`/${locale}/book-visit?property=${id}&type=buy`}
             className='text-xs sm:text-sm lg:text-base font-semibold text-gray-700 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 whitespace-nowrap'
             aria-label={`Book viewing for ${title}`}
           >

@@ -42,7 +42,7 @@ export const getDashboardRoute = (locale = 'en') => {
 
   const routes = {
     admin: `/${locale}/dashboard/admin`,
-    client: `/${locale}/dashboard/client`,
+    client: `/${locale}/dashboard/user`,
     partner: `/${locale}/dashboard/partner`,
   };
 
@@ -65,7 +65,7 @@ export const isDashboardRoute = (pathname) => {
  */
 export const getRoleFromPath = (pathname) => {
   if (pathname.includes('/dashboard/admin')) return 'admin';
-  if (pathname.includes('/dashboard/client')) return 'client';
+  if (pathname.includes('/dashboard/user') || pathname.includes('/dashboard/client')) return 'user';
   if (pathname.includes('/dashboard/partner')) return 'partner';
   return null;
 };

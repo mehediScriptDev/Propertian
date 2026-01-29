@@ -1,0 +1,222 @@
+import axiosInstance from "./axios";
+
+/**
+ * Common API Service
+ * Provides CRUD operations for all API endpoints
+ */
+
+/**
+ * GET Request
+ * @param {string} url - API endpoint
+ * @param {object} config - Additional axios config (params, headers, etc.)
+ * @returns {Promise} Response data
+ */
+export const get = async (url, config = {}) => {
+  try {
+    const response = await axiosInstance.get(url, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Simple in-memory GET cache with optional persistence
+const _getCache = new Map();
+
+/**
+ * GET with cache
+ * @param {string} url
+ * @param {object} options - axios config + { ttl } in ms and { persist }
+ */
+export const getCached = async (url, options = {}) => {
+  const { ttl = 0, persist = false, ...config } = options || {};
+  const key = url + '::' + JSON.stringify(config.params || {});
+
+  if (ttl > 0) {
+    // try in-memory cache
+    const entry = _getCache.get(key);
+    if (entry && entry.expiry > Date.now()) {
+      return entry.data;
+    }
+
+    // try sessionStorage if requested
+    if (persist && typeof window !== 'undefined') {
+      try {
+        const raw = sessionStorage.getItem(key);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.expiry && parsed.expiry > Date.now()) {
+            _getCache.set(key, { data: parsed.data, expiry: parsed.expiry });
+            return parsed.data;
+          }
+        }
+      } catch (e) {
+        // ignore storage errors
+      }
+    }
+  }
+
+  // fallback to network
+  const response = await axiosInstance.get(url, config);
+  const data = response.data;
+
+  if (ttl > 0) {
+    const expiry = Date.now() + ttl;
+    _getCache.set(key, { data, expiry });
+    if (persist && typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem(key, JSON.stringify({ data, expiry }));
+      } catch (e) {
+        // ignore storage errors
+      }
+    }
+  }
+
+  return data;
+};
+
+/**
+ * POST Request
+ * @param {string} url - API endpoint
+ * @param {object} data - Request body data
+ * @param {object} config - Additional axios config
+ * @returns {Promise} Response data
+ */
+export const post = async (url, data = {}, config = {}) => {
+  try {
+    const response = await axiosInstance.post(url, data, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * PUT Request
+ * @param {string} url - API endpoint
+ * @param {object} data - Request body data
+ * @param {object} config - Additional axios config
+ * @returns {Promise} Response data
+ */
+export const put = async (url, data = {}, config = {}) => {
+  try {
+    const response = await axiosInstance.put(url, data, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * PATCH Request
+ * @param {string} url - API endpoint
+ * @param {object} data - Request body data
+ * @param {object} config - Additional axios config
+ * @returns {Promise} Response data
+ */
+export const patch = async (url, data = {}, config = {}) => {
+  try {
+    const response = await axiosInstance.patch(url, data, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * DELETE Request
+ * @param {string} url - API endpoint
+ * @param {object} config - Additional axios config
+ * @returns {Promise} Response data
+ */
+export const del = async (url, config = {}) => {
+  try {
+    const response = await axiosInstance.delete(url, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Upload File
+ * @param {string} url - API endpoint
+ * @param {FormData} formData - Form data containing file
+ * @param {function} onUploadProgress - Progress callback
+ * @returns {Promise} Response data
+ */
+export const uploadFile = async (url, formData, onUploadProgress = null) => {
+  try {
+    const config = {};
+
+    if (onUploadProgress) {
+      config.onUploadProgress = onUploadProgress;
+    }
+
+
+    
+    console.log("Uploading to:", url);
+    const response = await axiosInstance.post(url, formData, config);
+    console.log("Upload response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Upload error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+/**
+ * Download File
+ * @param {string} url - API endpoint
+ * @param {string} filename - Name for downloaded file
+ * @returns {Promise}
+ */
+export const downloadFile = async (url, filename) => {
+  try {
+    const response = await axiosInstance.get(url, {
+      responseType: "blob",
+    });
+
+    // Create blob link to download
+    const urlBlob = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = urlBlob;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Generic API call with custom method
+ * @param {object} options - Axios request options
+ * @returns {Promise} Response data
+ */
+export const apiCall = async (options) => {
+  try {
+    const response = await axiosInstance(options);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Export default object with all methods
+const api = {
+  get,
+  getCached,
+  post,
+  put,
+  patch,
+  delete: del,
+  uploadFile,
+  downloadFile,
+  apiCall,
+};
+
+export default api;

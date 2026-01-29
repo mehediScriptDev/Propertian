@@ -1,8 +1,517 @@
-export default function BookVisitPage() {
+"use client";
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { Bed, Square, ParkingCircle } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { getRentPropertyById } from '@/lib/rentProperties';
+import { getResidentialPropertyById } from '@/lib/residentialProperties';
+import axios from '@/lib/axios';
+import { showToast } from '@/components/Toast';
+
+export default function HotelBooking() {
+  const [category, setCategory] = useState(() => {
+    try {
+      if (typeof window === 'undefined') return 'Buy';
+      const params = new URLSearchParams(window.location.search);
+      const type = params.get('type');
+      if (!type) return 'Buy';
+      return type.toLowerCase() === 'rent' ? 'Rent' : 'Buy';
+    } catch (e) {
+      return 'Buy';
+    }
+  });
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [preferredDateTime, setPreferredDateTime] = useState('');
+  const [property, setProperty] = useState(() => {
+    try {
+      if (typeof window === 'undefined') return '';
+      const params = new URLSearchParams(window.location.search);
+      const prop = params.get('property');
+      return prop ? decodeURIComponent(prop) : '';
+    } catch (e) {
+      return '';
+    }
+  });
+  const [message, setMessage] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [totalAmount, setTotalAmount] = useState('');
+
+  // Room feature params: ?bedrooms=4&bathrooms=4&size=350&garages=2 - lazy init to avoid effect
+  const [bedrooms, setBedrooms] = useState(() => {
+    try {
+      if (typeof window === 'undefined') return null;
+      const params = new URLSearchParams(window.location.search);
+      const b = params.get('bedrooms');
+      return b ? Number(b) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const [bathrooms, setBathrooms] = useState(() => {
+    try {
+      if (typeof window === 'undefined') return null;
+      const params = new URLSearchParams(window.location.search);
+      const bath = params.get('bathrooms');
+      return bath ? Number(bath) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const [size, setSize] = useState(() => {
+    try {
+      if (typeof window === 'undefined') return null;
+      const params = new URLSearchParams(window.location.search);
+      const s = params.get('size');
+      return s ? s : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const [garages, setGarages] = useState(() => {
+    try {
+      if (typeof window === 'undefined') return null;
+      const params = new URLSearchParams(window.location.search);
+      const g = params.get('garages');
+      return g ? Number(g) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const searchParams = useSearchParams();
+  const typeParam = searchParams ? searchParams.get('type') : null;
+  const propParam = searchParams ? searchParams.get('property') : null;
+
+  const derivedCategory = typeParam ? (typeParam.toLowerCase() === 'rent' ? 'Rent' : 'Buy') : null;
+  const derivedPropertyId = propParam ? decodeURIComponent(propParam) : null;
+
+  // Resolve property preview data. Prefer live API fetch, fall back to local mocks.
+  const [propertyData, setPropertyData] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    if (!derivedPropertyId) {
+      setPropertyData(null);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const fetchPreview = async () => {
+      try {
+        const res = await axios.get(`/properties/${derivedPropertyId}`, { signal: controller.signal });
+        const p = res?.data?.data?.property || res?.data?.data || res?.data?.property || res?.data || null;
+        if (!p) throw new Error('Property not found');
+
+        const normalized = {
+          id: p.id,
+          title: p.title || p.name,
+          image: (p.images && p.images.length && p.images[0]) || p.image || p.heroImage || null,
+          priceXOF: p.price || p.priceXOF || null,
+          priceUSD: p.priceUSD || null,
+          description: p.description || p.overview || null,
+          location: `${p.city || ''}${p.state ? ', ' + p.state : ''}` || null,
+          address: p.address || null,
+          bedrooms: p.bedrooms || (p.features && p.features.bedrooms) || null,
+          bathrooms: p.bathrooms || null,
+          sqft: p.sqft || p.area || null,
+        };
+
+        if (mounted) setPropertyData(normalized);
+      } catch (err) {
+        // fallback to local mock lookup if API fails or during dev
+        console.warn('Property preview fetch failed, falling back to local mock:', err?.message || err);
+        if (!mounted) return;
+        if (derivedCategory && derivedCategory.toLowerCase() === 'rent') {
+          const mock = getRentPropertyById(derivedPropertyId);
+          setPropertyData(mock || null);
+        } else {
+          const mock = getResidentialPropertyById(derivedPropertyId);
+          setPropertyData(mock || null);
+        }
+      }
+    };
+
+    fetchPreview();
+
+    return () => {
+      mounted = false;
+      try {
+        controller.abort();
+      } catch (e) { }
+    };
+  }, [derivedPropertyId, derivedCategory]);
+
+  // Keep `property` state in sync when user navigates client-side with query params
+  useEffect(() => {
+    if (derivedPropertyId) setProperty(derivedPropertyId);
+  }, [derivedPropertyId]);
+
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const propertyId = property || derivedPropertyId || '';
+    const propertyImage = propertyData?.image || propertyData?.heroImage || null;
+
+    // Build date values as YYYY-MM-DD. Prefer explicit start/end inputs,
+    // otherwise derive from preferredDateTime if available.
+    const derivedStart = startDate
+      ? startDate
+      : preferredDateTime
+        ? new Date(preferredDateTime).toISOString().slice(0, 10)
+        : null;
+    const derivedEnd = endDate
+      ? endDate
+      : preferredDateTime
+        ? new Date(preferredDateTime).toISOString().slice(0, 10)
+        : null;
+
+    const payload = {
+      fullName,
+      email,
+      phone,
+      preferredDateTime,
+      property: propertyId,
+      propertyId,
+      propertyImage,
+      propertyData: propertyData || undefined,
+      message,
+    };
+
+    if (derivedStart) payload.startDate = derivedStart;
+    if (derivedEnd) payload.endDate = derivedEnd;
+    if (totalAmount) payload.totalAmount = Number(totalAmount);
+
+    // Client-side validation: ensure end date is after start date when both provided
+    if (startDate && endDate) {
+      try {
+        const s = new Date(startDate);
+        const en = new Date(endDate);
+        if (isNaN(s) || isNaN(en) || en <= s) {
+          showToast('End date must be after start date.', 'error');
+          return;
+        }
+      } catch (validationErr) {
+        // fallback: let server validate if parsing fails
+      }
+    }
+
+    try {
+      setSubmitting(true);
+      const res = await axios.post('/bookings', payload);
+      console.log('Booking response:', res);
+      showToast('Request submitted successfully.', 'success');
+
+      // reset form except property
+      setFullName('');
+      setEmail('');
+      setPhone('');
+      setPreferredDateTime('');
+      setMessage('');
+    } catch (err) {
+      console.error('Booking error:', err);
+
+      // Prefer server-provided message when present (axios puts body on err.response.data)
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.data?.message;
+
+      // If server returned 5xx, show a friendly message and log details to console
+      const status = err?.response?.status;
+      if (status && status >= 500) {
+        console.error('Server error details:', err?.response?.data);
+        showToast('Server error while submitting request. Please try again later.', 'error');
+      } else if (serverMsg) {
+        showToast(serverMsg, 'error');
+      } else {
+        showToast(err?.message || 'Failed to submit request.', 'error');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <div>
-      <h1>Book a Visit</h1>
-      {/* HTML content will be added here */}
+    <div className="min-h-screen bg-background-light  px-4">
+      <div className="max-w-6xl mx-auto py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ">
+          {/* Left Column - Booking Form (updated fields) */}
+          <div className="bg-white/50 rounded-lg shadow-sm p-6">
+            <h2 className="text-2xl font-bold mb-6">Book a Visit</h2>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Full Name
+                  <button
+                    type="button"
+                    title="Required (message is optional)"
+                    aria-label="Required"
+                    className="ml-2 text-yellow-500 font-bold"
+                  >
+                    *
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  required
+                  value={fullName}
+                  placeholder='Write your full name'
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full bg-background-light outline-none px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f6efd1] focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Email
+                  <button
+                    type="button"
+                    title="Required (message is optional)"
+                    aria-label="Required"
+                    className="ml-2 text-yellow-500 font-bold"
+                  >
+                    *
+                  </button>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  value={email}
+                  placeholder='Write your email address'
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-background-light outline-none px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f6efd1] focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Phone / WhatsApp
+                  <button
+                    type="button"
+                    title="Required (message is optional)"
+                    aria-label="Required"
+                    className="ml-2 text-yellow-500 font-bold"
+                  >
+                    *
+                  </button>
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  required
+                  value={phone}
+                  placeholder='Write your phone number'
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full bg-background-light outline-none px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f6efd1] focus:border-transparent"
+                />
+              </div>
+
+              {/* <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Preferred Date &amp; Time
+                  <button
+                    type="button"
+                    title="Optional - used to prefill dates"
+                    aria-label="Optional"
+                    className="ml-2 text-yellow-500 font-bold"
+                  >
+
+                  </button>
+                </label>
+                <div className="relative">
+                  <input
+                    type="datetime-local"
+                    name="preferredDateTime"
+                    value={preferredDateTime}
+                    onChange={(e) => setPreferredDateTime(e.target.value)}
+                    className="w-full px-4 py-3 border bg-background-light outline-none border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f6efd1] focus:border-transparent"
+                  />
+                </div>
+              </div> */}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Start Date</label>
+                  <input
+                    type="date"
+                    name="startDate"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full px-4 py-3 bg-background-light outline-none border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2">End Date</label>
+                  <input
+                    type="date"
+                    name="endDate"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-4 py-3 bg-background-light outline-none border border-gray-300 rounded-lg"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2">Estimated Total Amount (optional)</label>
+                <input
+                  type="number"
+                  name="totalAmount"
+                  value={totalAmount}
+                  onChange={(e) => setTotalAmount(e.target.value)}
+                  placeholder="e.g. 5000"
+                  className="w-full px-4 py-3 bg-background-light outline-none border border-gray-300 rounded-lg"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Property
+                  <button
+                    type="button"
+                    title="Required ()"
+                    aria-label="Required"
+                    className="ml-2 text-yellow-500 font-bold"
+
+                  >
+                    *
+                  </button>
+                </label>
+                <input
+                  type="text"
+                  name="property"
+                  readOnly
+                  value={property}
+                  placeholder="Property (leave it blank if not specified)"
+                  className="w-full px-4 py-3 bg-background-light outline-none border border-gray-200 rounded-lg text-gray-700"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2">Message (optional)</label>
+                <textarea
+                  name="message"
+                  rows={4}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="w-full px-4 py-3 bg-background-light outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f6efd1] focus:border-transparent"
+                  placeholder="Any details we should know"
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  aria-busy={submitting}
+                  className={`w-full py-3 rounded-lg font-semibold transition-colors ${submitting ? 'bg-gray-300 text-gray-700' : 'bg-accent text-white hover:bg-gray-800'}`}
+                >
+                  {submitting ? 'Requesting…' : 'Request Visit'}
+                </button>
+
+              </div>
+            </form>
+          </div>
+
+          {/* Right Column - Room / Property Details (kept as-is) */}
+          <div>
+                <div className="bg-white/50 rounded-lg shadow-sm overflow-hidden">
+                {derivedPropertyId && !propertyData ? (
+                  <div>
+                    <div className="w-full h-56 bg-gray-200 rounded-t-lg animate-pulse" />
+                    <div className="p-6">
+                      <div className="h-6 bg-gray-200 rounded w-3/4 mb-3 animate-pulse" />
+                      <div className="h-4 bg-gray-200 rounded w-1/2 mb-4 animate-pulse" />
+                      <div className="space-y-3">
+                        <div className="h-3 bg-gray-200 rounded w-full animate-pulse" />
+                        <div className="h-3 bg-gray-200 rounded w-full animate-pulse" />
+                        <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse" />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="w-full h-56 relative">
+                      <Image
+                        src={propertyData?.image || propertyData?.heroImage || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&h=400&fit=crop'}
+                        alt={propertyData?.title || propertyData?.name || 'Property'}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 800px"
+                        loading="eager"
+                        className="object-cover rounded-t-lg"
+                        unoptimized={false}
+                      />
+                    </div>
+
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h2 className="text-2xl font-bold">{propertyData?.title || propertyData?.name || 'Property'}</h2>
+                          {propertyData?.location || propertyData?.address ? (
+                            <p className="text-sm text-gray-600">{propertyData?.location || propertyData?.address}</p>
+                          ) : null}
+                        </div>
+                        <span className="text-2xl font-bold">{propertyData?.priceUSD ? `$${propertyData.priceUSD}` : propertyData?.priceXOF ? `${propertyData.priceXOF} XOF` : '—'}</span>
+                      </div>
+
+                      <p className="text-gray-600 mb-6">
+                        {propertyData?.description || propertyData?.overview?.startingPrice || 'No additional details available.'}
+                      </p>
+
+                      <h3 className="font-semibold mb-4">Room features</h3>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2 text-primary">
+                            <Bed className="w-5 h-5" />
+                            <span className="text-lg font-bold">{propertyData?.bedrooms ?? bedrooms ?? '—'}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">Bedrooms</div>
+                        </div>
+
+                        <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2 text-primary">
+                            <span className="text-lg font-bold">{propertyData?.bathrooms ?? bathrooms ?? '—'}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">Bathrooms</div>
+                        </div>
+
+                        <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2 text-primary">
+                            <Square className="w-5 h-5" />
+                            <span className="text-lg font-bold">{propertyData?.sqft ? `${propertyData.sqft} m²` : size ? `${size} m²` : '—'}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">Size</div>
+                        </div>
+
+                        {garages ? (
+                          <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
+                            <div className="flex items-center gap-2 text-primary">
+                              <ParkingCircle className="w-5 h-5" />
+                              <span className="text-lg font-bold">{propertyData?.garages ?? garages}</span>
+                            </div>
+                            <div className="text-sm text-gray-600">Garages</div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-start gap-1 p-4 bg-gray-50 rounded-lg">
+                            <div className="text-sm text-gray-500 italic">No garage info</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

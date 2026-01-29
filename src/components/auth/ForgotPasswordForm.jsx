@@ -6,6 +6,7 @@ import Link from 'next/link';
 import FormInput from './FormInput';
 import QHomesLogo from './QHomesLogo';
 import { useTranslation } from '@/i18n';
+import authService from '@/services/authService';
 
 const ForgotPasswordForm = () => {
   const pathname = usePathname();
@@ -13,9 +14,10 @@ const ForgotPasswordForm = () => {
   const { t } = useTranslation(locale);
 
   const [email, setEmail] = useState('');
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [maskedEmail, setMaskedEmail] = useState('');
+  const [error, setError] = useState('');
 
   const maskEmail = (addr) => {
     if (!addr || !addr.includes('@')) return addr;
@@ -24,18 +26,57 @@ const ForgotPasswordForm = () => {
     return `${first}***@${domain}`;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Design only - show confirmation UI with masked email
-    setMaskedEmail(maskEmail(email));
-    setShowConfirmation(true);
+    setError('');
+
+    // Validation
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Call backend API to send password reset email
+      await authService.forgotPassword(email);
+
+      // Show confirmation UI with masked email
+      setMaskedEmail(maskEmail(email));
+      setShowConfirmation(true);
+    } catch (err) {
+      console.error('Forgot password error:', err);
+      setError(err.message || 'Failed to send reset email. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleResend = (e) => {
+  const handleResend = async (e) => {
     e?.preventDefault();
-    // design-only: toggle/show confirmation again (could show a toast)
-    setMaskedEmail(maskEmail(email));
-    setShowConfirmation(true);
+    setError('');
+    setIsLoading(true);
+
+    try {
+      // Resend password reset email
+      await authService.forgotPassword(email);
+
+      // Show success feedback
+      setMaskedEmail(maskEmail(email));
+      setShowConfirmation(true);
+    } catch (err) {
+      console.error('Resend error:', err);
+      setError(err.message || 'Failed to resend email. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -56,6 +97,12 @@ const ForgotPasswordForm = () => {
           className='flex w-full flex-col items-stretch gap-4 mt-2'
           noValidate
         >
+          {error && (
+            <div className='rounded-lg bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-400'>
+              {error}
+            </div>
+          )}
+
           <FormInput
             label={t('auth.forgotPassword.email')}
             type='email'
@@ -73,7 +120,7 @@ const ForgotPasswordForm = () => {
             disabled={isLoading}
             className='flex w-full items-center justify-center rounded-lg bg-primary h-12 px-6 text-base font-bold text-charcoal-800 transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background-light dark:focus:ring-offset-background-dark mt-1 disabled:opacity-50 disabled:cursor-not-allowed'
           >
-            {t('auth.forgotPassword.submitButton')}
+            {isLoading ? 'Sending...' : t('auth.forgotPassword.submitButton')}
           </button>
 
           <p className='text-center text-sm text-charcoal-500 dark:text-charcoal-300 mt-2'>
