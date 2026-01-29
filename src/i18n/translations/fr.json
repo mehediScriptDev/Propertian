@@ -1,42 +1,29 @@
 {
   "nav": {
-    "home": "Accueil",
     "about": "À Propos",
-    "listings": "Propriétés",
     "buy": "Acheter",
     "rent": "Louer",
-    "sell": "Vendre",
-    "services": "Services",
     "contact": "Contact",
     "login": "Connexion",
-    "register": "S'inscrire",
     "blog": "Blog",
     "newDevelopments": "Nouveaux Développements",
     "concierge": "Conciergerie",
     "listYourProperty": "Inscription à l'Événement"
   },
   "common": {
-    "search": "Rechercher",
     "confirmDeleteTitle": "Confirmer la Suppression",
     "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {item} ? Cette action est irréversible.",
     "submit": "Soumettre",
     "deleting": "Suppression en cours...",
     "loading": "Chargement...",
-    "readMore": "Lire Plus",
     "save": "Enregistrer",
     "cancel": "Annuler",
-    "edit": "Modifier",
     "delete": "Supprimer",
-    "view": "Voir",
-    "download": "Télécharger",
-    "upload": "Téléverser",
     "back": "Retour",
     "next": "Suivant",
     "previous": "Précédent",
     "close": "Fermer",
     "confirm": "Confirmer",
-    "yes": "Oui",
-    "no": "Non",
     "home": "Accueil",
     "buy": "Acheter",
     "showing": "Affichage",
@@ -47,7 +34,6 @@
     "Title": "Titre",
     "Available": "Disponible",
     "any": "Tout"
-
   },
   "auth": {
     "login": {
@@ -59,14 +45,6 @@
       "passwordPlaceholder": "Entrez votre mot de passe",
       "forgotPassword": "Mot de passe oublié?",
       "loginButton": "Connexion",
-      "signingIn": "Connexion en cours...",
-      "orDivider": "OU",
-      "continueWithGoogle": "Continuer avec Google",
-      "continueWithFacebook": "Continuer avec Facebook",
-      "quickLogin": "Connexion Rapide (Démo)",
-      "loginAsAdmin": "Connexion Admin",
-      "loginAsClient": "Connexion User",
-      "loginAsPartner": "Connexion Partenaire",
       "noAccount": "Vous n'avez pas de compte?",
       "registerNow": "S'inscrire Maintenant",
       "backToHome": "Retour à l'Accueil",
@@ -75,7 +53,6 @@
         "passwordRequired": "Le mot de passe est requis",
         "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
         "invalidCredentials": "Email ou mot de passe invalide",
-        "loginFailed": "Échec de la connexion",
         "socialLoginFailed": "Échec de la connexion avec {provider}. Veuillez réessayer."
       }
     },
@@ -90,19 +67,13 @@
       "passwordPlaceholder": "Créez un mot de passe",
       "confirmPassword": "Confirmez le mot de passe",
       "confirmPasswordPlaceholder": "Ressaisissez votre mot de passe",
-      "registerButton": "S'inscrire",
-      "registering": "Inscription en cours...",
-      "backToLogin": "Retour à la connexion",
       "orDivider": "OU",
       "continueWithGoogle": "Continuer avec Google",
       "continueWithFacebook": "Continuer avec Facebook",
       "haveAccount": "Vous avez déjà un compte ?",
       "loginNow": "Connectez-vous maintenant",
       "backToHome": "Retour à l'accueil",
-      "check1": "J'accepte les Termes et Conditions",
-      "check2": "J'ai lu la Politique de confidentialité",
       "createAccount": "Créer un compte",
-
       "errors": {
         "fullNameRequired": "Le nom complet est requis",
         "emailRequired": "L'e-mail est requis",
@@ -112,7 +83,7 @@
         "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
         "passwordsMismatch": "Les mots de passe ne correspondent pas",
         "registrationFailed": "Échec de l'inscription. Veuillez réessayer.",
-        "acceptTerms" : "Vous devez accepter les Termes et Conditions et la Politique de Confidentialité",
+        "acceptTerms": "Vous devez accepter les Termes et Conditions et la Politique de Confidentialité",
         "privacyPolicy": "Vous devez lire la Politique de Confidentialité",
         "passwordNumber": "Le mot de passe doit contenir au moins un chiffre",
         "passwordSpecial": "Le mot de passe doit contenir au moins un caractère spécial"
@@ -124,19 +95,12 @@
       "email": "E-mail",
       "emailPlaceholder": "Entrez votre adresse e-mail",
       "submitButton": "Envoyer",
-      "submitting": "Envoi en cours...",
       "backToLogin": "Retour à la connexion",
-      "backToHome": "Retour à l'accueil",
       "checkEmail": "Vérifiez votre e-mail",
       "checkEmailInstructions": "Nous avons envoyé les instructions de réinitialisation du mot de passe à {{email}}. Veuillez vérifier votre boîte de réception et votre dossier spam.",
       "returnToLogin": "Retour à la connexion",
       "didNotReceiveEmail": "Vous n'avez pas reçu l'e-mail ?",
-      "resend": "Renvoyer",
-      "errors": {
-        "emailRequired": "L'e-mail est requis",
-        "emailInvalid": "Veuillez entrer une adresse e-mail valide",
-        "resetFailed": "Échec de l'envoi du lien de réinitialisation. Veuillez réessayer."
-      }
+      "resend": "Renvoyer"
     }
   },
   "searchBar": {
@@ -149,14 +113,11 @@
     "search": "Rechercher"
   },
   "buy": {
-    "title": "Acheter une Propriété en Côte d'Ivoire",
-    "subtitle": "Trouvez la propriété de vos rêves parmi nos annonces sélectionnées",
     "hero": {
       "title": "Trouvez la Maison de Vos Rêves en Côte d'Ivoire",
       "subtitle": "Découvrez des propriétés vérifiées et de haute qualité à vendre à Abidjan et au-delà."
     },
     "filters": {
-      "title": "Filtrer les Résultats",
       "cityLabel": "Ville",
       "bedroomsLabel": "Chambres",
       "propertyTypeLabel": "Type",
@@ -186,9 +147,7 @@
     "propertyTypes": {
       "villa": "Villa",
       "house": "Maison",
-      "apartment": "Appartement",
-      "land": "Terrain",
-      "commercial": "Commercial"
+      "apartment": "Appartement"
     },
     "results": {
       "title": "Propriétés Disponibles",
@@ -205,7 +164,6 @@
     },
     "propertyCard": {
       "verified": "Vérifié",
-      "perProperty": "",
       "approx": "~",
       "usd": "USD",
       "viewDetails": "Voir les Détails",
@@ -218,49 +176,21 @@
       "button": "Contactez-Nous"
     },
     "property": {
-      "title": "Villa Moderne de 4 Chambres avec Piscine",
-      "location": "Cocody - Riviera Palmeraie, Abidjan",
-      "status": "Vérifié",
       "description": "Cette superbe villa de 4 chambres, située dans le quartier serein de Riviera Palmeraie, offre le mélange parfait de luxe moderne et de confort familial. Conçue par les célèbres KOF Builders, cette maison dispose d'espaces de vie spacieux, de finitions haut de gamme et d'une piscine privée, le tout dans un environnement sécurisé et tranquille. Profitez d'un accès facile aux commodités locales tout en résidant dans l'un des emplacements les plus recherchés de Cocody.",
-      "highlights": {
-        "pool": "Piscine privée avec terrasse moderne",
-        "living": "Salon et salle à manger spacieux et ouverts",
-        "kitchen": "Cuisine haut de gamme avec appareils premium",
-        "master": "Suite parentale avec dressing et salle de bain privative",
-        "security": "Sécurité 24h/24 et 7j/7 dans une communauté fermée",
-        "proximity": "Proximité des écoles internationales et des centres commerciaux"
-      },
       "interior": {
         "kitchen": "Cuisine moderne équipée",
         "ac": "Climatisation partout",
-        "wardrobes": "Armoires encastrées dans toutes les chambres",
-        "flooring": "Revêtement de sol en marbre",
-        "internet": "Prêt pour Internet haut débit",
-        "generator": "Générateur de secours"
+        "wardrobes": "Armoires encastrées dans toutes les chambres"
       },
       "exterior": {
         "pool": "Piscine privée",
         "garden": "Jardin paysager",
-        "gated": "Communauté fermée sécurisée",
-        "parking": "Parking couvert pour 2 véhicules",
-        "entertainment": "Espace de divertissement extérieur",
-        "cctv": "Système de sécurité CCTV"
+        "gated": "Communauté fermée sécurisée"
       },
-      "locationDesc": "Situé dans le prestigieux quartier de Riviera Palmeraie à Cocody, cette propriété offre une excellente connectivité aux principaux quartiers d'affaires, écoles internationales et centres commerciaux. La zone est connue pour son environnement sécurisé et ses infrastructures bien entretenues.",
       "developerDesc": "KOF Builders est une société de construction renommée en Côte d'Ivoire avec plus de 15 ans d'expérience dans la livraison de propriétés résidentielles et commerciales de haute qualité. Connu pour l'attention aux détails et l'engagement envers l'excellence.",
-      "rental": {
-        "duration": "12 Mois (Minimum)",
-        "furnishing": "Non Meublé",
-        "deposit": "2 Mois de Dépôt"
-      },
       "developedBy": "Développé par:",
       "priceLabel": "Prix :",
       "approx": "environ",
-      "bookViewing": "Réserver une Visite",
-      "chatWhatsApp": "Discuter sur WhatsApp",
-      "reserveEscrow": "Réserver avec Escrow",
-      "whatsappMessage": "Bonjour, je suis intéressé par",
-      "whatsappDetails": "Pouvez-vous fournir plus de détails?",
       "rentalOverview": "Aperçu de la Location",
       "rentalDuration": "Durée de Location:",
       "furnishing": "Ameublement:",
@@ -286,25 +216,16 @@
     }
   },
   "dashboard": {
-    "welcome": "Bon retour",
     "logout": "Déconnexion",
-    "menu": "Menu",
     "admin": {
       "title": "Tableau de Bord Admin",
       "overview": "Tableau de Bord Admin",
-      "welcome": "Bienvenue sur le Tableau de Bord Admin Q Homes",
-      "subtitle": "Gérez votre plateforme et surveillez les performances",
       "usersLink": "Gestion des Utilisateurs",
       "blogEditorLink": "Éditeur de Blog",
       "mediaLibrary": "Bibliothèque Média",
       "auditLogsLink": "Journaux d'Audit",
       "seoManagement": "Gestion SEO",
       "propertiesLink": "Gestion des Propriétés",
-      "partnersLink": "Gestion des Partenaires",
-      "conciergeRequestsLink": "Demandes de Conciergerie",
-      "eventManagement": "Gestion des Événements",
-      "settings": "Paramètres",
-      "analytics": "Analytique",
       "stats": {
         "totalListings": "Total des Annonces",
         "newUsers": "Nouveaux Utilisateurs (30j)",
@@ -347,10 +268,6 @@
           "edit": "Modifier"
         }
       },
-      "trends": {
-        "positive": "+",
-        "negative": "-"
-      },
       "users": {
         "title": "Gestion des Comptes Utilisateurs",
         "searchPlaceholder": "Rechercher par ID, Nom ou Email...",
@@ -387,12 +304,6 @@
           "suspended": "Suspendu",
           "pending": "En Attente"
         },
-        "pagination": {
-          "showing": "Affichage",
-          "of": "de",
-          "previous": "Précédent",
-          "next": "Suivant"
-        },
         "actions": {
           "view": "Voir Détails",
           "edit": "Modifier",
@@ -403,7 +314,6 @@
       },
       "blogEditor": {
         "title": "Créer un Nouvel Article",
-        "editTitle": "Modifier l'Article",
         "preview": "Aperçu",
         "publish": "Publier",
         "saveDraft": "Enregistrer le Brouillon",
@@ -488,12 +398,6 @@
           "loginFailed": "Échec de Connexion",
           "dataExported": "Données Exportées",
           "permissionChanged": "Permission Modifiée"
-        },
-        "pagination": {
-          "showing": "Affichage de",
-          "to": "à",
-          "of": "sur",
-          "results": "résultats"
         }
       },
       "properties": {
@@ -507,11 +411,6 @@
           "active": "Actif",
           "pending": "En Attente d'Approbation",
           "inactive": "Inactif"
-        },
-        "filters": {
-          "status": "Statut",
-          "type": "Type de Propriété",
-          "allTypes": "Tous les Types"
         },
         "table": {
           "property": "Propriété",
@@ -530,12 +429,6 @@
           "pending": "En Attente",
           "inactive": "Inactif"
         },
-        "types": {
-          "villa": "Villa",
-          "apartment": "Appartement",
-          "commercial": "Commercial",
-          "house": "Maison"
-        },
         "add": {
           "title": "Ajouter une propriété",
           "subtitle": "Créer une nouvelle annonce immobilière",
@@ -553,85 +446,7 @@
       },
       "partners": {
         "title": "Gestion des Partenaires",
-        "subtitle": "Gérer et surveiller tous les partenaires et développeurs enregistrés",
-        "addPartner": "Ajouter un Partenaire",
-        "searchPlaceholder": "Rechercher des partenaires...",
-        "confirmDeleteTitle": "Confirmer la Suppression du Partenaire",
-        "allStatus": "Tous les Statuts",
-        "stats": {
-          "totalPartners": "Total des Partenaires",
-          "verified": "Vérifiés",
-          "pending": "En Attente de Vérification",
-          "activeProjects": "Projets Actifs"
-        },
-        "filters": {
-          "verification": "Statut de Vérification",
-          "payment": "Statut de Paiement",
-          "allVerification": "Toute Vérification",
-          "allPayment": "Tout Paiement"
-        },
-        "table": {
-          "company": "Entreprise",
-          "contact": "Personne de Contact",
-          "email": "Email",
-          "phone": "Téléphone",
-          "projects": "Projets",
-          "verification": "Vérification",
-          "payment": "Paiement",
-          "actions": "Actions",
-          "view": "Voir",
-          "edit": "Modifier",
-          "delete": "Supprimer",
-          "joined": "Inscrit"
-        },
-        "verification": {
-          "verified": "Vérifié",
-          "pending": "En Attente",
-          "rejected": "Rejeté"
-        },
-        "payment": {
-          "paid": "Payé",
-          "unpaid": "Non Payé",
-          "partial": "Partiel"
-        }
-      },
-      "conciergeRequests": {
-        "title": "Demandes de Conciergerie",
-        "subtitle": "Gérer et répondre à toutes les demandes de services de conciergerie",
-        "addRequest": "Ajouter une Demande",
-        "searchPlaceholder": "Rechercher par nom du client, email ou service...",
-        "stats": {
-          "totalRequests": "Total des Demandes",
-          "pending": "En Attente",
-          "inProgress": "En Cours",
-          "completed": "Complétées Aujourd'hui"
-        },
-        "filters": {
-          "allStatus": "Tous les Statuts",
-          "allPriority": "Toutes les Priorités"
-        },
-        "status": {
-          "pending": "En Attente",
-          "inProgress": "En Cours",
-          "completed": "Complété",
-          "cancelled": "Annulé"
-        },
-        "priority": {
-          "high": "Élevée",
-          "medium": "Moyenne",
-          "low": "Faible"
-        },
-        "table": {
-          "requestId": "ID de Demande",
-          "client": "Client",
-          "service": "Type de Service",
-          "property": "Propriété",
-          "priority": "Priorité",
-          "status": "Statut",
-          "requestDate": "Date de Demande",
-          "actions": "Actions",
-          "view": "Voir Détails"
-        }
+        "subtitle": "Gérer et surveiller tous les partenaires et développeurs enregistrés"
       }
     },
     "client": {
@@ -641,17 +456,11 @@
       "favorites": "Propriétés Enregistrées",
       "savedSearches": "Recherches Enregistrées",
       "appointments": "Mes rendez-vous réservés",
-      "messages": "Messages",
       "settings": "Paramètres",
       "firstName": "Prénom",
       "lastName": "Nom",
       "phone": "Téléphone",
       "email": "E-mail",
-      "updateDetails": "Enregistrer les modifications",
-      "changePassword": "Mettre à jour le mot de passe",
-      "mySavedSearches": "Mes Recherches Enregistrées",
-      "saveChanges": "Enregistrer les modifications",
-      "resetToDefault": "Réinitialiser par défaut",
       "totalAppointments": "Total des Rendez-vous",
       "newAppointment": "Nouveau Rendez-vous",
       "yourNotifications": "Vos Notifications",
@@ -659,7 +468,6 @@
       "markallRead": "Tout marquer comme lu",
       "tickets": "Tickets de Support",
       "searchProperties": "Rechercher des propriétés...",
-      "addProperty": "Ajouter une Propriété",
       "SavedSearches": {
         "title": "Recherches Enregistrées et Paramètres",
         "subtitle": "Gérez vos alertes de propriétés enregistrées, activez ou désactivez les notifications, et gardez vos préférences organisées efficacement",
@@ -669,9 +477,7 @@
         "saveChanges": "Enregistrer les modifications"
       },
       "AppointmentTable": {
-        "id": "Identifiant",
         "Name": "Nom",
-        "email": "E-mail",
         "type": "Type",
         "date": "Date",
         "status": "Statut",
@@ -690,32 +496,13 @@
         "Open": "Ouvert",
         "InProgress": "En cours",
         "Resolved": "Résolu",
-        "id": "ID",
-        "subject": "Sujet",
-        "property": "Propriété",
-        "replies": "Réponses",
-        "created": "Créé le",
-        "Actions": "Actions",
         "createNewTicket": {
-          "CreateNewTicket": "Créer un nouveau ticket",
-          "EditTicket": "Modifier le ticket",
-          "PropertyID": "ID de la propriété",
-          "PropertyName": "Nom de la propriété",
           "Subject": "Sujet",
-          "Priority": "Priorité",
-          "Low": "Faible",
-          "Medium": "Moyenne",
-          "High": "Élevée",
           "DescriptionPlaceholder": "Décrivez votre problème",
           "Cancel": "Annuler",
           "SaveChanges": "Enregistrer les modifications",
           "CreateTicket": "Créer un ticket",
-          "subjectPlaceholder": "Entrez le sujet de votre ticket",
-          "Description": "Description",
-          "descriptionPlaceholder": "Décrivez votre problème en détail",
-          "attachFile": "Joindre un fichier (optionnel)",
-          "submitTicket": "Soumettre le ticket",
-          "creatingTicket": "Création du ticket..."
+          "Description": "Description"
         }
       },
       "personalDetails": {
@@ -728,7 +515,6 @@
           "saveFailed": "Impossible d'enregistrer le profil. Réessayez."
         }
       },
-
       "password": {
         "title": "Changer le mot de passe",
         "currentPassword": "Mot de passe actuel",
@@ -743,7 +529,6 @@
         "updated": "Mot de passe mis à jour avec succès.",
         "errors": {
           "currentRequired": "Veuillez entrer votre mot de passe actuel.",
-          "minLength": "Le nouveau mot de passe doit comporter au moins 8 caractères.",
           "mismatch": "Les nouveaux mots de passe ne correspondent pas.",
           "updateFailed": "Impossible de mettre à jour le mot de passe. Réessayez."
         }
@@ -754,8 +539,6 @@
       "properties": "Propriétés",
       "AllProperties": "Toutes les Propriétés",
       "myListings": "Mes Annonces",
-      "addListing": "Ajouter une Annonce",
-      "editListing": "Modifier l'Annonce",
       "inquiries": "Demandes",
       "developerPortal": "Portail Développeur",
       "developerInquiry": "Demande Développeur",
@@ -764,68 +547,10 @@
       "Loading": "Chargement..."
     },
     "pages": {
-      "adminDashboard": {
-        "title": "Tableau de Bord Admin",
-        "subtitle": "Gérez votre plateforme d'ici",
-        "totalUsers": "Total Utilisateurs",
-        "totalListings": "Total Annonces",
-        "totalRevenue": "Revenu Total",
-        "activePartners": "Partenaires Actifs"
-      },
-      "userManagement": {
-        "title": "Gestion des Utilisateurs",
-        "subtitle": "Gérer tous les utilisateurs de la plateforme",
-        "addUser": "Ajouter Utilisateur",
-        "searchUsers": "Rechercher des utilisateurs..."
-      },
-      "blogEditor": {
-        "title": "Éditeur de Blog",
-        "subtitle": "Créer et gérer les articles de blog",
-        "newPost": "Nouvel Article",
-        "published": "Publié",
-        "drafts": "Brouillons"
-      },
-      "mediaLibrary": {
-        "title": "Bibliothèque Média",
-        "subtitle": "Gérer tous les fichiers média",
-        "uploadMedia": "Téléverser Média",
-        "totalFiles": "Total Fichiers"
-      },
-      "auditLogs": {
-        "title": "Journaux d'Audit",
-        "subtitle": "Suivre toutes les activités du système",
-        "filterByDate": "Filtrer par Date",
-        "exportLogs": "Exporter les Journaux"
-      },
-      "seoManagement": {
-        "title": "Gestion SEO",
-        "subtitle": "Optimisez votre site pour les moteurs de recherche",
-        "metaTags": "Balises Meta",
-        "keywords": "Mots-clés"
-      },
-      "propertiesManagement": {
-        "title": "Gestion des Propriétés",
-        "subtitle": "Gérer toutes les annonces de propriétés",
-        "addProperty": "Ajouter Propriété",
-        "pendingApproval": "En Attente d'Approbation"
-      },
-      "partnerManagement": {
-        "title": "Gestion des Partenaires",
-        "subtitle": "Gérer les partenaires immobiliers",
-        "addPartner": "Ajouter Partenaire",
-        "activePartners": "Partenaires Actifs"
-      },
-      "conciergeRequests": {
-        "title": "Demandes de Conciergerie",
-        "subtitle": "Gérer les demandes des clients",
-        "pending": "En Attente",
-        "completed": "Terminé"
-      },
       "eventManagement": {
         "title": "Gestion des Événements",
         "subtitle": "Créer et gérer les événements de visite de propriété et webinaires",
         "createEvent": "Créer Événement",
-        "upcomingEvents": "Événements à Venir",
         "searchPlaceholder": "Rechercher des événements...",
         "filters": {
           "all": "Tous les Événements",
@@ -835,87 +560,15 @@
           "draft": "Brouillon",
           "cancelled": "Annulé"
         },
-        "status": {
-          "upcoming": "À Venir",
-          "ongoing": "En Cours",
-          "completed": "Terminé",
-          "draft": "Brouillon",
-          "cancelled": "Annulé"
-        },
-        "registered": "inscrits",
-        "moreOptions": "Plus d'options",
-        "editEvent": "Modifier l'événement",
-        "deleteEvent": "Supprimer l'événement",
         "noEvents": "Aucun événement trouvé",
         "noEventsDescription": "Commencez par créer votre premier événement",
         "createFirstEvent": "Créer Premier Événement"
-      },
-      "clientProfile": {
-        "title": "Mon Profil",
-        "subtitle": "Gérer vos informations personnelles",
-        "editProfile": "Modifier le Profil",
-        "changePassword": "Changer le Mot de Passe"
       },
       "savedProperties": {
         "title": "Vos propriétés et recherches enregistrées",
         "subtitle": "Propriétés que vous avez enregistrées pour plus tard",
         "noSaved": "Aucune propriété enregistrée pour le moment",
-        "tabsLabel": "Propriétés et recherches enregistrées",
-        "tabs": {
-          "properties": "Propriétés enregistrées",
-          "searches": "Recherches enregistrées"
-        },
-        "noSavedSearches": "Aucune recherche enregistrée pour le moment. Commencez à chercher pour enregistrer vos préférences !",
         "propertiesRegion": "Liste des propriétés enregistrées"
-      },
-      "savedSearches": {
-        "title": "Recherches Enregistrées",
-        "subtitle": "Vos critères de recherche enregistrés",
-        "createAlert": "Créer une Alerte"
-      },
-      "appointments": {
-        "title": "Mes Rendez-vous",
-        "subtitle": "Gérer vos visites de propriétés",
-        "scheduleNew": "Planifier Nouveau",
-        "upcoming": "À Venir",
-        "past": "Passé"
-      },
-      "clientMessages": {
-        "title": "Messages",
-        "subtitle": "Communiquer avec les agents",
-        "newMessage": "Nouveau Message",
-        "unread": "Non Lu"
-      },
-      "partnerProperties": {
-        "title": "Mes Propriétés",
-        "subtitle": "Propriétés que vous gérez",
-        "addNew": "Ajouter Nouvelle Propriété"
-      },
-      "partnerListings": {
-        "title": "Mes Annonces",
-        "subtitle": "Toutes vos annonces de propriétés",
-        "active": "Actif",
-        "inactive": "Inactif"
-      },
-      "partnerInquiries": {
-        "title": "Demandes",
-        "subtitle": "Demandes de clients pour vos propriétés",
-        "respond": "Répondre",
-        "newInquiries": "Nouvelles Demandes"
-      },
-      "partnerProfile": {
-        "title": "Profil Partenaire",
-        "subtitle": "Gérer votre profil d'entreprise",
-        "companyInfo": "Informations de l'Entreprise",
-        "verificationStatus": "Statut de Vérification"
-      },
-      "settings": {
-        "title": "Paramètres",
-        "subtitle": "Configurer vos préférences",
-        "general": "Général",
-        "notifications": "Notifications",
-        "privacy": "Confidentialité",
-        "security": "Sécurité"
       }
     }
   },
@@ -948,7 +601,6 @@
   },
   "finalCta": {
     "title": "Prêt à Trouver Votre Maison Ivoirienne?",
-    "subtitle": "Laissez nos experts vous guider à travers chaque étape de votre parcours immobilier.",
     "browseHomes": "Parcourir les Maisons",
     "talkToConcierge": "Parler à un Concierge"
   },
@@ -970,25 +622,17 @@
     "legal": "Légal",
     "privacyPolicy": "Politique de Confidentialité",
     "termsOfService": "Conditions d'Utilisation",
-    "cookiePolicy": "Politique des Cookies",
-    "legalCenter": "Centre Légal",
     "contact": "Contact",
     "followUs": "Suivez-Nous",
     "privacy": "Confidentialité",
-    "terms": "Conditions",
-    "copyright": "© 2024 Q HOMES. Tous droits réservés."
+    "terms": "Conditions"
   },
   "rent": {
-    "meta": {
-      "title": "Louer une Propriété en Côte d'Ivoire | Q Homes",
-      "description": "Découvrez des maisons de location vérifiées et de haute qualité en Côte d'Ivoire. Locations à court et long terme disponibles avec des options de paiement flexibles."
-    },
     "hero": {
       "title": "Trouvez Votre Location Idéale — Court ou Long Terme.",
       "subtitle": "Découvrez des maisons vérifiées et de haute qualité pour votre séjour en Côte d'Ivoire."
     },
     "filters": {
-      "title": "Filtrer les Résultats",
       "cityLabel": "Ville",
       "bedroomsLabel": "Chambres",
       "bathroomsLabel": "Salles de Bain",
@@ -996,8 +640,6 @@
       "priceRangeLabel": "Gamme de Prix (XOF)",
       "verifiedOnly": "Vérifié Uniquement",
       "search": "Rechercher",
-      "applyFilters": "Appliquer les Filtres",
-      "closeFilters": "Fermer",
       "cities": {
         "abidjan": "Abidjan",
         "assinie": "Assinie-Mafia",
@@ -1051,32 +693,12 @@
     },
     "property": {
       "manager": "QHomes Locations",
-      "title": "Appartement Moderne Meublé avec Balcon",
       "location": "Cocody - Riviera, Abidjan",
       "status": "Vérifié",
       "description": "Un élégant appartement meublé de 3 chambres offrant des espaces lumineux, une cuisine moderne, une vue depuis le balcon et une sécurité fiable — idéal pour les séjours de courte durée comme pour le confort à long terme au cœur d'Abidjan.",
-      "highlights": {
-        "security": "Sécurité 24h/24 dans résidence fermée",
-        "furnished": "Intérieur entièrement meublé",
-        "internet": "Internet haut débit prêt",
-        "parking": "Place de parking réservée"
-      },
-      "interior": {
-        "ac": "Climatisation partout",
-        "kitchen": "Cuisine moderne équipée",
-        "wardrobes": "Placards intégrés",
-        "internet": "Fibre optique disponible"
-      },
-      "exterior": {
-        "gated": "Résidence sécurisée",
-        "parking": "Parking sur place",
-        "security": "CCTV & vigile de nuit",
-        "entertainment": "Cafés & loisirs à proximité"
-      },
       "locationDesc": "Situé dans un quartier prisé de Cocody avec un accès rapide aux quartiers d'affaires, supermarchés, écoles et loisirs.",
       "managerDesc": "Géré professionnellement pour assurer un support réactif, une propreté irréprochable et une expérience locataire fluide.",
       "rental": {
-        "duration": "Flexible (Court / Long Terme)",
         "furnishing": "Entièrement Meublé",
         "deposit": "2 Mois de Dépôt"
       }
@@ -1150,23 +772,7 @@
     },
     "noResults": "Aucun développement trouvé correspondant à vos critères.",
     "whyInvest": {
-      "title": "Pourquoi Investir dans les Nouveaux Développements?",
-      "modernAmenities": {
-        "title": "Équipements Modernes",
-        "description": "Profitez des dernières nouveautés en matière de design, technologie et style de vie comme les piscines, les salles de sport et les systèmes de maison intelligente."
-      },
-      "flexiblePayment": {
-        "title": "Plans de Paiement Flexibles",
-        "description": "Bénéficiez de calendriers de paiement structurés offerts par les promoteurs, rendant l'investissement plus accessible."
-      },
-      "highAppreciation": {
-        "title": "Forte Appréciation du Capital",
-        "description": "Investissez tôt dans les zones en croissance pour maximiser la valeur de votre propriété et le retour sur investissement potentiel."
-      },
-      "qualityAssurance": {
-        "title": "Assurance Qualité",
-        "description": "Les nouvelles constructions respectent les derniers codes du bâtiment et normes, garantissant qualité et durabilité."
-      }
+      "title": "Pourquoi Investir dans les Nouveaux Développements?"
     },
     "developerCta": {
       "title": "Êtes-vous un Promoteur?",
@@ -1186,12 +792,10 @@
       "amenities": "Commodités",
       "location": "Emplacement",
       "developer": "Promoteur",
-      "payment": "Plans de Paiement",
-      "menu": "Menu"
+      "payment": "Plans de Paiement"
     },
     "buttons": {
       "downloadBrochure": "Télécharger la Brochure",
-      "brochure": "Brochure",
       "inquire": "Renseignement",
       "viewPlan": "Voir le Plan",
       "inquireAbout": "Renseignements sur ce Développement",
@@ -1233,7 +837,6 @@
     "hero": {
       "title": "Votre Déménagement, Simplifié.",
       "subtitle": "Un accompagnement complet de bout en bout pour une expérience de relocalisation fluide et sans stress en Côte d'Ivoire.",
-      "bookConsultation": "Réserver une Consultation",
       "talkToConcierge": "Parler à un Concierge"
     },
     "support": {
@@ -1255,7 +858,6 @@
     "packages": {
       "title": "Nos Forfaits de Conciergerie",
       "subtitle": "Choisissez le niveau de soutien qui vous convient. Chaque forfait est conçu pour vous offrir une tranquillité d'esprit.",
-      "mostPopular": "Plus Populaire",
       "essentials": {
         "name": "Essentiel",
         "description": "Idéal pour le déménageur indépendant qui a besoin d'un expert local pour gérer les arrangements clés.",
@@ -1322,20 +924,10 @@
     },
     "contact": {
       "title": "Prêt à Faire Votre Déménagement?",
-      "subtitle": "Remplissez le formulaire pour réserver une consultation gratuite avec l'un de nos spécialistes de relocalisation. Discutons de la façon dont nous pouvons rendre votre déménagement en Côte d'Ivoire fluide et réussi.",
-      "fullName": "Nom Complet",
-      "email": "Adresse Email",
-      "phone": "Numéro de Téléphone",
-      "preferredDate": "Date et Heure Préférées",
-      "message": "Message",
-      "submit": "Parler à un Concierge"
+      "subtitle": "Remplissez le formulaire pour réserver une consultation gratuite avec l'un de nos spécialistes de relocalisation. Discutons de la façon dont nous pouvons rendre votre déménagement en Côte d'Ivoire fluide et réussi."
     }
   },
   "event": {
-    "meta": {
-      "title": "Webinaire Exclusif: Investir dans le Marché Immobilier d'Abidjan | Q Homes",
-      "description": "Rejoignez notre panel d'experts pour découvrir les opportunités lucratives dans le marché immobilier florissant de la Côte d'Ivoire. Apprenez les stratégies clés pour un investissement réussi."
-    },
     "hero": {
       "title": "Webinaire Exclusif: Investir dans le Marché Immobilier d'Abidjan",
       "subtitle": "Rejoignez notre panel d'experts pour découvrir les opportunités lucratives dans le marché immobilier florissant de la Côte d'Ivoire. Apprenez les stratégies clés pour un investissement réussi et obtenez des réponses à vos questions en direct.",
@@ -1466,10 +1058,6 @@
     }
   },
   "contact": {
-    "meta": {
-      "title": "Contactez-Nous - Q Homes | Entrez en Contact",
-      "description": "Vous avez des questions? Contactez notre équipe pour une assistance experte avec vos besoins immobiliers."
-    },
     "hero": {
       "title": "Entrez en Contact avec Q Homes",
       "subtitle": "Notre équipe est là pour répondre à vos questions et vous guider à travers chaque étape de votre parcours immobilier.",
@@ -1508,17 +1096,8 @@
     },
     "faq": {
       "title": "Foire Aux Questions",
-      "subtitle": "Des réponses rapides aux questions les plus courantes sur nos services.",
-      "q1": "Quels types de biens Q Homes propose-t-il ?",
-      "a1": "Q Homes propose une large gamme de biens immobiliers en Côte d'Ivoire, notamment des villas de luxe, des appartements modernes et des espaces commerciaux. Nous répondons à différents besoins, allant des locations longue durée aux ventes, pour les locaux comme pour les expatriés qui s’installent dans le pays.",
-      "q2": "Comment Q Homes vérifie-t-il les annonces immobilières ?",
-      "a2": "Nous avons un processus de vérification rigoureux. Notre équipe effectue des visites sur site, vérifie la documentation légale et les titres de propriété (ACD - Arrêté de Concession Définitive), et s’assure que toutes les annonces respectent nos normes élevées de qualité et de sécurité. Cela garantit que vous consultez uniquement des biens légitimes et de haute qualité.",
-      "q3": "Offrez-vous une assistance à la relocalisation pour les clients internationaux ?",
-      "a3": "Oui, nous proposons un service complet de relocalisation. Cela comprend l’aide à la recherche du logement idéal, l’assistance dans les démarches administratives, ainsi que des conseils sur la vie à Abidjan. Notre objectif est de rendre votre installation en Côte d'Ivoire aussi simple et sereine que possible.",
-      "q4": "Quels sont les frais typiques liés à la location ou à l’achat ?",
-      "a4": "Pour les locations, les frais standards comprennent généralement un mois de loyer pour les frais d’agence, un dépôt de garantie (souvent équivalent à deux mois de loyer) et le premier mois de loyer payable à l’avance. Pour les achats, les frais incluent les honoraires du notaire et notre commission d’agence, calculés en fonction de la valeur du bien. Nous assurons une transparence totale sur tous les coûts dès le départ."
+      "subtitle": "Des réponses rapides aux questions les plus courantes sur nos services."
     },
-
     "cta": {
       "title": "Préférez Parler Directement?",
       "subtitle": "Planifiez un appel avec l'un de nos experts pour discuter de vos besoins immobiliers en détail.",
@@ -1534,12 +1113,7 @@
     "Title": "Nos Partenaires de Confiance : Votre Réseau pour un Déménagement Sans Accroc",
     "Subtitle": "Explorez notre réseau de professionnels vérifiés, des conseillers juridiques aux spécialistes du déménagement, garantissant que chaque étape de votre parcours immobilier en Côte d'Ivoire soit fluide et sécurisée.",
     "searchAndFilters": {
-      "searchPlaceholder": "Rechercher par nom de partenaire...",
-      "filters": {
-        "All": "Toute",
-        "Legal": "Légale",
-        "Financial": "Financière"
-      }
+      "searchPlaceholder": "Rechercher par nom de partenaire..."
     },
     "Financial": {
       "title": "Institutions financières",
@@ -1625,13 +1199,11 @@
       },
       "HowWeUse": {
         "title": "Comment nous utilisons vos informations",
-        "description": "Vos informations sont utilisées pour personnaliser votre expérience, vous mettre en relation avec des professionnels de l’immobilier et vous proposer des annonces correspondant à vos intérêts. Nous pouvons également utiliser vos données à des fins d’analyse interne, pour améliorer la fonctionnalité de notre plateforme et pour communiquer avec vous au sujet de votre compte et de nos services.",
-        "sortDescription": ""
+        "description": "Vos informations sont utilisées pour personnaliser votre expérience, vous mettre en relation avec des professionnels de l’immobilier et vous proposer des annonces correspondant à vos intérêts. Nous pouvons également utiliser vos données à des fins d’analyse interne, pour améliorer la fonctionnalité de notre plateforme et pour communiquer avec vous au sujet de votre compte et de nos services."
       },
       "HowWeShare": {
         "title": "Comment nous partageons vos informations",
-        "description": "Nous pouvons partager vos informations avec des prestataires de services tiers de confiance qui nous aident à exploiter notre plateforme, tels que les services d’hébergement et les fournisseurs d’analyses. Nous pouvons également partager vos coordonnées avec des agents immobiliers lorsque vous manifestez un intérêt pour un bien. Nous ne vendons pas vos informations personnelles à des tiers.",
-        "sortDescription": ""
+        "description": "Nous pouvons partager vos informations avec des prestataires de services tiers de confiance qui nous aident à exploiter notre plateforme, tels que les services d’hébergement et les fournisseurs d’analyses. Nous pouvons également partager vos coordonnées avec des agents immobiliers lorsque vous manifestez un intérêt pour un bien. Nous ne vendons pas vos informations personnelles à des tiers."
       },
       "YourPrivacyRights": {
         "title": "Vos droits en matière de confidentialité",
@@ -1656,8 +1228,7 @@
       "ContactUs": {
         "title": "Nous contacter",
         "description": "Si vous avez des questions ou des préoccupations concernant cette politique de confidentialité, veuillez nous contacter à l’adresse suivante :",
-        "email": "privacy@qgloballiving.com",
-        "sortDescription": ""
+        "email": "privacy@qgloballiving.com"
       }
     },
     "Sidebar": {
@@ -1679,18 +1250,15 @@
       "subtitle": "Bienvenue chez Q Homes. Les présentes conditions générales définissent les règles et réglementations relatives à l’utilisation du site Web de Q Homes, accessible à l’adresse qhomes.ci. En accédant à ce site, nous considérons que vous acceptez ces conditions générales. N’utilisez pas le site Q Homes si vous n’acceptez pas l’ensemble des conditions énoncées sur cette page.",
       "Introduction": {
         "title": "1. Introduction",
-        "description": "Les présentes conditions générales d’utilisation du site Web, rédigées sur cette page, régissent votre utilisation du site Q Homes, accessible à l’adresse qhomes.ci. Ces conditions s’appliquent pleinement et affectent votre utilisation du site. En utilisant ce site, vous acceptez l’ensemble des conditions générales énoncées ici. Vous ne devez pas utiliser ce site si vous êtes en désaccord avec l’une quelconque de ces conditions générales.",
-        "sortDescription": ""
+        "description": "Les présentes conditions générales d’utilisation du site Web, rédigées sur cette page, régissent votre utilisation du site Q Homes, accessible à l’adresse qhomes.ci. Ces conditions s’appliquent pleinement et affectent votre utilisation du site. En utilisant ce site, vous acceptez l’ensemble des conditions générales énoncées ici. Vous ne devez pas utiliser ce site si vous êtes en désaccord avec l’une quelconque de ces conditions générales."
       },
       "UserObligations": {
         "title": "2. Obligations et conduite de l’utilisateur",
-        "description": "Vous bénéficiez d’une licence limitée uniquement à des fins de consultation du contenu figurant sur ce site Web. Vous n’êtes pas autorisé à : publier tout contenu du site sur un autre support ; vendre, concéder sous licence ou exploiter commercialement tout contenu du site ; présenter ou diffuser publiquement tout contenu du site ; ou utiliser ce site de manière à l’endommager ou susceptible de lui nuire.",
-        "sortDescription": ""
+        "description": "Vous bénéficiez d’une licence limitée uniquement à des fins de consultation du contenu figurant sur ce site Web. Vous n’êtes pas autorisé à : publier tout contenu du site sur un autre support ; vendre, concéder sous licence ou exploiter commercialement tout contenu du site ; présenter ou diffuser publiquement tout contenu du site ; ou utiliser ce site de manière à l’endommager ou susceptible de lui nuire."
       },
       "Intellectual": {
         "title": "3. Droits de propriété intellectuelle",
-        "description": "À l’exception du contenu que vous possédez, conformément aux présentes conditions, Q Homes et/ou ses concédants détiennent tous les droits de propriété intellectuelle et le contenu figurant sur ce site Web. Cela inclut, sans s’y limiter, la conception, la mise en page, l’apparence et les éléments graphiques. Toute reproduction est interdite, sauf en conformité avec la notice de droit d’auteur qui fait partie intégrante des présentes conditions générales.",
-        "sortDescription": ""
+        "description": "À l’exception du contenu que vous possédez, conformément aux présentes conditions, Q Homes et/ou ses concédants détiennent tous les droits de propriété intellectuelle et le contenu figurant sur ce site Web. Cela inclut, sans s’y limiter, la conception, la mise en page, l’apparence et les éléments graphiques. Toute reproduction est interdite, sauf en conformité avec la notice de droit d’auteur qui fait partie intégrante des présentes conditions générales."
       },
       "Disclaimer": {
         "title": "4. Clause de non-responsabilité",
@@ -1719,9 +1287,7 @@
       "Intellectual": "3. Droits de propriété intellectuelle",
       "Disclaimer": "4. Clause de non-responsabilité",
       "Limitation": "5. Limitation de responsabilité",
-      "Governing": "6. Droit applicable et juridiction",
-      "ChangesToTerms": "7. Modifications des conditions",
-      "ContactInformation": "8. Informations de contact"
+      "ChangesToTerms": "7. Modifications des conditions"
     }
   },
   "CookiePolicy": {
@@ -1816,24 +1382,19 @@
     "welcome": "Bon retour, partenaire",
     "title": "Voici un aperçu de votre portefeuille immobilier et de vos activités récentes",
     "addButton": "Ajouter une nouvelle propriété",
-    "statsData":{
-  "totalProperties": "Total des annonces",
-  "activeListings": "Annonces actives",
-  "inactiveListings": "Annonces inactives",
-  "totalInquiries": "Total des demandes"
-},
-    "AllInquiries": "Toutes les demandes",
+    "statsData": {
+      "totalProperties": "Total des annonces",
+      "activeListings": "Annonces actives",
+      "inactiveListings": "Annonces inactives",
+      "totalInquiries": "Total des demandes"
+    },
     "SearchInquiries": "Rechercher des demandes...",
     "AllStatus": "Tous les statuts",
-    "Active": "Actif",
     "Pending": "En attente",
     "Properties": "Propriétés",
     "Locations": "Emplacements",
     "Price": "Prix",
-    "Views": "Vues",
-    "Inquiries": "Demandes",
     "Status": "Statut",
-    "views": "vues",
     "inquiries": "demandes",
     "Actions": "Actions",
     "ViewDetails": "Voir les détails",
@@ -1844,7 +1405,6 @@
     "Sqft": "Superficie",
     "Amenities": "Équipements",
     "NoPropertiesFound": "Aucune propriété trouvée",
-    "TryAdjusting": "Essayez d’ajuster votre recherche ou vos filtres",
     "Next": "Suivant",
     "Previous": "Précédent",
     "Showing": "Affichage de",
@@ -1909,12 +1469,9 @@
     "SearchByName": "Rechercher par nom, e-mail ou sujet...",
     "AllStatus": "Tous les statuts",
     "Pending": "En attente",
-    "In Progress": "En cours",
     "Responded": "Répondu",
     "ID": "ID",
-    "ContactInfo": "Informations de contact",
     "PropertyInfo": "Informations sur la propriété",
-    "Type": "Type",
     "Subject": "Sujet",
     "Status": "Statut",
     "Date": "Date",
@@ -1936,11 +1493,9 @@
     "ProjectName": "Nom du projet",
     "Location": "Emplacement",
     "Units": "Unités",
-    "Revenue": "Revenus",
     "Status": "Statut",
     "Actions": "Actions",
     "LastUpdated": "Dernière mise à jour",
-    "NoProjectsFound": "Aucun projet trouvé",
     "TotalProjects": "Total Projets",
     "ActiveListings": "Annonces Actives",
     "UnitsSold": "Unités Vendues",
@@ -1971,29 +1526,20 @@
     "NoInquiriesFound": "Aucune demande trouvée",
     "InquiryDetailModal": {
       "ContactInformation": "Informations de contact",
-      "Message": "Message",
-      "ReplyToInquiry": "Répondre à la demande",
-      "Archive": "Archiver"
+      "Message": "Message"
     }
   },
   "PertnerProfile": {
     "title": "Profil Partenaire",
     "subtitle": "Gérez les informations et les paramètres de votre profil.",
-    "EditProfile": "Modifier le profil",
-    "Edit": "Modifier",
-    "SaveChanges": "Enregistrer les modifications",
-    "Cancel": "Annuler",
-    "save": "Enregistrer",
     "VerificationStatus": "Statut de vérification",
     "Verified": "érifié",
-    "Unverified": "Non vérifié",
     "PaymentStatus": "Statut de paiement",
     "Paid": "Payé",
     "Unpaid": "Non payé",
     "CompanyInformation": "Informations sur l'entreprise",
     "PartnerID": "ID Partenaire",
     "CompanyName": "Nom de l'entreprise",
-    "ContactPerson": "Personne de contact",
     "EmailAddress": "Adresse e-mail",
     "PhoneNumber": "Numéro de téléphone",
     "PackageType": "Type de forfait",
@@ -2029,20 +1575,7 @@
     },
     "ApplicationForm": {
       "title": "Devenez partenaire Q Homes",
-      "subtitle": "Remplissez le formulaire ci-dessous pour commencer le processus de vérification.",
-      "CompanyName": "Nom de l'entreprise",
-      "ContactPerson": "Personne de contact",
-      "Email": "Adresse e-mail",
-      "Phone": "Numéro de téléphone",
-      "ProjectName": "Nom du projet",
-      "PreferredPackage": "Forfait préféré",
-      "Starter": "Débutant",
-      "Featured": "En vedette",
-      "Premium": "Premium",
-      "UploadDocuments": "Télécharger des documents",
-      "OrDragAndDrop": "ou glisser-déposer",
-      "fileTypes": "PDF, DOCX, PNG, JPG jusqu'à 10 Mo",
-      "SubmitButton": "Soumettre la candidature"
+      "subtitle": "Remplissez le formulaire ci-dessous pour commencer le processus de vérification."
     }
   }
 }
