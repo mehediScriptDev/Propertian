@@ -25,17 +25,17 @@ export default function PartnerProfilePage() {
   const { t } = useTranslation(locale);
   const [formData, setFormData] = useState({
     id: 1,
-    company_name: "Elite Properties Group",
-    contact_person: "John Anderson",
-    email: "john.anderson@eliteproperties.com",
-    phone_number: "+225 07 45 67 89 01",
-    project_names: ["Luxury Residences Cocody", "Modern Business Park"],
-    package: "Premium",
-    documents: ["Business License.pdf", "Tax Certificate.pdf", "ID Copy.pdf"],
+    company_name: "",
+    contact_person: "",
+    email: "",
+    phone_number: "",
+    project_names: [""],
+    package: "",
+    documents: [""],
     is_verified: true,
     is_paid: true,
-    created_at: "2024-01-15T10:30:00Z",
-    updated_at: "2024-11-08T14:20:00Z",
+    created_at: "",
+    updated_at: "",
   });
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [profileError, setProfileError] = useState(null);
@@ -116,7 +116,7 @@ export default function PartnerProfilePage() {
         return "bg-gray-100 text-gray-800";
     }
   }, [formData.package]);
-  
+
   return (
     <div className="space-y-3 lg:space-y-4.5">
       {/* Header */}
@@ -236,26 +236,7 @@ export default function PartnerProfilePage() {
           </div>
 
           {/* Company Name */}
-          <div>
-            <label className="mb-2 flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-700">
-              <Building2 className="h-4 w-4 text-gray-400 shrink-0" />
-              <span>{t("PertnerProfile.CompanyName")}</span>
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="company_name"
-                value={formData.company_name}
-                onChange={handleInputChange}
-                className="w-full rounded-lg border border-gray-300 px-3 sm:px-4 py-2 text-sm sm:text-base focus:border-[#E6B325] focus:outline-none focus:ring-2 focus:ring-[#E6B325]/20"
-                aria-label="Company Name"
-              />
-            ) : (
-              <div className="rounded-lg border border-gray-300 bg-gray-50 px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-900 break-all">
-                {formData.company_name}
-              </div>
-            )}
-          </div>
+
 
           {/* Contact Person */}
           <div>
@@ -323,20 +304,6 @@ export default function PartnerProfilePage() {
             )}
           </div>
 
-          {/* Package */}
-          <div>
-            <label className="mb-2 flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-700">
-              <Package className="h-4 w-4 text-gray-400 shrink-0" />
-              <span>{t("PertnerProfile.PackageType")}</span>
-            </label>
-            <div className="rounded-lg border border-gray-300 bg-gray-50 px-3 sm:px-4 py-2">
-              <span
-                className={`inline-flex rounded-full px-3 py-1 text-xs sm:text-sm font-semibold ${packageBadgeColor}`}
-              >
-                {formData.package}
-              </span>
-            </div>
-          </div>
         </div>
       </div>
 

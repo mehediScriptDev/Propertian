@@ -3,6 +3,7 @@
 import { use, useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from '@/i18n';
 import axios from '@/lib/axios';
+import Toast, { showToast } from '@/components/Toast';
 import { Bell, Clock, AlertCircle, CheckCircle, UserPlus } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
 import ConciergeRequestsFilters from '@/components/dashboard/admin/ConciergeRequestsFilters';
@@ -29,6 +30,9 @@ export default function ConciergeRequestsPage({ params }) {
 
   // State for tickets from API
   const [ticketsData, setTicketsData] = useState([]);
+  // Full list used for client-side paging when server pagination is unreliable
+  const [fullTicketsList, setFullTicketsList] = useState(null);
+  const [useClientPaging, setUseClientPaging] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     total: 0,
@@ -73,14 +77,178 @@ export default function ConciergeRequestsPage({ params }) {
 
       const response = await axios.get(`/concierge/tickets?${params.toString()}`);
 
-      if (response.data.success) {
-        setTicketsData(response.data.data || []);
-        setPagination(response.data.pagination || {
-          total: 0,
+      try {
+
+        console.log('Concierge tickets API response (raw):', response);
+      } catch (e) {
+
+        console.log('Concierge tickets API response (raw) [unserializable]');
+      }
+
+      const extractArray = (resp) => {
+        if (!resp) return null;
+        if (Array.isArray(resp)) return resp;
+
+        // Common direct array locations
+        if (Array.isArray(resp.data)) return resp.data;
+        if (Array.isArray(resp.requests)) return resp.requests;
+        if (Array.isArray(resp.tickets)) return resp.tickets;
+        if (Array.isArray(resp.items)) return resp.items;
+        if (Array.isArray(resp.results)) return resp.results;
+
+        // Some APIs return { data: { requests: [...] } }
+        if (resp.data && typeof resp.data === 'object') {
+          if (Array.isArray(resp.data.requests)) return resp.data.requests;
+          if (Array.isArray(resp.data.tickets)) return resp.data.tickets;
+          if (Array.isArray(resp.data.items)) return resp.data.items;
+          if (Array.isArray(resp.data.results)) return resp.data.results;
+        }
+
+        // Search one level deep for arrays
+        try {
+          for (const val of Object.values(resp)) {
+            if (Array.isArray(val)) return val;
+            if (val && typeof val === 'object') {
+              for (const inner of Object.values(val)) {
+                if (Array.isArray(inner)) return inner;
+              }
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+
+        return null;
+      };
+
+      const normalizeTicket = (item) => {
+        if (!item) return item;
+
+        const get = (a, ...alts) => {
+          for (const k of [a, ...alts]) {
+            if (item[k] !== undefined && item[k] !== null) return item[k];
+          }
+          return null;
+        };
+
+        const rawStatus = (get('status', 'Status') || '').toString();
+        const status = rawStatus ? rawStatus.toLowerCase().replace(/\s+/g, '-') : null;
+
+        const rawPriority = (get('priority') || '').toString();
+        const priority = rawPriority ? rawPriority.toLowerCase() : null;
+
+        return {
+          id: get('id', '_id', 'ticketId'),
+          user_name: get('user_name', 'clientName', 'client_name', 'userName', 'name'),
+          user_email: get('user_email', 'clientEmail', 'client_email', 'email'),
+          user_phone: get('user_phone', 'clientPhone', 'client_phone', 'phone'),
+          service_type: get('service_type', 'serviceType', 'service_type'),
+          property_address: get('property_address', 'propertyAddress', 'property_address'),
+          priority,
+          status,
+          assigned_to: get('assigned_to', 'assignedTo', 'assigned') || 'unassigned',
+          created_at: get('created_at', 'createdAt', 'created_at'),
+          description: get('description', 'details', 'note'),
+          image_url: get('image_url', 'image', 'imageUrl') || (item.images && (item.images[0]?.url || item.images[0])) || (item.media && (item.media[0]?.url || item.media[0])) || null,
+          raw: item,
+        };
+      };
+
+      const resp = response?.data || {};
+      let items = extractArray(resp);
+      if (!items) items = extractArray(resp.data);
+      if (!items) items = extractArray(response?.data?.data);
+      if (!items) items = [];
+
+      if ((!items || items.length === 0)) {
+        try {
+        
+          console.log('No items from /concierge/tickets — trying fallback /concierge/requests');
+          const fallback = await axios.get(`/concierge/requests?${params.toString()}`);
+          
+          console.log('Fallback response (raw):', fallback);
+          const fallbackResp = fallback?.data || {};
+          items = extractArray(fallbackResp) || extractArray(fallbackResp.data) || extractArray(fallback?.data?.data) || [];
+          
+          console.log('Fallback extracted items:', items);
+        } catch (err) {
+         
+          console.warn('Fallback /concierge/requests failed', err);
+        }
+      }
+
+      const normalized = items.map(normalizeTicket);
+
+    
+      console.log('Concierge tickets - extracted items:', items);
+  
+      console.log('Concierge tickets - normalized items:', normalized);
+
+     
+      const paginationFromResp = resp.pagination || (resp.data && resp.data.pagination) || response.pagination || null;
+
+      setTicketsData(normalized || []);
+
+      
+      if (paginationFromResp) {
+        const serverTotal = Number(paginationFromResp.total) || 0;
+        const finalTotal = serverTotal > 0 ? serverTotal : (normalized.length || 0);
+        const finalPage = paginationFromResp.page || currentPage;
+        const finalLimit = paginationFromResp.limit || itemsPerPage;
+        const finalTotalPages = paginationFromResp.totalPages && paginationFromResp.totalPages > 0
+          ? paginationFromResp.totalPages
+          : Math.max(1, Math.ceil(finalTotal / finalLimit));
+
+        setPagination({
+          ...paginationFromResp,
+          total: finalTotal,
+          page: finalPage,
+          limit: finalLimit,
+          totalPages: finalTotalPages,
+        });
+      } else {
+        setPagination({
+          total: normalized.length || 0,
           page: currentPage,
           limit: itemsPerPage,
-          totalPages: 0
+          totalPages: Math.max(1, Math.ceil((normalized.length || 0) / itemsPerPage)),
         });
+      }
+
+   
+      const serverTotal = Number(paginationFromResp?.total) || 0;
+      if ((!paginationFromResp || serverTotal <= normalized.length) && normalized.length > 0) {
+        try {
+          
+          console.log('Attempting full-list fetch to compute total and enable client-side paging...');
+          const full = await axios.get('/concierge/requests');
+          const fullResp = full?.data || {};
+          let fullItems = null;
+          if (Array.isArray(fullResp)) fullItems = fullResp;
+          else if (Array.isArray(fullResp.data)) fullItems = fullResp.data;
+          else if (Array.isArray(fullResp.requests)) fullItems = fullResp.requests;
+          else if (Array.isArray(fullResp.data?.requests)) fullItems = fullResp.data.requests;
+          else fullItems = [];
+
+          const computedTotal = Array.isArray(fullItems) ? fullItems.length : 0;
+          if (computedTotal > 0) {
+            
+            const normalizedFull = fullItems.map((it) => normalizeTicket(it));
+            setFullTicketsList(normalizedFull);
+            setUseClientPaging(true);
+            const finalTotalPages = Math.max(1, Math.ceil(computedTotal / itemsPerPage));
+            setPagination((p) => ({ ...p, total: computedTotal, totalPages: finalTotalPages }));
+          
+            console.log('Enabled client-side paging, computed total:', computedTotal);
+          }
+        } catch (err) {
+        
+          console.warn('Full-list fetch failed:', err);
+        }
+      } else {
+        
+        setUseClientPaging(false);
+        setFullTicketsList(null);
       }
     } catch (error) {
       console.error('Error fetching tickets:', error);
@@ -96,7 +264,7 @@ export default function ConciergeRequestsPage({ params }) {
     }
   }, [currentPage, itemsPerPage, statusFilter, assignedFilter, searchTerm]);
 
-  
+
   useEffect(() => {
     fetchTickets();
   }, [fetchTickets]);
@@ -120,7 +288,11 @@ export default function ConciergeRequestsPage({ params }) {
   }, [ticketsData, pagination.total]);
 
   // Server-side pagination - no need to slice data
-  const paginatedTickets = filteredTickets;
+  let paginatedTickets = filteredTickets;
+  if (useClientPaging && Array.isArray(fullTicketsList)) {
+    const start = (currentPage - 1) * itemsPerPage;
+    paginatedTickets = fullTicketsList.slice(start, start + itemsPerPage);
+  }
   const totalPages = pagination.totalPages;
 
   // Handlers
@@ -184,7 +356,7 @@ export default function ConciergeRequestsPage({ params }) {
       await fetchTickets();
     } catch (error) {
       console.error('Error assigning ticket:', error);
-      alert('Failed to assign ticket');
+      showToast('Failed to assign ticket', 'error');
     }
 
     setAssignModalOpen(false);
@@ -195,14 +367,17 @@ export default function ConciergeRequestsPage({ params }) {
     if (!closeTicket) return;
 
     try {
-      // Delete ticket via API
-      await axios.delete(`/concierge/tickets/${closeTicket.id}`);
+      // Delete ticket via legacy API route
+      await axios.delete(`/concierge/requests/${closeTicket.id}`);
+
+      // Show success toast
+      showToast('Ticket deleted successfully', 'success');
 
       // Refresh tickets from server
       await fetchTickets();
     } catch (error) {
       console.error('Error closing ticket:', error);
-      alert('Failed to close ticket');
+      showToast('Failed to close ticket', 'error');
     }
 
     setCloseModalOpen(false);
@@ -344,10 +519,10 @@ export default function ConciergeRequestsPage({ params }) {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={pagination.total}
+          totalItems={loading ? 0 : pagination.total}
           itemsPerPage={itemsPerPage}
-          onPageChange={handlePageChange}
-          onItemsPerPageChange={handleItemsPerPageChange}
+          onPageChange={loading ? () => { } : handlePageChange}
+          onItemsPerPageChange={loading ? () => { } : handleItemsPerPageChange}
           itemsPerPageOptions={ITEMS_PER_PAGE_OPTIONS}
           showItemsPerPage={true}
           translations={paginationTranslations}
@@ -372,6 +547,7 @@ export default function ConciergeRequestsPage({ params }) {
         onClose={() => setCloseModalOpen(false)}
         onConfirm={handleCloseConfirm}
       />
+      <Toast />
     </div>
   );
 }
