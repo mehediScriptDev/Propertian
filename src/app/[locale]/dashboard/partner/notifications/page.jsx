@@ -1,101 +1,90 @@
-'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
-import { useTranslation } from '@/i18n';
-import { Bell, Check, CheckCheck, Trash2, Filter } from 'lucide-react';
-import Pagination from '@/components/dashboard/Pagination';
+"use client";
 
-// Mock notification data for Listing Partner
-const PARTNER_NOTIFICATIONS = [
-  {
-    id: 1,
-    type: 'inquiry',
-    title: 'New Inquiry Received',
-    message: 'Sarah Johnson inquired about your property: Luxury Apartment in Downtown Dubai',
-    time: '5 minutes ago',
-    timestamp: '2026-01-12T14:30:00Z',
-    unread: true,
-    actionUrl: '/dashboard/partner/inquiries',
-  },
-  {
-    id: 2,
-    type: 'listing_approved',
-    title: 'Listing Approved',
-    message: 'Your property listing "Modern Villa with Pool" has been approved and is now live',
-    time: '1 hour ago',
-    timestamp: '2026-01-12T13:35:00Z',
-    unread: true,
-    actionUrl: '/dashboard/partner',
-  },
-  {
-    id: 3,
-    type: 'verification_complete',
-    title: 'Verification Complete',
-    message: 'Your property "Penthouse Suite" verification is complete and badge has been added',
-    time: '3 hours ago',
-    timestamp: '2026-01-12T11:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/partner/verified-properties',
-  },
-  {
-    id: 4,
-    type: 'listing_changes_requested',
-    title: 'Listing Changes Requested',
-    message: 'Admin requested changes to your listing: "Beach Front Condo" - Missing floor plan',
-    time: '5 hours ago',
-    timestamp: '2026-01-12T09:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/partner',
-  },
-  {
-    id: 5,
-    type: 'inquiry',
-    title: 'New Inquiry Received',
-    message: 'Michael Chen inquired about your property: Suburban Family Home',
-    time: '1 day ago',
-    timestamp: '2026-01-11T14:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/partner/inquiries',
-  },
-  {
-    id: 6,
-    type: 'verification_approved',
-    title: 'Verification Approved',
-    message: 'Your verification request for "Downtown Loft" has been approved',
-    time: '2 days ago',
-    timestamp: '2026-01-10T14:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/partner/verified-properties',
-  },
-  {
-    id: 7,
-    type: 'system',
-    title: 'Profile Update Required',
-    message: 'Please update your business verification documents for continued listing privileges',
-    time: '3 days ago',
-    timestamp: '2026-01-09T14:35:00Z',
-    unread: false,
-    actionUrl: '/dashboard/partner/profile',
-  },
-];
+import { use, useState, useMemo, useCallback, useEffect } from "react";
+import { useTranslation } from "@/i18n";
+import { Bell, Check, CheckCheck, Trash2, Filter, MessageSquare, CheckCircle, Edit3, Award, Settings } from "lucide-react";
+import Pagination from "@/components/dashboard/Pagination";
+import { get } from "@/lib/api";
 
 export default function PartnerNotificationsPage({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
 
-  const [notifications, setNotifications] = useState(PARTNER_NOTIFICATIONS);
-  const [filterType, setFilterType] = useState('all'); // all, unread, read
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filterType, setFilterType] = useState("all"); 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Filter notifications
-  const filteredNotifications = useMemo(() => {
-    if (filterType === 'unread') {
-      return notifications.filter((n) => n.unread);
-    } else if (filterType === 'read') {
-      return notifications.filter((n) => !n.unread);
+  // Fetch notifications data from API
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchNotifications() {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await get(
+          `/notifications?page=${currentPage}&limit=${itemsPerPage}`,
+        );
+
+        console.log("API Response:", response);
+
+        if (isMounted && response?.data) {
+       
+          let notificationsData = [];
+
+          if (Array.isArray(response.data)) {
+           
+            notificationsData = response.data;
+          } else if (
+            response.data.notifications &&
+            Array.isArray(response.data.notifications)
+          ) {
+          
+            notificationsData = response.data.notifications;
+          } else if (response.data.data && Array.isArray(response.data.data)) {
+            
+            notificationsData = response.data.data;
+          }
+
+          setNotifications(notificationsData);
+          console.log("Notifications set:", notificationsData);
+        }
+      } catch (err) {
+        console.error("Failed to load notifications", err);
+        if (isMounted) {
+          setError(err?.message || "Failed to load notifications");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
-    return notifications;
+
+    fetchNotifications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentPage, itemsPerPage]);
+
+
+  const filteredNotifications = useMemo(() => {
+
+    const notificationsArray = Array.isArray(notifications)
+      ? notifications
+      : [];
+
+    if (filterType === "unread") {
+      return notificationsArray.filter((n) => n.unread);
+    } else if (filterType === "read") {
+      return notificationsArray.filter((n) => !n.unread);
+    }
+    return notificationsArray;
   }, [notifications, filterType]);
 
   // Pagination
@@ -103,12 +92,12 @@ export default function PartnerNotificationsPage({ params }) {
   const paginatedNotifications = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return filteredNotifications.slice(start, start + itemsPerPage);
-  }, [filteredNotifications, currentPage]);
+  }, [filteredNotifications, currentPage, itemsPerPage]);
 
   // Handlers
   const handleMarkAsRead = useCallback((id) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
+      prev.map((n) => (n.id === id ? { ...n, unread: false } : n)),
     );
   }, []);
 
@@ -120,25 +109,62 @@ export default function PartnerNotificationsPage({ params }) {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   }, []);
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  const unreadCount = Array.isArray(notifications)
+    ? notifications.filter((n) => n.unread).length
+    : 0;
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case 'inquiry':
-        return '💬';
-      case 'listing_approved':
-        return '✅';
-      case 'listing_changes_requested':
-        return '📝';
-      case 'verification_complete':
-      case 'verification_approved':
-        return '🏅';
-      case 'system':
-        return '⚙️';
+      case "inquiry":
+        return <MessageSquare className="h-6 w-6 text-gray-500" />;
+      case "listing_approved":
+        return <CheckCircle className="h-6 w-6 text-green-500" />;
+      case "listing_changes_requested":
+        return <Edit3 className="h-6 w-6 text-yellow-500" />;
+      case "verification_complete":
+      case "verification_approved":
+        return <Award className="h-6 w-6 text-indigo-500" />;
+      case "system":
+        return <Settings className="h-6 w-6 text-gray-600" />;
       default:
-        return '🔔';
+        return <Bell className="h-6 w-6 text-gray-500" />;
     }
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading notifications...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">
+            <Bell className="h-12 w-12 mx-auto" />
+          </div>
+          <p className="text-gray-900 font-semibold mb-2">
+            Failed to load notifications
+          </p>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -148,10 +174,9 @@ export default function PartnerNotificationsPage({ params }) {
           <h1 className="text-4xl font-bold text-gray-900">Notifications</h1>
           <p className="text-sm text-gray-700 mt-2">
             {unreadCount > 0
-              ? `You have ${unreadCount} unread notification${
-                  unreadCount > 1 ? 's' : ''
-                }`
-              : 'All caught up!'}
+              ? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""
+              }`
+              : "All caught up!"}
           </p>
         </div>
         {unreadCount > 0 && (
@@ -170,34 +195,35 @@ export default function PartnerNotificationsPage({ params }) {
         <Filter className="h-5 w-5 text-gray-400" />
         <div className="flex gap-2">
           <button
-            onClick={() => setFilterType('all')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              filterType === 'all'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            onClick={() => setFilterType("all")}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${filterType === "all"
+                ? "bg-primary text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
           >
-            All ({notifications.length})
+            All ({Array.isArray(notifications) ? notifications.length : 0})
           </button>
           <button
-            onClick={() => setFilterType('unread')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              filterType === 'unread'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            onClick={() => setFilterType("unread")}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${filterType === "unread"
+                ? "bg-primary text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
           >
             Unread ({unreadCount})
           </button>
           <button
-            onClick={() => setFilterType('read')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              filterType === 'read'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            onClick={() => setFilterType("read")}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${filterType === "read"
+                ? "bg-primary text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
           >
-            Read ({notifications.length - unreadCount})
+            Read (
+            {Array.isArray(notifications)
+              ? notifications.length - unreadCount
+              : 0}
+            )
           </button>
         </div>
       </div>
@@ -214,14 +240,24 @@ export default function PartnerNotificationsPage({ params }) {
             {paginatedNotifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`p-4 sm:p-6 hover:bg-gray-50 transition-colors ${
-                  notification.unread ? 'bg-blue-50/50' : ''
-                }`}
+                className={`p-4 sm:p-6 hover:bg-gray-50 transition-colors ${notification.unread ? "bg-blue-50/50" : ""
+                  }`}
               >
                 <div className="flex items-start gap-4">
                   {/* Icon */}
-                  <div className="shrink-0 text-2xl">
-                    {getNotificationIcon(notification.type)}
+                  <div className="shrink-0">
+                    {notification.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={notification.image}
+                        alt={notification.title || "notification"}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-100">
+                        {getNotificationIcon(notification.type)}
+                      </div>
+                    )}
                   </div>
 
                   {/* Content */}
@@ -262,16 +298,6 @@ export default function PartnerNotificationsPage({ params }) {
                         </button>
                       </div>
                     </div>
-
-                    {/* Action Button */}
-                    {notification.actionUrl && (
-                      <a
-                        href={notification.actionUrl}
-                        className="mt-3 inline-block text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                      >
-                        View Details →
-                      </a>
-                    )}
                   </div>
                 </div>
               </div>
@@ -289,12 +315,12 @@ export default function PartnerNotificationsPage({ params }) {
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           translations={{
-            showing: 'Showing',
-            to: 'to',
-            of: 'of',
-            results: 'notifications',
-            previous: 'Previous',
-            next: 'Next',
+            showing: "Showing",
+            to: "to",
+            of: "of",
+            results: "notifications",
+            previous: "Previous",
+            next: "Next",
           }}
         />
       )}

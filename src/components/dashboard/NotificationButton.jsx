@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePathname } from 'next/navigation';
+import { get } from '@/lib/api';
 
 /**
  * Notification Button Component
@@ -37,79 +38,53 @@ export default function NotificationButton() {
     notificationPath = `/${locale}/dashboard/partner/notifications`;
   }
 
-  // Mock notification data - would come from API in production
-  const notifications = isAdmin
-    ? [
-        {
-          id: 1,
-          type: 'partner_application',
-          title: 'New Partner Application',
-          message: 'Elite Properties Ltd submitted an application',
-          time: '5 minutes ago',
-          unread: true,
-        },
-        {
-          id: 2,
-          type: 'concierge_ticket',
-          title: 'New Concierge Request',
-          message: 'Airport pickup service requested by John Doe',
-          time: '15 minutes ago',
-          unread: true,
-        },
-        {
-          id: 3,
-          type: 'verification',
-          title: 'Verification Request',
-          message: 'Property #12345 needs verification review',
-          time: '1 hour ago',
-          unread: false,
-        },
-      ]
-    : isConcierge
-    ? [
-        {
-          id: 1,
-          type: 'ticket_assigned',
-          title: 'New Ticket Assigned',
-          message: 'You have been assigned ticket #CON-2045',
-          time: '10 minutes ago',
-          unread: true,
-        },
-        {
-          id: 2,
-          type: 'quote_approved',
-          title: 'Quote Approved',
-          message: 'Your quote for relocation service was approved',
-          time: '2 hours ago',
-          unread: true,
-        },
-      ]
-    : [
-        {
-          id: 1,
-          type: 'inquiry',
-          title: 'New Inquiry',
-          message: 'Someone inquired about your property listing',
-          time: '5 minutes ago',
-          unread: true,
-        },
-        {
-          id: 2,
-          type: 'listing_approved',
-          title: 'Listing Approved',
-          message: 'Your property listing has been approved',
-          time: '1 hour ago',
-          unread: true,
-        },
-        {
-          id: 3,
-          type: 'verification_complete',
-          title: 'Verification Complete',
-          message: 'Your property verification is complete',
-          time: '3 hours ago',
-          unread: false,
-        },
-      ];
+  // Replace dummy notifications with data from API
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const timeAgo = useCallback((iso) => {
+    if (!iso) return '';
+    const then = new Date(iso).getTime();
+    const now = Date.now();
+    const diff = Math.floor((now - then) / 1000);
+    if (diff < 60) return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+  }, []);
+
+  const fetchNotifications = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Request first page with a small limit for dropdown preview
+      const res = await get('/notifications?page=1&limit=5');
+      const items = res?.data?.notifications || res?.notifications || [];
+
+      const mapped = items.map((it) => ({
+        id: it.id || it._id,
+        type: it.type,
+        title: it.title,
+        message: it.message,
+        time: timeAgo(it.createdAt || it.created_at),
+        unread: !it.isRead && !!it.isRead !== undefined ? !it.isRead : !(it.readAt || it.read_at),
+        image: it.data?.image || it.data?.avatar || null,
+        raw: it,
+      }));
+
+      setNotifications(mapped);
+    } catch (err) {
+      setError(err?.message || 'Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
+  }, [timeAgo]);
+
+  useEffect(() => {
+    // fetch on mount
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
@@ -162,21 +137,25 @@ export default function NotificationButton() {
 
           {/* Notification List */}
           <div className="max-h-96 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-gray-500">
-                No notifications
-              </div>
+            {loading ? (
+              <div className="px-4 py-8 text-center text-sm text-gray-500">Loading...</div>
+            ) : error ? (
+              <div className="px-4 py-8 text-center text-sm text-red-500">{error}</div>
+            ) : notifications.length === 0 ? (
+              <div className="px-4 py-8 text-center text-sm text-gray-500">No notifications</div>
             ) : (
-              notifications.slice(0, 5).map((notification) => (
+              notifications.map((notification) => (
                 <div
-                  key={notification.id}
-                  className={`border-b border-gray-100 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer ${
-                    notification.unread ? 'bg-blue-50/50' : ''
-                  }`}
+                  key={notification.id || notification.time}
+                  className={`border-b border-gray-100 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer ${notification.unread ? 'bg-blue-50/50' : ''
+                    }`}
                 >
                   <div className="flex items-start gap-3">
                     {notification.unread && (
-                      <div className="mt-1.5 h-2 w-2 rounded-full bg-blue-500 shrink-0"/>
+                      <div className="mt-1.5 h-2 w-2 rounded-full bg-blue-500 shrink-0" />
+                    )}
+                    {notification.image && (
+                      <img src={notification.image} alt="thumb" className="w-10 h-10 rounded-md object-cover" />
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
@@ -185,9 +164,7 @@ export default function NotificationButton() {
                       <p className="text-sm text-gray-600 line-clamp-2">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {notification.time}
-                      </p>
+                      <p className="text-xs text-gray-400 mt-1">{notification.time}</p>
                     </div>
                   </div>
                 </div>

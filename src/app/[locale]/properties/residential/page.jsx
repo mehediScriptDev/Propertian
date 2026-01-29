@@ -8,7 +8,7 @@ import DevelopmentFilters from '@/components/property/DevelopmentFilters';
 import WhyInvestCard from '@/components/property/WhyInvestCard';
 import DeveloperCTA from '@/components/property/DeveloperCTA';
 import { X } from 'lucide-react';
-import { Shield } from 'lucide-react'; 
+import { Shield } from 'lucide-react';
 import api from '@/lib/api';
 import AlertModal from '@/components/ui/AlertModal';
 /**
@@ -27,7 +27,7 @@ export default function ResidentialPage() {
     propertyType: 'all',
     priceRange: 'all'
   });
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDevelopment, setSelectedDevelopment] = useState(null);
   const [formState, setFormState] = useState({
@@ -79,6 +79,7 @@ export default function ResidentialPage() {
           escrowEligible: !!p.escrowEligible,
           completionDate: p.completionDate,
           developerInfo: p.developerInfo || '',
+          approvalStatus: p.approvalStatus || null,
           raw: p,
         }));
 
@@ -101,13 +102,15 @@ export default function ResidentialPage() {
   // Filter developments based on selected filters
   const filteredDevelopments = useMemo(() => {
     return developments.filter((dev) => {
+      // only show approved developments
+      if (String(dev.approvalStatus || '').toUpperCase() !== 'APPROVED') return false;
       // City filter
       if (filters.cityArea !== 'all' && dev.city !== filters.cityArea) {
         return false;
       }
 
       // Property type filter
-      if (filters.propertyType !== 'all' && dev.propertyType !== filters.propertyType ) {
+      if (filters.propertyType !== 'all' && dev.propertyType !== filters.propertyType) {
         return false;
       }
 
@@ -135,7 +138,7 @@ export default function ResidentialPage() {
         }
       }
 
-          return true;
+      return true;
     });
   }, [filters, developments]);
 
@@ -362,7 +365,7 @@ export default function ResidentialPage() {
             <div className="sticky top-0 bg-[#fffff8] border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
               <div>
                 <h3 className="text-2xl font-bold text-charcoal">
-                  Inquire about {selectedDevelopment.title ? selectedDevelopment.title.split(/\b-?\s*New Development\b/i)[0].replace(/\s*[-–—:\s]+$/,'').trim() : selectedDevelopment.title}
+                  Inquire about {selectedDevelopment.title ? selectedDevelopment.title.split(/\b-?\s*New Development\b/i)[0].replace(/\s*[-–—:\s]+$/, '').trim() : selectedDevelopment.title}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
                   Fill out the form below and the developer will contact you shortly.

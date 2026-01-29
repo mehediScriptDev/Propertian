@@ -29,6 +29,7 @@ const SponsorEventRequestsTable = memo(({ eventRequests, translations, onView, o
 
   // Status badge styling - keeping existing design
   const getStatusBadge = (status) => {
+    const s = (status || '').toString().toLowerCase();
     const badges = {
       new: {
         bg: 'bg-blue-100',
@@ -54,6 +55,12 @@ const SponsorEventRequestsTable = memo(({ eventRequests, translations, onView, o
         icon: CheckCircle,
         label: 'Approved',
       },
+      pending: {
+        bg: 'bg-red-100',
+        text: 'text-red-800',
+        icon: XCircle,
+        label: 'Pending',
+      },
       live: {
         bg: 'bg-emerald-100',
         text: 'text-emerald-800',
@@ -74,7 +81,7 @@ const SponsorEventRequestsTable = memo(({ eventRequests, translations, onView, o
       },
     };
 
-    const badge = badges[status] || badges.new;
+    const badge = badges[s] || badges.new;
     const Icon = badge.icon;
 
     return (
@@ -134,184 +141,184 @@ const SponsorEventRequestsTable = memo(({ eventRequests, translations, onView, o
             </tr>
           </thead>
           <tbody className='bg-white divide-y divide-gray-200'>
-            {eventRequests.map((event) => (
-              <tr
-                key={event.id}
-                className='hover:bg-gray-50 transition-colors'
-              >
-                {/* Event Title */}
-                <td className='px-6 py-4'>
-                  <div className='text-sm font-medium text-gray-900'>
-                    {event.event_title}
-                  </div>
-                </td>
+            {eventRequests.map((event) => {
+              const status = (event.status || event.approvalStatus || '').toString().toLowerCase();
+              return (
+                <tr
+                  key={event.id}
+                  className='hover:bg-gray-50 transition-colors'
+                >
+                  {/* Event Title */}
+                  <td className='px-6 py-4'>
+                    <div className='text-sm font-medium text-gray-900'>
+                      {event.event_title}
+                    </div>
+                  </td>
 
-                {/* Sponsor Name */}
-                <td className='px-6 py-4'>
-                  <div className='flex items-center gap-2'>
-                    <Users className='h-4 w-4 text-gray-400' />
+                  {/* Sponsor Name */}
+                  <td className='px-6 py-4'>
+                    <div className='flex items-center gap-2'>
+                      <Users className='h-4 w-4 text-gray-400' />
+                      <span className='text-sm text-gray-900'>
+                        {event.sponsor_name}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Event Type */}
+                  <td className='px-6 py-4'>
                     <span className='text-sm text-gray-900'>
-                      {event.sponsor_name}
+                      {event.event_type}
                     </span>
-                  </div>
-                </td>
+                  </td>
 
-                {/* Event Type */}
-                <td className='px-6 py-4'>
-                  <span className='text-sm text-gray-900'>
-                    {event.event_type}
-                  </span>
-                </td>
+                  {/* Requested Date */}
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='flex items-center gap-1.5 text-sm text-gray-600'>
+                      <Calendar className='h-4 w-4' />
+                      {formatDate(event.requested_date)}
+                    </div>
+                  </td>
 
-                {/* Requested Date */}
-                <td className='px-6 py-4 whitespace-nowrap'>
-                  <div className='flex items-center gap-1.5 text-sm text-gray-600'>
-                    <Calendar className='h-4 w-4' />
-                    {formatDate(event.requested_date)}
-                  </div>
-                </td>
+                  {/* Location */}
+                  <td className='px-6 py-4'>
+                    <div className='flex items-center gap-2'>
+                      <MapPin className='h-4 w-4 text-gray-400' />
+                      <span className='text-sm text-gray-900 truncate max-w-[150px]'>
+                        {event.location}
+                      </span>
+                    </div>
+                  </td>
 
-                {/* Location */}
-                <td className='px-6 py-4'>
-                  <div className='flex items-center gap-2'>
-                    <MapPin className='h-4 w-4 text-gray-400' />
-                    <span className='text-sm text-gray-900 truncate max-w-[150px]'>
-                      {event.location}
-                    </span>
-                  </div>
-                </td>
+                  {/* Status Badge (with dot) */}
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='flex items-center gap-2'>
+                      <span className={`inline-block h-2.5 w-2.5 rounded-full ${status === 'pending' ? 'bg-red-600' : (status === 'approved' ? 'bg-green-600' : 'bg-gray-400')}`} />
+                      {getStatusBadge(status)}
+                    </div>
+                  </td>
 
-                {/* Status Badge */}
-                <td className='px-6 py-4 whitespace-nowrap'>
-                  {getStatusBadge(event.status)}
-                </td>
-
-                {/* Actions */}
-                <td className='px-6 py-4 whitespace-nowrap'>
-                  <div className='flex items-center gap-2'>
-                    {/* View */}
-                    <button
-                      onClick={() => onView(event)}
-                      className='p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
-                      title='View Details'
-                    >
-                      <Eye className='h-4 w-4' />
-                    </button>
-
-                    {/* Approve - only show for new/in_review/need_changes */}
-                    {['new', 'in_review', 'need_changes'].includes(event.status) && (
+                  {/* Actions */}
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='flex items-center gap-2'>
+                      {/* Always allow View */}
                       <button
-                        onClick={() => onApprove(event)}
-                        className='p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors'
-                        title='Approve'
+                        onClick={() => onView(event)}
+                        className='p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
+                        title='View Details'
                       >
-                        <CheckCircle className='h-4 w-4' />
+                        <Eye className='h-4 w-4' />
                       </button>
-                    )}
 
-                    {/* Go Live - only show for approved events */}
-                    {event.status === 'approved' && (
-                      <button
-                        onClick={() => onGoLive(event)}
-                        className='p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors'
-                        title='Go Live'
-                      >
-                        <Play className='h-4 w-4' />
-                      </button>
-                    )}
+                      {/* If approved: only show View (per request) */}
+                      {status !== 'approved' && (
+                        <>
+                          {/* Approve - show for new/in_review/need_changes/pending */}
+                          {['new', 'in_review', 'need_changes', 'pending'].includes(status) && (
+                            <button
+                              onClick={() => onApprove(event)}
+                              className='p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors'
+                              title='Approve'
+                            >
+                              <CheckCircle className='h-4 w-4' />
+                            </button>
+                          )}
 
-                    {/* Reject - only show for non-rejected/non-ended */}
-                    {!['rejected', 'ended', 'live'].includes(event.status) && (
-                      <button
-                        onClick={() => onReject(event)}
-                        className='p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
-                        title='Reject'
-                      >
-                        <XCircle className='h-4 w-4' />
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                          {/* Reject - show for items that are not final states */}
+                          {!['rejected', 'ended', 'live'].includes(status) && (
+                            <button
+                              onClick={() => onReject(event)}
+                              className='p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
+                              title='Reject'
+                            >
+                              <XCircle className='h-4 w-4' />
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {/* Mobile Cards */}
       <div className='lg:hidden space-y-4 p-4'>
-        {eventRequests.map((event) => (
-          <div
-            key={event.id}
-            className='bg-white border border-gray-200 rounded-lg p-4 space-y-3'
-          >
-            {/* Header */}
-            <div className='flex items-start justify-between'>
-              <div className='flex-1'>
-                <div className='text-sm font-semibold text-gray-900'>
-                  {event.event_title}
+        {eventRequests.map((event) => {
+          const status = (event.status || event.approvalStatus || '').toString().toLowerCase();
+          return (
+            <div
+              key={event.id}
+              className='bg-white border border-gray-200 rounded-lg p-4 space-y-3'
+            >
+              {/* Header */}
+              <div className='flex items-start justify-between'>
+                <div className='flex-1'>
+                  <div className='text-sm font-semibold text-gray-900'>
+                    {event.event_title}
+                  </div>
+                  <div className='text-xs text-gray-500 mt-1'>
+                    {event.sponsor_name}
+                  </div>
                 </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  {event.sponsor_name}
+                <div className='flex items-center gap-3'>
+                  {getStatusBadge(status)}
                 </div>
               </div>
-              {getStatusBadge(event.status)}
-            </div>
 
-            {/* Details */}
-            <div className='space-y-1.5 pt-2 border-t border-gray-100 text-sm'>
-              <div className='flex items-center gap-2 text-gray-600'>
-                <Calendar className='h-4 w-4 text-gray-400' />
-                {event.event_type} • {formatDate(event.requested_date)}
+              {/* Details */}
+              <div className='space-y-1.5 pt-2 border-t border-gray-100 text-sm'>
+                <div className='flex items-center gap-2 text-gray-600'>
+                  <Calendar className='h-4 w-4 text-gray-400' />
+                  {event.event_type} • {formatDate(event.requested_date)}
+                </div>
+                <div className='flex items-center gap-2 text-gray-600'>
+                  <MapPin className='h-4 w-4 text-gray-400' />
+                  {event.location}
+                </div>
               </div>
-              <div className='flex items-center gap-2 text-gray-600'>
-                <MapPin className='h-4 w-4 text-gray-400' />
-                {event.location}
+
+              {/* Actions */}
+
+              <div className='flex items-center gap-2 pt-2 border-t border-gray-100'>
+                <button
+                  onClick={() => onView(event)}
+                  className='flex-1 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1.5'
+                >
+                  <Eye className='h-4 w-4' />
+                  View
+                </button>
+
+                {status !== 'approved' && (
+                  <>
+                    {['new', 'in_review', 'need_changes', 'pending'].includes(status) && (
+                      <button
+                        onClick={() => onApprove(event)}
+                        className='px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-lg transition-colors'
+                        title='Approve'
+                      >
+                        <CheckCircle className='h-4 w-4' />
+                      </button>
+                    )}
+
+                    {!['rejected', 'ended', 'live'].includes(status) && (
+                      <button
+                        onClick={() => onReject(event)}
+                        className='px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors'
+                        title='Reject'
+                      >
+                        <XCircle className='h-4 w-4' />
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
             </div>
-
-            {/* Actions */}
-            <div className='flex items-center gap-2 pt-2 border-t border-gray-100'>
-              <button 
-                onClick={() => onView(event)} 
-                className='flex-1 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1.5'
-              >
-                <Eye className='h-4 w-4' />
-                View
-              </button>
-
-              {['new', 'in_review', 'need_changes'].includes(event.status) && (
-                <button 
-                  onClick={() => onApprove(event)} 
-                  className='px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-lg transition-colors' 
-                  title='Approve'
-                >
-                  <CheckCircle className='h-4 w-4' />
-                </button>
-              )}
-
-              {event.status === 'approved' && (
-                <button 
-                  onClick={() => onGoLive(event)} 
-                  className='px-3 py-2 text-sm text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors' 
-                  title='Go Live'
-                >
-                  <Play className='h-4 w-4' />
-                </button>
-              )}
-
-              {!['rejected', 'ended', 'live'].includes(event.status) && (
-                <button 
-                  onClick={() => onReject(event)} 
-                  className='px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors' 
-                  title='Reject'
-                >
-                  <XCircle className='h-4 w-4' />
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

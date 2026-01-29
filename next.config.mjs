@@ -87,7 +87,7 @@ const nextConfig = {
   generateEtags: true,
 
   // Performance optimization
-  swcMinify: true,
+  // swcMinify: true,
 
   // Experimental features for better performance
   experimental: {

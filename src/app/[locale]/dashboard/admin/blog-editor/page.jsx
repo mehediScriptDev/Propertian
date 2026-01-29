@@ -7,7 +7,7 @@ import BlogContentEditor from '@/components/dashboard/admin/BlogContentEditor';
 import SEOMetadata from '@/components/dashboard/admin/SEOMetadata';
 import BlogPublishSidebar from '@/components/dashboard/admin/BlogPublishSidebar';
 import FeaturedImageUpload from '@/components/dashboard/admin/FeaturedImageUpload';
-import { post } from '@/lib/api';
+import { uploadFile } from '@/lib/api'; 
 import Toast, { showToast } from '@/components/Toast';
 import Modal from '@/components/Modal';
 
@@ -38,20 +38,14 @@ export default function BlogEditor({ params }) {
       saveDraft: t('dashboard.admin.blogEditor.saveDraft'),
       cancel: t('dashboard.admin.blogEditor.cancel'),
       postTitle: t('dashboard.admin.blogEditor.postTitle'),
-      postTitlePlaceholder: t(
-        'dashboard.admin.blogEditor.postTitlePlaceholder'
-      ),
+      postTitlePlaceholder: t('dashboard.admin.blogEditor.postTitlePlaceholder'),
       articleContent: t('dashboard.admin.blogEditor.articleContent'),
       editorPlaceholder: t('dashboard.admin.blogEditor.editorPlaceholder'),
       seoMetadata: t('dashboard.admin.blogEditor.seoMetadata'),
       metaTitle: t('dashboard.admin.blogEditor.metaTitle'),
-      metaTitlePlaceholder: t(
-        'dashboard.admin.blogEditor.metaTitlePlaceholder'
-      ),
+      metaTitlePlaceholder: t('dashboard.admin.blogEditor.metaTitlePlaceholder'),
       metaDescription: t('dashboard.admin.blogEditor.metaDescription'),
-      metaDescriptionPlaceholder: t(
-        'dashboard.admin.blogEditor.metaDescriptionPlaceholder'
-      ),
+      metaDescriptionPlaceholder: t('dashboard.admin.blogEditor.metaDescriptionPlaceholder'),
       urlSlug: t('dashboard.admin.blogEditor.urlSlug'),
       urlSlugPlaceholder: t('dashboard.admin.blogEditor.urlSlugPlaceholder'),
       regenerate: t('dashboard.admin.blogEditor.regenerate'),
@@ -59,53 +53,34 @@ export default function BlogEditor({ params }) {
         publish: t('dashboard.admin.blogEditor.publishSidebar.publish'),
         status: t('dashboard.admin.blogEditor.publishSidebar.status'),
         statusDraft: t('dashboard.admin.blogEditor.publishSidebar.statusDraft'),
-        statusPublished: t(
-          'dashboard.admin.blogEditor.publishSidebar.statusPublished'
-        ),
-        statusScheduled: t(
-          'dashboard.admin.blogEditor.publishSidebar.statusScheduled'
-        ),
+        statusPublished: t('dashboard.admin.blogEditor.publishSidebar.statusPublished'),
+        statusScheduled: t('dashboard.admin.blogEditor.publishSidebar.statusScheduled'),
         author: t('dashboard.admin.blogEditor.publishSidebar.author'),
-        publicationDate: t(
-          'dashboard.admin.blogEditor.publishSidebar.publicationDate'
-        ),
-        publicationDateAuto: t(
-          'dashboard.admin.blogEditor.publishSidebar.publicationDateAuto'
-        ),
+        publicationDate: t('dashboard.admin.blogEditor.publishSidebar.publicationDate'),
+        publicationDateAuto: t('dashboard.admin.blogEditor.publishSidebar.publicationDateAuto'),
       },
       organization: {
         title: t('dashboard.admin.blogEditor.organization.title'),
         categories: t('dashboard.admin.blogEditor.organization.categories'),
-        selectCategory: t(
-          'dashboard.admin.blogEditor.organization.selectCategory'
-        ),
-        realEstateNews: t(
-          'dashboard.admin.blogEditor.organization.realEstateNews'
-        ),
+        selectCategory: t('dashboard.admin.blogEditor.organization.selectCategory'),
+        realEstateNews: t('dashboard.admin.blogEditor.organization.realEstateNews'),
         buyingGuide: t('dashboard.admin.blogEditor.organization.buyingGuide'),
         sellingTips: t('dashboard.admin.blogEditor.organization.sellingTips'),
         marketTrends: t('dashboard.admin.blogEditor.organization.marketTrends'),
         tags: t('dashboard.admin.blogEditor.organization.tags'),
-        tagsPlaceholder: t(
-          'dashboard.admin.blogEditor.organization.tagsPlaceholder'
-        ),
+        tagsPlaceholder: t('dashboard.admin.blogEditor.organization.tagsPlaceholder'),
       },
       featuredImage: {
         title: t('dashboard.admin.blogEditor.featuredImage.title'),
         uploadText: t('dashboard.admin.blogEditor.featuredImage.uploadText'),
-        supportedFormats: t(
-          'dashboard.admin.blogEditor.featuredImage.supportedFormats'
-        ),
+        supportedFormats: t('dashboard.admin.blogEditor.featuredImage.supportedFormats'),
         altText: t('dashboard.admin.blogEditor.featuredImage.altText'),
-        altTextPlaceholder: t(
-          'dashboard.admin.blogEditor.featuredImage.altTextPlaceholder'
-        ),
+        altTextPlaceholder: t('dashboard.admin.blogEditor.featuredImage.altTextPlaceholder'),
       },
     }),
     [t]
   );
 
-  // Auto-generate URL slug from title
   const generateSlug = useCallback((text) => {
     return text
       .toLowerCase()
@@ -129,31 +104,9 @@ export default function BlogEditor({ params }) {
     setUrlSlug(generateSlug(title));
   }, [title, generateSlug]);
 
-  const handleSaveDraft = useCallback(() => {
-    console.log('Saving draft...', {
-      title,
-      content,
-      metaTitle,
-      metaDescription,
-      urlSlug,
-      status,
-      category,
-      tags,
-      imageUrl,
-      altText,
-    });
-  }, [
-    title,
-    content,
-    metaTitle,
-    metaDescription,
-    urlSlug,
-    status,
-    category,
-    tags,
-    imageUrl,
-    altText,
-  ]);
+  const handleSaveDraft = useCallback(async () => {
+    console.log('Saving draft locally...');
+  }, []);
 
   const [showCancelModal, setShowCancelModal] = useState(false);
 
@@ -163,6 +116,12 @@ export default function BlogEditor({ params }) {
 
   const confirmCancel = useCallback(() => {
     setShowCancelModal(false);
+    resetForm();
+  }, []);
+
+  const closeCancelModal = useCallback(() => setShowCancelModal(false), []);
+
+  const resetForm = () => {
     setTitle('');
     setContent('');
     setMetaTitle('');
@@ -173,79 +132,68 @@ export default function BlogEditor({ params }) {
     setTags('');
     setImageUrl('');
     setAltText('');
-  }, []);
+  };
 
-  const closeCancelModal = useCallback(() => setShowCancelModal(false), []);
+const handlePublish = useCallback(async () => {
+  try {
+    setIsPublishing(true);
+    setPublishError(null);
 
-  const handlePublish = useCallback(async () => {
-    try {
-      setIsPublishing(true);
-      setPublishError(null);
 
-      // Validate required fields
-      if (!title || !title.trim()) {
-        showToast('Please enter a title for your blog post.', 'error');
-        setIsPublishing(false);
-        return;
-      }
-
-      if (!content || !content.trim()) {
-        showToast('Please enter content for your blog post.', 'error');
-        setIsPublishing(false);
-        return;
-      }
-
-      // Create FormData for multipart/form-data upload
-      const formData = new FormData();
-      formData.append('title', title.trim());
-      formData.append('excerpt', metaDescription?.trim() || title.substring(0, 150));
-      formData.append('content', content.trim());
-      formData.append('author', 'Admin User'); // You may want to get this from auth context
-      formData.append('tags', tags?.trim() || '');
-      formData.append('status', 'PUBLISHED');
-
-      // If there's an image file, append it; otherwise skip
-      if (imageUrl instanceof File) {
-        formData.append('featuredImage', imageUrl);
-      }
-
-      const response = await post('/blog', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (response.success) {
-        const successMessage = response.message;
-        showToast(successMessage, 'success');
-        // Reset form
-        setTitle('');
-        setContent('');
-        setMetaTitle('');
-        setMetaDescription('');
-        setUrlSlug('');
-        setStatus('draft');
-        setCategory('');
-        setTags('');
-        setImageUrl('');
-        setAltText('');
-      } else {
-        throw new Error(response.message || 'Failed to publish blog post');
-      }
-    } catch (err) {
-      console.error('Error publishing blog post:', err);
-      const errorMsg = err.response?.data?.message || err.message || 'Failed to publish blog post';
-      setPublishError(errorMsg);
-      showToast(`Failed to publish: ${errorMsg}`, 'error');
-    } finally {
+    if (!title || !title.trim()) {
+      showToast('Title is required', 'error');
       setIsPublishing(false);
+      return;
     }
-  }, [title, content, metaDescription, tags, imageUrl]);
 
-  const handlePreview = useCallback(() => {
-    console.log('Opening preview...', { title, content });
-  }, [title, content]);
+    if (!content || !content.trim()) {
+      showToast('Content is required', 'error');
+      setIsPublishing(false);
+      return;
+    }
 
+
+    const formData = new FormData();
+    formData.append('title', title.trim());
+    
+    const plainTextContent = content.replace(/<[^>]*>?/gm, '');
+    const excerptText = metaDescription?.trim() || plainTextContent.substring(0, 150);
+    formData.append('excerpt', excerptText);
+    
+    formData.append('content', content.trim());
+    formData.append('author', 'Admin User'); 
+    formData.append('tags', tags?.trim() || '');
+    
+    const submitStatus = status === 'draft' ? 'PUBLISHED' : status; 
+    formData.append('status', submitStatus); 
+
+    if (imageUrl instanceof File) {
+      formData.append('featuredImage', imageUrl);
+    }
+
+
+    const response = await uploadFile('/blog', formData);
+
+   
+    if (response && response.success) {
+      console.log(" SERVER SAVED DATA:", response.data); 
+      
+      showToast(response.message || 'Blog post created successfully!'); 
+      
+    
+      resetForm();
+    }
+
+  } catch (err) {
+    console.error('Publish Error:', err);
+    let errorMsg = err.response?.data?.message || err.message || 'An unexpected error occurred';
+    
+    setPublishError(errorMsg);
+    showToast(errorMsg, 'error');
+  } finally {
+    setIsPublishing(false);
+  }
+}, [title, content, metaDescription, tags, imageUrl, status]);
   return (
     <div className='space-y-4 md:space-y-6'>
       {/* Header */}
@@ -255,14 +203,13 @@ export default function BlogEditor({ params }) {
             {blogEditorTranslations.title}
           </h1>
           <div className='flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto'>
-
             <button
               onClick={handlePublish}
               type='button'
               disabled={isPublishing}
-              className="inline-flex items-center rounded-md bg-accent px-5 py-2 text-base font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center rounded-md bg-accent px-5 py-2 text-base font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/90 transition-colors"
             >
-              <Send size={16} className='sm:w-[18px] sm:h-[18px]' />
+              <Send size={16} className='sm:w-[18px] sm:h-[18px] mr-2' />
               <span className='whitespace-nowrap'>
                 {isPublishing ? 'Publishing...' : blogEditorTranslations.publish}
               </span>
@@ -276,7 +223,7 @@ export default function BlogEditor({ params }) {
         {/* Left Column - Main Content (2/3) */}
         <div className='lg:col-span-2 space-y-4 md:space-y-6'>
           {/* Content Editor */}
-          <div className='bg-white border border-gray-200 rounded-lg p-4 sm:p-6'>
+          <div className='bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm'>
             <BlogContentEditor
               title={title}
               content={content}
@@ -324,6 +271,8 @@ export default function BlogEditor({ params }) {
           />
         </div>
       </div>
+      
+      {/* Cancel Confirmation Modal */}
       <Modal
         isOpen={showCancelModal}
         onClose={closeCancelModal}
@@ -333,7 +282,7 @@ export default function BlogEditor({ params }) {
             <button
               type='button'
               onClick={closeCancelModal}
-              className='px-4 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700'
+              className='px-4 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50'
             >
               {blogEditorTranslations.cancel}
             </button>
@@ -341,7 +290,7 @@ export default function BlogEditor({ params }) {
             <button
               type='button'
               onClick={confirmCancel}
-              className='px-4 py-2 bg-accent text-white rounded-md text-sm'
+              className='px-4 py-2 bg-accent text-white rounded-md text-sm hover:bg-accent/90'
             >
               OK
             </button>
@@ -352,6 +301,7 @@ export default function BlogEditor({ params }) {
           Are you sure you want to cancel? All unsaved changes will be lost.
         </div>
       </Modal>
+      
       <Toast />
     </div>
   );

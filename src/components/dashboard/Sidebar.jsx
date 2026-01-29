@@ -123,13 +123,13 @@ const navigationConfig = {
       href: "/dashboard/admin/users",
       icon: Users,
     },
-    
+
     {
       key: "dashboard.admin.propertiesLink",
       href: "/dashboard/admin/properties",
       icon: Building2,
     },
-    
+
 
     // {
     //   key: 'dashboard.admin.mediaLibrary',
@@ -158,11 +158,11 @@ const navigationConfig = {
       href: "/dashboard/admin/blog-editor",
       icon: FileText,
     },
-    {
-      key: "Supports Requests",
-      href: "/dashboard/admin/supports",
-      icon: HelpCircle,
-    },
+    // {
+    //   key: "Supports Requests",
+    //   href: "/dashboard/admin/supports",
+    //   icon: HelpCircle,
+    // },
     {
       key: "Partner Directory",
       href: "/dashboard/admin/partner-directory",
@@ -200,10 +200,15 @@ const navigationConfig = {
       href: "/dashboard/user/appointments",
       icon: Calendar,
     },
+    // {
+    //   key: "dashboard.client.tickets",
+    //   href: "/dashboard/user/tickets",
+    //   icon: MessageSquare,
+    // },
     {
-      key: "dashboard.client.tickets",
-      href: "/dashboard/user/tickets",
-      icon: MessageSquare,
+      key: "Notifications",
+      href: "/dashboard/user/notifications",
+      icon: Bell,
     },
     // {
     //   key: 'dashboard.client.settings',
@@ -261,7 +266,7 @@ const navigationConfig = {
     },
     {
       key: "Notifications",
-      href: "/dashboard/partner/notifications",
+      href: "/dashboard/sponsor/notifications",
       icon: Bell,
     },
     {
@@ -269,11 +274,11 @@ const navigationConfig = {
       href: "/dashboard/sponsor/submit",
       icon: Calendar,
     },
-    {
-      key: "Assets",
-      href: "/dashboard/sponsor/assets",
-      icon: Image,
-    },
+    // {
+    //   key: "Assets",
+    //   href: "/dashboard/sponsor/assets",
+    //   icon: Image,
+    // },
     {
       key: "Approvals",
       href: "/dashboard/sponsor/approvals",
@@ -329,10 +334,7 @@ const navigationConfig = {
   ],
 };
 
-/**
- * Sidebar Navigation Component
- * Production-grade responsive sidebar with mobile menu and client-side language switching
- */
+
 export default function Sidebar({ role = "admin" }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
@@ -340,7 +342,6 @@ export default function Sidebar({ role = "admin" }) {
   const { t } = useTranslation(locale);
   const router = useRouter();
   const searchParams = useSearchParams();
-  // const { t } = useMemo(() => useTranslation(locale), [locale]);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -348,8 +349,7 @@ export default function Sidebar({ role = "admin" }) {
   const dropdownRef = useRef(null);
   const [expandedMenu, setExpandedMenu] = useState(null);
 
-  // Decide which navigation set to render.
-  // For partners we may render different menus depending on subrole or path.
+
   const navigationItems = useMemo(() => {
     // Non-partner roles use the static mapping
     if (role !== "partner") return navigationConfig[role] || [];
@@ -358,13 +358,14 @@ export default function Sidebar({ role = "admin" }) {
     const partnerViewFromPath = pathname?.includes("/dashboard/sponsor")
       ? "sponsor"
       : pathname?.includes("/dashboard/concierge")
-      ? "concierge"
-      : null;
+        ? "concierge"
+        : null;
 
-    const effectiveView = partnerViewFromPath || user?.subrole || "partner";
+    // subrole overrides are removed; partner view is determined solely by path
+    const effectiveView = partnerViewFromPath || "partner";
 
     return navigationConfig[effectiveView] || navigationConfig.partner;
-  }, [role, pathname, user?.subrole]);
+  }, [role, pathname]);
 
   // Close mobile menu when route changes
   if (pathname !== prevPathname) {
@@ -407,13 +408,7 @@ export default function Sidebar({ role = "admin" }) {
   const isActiveLink = (href) => {
     const fullHref = `/${locale}${href}`;
     if (href === `/dashboard/${role}`) {
-      // For the base dashboard link (e.g. /dashboard/partner) we normally
-      // only mark it active for the exact route. However the partner
-      // properties UI lives at /dashboard/partner and also under
-      // /dashboard/partner/properties/* (for example when adding a
-      // property). Treat those properties subroutes as active for the
-      // base partner link so the sidebar highlights "Properties" when
-      // the user is on either route.
+
       if (role === "partner") {
         return (
           pathname === fullHref || pathname.startsWith(`${fullHref}/properties`)
@@ -561,25 +556,22 @@ export default function Sidebar({ role = "admin" }) {
                     className={`
                       group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-left
                       transition-all duration-200 ease-in-out
-                      ${
-                        parentActive
-                          ? "bg-[#1E3A5F] text-white shadow-sm"
-                          : "text-gray-300 hover:bg-[#1A2B42] hover:text-white"
+                      ${parentActive
+                        ? "bg-[#1E3A5F] text-white shadow-sm"
+                        : "text-gray-300 hover:bg-[#1A2B42] hover:text-white"
                       }
                     `}
                   >
                     <Icon
-                      className={`h-5 w-5 shrink-0 ${
-                        parentActive
+                      className={`h-5 w-5 shrink-0 ${parentActive
                           ? "text-[#E6B325]"
                           : "text-gray-400 group-hover:text-gray-300"
-                      }`}
+                        }`}
                     />
                     <span className="flex-1 truncate">{t(item.key)}</span>
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
-                        isExpanded ? "rotate-180" : ""
-                      } text-gray-400`}
+                      className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""
+                        } text-gray-400`}
                     />
                   </button>
 
@@ -608,19 +600,17 @@ export default function Sidebar({ role = "admin" }) {
                               className={`
                                 group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
                                 transition-all duration-200 ease-in-out
-                                ${
-                                  childActive
-                                    ? "bg-[#183044] text-white"
-                                    : "text-gray-300 hover:bg-[#122033] hover:text-white"
+                                ${childActive
+                                  ? "bg-[#183044] text-white"
+                                  : "text-gray-300 hover:bg-[#122033] hover:text-white"
                                 }
                               `}
                             >
                               <ChildIcon
-                                className={`h-4 w-4 shrink-0 ${
-                                  childActive
+                                className={`h-4 w-4 shrink-0 ${childActive
                                     ? "text-[#E6B325]"
                                     : "text-gray-400"
-                                }`}
+                                  }`}
                               />
                               <span className="flex-1 truncate">
                                 {t(child.key)}
@@ -642,20 +632,18 @@ export default function Sidebar({ role = "admin" }) {
                   className={`
                     group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
                     transition-all duration-200 ease-in-out
-                    ${
-                      isActive
-                        ? "bg-[#1E3A5F] text-white shadow-sm"
-                        : "text-gray-300 hover:bg-[#1A2B42] hover:text-white"
+                    ${isActive
+                      ? "bg-[#1E3A5F] text-white shadow-sm"
+                      : "text-gray-300 hover:bg-[#1A2B42] hover:text-white"
                     }
                   `}
                 >
                   <Icon
                     className={`
                       h-5 w-5 shrink-0 transition-colors
-                      ${
-                        isActive
-                          ? "text-[#E6B325]"
-                          : "text-gray-400 group-hover:text-gray-300"
+                      ${isActive
+                        ? "text-[#E6B325]"
+                        : "text-gray-400 group-hover:text-gray-300"
                       }
                     `}
                   />

@@ -67,6 +67,9 @@ export default function BuyPage() {
       // only show SALE listings
       if (property.listingType && property.listingType.toUpperCase() !== 'SALE') return false;
 
+      // only show listings that have been approved by admin
+      if ((property.approvalStatus || '').toUpperCase() !== 'APPROVED') return false;
+
       // City filter
       if (filters.city && filters.city !== 'any') {
         if (!property.city || property.city.toLowerCase() !== filters.city.toLowerCase()) return false;

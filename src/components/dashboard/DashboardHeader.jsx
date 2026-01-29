@@ -17,15 +17,13 @@ import NotificationButton from "./NotificationButton";
  * Production-grade responsive header with user info
  */
 export default function DashboardHeader({ title }) {
-  const { user, setPartnerSubrole } = useAuth();
+  const { user } = useAuth();
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "en";
   const { t } = useTranslation(locale);
-  // Show the partner dropdown on partner area as well as sponsor/concierge sub-dashboards
-  const isPartner =
-    pathname?.includes("/dashboard/partner") ||
-    pathname?.includes("/dashboard/sponsor") ||
-    pathname?.includes("/dashboard/concierge");
+  // Show the partner dropdown only for listing partners (role === 'partner').
+  // Concierge and Sponsor partners should not see the dropdown.
+  const isPartner = user?.role === 'partner';
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const router = useRouter();
@@ -85,8 +83,6 @@ export default function DashboardHeader({ title }) {
                       role="menuitem"
                       tabIndex={0}
                       onClick={() => {
-                        // Clear partner subrole (default listing view)
-                        setPartnerSubrole(null);
                         setOpen(false);
                         router.push(`/${locale}/dashboard/partner`);
                       }}
@@ -107,7 +103,6 @@ export default function DashboardHeader({ title }) {
                       role="menuitem"
                       tabIndex={0}
                       onClick={() => {
-                        setPartnerSubrole('sponsor');
                         setOpen(false);
                         router.push(`/${locale}/dashboard/sponsor`);
                       }}
@@ -128,7 +123,6 @@ export default function DashboardHeader({ title }) {
                       role="menuitem"
                       tabIndex={0}
                       onClick={() => {
-                        setPartnerSubrole('concierge');
                         setOpen(false);
                         router.push(`/${locale}/dashboard/concierge`);
                       }}

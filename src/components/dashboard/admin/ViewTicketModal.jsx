@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 /**
@@ -10,6 +11,20 @@ import { X } from 'lucide-react';
  */
 export default function ViewTicketModal({ open, ticket, onClose }) {
   if (!open || !ticket) return null;
+
+  const handleCancel = () => {
+    if (onClose) onClose();
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') handleCancel();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Format date
   const formatDate = (dateString) => {
@@ -49,8 +64,8 @@ export default function ViewTicketModal({ open, ticket, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div onClick={handleCancel} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">

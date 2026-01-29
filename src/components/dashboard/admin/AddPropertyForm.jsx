@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { uploadFile } from "../../../lib/api";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -40,6 +41,7 @@ export default function AddPropertyForm({
   const [showCustomAlert, setShowCustomAlert] = useState(false);
   const [imagePreviews, setImagePreviews] = useState([]);
   const imagesRef = useRef(null);
+  const router = useRouter();
 
   // --- Location Logic States ---
   const [countries, setCountries] = useState([]);
@@ -94,7 +96,7 @@ export default function AddPropertyForm({
       try {
         const response = await fetch('https://countriesnow.space/api/v0.1/countries/positions');
         const data = await response.json();
-        
+
         if (!data.error) {
           // Sorting countries alphabetically
           const countryList = data.data.map(c => ({ name: c.name, iso2: c.iso2 })).sort((a, b) => a.name.localeCompare(b.name));
@@ -104,7 +106,7 @@ export default function AddPropertyForm({
         }
       } catch (err) {
         console.error("API failed, using backup data for Countries");
-        const backupCountries = Object.keys(backupData).map(name => ({ name, iso2: name.substring(0,2).toUpperCase() }));
+        const backupCountries = Object.keys(backupData).map(name => ({ name, iso2: name.substring(0, 2).toUpperCase() }));
         setCountries(backupCountries);
       } finally {
         setLocationLoading(false);
@@ -124,16 +126,16 @@ export default function AddPropertyForm({
 
   const handleCountryChange = async (e) => {
     const countryName = e.target.value;
-    
+
     // Update form state and reset dependent fields
-    setForm(s => ({ 
-      ...s, 
+    setForm(s => ({
+      ...s,
       country: countryName,
       state: "",
       city: "",
-      zipCode: "" 
+      zipCode: ""
     }));
-    
+
     setStates([]);
     setCities([]);
     setZipCodes([]);
@@ -154,7 +156,7 @@ export default function AddPropertyForm({
         body: JSON.stringify({ country: countryName })
       });
       const data = await response.json();
-      
+
       if (!data.error && data.data.states.length > 0) {
         setStates(data.data.states);
       } else {
@@ -169,14 +171,14 @@ export default function AddPropertyForm({
 
   const handleStateChange = async (e) => {
     const stateName = e.target.value;
-    
-    setForm(s => ({ 
-      ...s, 
+
+    setForm(s => ({
+      ...s,
       state: stateName,
       city: "",
-      zipCode: "" 
+      zipCode: ""
     }));
-    
+
     setCities([]);
     setZipCodes([]);
 
@@ -196,7 +198,7 @@ export default function AddPropertyForm({
         body: JSON.stringify({ country: form.country, state: stateName })
       });
       const data = await response.json();
-      
+
       if (!data.error && data.data.length > 0) {
         setCities(data.data.map(city => ({ name: city })));
       } else {
@@ -211,25 +213,25 @@ export default function AddPropertyForm({
 
   const handleCityChange = (e) => {
     const cityName = e.target.value;
-    
-    setForm(s => ({ 
-      ...s, 
+
+    setForm(s => ({
+      ...s,
       city: cityName,
-      zipCode: "" 
+      zipCode: ""
     }));
-    
+
     setZipCodes([]);
 
-    if (backupData[form.country] && 
-        backupData[form.country][form.state] && 
-        backupData[form.country][form.state][cityName]) {
+    if (backupData[form.country] &&
+      backupData[form.country][form.state] &&
+      backupData[form.country][form.state][cityName]) {
       setZipCodes(backupData[form.country][form.state][cityName]);
     } else {
       // Mock logic for API-fetched cities
       const mockZip = Math.floor(1000 + Math.random() * 9000);
       setZipCodes([
-        `${mockZip}`, 
-        `${mockZip + 15}`, 
+        `${mockZip}`,
+        `${mockZip + 15}`,
         `${mockZip + 42}`
       ]);
     }
@@ -362,7 +364,7 @@ export default function AddPropertyForm({
 
       // Use the endpoint as-is since axios baseURL is already set
       const endpoint = apiEndpoint || "/properties";
-      
+
       console.log("Submitting to:", endpoint);
       console.log("Form data:", {
         title: form.title,
@@ -406,8 +408,30 @@ export default function AddPropertyForm({
 
   return (
     <div className="p-4 sm:px-6">
+      {/* Back button */}
+      <div className="mb-4">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
+          aria-label="Go back"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          <span>Back</span>
+        </button>
+      </div>
       <div className="mx-auto">
-        {/* <h1 className="text-2xl font-bold mb-4">Create Property Listing</h1> */}
+
 
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           {/* Custom success alert */}
@@ -601,7 +625,7 @@ export default function AddPropertyForm({
                       </p>
                     )}
                   </div>
-                  
+
                   {/* Address field commented out per request - kept in state but hidden} */}
                   <div>
                     <label
@@ -944,7 +968,7 @@ export default function AddPropertyForm({
                     Images *{" "}
                     <span className="text-xs text-gray-500 ml-1">required</span>
                   </label>
-                  
+
                   {/* Custom drag-and-drop upload area */}
                   <div
                     onClick={() => imagesRef.current?.click()}
@@ -974,7 +998,7 @@ export default function AddPropertyForm({
                       onChange={handleImagesChange}
                       className="hidden"
                     />
-                    
+
                     <div className="flex flex-col items-center justify-center space-y-3">
                       {/* Upload Icon */}
                       <div className="w-16 h-16 rounded-full bg-gray-100 group-hover:bg-[#d4af37]/10 flex items-center justify-center transition-colors">
@@ -982,7 +1006,7 @@ export default function AddPropertyForm({
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
                       </div>
-                      
+
                       {/* Text */}
                       <div>
                         <p className="text-base font-medium text-gray-700">
@@ -992,7 +1016,7 @@ export default function AddPropertyForm({
                           PNG, JPG, JPEG up to 10MB each
                         </p>
                       </div>
-                      
+
                       {/* Selected count */}
                       {imagePreviews.length > 0 && (
                         <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[#d4af37]/10 text-[#d4af37]">
@@ -1001,7 +1025,7 @@ export default function AddPropertyForm({
                       )}
                     </div>
                   </div>
-                  
+
                   {errors.images && (
                     <p className="mt-2 text-xs text-red-600 flex items-center gap-1">
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1010,7 +1034,7 @@ export default function AddPropertyForm({
                       {errors.images}
                     </p>
                   )}
-                  
+
                   {/* Image Previews */}
                   {imagePreviews.length > 0 && (
                     <div className="mt-6">
@@ -1029,7 +1053,7 @@ export default function AddPropertyForm({
                                 alt={`preview-${i}`}
                                 className="w-full h-full object-cover"
                               />
-                              
+
                               {/* First image badge */}
                               {i === 0 && (
                                 <div className="absolute top-2 left-2">
@@ -1038,7 +1062,7 @@ export default function AddPropertyForm({
                                   </span>
                                 </div>
                               )}
-                              
+
                               {/* Remove button */}
                               <button
                                 type="button"
@@ -1072,7 +1096,7 @@ export default function AddPropertyForm({
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                        onClick={() => {
+                      onClick={() => {
                         setForm(initialState);
                         imagePreviews.forEach((p) => URL.revokeObjectURL(p));
                         setImagePreviews([]);
@@ -1085,11 +1109,10 @@ export default function AddPropertyForm({
                     <button
                       type="submit"
                       disabled={loading}
-                      className={`px-5 py-2 rounded-md font-semibold ${
-                        loading
-                          ? "bg-gray-300 text-gray-700"
-                          : "bg-[#d4af37] text-white"
-                      }`}
+                      className={`px-5 py-2 rounded-md font-semibold ${loading
+                        ? "bg-gray-300 text-gray-700"
+                        : "bg-[#d4af37] text-white"
+                        }`}
                     >
                       {loading ? "Saving..." : "Save Property"}
                     </button>

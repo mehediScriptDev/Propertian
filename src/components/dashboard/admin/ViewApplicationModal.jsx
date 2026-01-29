@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 /**
@@ -9,6 +10,18 @@ import { X } from 'lucide-react';
  * @param {function} onClose - Close handler
  */
 export default function ViewApplicationModal({ open, application, onClose }) {
+  const backdropRef = useRef(null);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose?.();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
   if (!open || !application) return null;
 
   // Format date
@@ -35,7 +48,14 @@ export default function ViewApplicationModal({ open, application, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div
+      ref={backdropRef}
+      onMouseDown={(e) => {
+        // close when clicking on backdrop only (not when clicking inside modal)
+        if (e.target === e.currentTarget) onClose?.();
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    >
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-gray-200">
@@ -113,9 +133,9 @@ export default function ViewApplicationModal({ open, application, onClose }) {
           {application.website && (
             <div>
               <h3 className="text-sm font-medium text-gray-500 mb-2">Website</h3>
-              <a 
-                href={application.website} 
-                target="_blank" 
+              <a
+                href={application.website}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-base text-blue-600 hover:text-blue-800 underline"
               >

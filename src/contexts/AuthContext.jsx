@@ -31,11 +31,9 @@ export function AuthProvider({ children }) {
       const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
       if (parsedUser) {
-        // If a developer override for partner subrole exists in localStorage,
-        // apply it to the user object for UI-only toggles (dev/testing only).
-        const devSubrole = typeof window !== 'undefined' ? window.localStorage.getItem('dev_partner_subrole') : null;
-        const userWithSubrole = devSubrole ? { ...parsedUser, subrole: devSubrole } : parsedUser;
-        setUser(userWithSubrole);
+        // Use the stored backend-derived role as authoritative. Do not apply
+        // localStorage subrole overrides — those subroles have been removed.
+        setUser(parsedUser);
       }
       setLoading(false);
     });
@@ -47,16 +45,21 @@ export function AuthProvider({ children }) {
    * Frontend: user, admin, partner
    */
   const mapRoleToFrontend = (backendRole) => {
-    // Normalize the role to lowercase for comparison
-    const normalizedRole = backendRole?.toLowerCase().replace(/_/g, '');
+    if (!backendRole) return 'user';
+    const normalized = String(backendRole).toLowerCase();
 
-    const roleMapping = {
-      user: 'user',
-      superadmin: 'admin',
-      partner: 'partner',
-    };
+    // Map backend role names directly. Backend may return one of:
+    // - 'user'
+    // - 'SUPER_ADMIN' / 'superadmin' -> map to 'admin'
+    // - 'SPONSOR', 'CONCIERGE_PARTNER', 'PARTNER' -> keep as-is (lowercased)
+    if (normalized.includes('super')) return 'admin';
+    if (normalized === 'sponsor') return 'sponsor';
+    if (normalized === 'concierge_partner' || normalized === 'concierge-partner' || normalized === 'conciergepartner') return 'concierge_partner';
+    if (normalized === 'partner') return 'partner';
+    if (normalized === 'user') return 'user';
 
-    return roleMapping[normalizedRole] || 'user';
+    // Fallback to 'user' for unknown roles
+    return 'user';
   };
 
   /**
@@ -133,24 +136,18 @@ export function AuthProvider({ children }) {
 
       setUser(userData);
 
-      // Determine redirect destination:
-      // - If a `redirect` query param exists (set by middleware when protecting pages), use it
-      // - Otherwise send the user to their role dashboard
+      // Determine redirect destination based on frontend role.
       const locale = pathname.split('/')[1] || 'en';
-      const dashboardRoutes = {
-        admin: `/${locale}/dashboard/admin`,
-        user: `/${locale}/dashboard/user`,
-        partner: `/${locale}/dashboard/partner`,
-      };
+      let dest = `/${locale}/dashboard/user`;
+      if (frontendRole === 'admin') dest = `/${locale}/dashboard/admin`;
+      if (frontendRole === 'sponsor') dest = `/${locale}/dashboard/sponsor`;
+      if (frontendRole === 'concierge_partner') dest = `/${locale}/dashboard/concierge`;
+      if (frontendRole === 'partner') dest = `/${locale}/dashboard/partner`;
 
       const redirectParam = searchParams?.get?.('redirect');
-      // Only allow same-origin absolute paths to avoid open-redirect issues
-      const safeRedirect =
-        redirectParam && typeof redirectParam === 'string' && redirectParam.startsWith('/')
-          ? redirectParam
-          : null;
+      const safeRedirect = redirectParam && typeof redirectParam === 'string' && redirectParam.startsWith('/') ? redirectParam : null;
 
-      router.push(safeRedirect || dashboardRoutes[frontendRole]);
+      router.push(safeRedirect || dest);
       return userData;
     } catch (error) {
       // Clear any temporary data on error (ensure same path used when setting)
@@ -221,8 +218,11 @@ export function AuthProvider({ children }) {
       console.warn('devImpersonate is only available in development');
       return;
     }
-
     const locale = pathname.split('/')[1] || 'en';
+
+    // Default to 'partner' role but accept a backend role string via email param
+    // (dev usage). Example: devImpersonate('dev@local', 'dev123', 'SPONSOR')
+    const devRole = 'partner';
 
     const userData = {
       id: 'dev-partner',
@@ -231,19 +231,17 @@ export function AuthProvider({ children }) {
       lastName: 'Partner',
       fullName: 'Dev Partner',
       phone: null,
-      role: 'partner',
-      backendRole: 'partner',
+      role: devRole,
+      backendRole: devRole,
       avatar: null,
       isVerified: true,
       isActive: true,
     };
 
-    // Set a dummy token and user cookie so middleware/client reads them
     Cookies.set('token', 'dev-token', { expires: 1, sameSite: 'Lax', path: '/' });
     Cookies.set('user', JSON.stringify(userData), { expires: 1, sameSite: 'Lax', path: '/' });
 
     setUser(userData);
-    // Navigate to partner dashboard
     router.push(`/${locale}/dashboard/partner`);
   };
 
@@ -266,17 +264,7 @@ export function AuthProvider({ children }) {
    * Set partner subrole (dev-only/local override).
    * Persists to localStorage and updates user state/cookie for immediate UI changes.
    */
-  const setPartnerSubrole = (subrole) => {
-    if (typeof window !== 'undefined') {
-      if (subrole) {
-        window.localStorage.setItem('dev_partner_subrole', subrole);
-      } else {
-        window.localStorage.removeItem('dev_partner_subrole');
-      }
-    }
-
-    updateUserData({ subrole });
-  };
+  // NOTE: subrole overrides have been removed. Role should come from backend.
 
   /**
    * Check if user has required role
@@ -291,7 +279,6 @@ export function AuthProvider({ children }) {
     user,
     setUser,
     updateUserData,
-    setPartnerSubrole,
     login,
     logout,
     register,

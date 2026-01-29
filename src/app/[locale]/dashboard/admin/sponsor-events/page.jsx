@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useMemo, useCallback } from 'react';
+import { use, useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from '@/i18n';
 import { Calendar, Eye, CheckCircle, Play, XCircle } from 'lucide-react';
 import StatsCard from '@/components/dashboard/admin/StatsCard';
@@ -10,108 +10,9 @@ import ViewEventRequestModal from '@/components/dashboard/admin/ViewEventRequest
 import ApproveEventModal from '@/components/dashboard/admin/ApproveEventModal';
 import GoLiveModal from '@/components/dashboard/admin/GoLiveModal';
 import RejectEventModal from '@/components/dashboard/admin/RejectEventModal';
+import axios from '@/lib/axios';
 
-// Mock sponsor event request data
-const MOCK_EVENT_REQUESTS = [
-  {
-    id: 'evt001',
-    event_title: 'Luxury Property Investment Seminar',
-    sponsor_name: 'Luxury Real Estate Group',
-    event_type: 'Seminar',
-    requested_date: '2026-02-15T14:00:00Z',
-    submitted_date: '2026-01-08T10:30:00Z',
-    location: 'Grand Hotel Conference Center, New York',
-    status: 'new',
-    expected_attendees: '150',
-    description: 'An exclusive seminar focused on luxury property investment strategies for high-net-worth individuals. Topics include market trends, portfolio diversification, and tax optimization.',
-    target_audience: 'High-net-worth individuals, investors, real estate professionals',
-    cover_image: null,
-  },
-  {
-    id: 'evt002',
-    event_title: 'Sustainable Housing Webinar',
-    sponsor_name: 'Modern Living Developments',
-    event_type: 'Webinar',
-    requested_date: '2026-02-20T16:00:00Z',
-    submitted_date: '2026-01-07T14:20:00Z',
-    status: 'approved',
-    location: 'Online (Zoom)',
-    expected_attendees: '300',
-    description: 'Join us for an interactive webinar on sustainable housing solutions and green building practices. Learn about eco-friendly materials, energy efficiency, and LEED certification.',
-    target_audience: 'Developers, architects, environmentally conscious buyers',
-    cover_image: null,
-  },
-  {
-    id: 'evt003',
-    event_title: 'Real Estate Investor Networking Night',
-    sponsor_name: 'Global Property Solutions',
-    event_type: 'Networking',
-    requested_date: '2026-02-10T18:00:00Z',
-    submitted_date: '2026-01-06T09:15:00Z',
-    status: 'in_review',
-    location: 'Sky Lounge, London',
-    expected_attendees: '100',
-    description: 'Connect with fellow real estate investors, developers, and industry professionals in an exclusive networking event. Share insights, discover opportunities, and build valuable relationships.',
-    target_audience: 'Real estate investors, developers, brokers',
-    cover_image: null,
-  },
-  {
-    id: 'evt004',
-    event_title: 'First-Time Homebuyer Workshop',
-    sponsor_name: 'Prime Properties International',
-    event_type: 'Workshop',
-    requested_date: '2026-03-05T10:00:00Z',
-    submitted_date: '2026-01-10T11:30:00Z',
-    status: 'new',
-    location: 'Community Center, Sydney',
-    expected_attendees: '75',
-    description: 'A comprehensive workshop designed for first-time homebuyers. Learn about mortgage options, home inspection, negotiation strategies, and the buying process from start to finish.',
-    target_audience: 'First-time homebuyers, young professionals',
-    cover_image: null,
-  },
-  {
-    id: 'evt005',
-    event_title: 'Commercial Real Estate Summit',
-    sponsor_name: 'Skyline Realty Partners',
-    event_type: 'Seminar',
-    requested_date: '2026-03-18T09:00:00Z',
-    submitted_date: '2026-01-09T13:00:00Z',
-    status: 'live',
-    location: 'Chicago Convention Center',
-    expected_attendees: '500',
-    description: 'Annual commercial real estate summit featuring keynote speakers, panel discussions, and networking opportunities. Topics include office space trends, retail transformation, and industrial logistics.',
-    target_audience: 'Commercial real estate professionals, investors, developers',
-    cover_image: null,
-  },
-  {
-    id: 'evt006',
-    event_title: 'Property Management Best Practices',
-    sponsor_name: 'Urban Development Corp',
-    event_type: 'Workshop',
-    requested_date: '2026-02-25T13:00:00Z',
-    submitted_date: '2026-01-05T16:45:00Z',
-    status: 'rejected',
-    location: 'Business Center, Miami',
-    expected_attendees: '50',
-    description: 'Rejected due to incomplete sponsor information and unclear event objectives.',
-    target_audience: 'Property managers, landlords',
-    cover_image: null,
-  },
-  {
-    id: 'evt007',
-    event_title: 'Future of Smart Homes',
-    sponsor_name: 'Modern Living Developments',
-    event_type: 'Webinar',
-    requested_date: '2026-03-12T15:00:00Z',
-    submitted_date: '2026-01-11T10:00:00Z',
-    status: 'need_changes',
-    location: 'Online (Microsoft Teams)',
-    expected_attendees: '200',
-    description: 'Explore the latest smart home technologies and automation systems. Needs revision on technical specifications and target audience definition.',
-    target_audience: 'Homeowners, tech enthusiasts, developers',
-    cover_image: null,
-  },
-];
+// Event requests will be fetched from the API instead of using mock data
 
 export default function SponsorEventsPage({ params }) {
   const { locale } = use(params);
@@ -127,9 +28,50 @@ export default function SponsorEventsPage({ params }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
-  // State for event requests (using mock data)
-  const [eventRequestsData, setEventRequestsData] = useState(MOCK_EVENT_REQUESTS);
+  // State for event requests (fetched from API)
+  const [eventRequestsData, setEventRequestsData] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchRequests = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get('/events/admin/pending-approval', { params: { page: 1, limit: 100 } });
+        const raw = res?.data;
+        let items = [];
+        if (Array.isArray(raw)) items = raw;
+        else if (Array.isArray(raw?.data)) items = raw.data;
+        else if (Array.isArray(raw?.data?.items)) items = raw.data.items;
+        else if (Array.isArray(raw?.items)) items = raw.items;
+        else items = [];
+
+        const mapped = items.map((ev) => ({
+          id: ev?.id || ev?._id || ev?.eventId,
+          event_title: ev?.title || ev?.name || ev?.event_title || 'Untitled',
+          sponsor_name: ev?.sponsor?.name || ev?.sponsor_name || (ev.creator && `${ev.creator.firstName || ''} ${ev.creator.lastName || ''}`) || '—',
+          event_type: ev?.eventType || ev?.type || ev?.event_type || '—',
+          requested_date: ev?.eventDate || ev?.requested_date || ev?.requestedDate || ev?.startDateTime || ev?.start || null,
+          submitted_date: ev?.createdAt || ev?.submitted_date || ev?.created_at || null,
+          status: (ev?.approvalStatus || ev?.status || ev?.state || 'new'),
+          location: ev?.location || ev?.venue || ev?.address || '',
+          expected_attendees: ev?.expectedAttendees || ev?.expected_attendees || ev?.expected || '',
+          description: ev?.description || ev?.details || '',
+          target_audience: ev?.target_audience || ev?.targetAudience || '',
+          cover_image: ev?.image || (Array.isArray(ev?.images) && ev.images[0]) || ev?.cover_image || null,
+        }));
+
+        if (mounted) setEventRequestsData(mapped);
+      } catch (err) {
+        console.error('Failed to fetch sponsor event requests', err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchRequests();
+    return () => { mounted = false; };
+  }, []);
 
   // Modal states
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -237,18 +179,16 @@ export default function SponsorEventsPage({ params }) {
   // Modal handlers
   const handleApproveConfirm = useCallback((details) => {
     if (!approveEvent) return;
-
-    // Update event request status to approved
+    // Update event request status to approved in real-time
     setEventRequestsData((prev) =>
       prev.map((e) =>
-        e.id === approveEvent.id 
-          ? { 
-              ...e, 
-              status: 'approved',
-              final_date: details.finalDate,
-              placement: details.placement,
-              visibility: details.visibility,
-            } 
+        e.id === approveEvent.id
+          ? {
+            ...e,
+            status: 'approved',
+            approvalStatus: 'APPROVED',
+            ...details,
+          }
           : e
       )
     );

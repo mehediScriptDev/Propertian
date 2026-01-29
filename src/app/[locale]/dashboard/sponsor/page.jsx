@@ -17,8 +17,6 @@ import {
   Filter,
   Home,
   TrendingUp,
-  EyeIcon,
-  EyeOff,
   Edit,
   Trash2,
 } from "lucide-react";
@@ -48,7 +46,7 @@ export default function PartnerDashboardPage({ params }) {
   const [editForm, setEditForm] = useState({ title: "", price: "", status: "" });
   const [editing, setEditing] = useState(false);
   const closeModal = () => setSelectedProperty(null);
-  
+
 
   // Stats data matching admin dashboard style with SAME colors
   const [statsData, setStatsData] = useState([
@@ -66,9 +64,9 @@ export default function PartnerDashboardPage({ params }) {
       variant: "primary",
       icon: Home,
     },
-    
+
     {
-      title:"Total registrations",
+      title: "Total registrations",
       value: 0,
       trend: "",
       variant: "info",
@@ -83,7 +81,7 @@ export default function PartnerDashboardPage({ params }) {
     },
   ]);
 
-  // Fetch partner dashboard stats and inquiries count together and populate stat cards
+
   useEffect(() => {
     const fetchStatsAndInquiries = async () => {
       try {
@@ -102,34 +100,34 @@ export default function PartnerDashboardPage({ params }) {
 
         setStatsData([
           {
-      title: "Total views",
-      value: 0,
-      trend: "",
-      variant: "success",
-      icon: TrendingUp,
-    },
-    {
-      title: "Total clicks",
-      value: 0,
-      trend: "",
-      variant: "primary",
-      icon: Home,
-    },
-    
-    {
-      title:"Total registrations",
-      value: 0,
-      trend: "",
-      variant: "info",
-      icon: Eye,
-    },
-    {
-      title: "Cancellations",
-      value: 0,
-      trend: "",
-      variant: "warning",
-      icon: MessageSquare,
-    },
+            title: "Total views",
+            value: 0,
+            trend: "",
+            variant: "success",
+            icon: TrendingUp,
+          },
+          {
+            title: "Total clicks",
+            value: 0,
+            trend: "",
+            variant: "primary",
+            icon: Home,
+          },
+
+          {
+            title: "Total registrations",
+            value: 0,
+            trend: "",
+            variant: "info",
+            icon: Eye,
+          },
+          {
+            title: "Cancellations",
+            value: 0,
+            trend: "",
+            variant: "warning",
+            icon: MessageSquare,
+          },
         ]);
       } catch (err) {
         console.error('Fetch partner stats or inquiries error', err);
@@ -145,13 +143,16 @@ export default function PartnerDashboardPage({ params }) {
       setLoading(true);
       setError(null);
       try {
-        const res = await get('/properties/user/my-properties', { params: { page: currentPage, limit: itemsPerPage } });
-        const data = res?.data || res;
-        setProperties(data?.properties || []);
-        setPagination(data?.pagination || { currentPage: 1, totalPages: 1, totalItems: data?.properties?.length || 0 });
+        // Fetch events for the sponsor
+        const res = await get('/events/my-events', { params: { page: currentPage, limit: itemsPerPage } });
+        const payload = res?.data || res;
+        // API shape: { success: true, data: [ ...events ] }
+        const events = payload?.data || payload || [];
+        setProperties(Array.isArray(events) ? events : []);
+        setPagination(payload?.pagination || { currentPage: 1, totalPages: 1, totalItems: (events && events.length) || 0 });
       } catch (err) {
-        console.error('Fetch properties error', err);
-        setError('Failed to load properties');
+        console.error('Fetch events error', err);
+        setError('Failed to load events');
         setProperties([]);
         setPagination({ currentPage: 1, totalPages: 1, totalItems: 0 });
       } finally {
@@ -368,118 +369,118 @@ export default function PartnerDashboardPage({ params }) {
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
                 {currentProperties.map((property) => (
-                <tr
-                  key={property.id}
-                  className="transition-colors hover:bg-gray-50"
-                >
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">
-                      {property.title}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      400
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
-                      400
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
-                      100
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${(property.status || "").toLowerCase() === "available"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                        }`}
-                    >
-                      {(property.status || "").charAt(0).toUpperCase() + (property.status || "").slice(1).toLowerCase()}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="inline-flex items-center gap-2">
-                      <button onClick={() => setSelectedProperty(property)} aria-label={t('Partner.ViewDetails') || 'View details'} className="p-1 rounded hover:bg-gray-100">
-                        <Eye className="h-4 w-4 text-[#6b7280]" />
-                      </button>
+                  <tr
+                    key={property.id}
+                    className="transition-colors hover:bg-gray-50"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="font-medium text-gray-900">
+                        {property.title}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        400
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
+                        400
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
+                        100
+                      </div>
+                    </td>
 
-                      <button onClick={() => openEditModal(property)} aria-label={t('Partner.Edit') || 'Edit'} className="p-1 rounded hover:bg-gray-100">
-                        <Edit className="h-4 w-4 text-[#6b7280]" />
-                      </button>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${(property.status || "").toLowerCase() === "available"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                          }`}
+                      >
+                        {(property.status || "").charAt(0).toUpperCase() + (property.status || "").slice(1).toLowerCase()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <button onClick={() => setSelectedProperty(property)} aria-label={t('Partner.ViewDetails') || 'View details'} className="p-1 rounded hover:bg-gray-100">
+                          <Eye className="h-4 w-4 text-[#6b7280]" />
+                        </button>
 
-                      <button onClick={() => handleDelete(property.id, property.title)} aria-label={t('Partner.Delete') || 'Delete'} className="p-1 rounded hover:bg-gray-100">
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        <button onClick={() => openEditModal(property)} aria-label={t('Partner.Edit') || 'Edit'} className="p-1 rounded hover:bg-gray-100">
+                          <Edit className="h-4 w-4 text-[#6b7280]" />
+                        </button>
+
+                        <button onClick={() => handleDelete(property.id, property.title)} aria-label={t('Partner.Delete') || 'Delete'} className="p-1 rounded hover:bg-gray-100">
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {/* Mobile Cards */}
         {!loading && (
           <div className="divide-y divide-gray-200 lg:hidden">
-          {currentProperties.map((property) => (
-            <div
-              key={property.id}
-              className="p-4 hover:bg-gray-50 transition-colors"
-            >
-              <div className="mb-3">
-                <h3 className="font-medium text-gray-900">{property.title}</h3>
-                <div className="mt-1 flex items-center gap-1 text-sm text-gray-600">
-                  <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                  {(property.address || "") + (property.city ? ", " + property.city : "")}
+            {currentProperties.map((property) => (
+              <div
+                key={property.id}
+                className="p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="mb-3">
+                  <h3 className="font-medium text-gray-900">{property.title}</h3>
+                  <div className="mt-1 flex items-center gap-1 text-sm text-gray-600">
+                    <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                    {(property.address || "") + (property.city ? ", " + property.city : "")}
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3 text-sm mb-3">
-                <div className="flex items-center gap-1 text-gray-600">
-                  <DollarSign className="h-3.5 w-3.5 text-gray-400" />
-                  <span className="font-medium">{property.price}</span>
+                <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                  <div className="flex items-center gap-1 text-gray-600">
+                    <DollarSign className="h-3.5 w-3.5 text-gray-400" />
+                    <span className="font-medium">{property.eventDate ? new Date(property.eventDate).toLocaleString() : '-'}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-gray-600">
+                    <Eye className="h-3.5 w-3.5 text-gray-400" />
+                    {property.location || property.city || '-'}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 text-gray-600">
-                  <Eye className="h-3.5 w-3.5 text-gray-400" />
-                  {property.views} views
-                </div>
-              </div>
 
-              <div className="flex items-center justify-between">
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${property.status === "available"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-yellow-100 text-yellow-800"
-                    }`}
-                >
-                  {property.status === "available" ? "Available" : "Pending"}
-                </span>
-                <div className="flex items-center gap-1 text-sm text-gray-600">
-                  <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
-                  {property._count?.inquiries ?? '-'} {t("Partner.inquiries")}
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${property.status === "available"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                      }`}
+                  >
+                    {property.status === "available" ? "Available" : "Pending"}
+                  </span>
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
+                    {property._count?.inquiries ?? '-'} {t("Partner.inquiries")}
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-end gap-2">
+                  <button onClick={() => setSelectedProperty(property)} className="p-1 rounded text-sm font-medium text-[#E6B325] hover:bg-gray-100">
+                    <Eye className="h-4 w-4 inline" />
+                  </button>
+                  <button onClick={() => openEditModal(property)} className="p-1 rounded hover:bg-gray-100">
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button onClick={() => handleDelete(property.id, property.title)} className="p-1 rounded hover:bg-gray-100">
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </button>
                 </div>
               </div>
-              <div className="mt-3 flex items-center justify-end gap-2">
-                <button onClick={() => setSelectedProperty(property)} className="p-1 rounded text-sm font-medium text-[#E6B325] hover:bg-gray-100">
-                  <Eye className="h-4 w-4 inline" />
-                </button>
-                <button onClick={() => openEditModal(property)} className="p-1 rounded hover:bg-gray-100">
-                  <Edit className="h-4 w-4" />
-                </button>
-                <button onClick={() => handleDelete(property.id, property.title)} className="p-1 rounded hover:bg-gray-100">
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         )}
 
         {/* Empty State */}
@@ -503,12 +504,12 @@ export default function PartnerDashboardPage({ params }) {
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
             translations={{
-              showing: t("Partner.Showing"),
-              to: t("Partner.to"),
-              of: 'out of',
-              results: t("Partner.results"),
-              previous: t("Partner.Previous"),
-              next: t("Partner.Next"),
+              pagination: {
+                showing: t("Partner.Showing") || 'Showing',
+                of: t("Partner.of") || 'of',
+                previous: t("Partner.Previous") || 'Previous',
+                next: t("Partner.Next") || 'Next',
+              },
             }}
           />
         )}
@@ -582,9 +583,9 @@ export default function PartnerDashboardPage({ params }) {
           {selectedProperty && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                {selectedProperty.images && selectedProperty.images.length > 0 ? (
+                {((selectedProperty.image && selectedProperty.image !== null) || (selectedProperty.images && selectedProperty.images.length > 0)) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={selectedProperty.images[0]} alt={selectedProperty.title} className="w-full h-56 md:h-64 object-cover rounded" />
+                  <img src={selectedProperty.image || (selectedProperty.images && selectedProperty.images[0])} alt={selectedProperty.title} className="w-full h-56 md:h-64 object-cover rounded" />
                 ) : (
                   <div className="w-full h-56 md:h-64 bg-gray-100 rounded flex items-center justify-center text-gray-400">{t('Partner.noImage') || 'No image'}</div>
                 )}
@@ -592,19 +593,14 @@ export default function PartnerDashboardPage({ params }) {
               <div className="text-sm text-gray-700">
                 <p className="text-gray-800 mb-3">{selectedProperty.description}</p>
                 <div className="space-y-2">
-                  <div><strong>{t('Partner.Address') || 'Address'}:</strong> {(selectedProperty.address || '') + (selectedProperty.state ? ", " + selectedProperty.state  : "" || '') + (selectedProperty.city ? ', ' + selectedProperty.city : '') + (selectedProperty.country ? ', ' + selectedProperty.country : '')}</div>
-                  <div><strong>{t('Partner.Price') || 'Price'}:</strong> {selectedProperty.price}</div>
-                  <div className="flex gap-4">
-                    <div><strong>{t('Partner.Bedrooms') || 'Bedrooms'}:</strong> {selectedProperty.bedrooms ?? '-'}</div>
-                    <div><strong>{t('Partner.Bathrooms') || 'Bathrooms'}:</strong> {selectedProperty.bathrooms ?? '-'}</div>
-                    <div><strong>{t('Partner.Sqft') || 'Sqft'}:</strong> {selectedProperty.sqft ?? '-'}</div>
-                  </div>
-                  <div>
-                    <strong>{t('Partner.Amenities') || 'Amenities'}:</strong>
-                    <ul className="list-disc ml-5 mt-1 text-sm">
-                      {(selectedProperty.amenities || []).map((a, i) => <li key={i}>{a}</li>)}
-                    </ul>
-                  </div>
+                  <div><strong>{t('Event.Date') || 'Event Date'}:</strong> {selectedProperty.eventDate ? new Date(selectedProperty.eventDate).toLocaleString() : '-'}</div>
+                  <div><strong>{t('Event.EndDate') || 'End Date'}:</strong> {selectedProperty.endDate ? new Date(selectedProperty.endDate).toLocaleString() : '-'}</div>
+                  <div><strong>{t('Event.Location') || 'Location'}:</strong> {(selectedProperty.location || '') + (selectedProperty.address ? ", " + selectedProperty.address : '') + (selectedProperty.city ? ', ' + selectedProperty.city : '') + (selectedProperty.country ? ', ' + selectedProperty.country : '')}</div>
+                  <div><strong>{t('Event.Capacity') || 'Capacity'}:</strong> {selectedProperty.capacity ?? '-'}</div>
+                  <div><strong>{t('Event.Type') || 'Type'}:</strong> {selectedProperty.eventType || selectedProperty.type || '-'}</div>
+                  <div><strong>{t('Event.Status') || 'Status'}:</strong> {selectedProperty.status || '-'}</div>
+                  <div><strong>{t('Event.Approval') || 'Approval Status'}:</strong> {selectedProperty.approvalStatus || '-'}</div>
+                  {selectedProperty.approvalNotes && (<div><strong>{t('Event.ApprovalNotes') || 'Approval Notes'}:</strong> {selectedProperty.approvalNotes}</div>)}
                 </div>
               </div>
             </div>

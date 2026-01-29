@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react'
 import Image from 'next/image'
-import { Eye, Trash2 } from 'lucide-react'
+import { Eye, X } from 'lucide-react'
 import axios from '@/lib/axios'
 import CustomAlert from '@/app/[locale]/dashboard/client/tickets/components/CustomAlert'
 
@@ -15,7 +15,7 @@ const statusClasses = (status) => {
     return 'bg-gray-100 text-gray-700'
 }
 
-export default function BookingTable({ bookings = [], loading = false, className = '', onView, onEdit, onDelete, onStatusChange }) {
+export default function BookingTable({ bookings = [], loading = false, className = '', onView, onEdit, onCancel, onStatusChange }) {
     const [updatingId, setUpdatingId] = useState(null)
     const selectRefs = useRef({})
     const [alert, setAlert] = useState({ show: false, type: 'success', message: '' })
@@ -58,7 +58,7 @@ export default function BookingTable({ bookings = [], loading = false, className
                 <table className='w-full min-w-[800px]'>
                     <thead className='bg-gray-100 text-gray-900'>
                         <tr className='text-xs text-gray-500 bg-gray-50'>
-                           
+                            <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>IMAGE</th>
                             <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>ID</th>
                             <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>NAME</th>
                             <th className='px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider opacity-90'>EMAIL</th>
@@ -82,7 +82,11 @@ export default function BookingTable({ bookings = [], loading = false, className
 
                             return (
                                 <tr key={id || i} className='hover:bg-gray-50 transition-colors border-b border-gray-300'>
-                               
+                                    <td className='px-6 py-4 whitespace-nowrap'>
+                                        <div className='h-12 w-16 rounded overflow-hidden bg-gray-100'>
+                                            <Image src={img} alt={prop} width={64} height={48} className='h-full w-full object-cover' unoptimized />
+                                        </div>
+                                    </td>
                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{id}</td>
                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{name}</td>
                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{email}</td>
@@ -108,9 +112,9 @@ export default function BookingTable({ bookings = [], loading = false, className
                                             <button onClick={() => onView && onView(b)} title='View' className='inline-flex items-center justify-center p-1 rounded text-gray-600 hover:bg-gray-100'>
                                                 <Eye className='h-4 w-4' />
                                             </button>
-                                            {/* Edit removed per request */}
-                                            <button onClick={() => onDelete && onDelete(b)} title='Delete' className='inline-flex items-center justify-center p-1 rounded text-red-600 hover:bg-red-50'>
-                                                <Trash2 className='h-4 w-4' />
+                                            {/* Cancel booking (update status to CANCELLED) */}
+                                            <button onClick={() => onCancel && onCancel(b)} title='Cancel Booking' className='inline-flex items-center justify-center p-1 rounded text-red-600 hover:bg-red-50'>
+                                                <X className='h-4 w-4' />
                                             </button>
                                         </div>
                                     </td>
@@ -120,7 +124,7 @@ export default function BookingTable({ bookings = [], loading = false, className
 
                         {bookings.length === 0 && (
                             <tr>
-                                <td colSpan={7} className='p-6 text-center text-sm text-gray-500'>No bookings found.</td>
+                                <td colSpan={8} className='p-6 text-center text-sm text-gray-500'>No bookings found.</td>
                             </tr>
                         )}
                     </tbody>
@@ -143,7 +147,9 @@ export default function BookingTable({ bookings = [], loading = false, className
                     return (
                         <div key={id || i} className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm'>
                             <div className='flex justify-between items-start gap-3'>
-                                 
+                                <div className='h-16 w-20 rounded overflow-hidden bg-gray-100 flex-shrink-0'>
+                                    <Image src={img} alt={prop} width={80} height={64} className='h-full w-full object-cover' unoptimized />
+                                </div>
                                 <div className='flex-1 min-w-0'>
                                     <div className='flex items-center justify-between gap-2'>
                                         <h3 className='text-sm font-semibold text-gray-900 truncate'>{name}</h3>
@@ -153,12 +159,12 @@ export default function BookingTable({ bookings = [], loading = false, className
                                     <p className='mt-2 text-xs text-gray-600'>{email} · {phone}</p>
                                     <p className='mt-2 text-xs text-gray-400 font-mono truncate text-ellipsis'>{id}</p>
                                 </div>
-                                    <div className='shrink-0 flex flex-col items-end gap-2'>
+                                <div className='shrink-0 flex flex-col items-end gap-2'>
                                     <button onClick={() => onView && onView(b)} title='View' className='p-2 rounded text-gray-600 hover:bg-gray-100'>
                                         <Eye className='h-4 w-4' />
                                     </button>
-                                    <button onClick={() => onDelete && onDelete(b)} title='Delete' className='p-2 rounded text-red-600 hover:bg-red-50'>
-                                        <Trash2 className='h-4 w-4' />
+                                    <button onClick={() => onCancel && onCancel(b)} title='Cancel Booking' className='p-2 rounded text-red-600 hover:bg-red-50'>
+                                        <X className='h-4 w-4' />
                                     </button>
                                 </div>
                             </div>

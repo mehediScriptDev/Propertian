@@ -44,6 +44,7 @@ export default function BuyPropertyCard({ property }) {
     state,                        // Need this to build 'location'
   } = property;
 
+
   // 2. Create derived / calculated fields
   const location = state ? `${city}, ${state}` : city || '';
   const priceUSD = priceXOF ? Math.round(Number(priceXOF) / 610) : 0; // Calculate USD from XOF

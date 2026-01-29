@@ -16,7 +16,8 @@ export default function PartnerDashboardLayout({ children }) {
   const { t } = useTranslation(locale);
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'partner')) {
+    // Sponsor dashboard allows either sponsor users or listing partners
+    if (!loading && (!user || (user.role !== 'sponsor' && user.role !== 'partner'))) {
       router.push(`/${locale}/login`);
     }
   }, [user, loading, router, locale]);
@@ -32,14 +33,14 @@ export default function PartnerDashboardLayout({ children }) {
     );
   }
 
-  if (!user || user.role !== 'partner') {
+  if (!user || (user.role !== 'sponsor' && user.role !== 'partner')) {
     return null;
   }
 
   return (
     <LanguageProvider initialLocale={locale}>
       <div className='flex h-screen bg-gray-50 overflow-hidden'>
-        <Sidebar role='partner' />
+        <Sidebar role='sponsor' />
         <div className='flex flex-1 flex-col lg:pl-64 overflow-hidden'>
           <DashboardHeader title={"Sponsor Partner"} />
           <main className='flex-1 overflow-y-auto p-4 sm:p-6'>{children}</main>

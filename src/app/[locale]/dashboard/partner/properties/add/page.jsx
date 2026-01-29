@@ -20,11 +20,7 @@ export default function PartnerAddPropertyPage({ params }) {
     rental: t('dashboard.partner.properties.add.rental') || 'Rental Information',
   };
 
-  // NOTE for integrators:
-  // This partner page passes `apiEndpoint={'/partner/properties'}` and `defaultVerified={false}`
-  // to the shared `AddPropertyForm`.
-  // When backend is ready, confirm the partner create endpoint and expected payload. If file uploads are required,
-  // either upload files first and pass returned URLs in the JSON payload, or switch to multipart POST here.
+
 
   return (
     <div className='space-y-4 md:space-y-6'>

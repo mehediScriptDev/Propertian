@@ -73,14 +73,17 @@ export default function RentPage() {
 
     filtered = filtered.filter((p) => (p.listingType || '').toUpperCase() === 'RENT');
 
-  
+    // only show approved listings
+    filtered = filtered.filter((p) => String(p.approvalStatus || '').toUpperCase() === 'APPROVED');
+
+
     if (filters.city && filters.city !== 'all') {
       filtered = filtered.filter((property) => {
         const propCity = property.city || '';
         return propCity.toLowerCase() === String(filters.city).toLowerCase();
       });
     }
- if (filters.bedrooms !== 'any') {
+    if (filters.bedrooms !== 'any') {
       if (filters.bedrooms === '3+') {
         filtered = filtered.filter((property) => (property.bedrooms || 0) >= 3);
       } else {
@@ -95,9 +98,9 @@ export default function RentPage() {
       filtered = filtered.filter((property) => property.duration === filters.duration);
     }
 
- 
+
     if (filters.verifiedOnly) {
-      
+
       filtered = filtered.filter((property) => property.isVerified || property.featured);
     }
 
@@ -162,7 +165,7 @@ export default function RentPage() {
         const props = data?.data?.properties || data?.properties || [];
 
         const normalized = props.map((p) => {
-         
+
           const rawPrice = p.price || p.priceXOF || 0;
           const priceXOF = Number(rawPrice) || 0;
 

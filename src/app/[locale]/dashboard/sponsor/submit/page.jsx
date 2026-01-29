@@ -21,15 +21,12 @@ export default function EventManagement({ params }) {
   const { locale } = use(params);
   const { t } = useTranslation(locale);
 
-  // State for filters and search
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  // Modal state for creating events
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-
-
-  // Events fetched from API
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -38,10 +35,30 @@ export default function EventManagement({ params }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get('/events');
-      // assume API returns { success, data }
-      const data = res?.data?.data ?? res?.data ?? [];
-      setEvents(Array.isArray(data) ? data : []);
+
+      const res = await axios.get('/events/my-events', {
+        params: {
+          page: 1,
+          limit: 10
+        }
+      });
+
+      const raw = res?.data;
+      let items = [];
+      if (Array.isArray(raw)) items = raw;
+      else if (Array.isArray(raw?.data)) items = raw.data;
+      else if (Array.isArray(raw?.data?.items)) items = raw.data.items;
+      else if (Array.isArray(raw?.items)) items = raw.items;
+      else items = [];
+
+      // normalize image field to `image` for EventTable
+      const normalized = items.map((ev) => ({
+        ...ev,
+        image: ev?.image || (Array.isArray(ev?.images) && ev.images[0]) || ev?.imageUrl || null,
+      }));
+
+      console.debug('fetchEvents -> items:', normalized.length, normalized.slice(0, 2));
+      setEvents(normalized);
     } catch (err) {
       setError(err?.response?.data?.message || err.message || 'Failed to load events');
     } finally {
@@ -166,11 +183,18 @@ export default function EventManagement({ params }) {
         </div>
       </div>
 
-      {/* Events Table (moved to EventTable component) */}
-      <EventTable events={filteredEvents} loading={loading} error={error} t={t} />
+      {/* Events Table */}
+      <EventTable
+        events={filteredEvents}
+        loading={loading}
+        error={error}
+        t={t}
+        // Pass callback to refresh data when deletion/edit happens in table
+        onDataChanged={fetchEvents}
+      />
 
       {/* Empty State */}
-      {filteredEvents.length === 0 && (
+      {filteredEvents.length === 0 && !loading && (
         <div className='rounded-lg bg-white p-12 shadow-sm'>
           <div className='flex flex-col items-center justify-center text-center'>
             <div className='rounded-full bg-gray-100 p-6'>

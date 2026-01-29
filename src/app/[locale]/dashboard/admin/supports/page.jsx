@@ -46,8 +46,6 @@ export default function AdminSupportsPage() {
 
     const totalItems = filtered.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-
-    // Ensure current page is within bounds after filters change
     if (currentPage > totalPages) {
         setCurrentPage(1);
     }
